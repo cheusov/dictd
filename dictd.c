@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.55 2002/10/28 11:20:21 cheusov Exp $
+ * $Id: dictd.c,v 1.56 2002/10/28 13:23:48 cheusov Exp $
  * 
  */
 
@@ -390,6 +390,79 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
    return pt;
 }
 
+static int init_virtual_db_list (const void *datum)
+{
+   lst_List list;
+   dictDatabase *db  = (dictDatabase *)datum;
+   dictDatabase *db2 = NULL;
+   dictWord *dw;
+   char *buf;
+   int ret;
+   char *p;
+   int len, i;
+   lst_Position db_pos;
+
+   list = lst_create();
+   ret = dict_search (
+      list, DICT_FLAG_VIRTUAL, db, DICT_EXACT,
+      NULL, NULL, NULL);
+
+   switch (ret){
+   case 1: case 2:
+      db -> virtual_db_list = lst_create ();
+
+      dw  = (dictWord *) lst_pop (list);
+      buf = dict_data_obtain (db, dw);
+      dict_destroy_datum (dw);
+
+      p   = buf;
+      len = strlen (buf);
+
+      for (i = 0; i <= len; ++i){
+	 if (buf [i] == '\n' || buf [i] == '\0'){
+	    buf [i] = '\0';
+
+	    if (*p){
+	       db_pos = lst_init_position (DictConfig->dbl);
+
+	       while (db_pos){
+		  db2 = lst_get_position (db_pos);
+
+		  if (!strcmp (db2 -> databaseName, p)){
+		     lst_append (db -> virtual_db_list, db2);
+		     break;
+		  }
+
+		  db_pos = lst_next_position (db_pos);
+	       }
+
+	       if (!db_pos){
+		  log_info( ":E: Unknown database '%s'\n", p );
+		  PRINTF(DBG_INIT, (":E: Unknown database '%s'\n", p));
+		  exit (2);
+	       }
+	    }
+
+	    p = buf + i + 1;
+	 }
+      }
+
+      xfree (buf);
+      break;
+   case 0:
+      break;
+   default:
+      err_fatal (
+	 __FUNCTION__,
+	 "index file contains more than one %s entry",
+	 DICT_FLAG_VIRTUAL);
+   }
+
+   dict_destroy_list (list);
+
+   return 0;
+}
+
 static int init_plugin( const void *datum )
 {
 #ifdef USE_PLUGIN
@@ -440,6 +513,8 @@ static int init_database( const void *datum )
 
    PRINTF(DBG_INIT,
 	  (":I: %s \"%s\" initialized\n",db->databaseName,db->databaseShort));
+
+   db -> virtual_db_list = NULL;
 
    return 0;
 }
@@ -506,6 +581,7 @@ static void dict_init_databases( dictConfig *c )
 {
    lst_iterate( c->dbl, init_database );
    lst_iterate( c->dbl, log_database_info );
+   lst_iterate( c->dbl, init_virtual_db_list );
    lst_iterate( c->dbl, init_plugin );
 }
 
@@ -516,6 +592,10 @@ static void dict_close_databases (dictConfig *c)
 
    while (lst_length (c -> dbl) > 0){
       db = (dictDatabase *) lst_pop (c -> dbl);
+
+      if (db -> virtual_db_list)
+	 lst_destroy (db -> virtual_db_list);
+
       close_plugin (db);
       close_database (db);
       xfree (db);
@@ -584,7 +664,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.55 2002/10/28 11:20:21 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.56 2002/10/28 13:23:48 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -820,7 +900,7 @@ static void dict_test (
 
    l = lst_create ();
 
-   count = dict_search_databases (l, database_arg, word, strategy);
+   count = dict_search_databases (l, NULL, database_arg, word, strategy);
 
    if (count > 0){
       dict_dump_defs (l);
@@ -1021,8 +1101,8 @@ int main( int argc, char **argv, char **envp )
 
    set_utf8_mode (locale);
    if (!setlocale(LC_ALL, locale)){
-	   fprintf (stderr, "ivalid locale '%s'\n", locale);
-	   exit (2);
+      fprintf (stderr, "invalid locale '%s'\n", locale);
+      exit (2);
    }
 
    time(&startTime);

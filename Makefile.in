@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.56 2002/10/14 07:01:29 cheusov Exp $
+# $Id: Makefile.in,v 1.57 2002/10/28 13:23:48 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -193,6 +193,7 @@ install.dictfmt: dictfmt dictfmt_index2word dictfmt_index2suffix dictfmt_plugin
 	$(INSTALL_PROGRAM) dictfmt $(bindir); \
 	$(INSTALL_SCRIPT) dictfmt_index2suffix $(bindir); \
 	$(INSTALL_SCRIPT) dictfmt_index2word $(bindir); \
+	$(INSTALL_SCRIPT) dictfmt_virtual $(bindir); \
 	$(INSTALL_DATA) dictfmt.1 $(man1_prefix)/dictfmt.1; \
 	test _$(USE_PLUGIN) = _1 && \
 	    $(INSTALL_SCRIPT) dictfmt_plugin $(bindir) || true
@@ -242,7 +243,8 @@ uninstall.dictd:
 uninstall.dictfmt:
 	rm -f $(bindir)/dictfmt $(man1_prefix)/dictfmt.1 \
 	$(bindir)/dictfmt_index2suffix \
-	$(bindir)/dictfmt_index2word; \
+	$(bindir)/dictfmt_index2word \
+	$(bindir)/dictfmt_virtual; \
 	test _$(USE_PLUGIN) = _1 && rm -f $(bindir)/dictfmt_plugin || true
 
 uninstall.includes:

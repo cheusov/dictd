@@ -1,0 +1,57 @@
+#!/bin/sh
+
+usage (){
+	cat <<EOF
+This program is intended to create DICTD database files
+representing virtual database.
+It creates a special entry 00-database-virtual
+Its "definition" is a newline-separated list of database names.
+
+usage:
+dictfmt_virtual [OPTIONS] --db-list <list> -s name dbbase [info_files...]
+ --help            displays this help
+ --db-list         comma-separated list of databases
+ -s <name>         name of the database
+
+Information about database is taken from 'info_files' or stdin.
+EOF
+}
+
+while test $# -ne 0; do
+	case $1 in
+		--help)
+			usage
+			exit 0;;
+		--db-list)
+			db_list=$2
+			shift;;
+		--db-list=*)
+			db_list=`echo $1 | cut -d = -f 2`;;
+		-s)
+			db_name=$2
+			shift;;
+		-s=*)
+			db_name=`echo $1 | cut -d = -f 2`;;
+		-*)
+			echo "invalid argument '$1'" 1>&2
+			echo "run '$0 --help' for help" 1>&2
+			exit 1;;
+		*)
+			break;;
+	esac
+	shift
+done
+
+if test "_$db_name" = "_" || test "_$db_list" = "_" || test $# -eq 0; then
+	usage
+	exit 2
+fi
+
+db_base=$1
+shift
+
+{
+	cat "$@"
+	echo -en '_____\n\n00-database-virtual\n'
+	echo $db_list | tr ',' '\n'
+} | dictfmt -c5 --without-headword -s "$db_name" "$db_base" 2>/dev/null 1>&2

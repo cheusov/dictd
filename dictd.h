@@ -57,6 +57,7 @@
 
 #define DICT_FLAG_UTF8           "00-database-utf8"
 #define DICT_FLAG_ALLCHARS       "00-database-allchars"
+#define DICT_FLAG_VIRTUAL        "00-database-virtual"
 
 #define DICT_DEFAULT_STRATEGY    DICT_LEVENSHTEIN
 
@@ -198,6 +199,8 @@ typedef struct dictDatabase {
    dictIndex  *index;
    dictIndex  *index_suffix;
    dictIndex  *index_word;
+
+   lst_List   *virtual_db_list;
 } dictDatabase;
 
 #define DICT_DENY     0
@@ -272,6 +275,7 @@ extern int         dict_search (
    int *extra_data_size);              /* may be NULL */
 extern int dict_search_databases (
    lst_List *l,
+   lst_Position db_pos,
    const char *databaseName, const char *word, int strategy);
 
 extern dictIndex  *dict_index_open(

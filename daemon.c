@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.42 2002/10/17 11:43:25 cheusov Exp $
+ * $Id: daemon.c,v 1.43 2002/10/28 13:23:48 cheusov Exp $
  * 
  */
 
@@ -39,7 +39,6 @@ static int          daemonS;
 static const char   *daemonHostname;
 static const char   *daemonIP;
 static int          daemonPort;
-static lst_Position databasePosition;
 static char         daemonStamp[256];
 static jmp_buf      env;
 static int          daemonMime;
@@ -736,7 +735,7 @@ static void daemon_define( const char *cmdline, int argc, char **argv )
    }
 
    matches = dict_search_databases (
-      list,
+      list, NULL,
       databaseName, word, DICT_EXACT);
 
    if (matches > 0) {
@@ -804,7 +803,7 @@ static void daemon_match( const char *cmdline, int argc, char **argv )
    }
 
    matches = dict_search_databases (
-      list,
+      list, NULL,
       databaseName, word, strategyNumber | DICT_MATCH_MASK);
 
    if (matches > 0) {
@@ -835,29 +834,33 @@ static void daemon_match( const char *cmdline, int argc, char **argv )
    daemon_ok( CODE_NO_MATCH, "no match", "c" );
 }
 
-static void reset_databases( void )
+static lst_Position first_database_pos (void)
 {
-   databasePosition = lst_init_position( DictConfig->dbl );
+   return lst_init_position (DictConfig->dbl);
 }
 
-static dictDatabase *next_database( const char *name )
+static dictDatabase *next_database (
+   lst_Position *databasePosition,
+   const char *name)
 {
    dictDatabase *db = NULL;
+
+   assert (databasePosition);
 
    if (!name) return NULL;
 
    if (*name == '*' || *name == '!') {
-      if (databasePosition) {
+      if (*databasePosition) {
 	 do {
-	    db = lst_get_position( databasePosition );
-	    databasePosition = lst_next_position( databasePosition );
+	    db = lst_get_position( *databasePosition );
+	    *databasePosition = lst_next_position( *databasePosition );
 	 } while (db && !db->available);
       }
       return db;
    } else {
-      while (databasePosition) {
-         db = lst_get_position( databasePosition );
-	 databasePosition = lst_next_position( databasePosition );
+      while (*databasePosition) {
+         db = lst_get_position( *databasePosition );
+	 *databasePosition = lst_next_position( *databasePosition );
          if (db && !strcmp(db->databaseName,name)) {
 	    if (db->available) return db;
 	    else               return NULL;
@@ -870,9 +873,10 @@ static dictDatabase *next_database( const char *name )
 static int count_databases( void )
 {
    int count = 0;
-   
-   reset_databases();
-   while (next_database("*"))
+
+   lst_Position databasePosition = first_database_pos ();
+
+   while (next_database (&databasePosition, "*"))
       ++count;
 
    return count;
@@ -880,6 +884,7 @@ static int count_databases( void )
 
 int dict_search_databases (
    lst_List *l,
+   lst_Position databasePosition, /* NULL for global database list */
    const char *databaseName, const char *word, int strategy)
 {
    int matches       = -1;
@@ -895,13 +900,23 @@ int dict_search_databases (
    const dictPluginData *extra_result;
    int                   extra_result_size;
 
+   if (!databasePosition)
+      databasePosition = first_database_pos ();
+
    preprocessed_words = lst_create ();
 
-   reset_databases();
-   while ((db = next_database (databaseName))) {
-      matches_count = dict_search (
-	 l, word, db, strategy,
-	 &result, &extra_result, &extra_result_size);
+   while ((db = next_database (&databasePosition, databaseName))) {
+      if (db -> virtual_db_list){
+	 assert (lst_init_position (db -> virtual_db_list));
+
+	 matches_count = dict_search_databases (
+	    l, lst_init_position (db -> virtual_db_list),
+	    "*", word, strategy);
+      }else{
+	 matches_count = dict_search (
+	    l, word, db, strategy,
+	    &result, &extra_result, &extra_result_size);
+      }
 
       if (matches < 0)
 	 matches = 0;
@@ -960,6 +975,8 @@ static void daemon_show_db( const char *cmdline, int argc, char **argv )
    int          count;
    dictDatabase *db;
    
+   lst_Position databasePosition;
+
    if (argc != 2) {
       daemon_printf( "%d syntax error, illegal parameters\n",
 		     CODE_ILLEGAL_PARAM );
@@ -971,9 +988,11 @@ static void daemon_show_db( const char *cmdline, int argc, char **argv )
    } else {
       daemon_printf( "%d %d databases present\n",
 		     CODE_DATABASE_LIST, count );
-      reset_databases();
+
+      databasePosition = first_database_pos ();
+
       daemon_mime();
-      while ((db = next_database("*"))) {
+      while ((db = next_database(&databasePosition, "*"))) {
 	 daemon_printf( "%s \"%s\"\n",
 			db->databaseName, db->databaseShort );
       }
@@ -1023,6 +1042,8 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
    dictDatabase *db;
    lst_List     list;
    
+   lst_Position databasePosition = first_database_pos ();
+
    if (argc != 3) {
       daemon_printf( "%d syntax error, illegal parameters\n",
 		     CODE_ILLEGAL_PARAM );
@@ -1036,8 +1057,7 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
    }
 
    list = lst_create();
-   reset_databases();
-   while ((db = next_database( argv[2] ))) {
+   while ((db = next_database(&databasePosition, argv[2] ))) {
       if (dict_search (
 	 list,
 	 db->databaseInfoPointer ?
@@ -1079,6 +1099,8 @@ static void daemon_show_server( const char *cmdline, int argc, char **argv )
    dictDatabase  *db;
    double        uptime;
    
+   lst_Position databasePosition = first_database_pos ();
+
    tim_stop("dictd");
    uptime = tim_get_real("dictd");
    
@@ -1095,8 +1117,7 @@ static void daemon_show_server( const char *cmdline, int argc, char **argv )
    if (count_databases()) {
       daemon_printf( "\nDatabase      Headwords         Index"
 		     "          Data  Uncompressed\n" );
-      reset_databases();
-      while ((db = next_database("*"))) {
+      while ((db = next_database (&databasePosition, "*"))) {
 	 daemon_printf( "%-12.12s %10lu %10lu %cB %10lu %cB %10lu %cB\n",
 			db->databaseName,
 			db->index->headwords,
