@@ -41,7 +41,6 @@ done
 
 if echo $arg_locale | egrep -i 'utf-?8' >/dev/null 2>&1; then
 	utf8_mode=1
-	arg_locale=C
 	export utf8_mode
 fi
 
@@ -49,12 +48,21 @@ export arg_locale
 
 #echo $arg_locale
 #echo $utf8_mode
+if test $BASH; then
+	exit_="echo \${PIPESTATUS[@]} | egrep '^0( 0)*$' >/dev/null"
+else
+	exit_='exit $?'
+fi
 
-gawk --posix -v "utf8_mode=$utf8_mode" '
+gawk -v "locale=$arg_locale" -v "utf8_mode=$utf8_mode" '
 BEGIN {
 	FS = OFS = "\t"
 	offset = 0
 	b64_list="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+}
+locale == "C" && $1 ~ /[\x80-\xff]/ {
+	print "8-bit head word is encountered while \"C\" locale is used" > "/dev/stderr"
+	exit 4
 }
 {
 	size = length($0)
@@ -112,3 +120,5 @@ else
 	export LC_ALL
 	sort -df
 fi | uniq
+
+eval $exit_
