@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: data.c,v 1.21 2003/03/19 16:43:14 cheusov Exp $
+ * $Id: data.c,v 1.22 2003/03/24 11:23:20 cheusov Exp $
  * 
  */
 
@@ -129,7 +129,7 @@ static int dict_read_header( const char *filename,
       si1                  = getc( str );
       si2                  = getc( str );
       
-      if (si1 == GZ_RND_S1 || si2 == GZ_RND_S2) {
+      if (si1 == GZ_RND_S1 && si2 == GZ_RND_S2) {
 	 subLength            = getc( str ) << 0;
 	 subLength           |= getc( str ) << 8;
 	 header->version      = getc( str ) << 0;
@@ -163,8 +163,16 @@ static int dict_read_header( const char *filename,
    
    if (header->flags & GZ_FNAME) { /* FIXME! Add checking against header len */
       pt = buffer;
-      while ((c = getc( str )) && c != EOF)
+      while ((c = getc( str )) && c != EOF){
 	 *pt++ = c;
+
+	 if (pt == buffer + sizeof (buffer)){
+	    err_fatal (
+	       __FUNCTION__,
+	       "too long FNAME field in dzip file \"%s\"\n", filename);
+	 }
+      }
+
       *pt = '\0';
       header->origFilename = str_find( buffer );
       header->headerLength += strlen( header->origFilename ) + 1;
@@ -174,8 +182,16 @@ static int dict_read_header( const char *filename,
    
    if (header->flags & GZ_COMMENT) { /* FIXME! Add checking for header len */
       pt = buffer;
-      while ((c = getc( str )) && c != EOF)
+      while ((c = getc( str )) && c != EOF){
 	 *pt++ = c;
+
+	 if (pt == buffer + sizeof (buffer)){
+	    err_fatal (
+	       __FUNCTION__,
+	       "too long COMMENT field in dzip file \"%s\"\n", filename);
+	 }
+      }
+
       *pt = '\0';
       header->comment = str_find( buffer );
       header->headerLength += strlen( header->comment ) + 1;
@@ -210,7 +226,8 @@ static int dict_read_header( const char *filename,
 			      * header->chunkCount );
    for (offset = header->headerLength + 1, i = 0;
 	i < header->chunkCount;
-	i++) {
+	i++)
+   {
       header->offsets[i] = offset;
       offset += header->chunks[i];
    }
