@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.27 2002/10/28 13:23:48 cheusov Exp $
+dnl $Id: configure.in,v 1.28 2002/12/10 14:06:22 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -31,16 +31,22 @@ dnl     XCFLAGS and XLDFLAGS are for X11
 dnl     YCFLAGS is for yacc
 dnl     LCFLAGS is for lex
 
+
+define(VERSION, 1.9.0)
+
+
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.27 $)
-AC_INIT
+AC_REVISION($Revision: 1.28 $)
+
+AC_INIT(dict, VERSION, "dict-beta@dict.org")
+
 AC_CONFIG_SRCDIR([dictd.c])
 AC_CONFIG_HEADER(config.h)
 
-DICT_VERSION=1.8.0
-
 echo Configuring for dict
 echo .
+
+DICT_VERSION=VERSION
 
 AC_ARG_WITH(cc,
 [  --with-cc               with cc (instead of gcc)],
