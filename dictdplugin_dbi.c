@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_dbi.c,v 1.3 2004/03/24 09:17:45 cheusov Exp $
+ * $Id: dictdplugin_dbi.c,v 1.4 2004/05/14 12:52:33 cheusov Exp $
  * 
  */
 
@@ -609,7 +609,7 @@ static int copy_sqlres (
       number_of_rows * sizeof (dict_data -> m_mres [0]));
 
    dict_data -> m_mres_count = number_of_rows;
-   dict_data -> m_mres_sizes = alloc_minus1_array (number_of_rows);
+   dict_data -> m_mres_sizes = (int *) alloc_minus1_array (number_of_rows);
 
    num = 0;
    while (dbi_result_next_row (result)) {
