@@ -14,8 +14,8 @@ if test -z "$DICTL_CHARSET"; then
 fi
 
 if test -z "$DICTL_PAGER"; then
-    if test -r ~/.dictrc; then
-	DICTL_PAGER=`awk '$1 == "pager" {print $2}' < ~/.dictrc`
+    if test -r "$HOME/.dictrc"; then
+	DICTL_PAGER=`awk '$1 == "pager" {print $2}' < "$HOME/.dictrc"`
 	if test -z "$DICTL_PAGER" && test -r "$sysconfdir/dict.conf"; then
 	    DICTL_PAGER=`awk '$1 == "pager" {print $2}' < $sysconfdir/dict.conf`
 	fi
