@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.7 2003/08/08 18:42:19 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.8 2003/08/08 18:48:22 cheusov Exp $
  * 
  */
 
@@ -1274,6 +1274,11 @@ static int match_word (
 
    char buf [BUFSIZE];
    char *p;
+
+   if (sizeof (prefix_re) + sizeof (suffix_re) + 3 * strlen (word) > BUFSIZE){
+      /* too long word */
+      return 0;
+   }
 
    strcpy (buf, prefix_re);
 
