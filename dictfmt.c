@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.56 2005/03/31 10:33:04 cheusov Exp $
+ * $Id: dictfmt.c,v 1.57 2005/04/01 11:20:52 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -772,7 +772,7 @@ static void fmt_headword_for_MIME_header (void)
    if (!mime_header)
       return;
 
-   fmt_maxpos = 0; /* no wrap for this special headword */
+   fmt_maxpos = INT_MAX; /* no wrap for this special headword */
 
    fmt_newheadword ("00-database-mime-header");
    fmt_string (mime_header);
