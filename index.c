@@ -1,6 +1,6 @@
 /* index.c -- 
  * Created: Wed Oct  9 14:52:23 1996 by faith@cs.unc.edu
- * Revised: Mon Mar 10 23:22:08 1997 by faith@cs.unc.edu
+ * Revised: Tue Mar 11 16:38:19 1997 by faith@cs.unc.edu
  * Copyright 1996, 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.7 1997/03/11 04:31:39 faith Exp $
+ * $Id: index.c,v 1.8 1997/03/12 01:14:15 faith Exp $
  * 
  */
 
@@ -337,16 +337,16 @@ static lst_List dict_search_regexpr( const char *word,
 
    start = database->index->start;
    end = database->index->end;
-   
+
 #if OPTSTART
-   if (word[0] == '^') {
+   if (*word == '^' && (word[1] == ' ' || isalnum(word[1]))) {
       first = word[1];
       end   = database->index->optStart[first+1];
       start = database->index->optStart[first];
       if (end < start) end = database->index->end;
    }
 #endif
-   
+
    if ((err = regcomp(&re, word, REG_ICASE|REG_NOSUB))) {
       regerror(err, &re, erbuf, sizeof(erbuf));
       log_info( "regcomp(%s): %s\n", word, erbuf );

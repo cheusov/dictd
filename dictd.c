@@ -1,19 +1,20 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Mon Mar 10 22:36:33 1997 by faith@cs.unc.edu
+ * Revised: Tue Mar 11 16:24:03 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.9 1997/03/11 04:31:38 faith Exp $
+ * $Id: dictd.c,v 1.10 1997/03/12 01:14:14 faith Exp $
  * 
  */
 
 #include "dictd.h"
 #include "servparse.h"
 
-extern int yy_flex_debug;
-extern int _dict_comparisons;
-dictConfig *DictConfig;
+extern int        yy_flex_debug;
+extern int        _dict_comparisons;
+static int        masterSocket;
+       dictConfig *DictConfig;
 
 static void reaper( int dummy )
 {
@@ -42,6 +43,7 @@ static void handler( int sig )
       log_info( "Caught %s, exiting\n", name );
    else
       log_info( "Caught signal %d, exiting\n", sig );
+   close(masterSocket);
    exit(sig+128);
 }
 
@@ -186,7 +188,7 @@ static const char *id_string( const char *id )
 const char *dict_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dictd.c,v 1.9 1997/03/11 04:31:38 faith Exp $";
+   const char        *id = "$Id: dictd.c,v 1.10 1997/03/12 01:14:14 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -250,7 +252,6 @@ static void help( void )
 
 int main( int argc, char **argv )
 {
-   int                masterSocket;
    int                childSocket;
    struct sockaddr_in csin;
    int                alen        = sizeof(csin);
@@ -381,9 +382,9 @@ int main( int argc, char **argv )
 
    if (detach) net_detach();
 
-   if (logFile)   log_file( logFile, "dictd" );
+   if (logFile)   log_file( "dictd", logFile );
    if (useSyslog) log_syslog( "dictd", 0 );
-   if (!detach)   log_stream( stderr, "dictd" );
+   if (!detach)   log_stream( "dictd", stderr );
    
    log_info("Starting\n");
    

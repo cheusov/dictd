@@ -1,6 +1,6 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@cs.unc.edu
- * Revised: Mon Mar 10 23:11:13 1997 by faith@cs.unc.edu
+ * Revised: Tue Mar 11 16:03:08 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.7 1997/03/11 04:31:37 faith Exp $
+ * $Id: daemon.c,v 1.8 1997/03/12 01:14:12 faith Exp $
  * 
  */
 
@@ -117,10 +117,17 @@ static void daemon_write( const char *buf, int len )
 #else
 	 if (count > 0 || errno == EAGAIN) continue;
 #endif
+#if HAVE_STRERROR
 	 log_error( __FUNCTION__,
 		    "Error writing %d of %d bytes:"
 		    " retval = %d, errno = %d (%s)\n",
 		    left, len, count, errno, strerror(errno) );
+#else
+	 log_error( __FUNCTION__,
+		    "Error writing %d of %d bytes:"
+		    " retval = %d, errno = %d\n",
+		    left, len, count, errno );
+#endif
 	 daemon_terminate( __FUNCTION__ );
       }
       left -= count;
@@ -172,14 +179,14 @@ static void daemon_status( void )
    char   buf[1024];
    int    len;
 
-   tim_stop( "daemon" );
+   tim_stop( "c" );
    time(&t);
 
    sprintf(buf,
 	   "status %0.3fr %0.3fu %0.3fs (%24.24s)\n",
-	   tim_get_real( "daemon" ),
-	   tim_get_user( "daemon" ),
-	   tim_get_system( "daemon" ),
+	   tim_get_real( "c" ),
+	   tim_get_user( "c" ),
+	   tim_get_system( "c" ),
 	   ctime(&t));
    len = strlen( buf );
    daemon_write(buf, len);
@@ -189,11 +196,12 @@ static int daemon_quit( void )
 {
    daemon_status();
    close(daemonS);
+   tim_stop( "t" );
    daemon_log( "quit %d %0.3fr %0.3fu %0.3fs\n",
 	       totalMatches,
-	       tim_get_real( "daemon" ),
-	       tim_get_user( "daemon" ),
-	       tim_get_system( "daemon" ) );
+	       tim_get_real( "t" ),
+	       tim_get_user( "t" ),
+	       tim_get_system( "t" ) );
    return 0;
 }
 
@@ -408,12 +416,13 @@ int dict_daemon( int s, struct sockaddr_in *csin )
    daemonHostname = hostname;
    daemonPort     = port;
    
-   tim_start( "daemon" );
+   tim_start( "t" );
    daemon_log( "connected\n" );
 
    daemon_banner();
 
    while ((count = daemon_read( buf, 4000 )) >= 0) {
+      tim_start( "c" );
       if (!count) {
 	 daemon_status();
 	 continue;
@@ -440,11 +449,11 @@ int dict_daemon( int s, struct sockaddr_in *csin )
       }
       arg_destroy(cmdline);
    }
-   tim_stop( "daemon" );
+   tim_stop( "t" );
    daemon_log( "disconnect %d %0.3fr %0.3fu %0.3fs\n",
 	       totalMatches,
-	       tim_get_real( "daemon" ),
-	       tim_get_user( "daemon" ),
-	       tim_get_system( "daemon" ) );
+	       tim_get_real( "t" ),
+	       tim_get_user( "t" ),
+	       tim_get_system( "t" ) );
    return 0;
 }

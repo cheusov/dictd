@@ -1,6 +1,6 @@
 /* decl.h -- Declarations for non-ANSI hosts
  * Created: Sun Nov 19 14:04:27 1995 by faith@cs.unc.edu
- * Revised: Sat Mar  8 17:02:57 1997 by faith@cs.unc.edu
+ * Revised: Tue Mar 11 11:13:32 1997 by faith@cs.unc.edu
  * Copyright 1995, 1996 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: decl.h,v 1.2 1997/03/08 22:09:34 faith Exp $
+ * $Id: decl.h,v 1.3 1997/03/12 01:14:13 faith Exp $
  * 
  */
 
@@ -74,6 +74,8 @@ extern int    socket( int, int, int );
 extern int    bind( int, struct sockaddr *, int );
 extern int    listen( int, int );
 extern int    wait3( union wait *, int, struct rusage * );
+extern int    getdtablesize( void );
+extern int    ioctl( int, int, caddr_t );
 extern caddr_t mmap( caddr_t, size_t, int, int, int, off_t );
 extern int     munmap( caddr_t, int );
 #endif

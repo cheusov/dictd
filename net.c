@@ -1,10 +1,10 @@
 /* net.c -- 
  * Created: Fri Feb 21 20:58:10 1997 by faith@cs.unc.edu
- * Revised: Mon Mar 10 21:19:13 1997 by faith@cs.unc.edu
+ * Revised: Tue Mar 11 11:28:46 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: net.c,v 1.5 1997/03/11 04:31:40 faith Exp $
+ * $Id: net.c,v 1.6 1997/03/12 01:14:15 faith Exp $
  * 
  */
 
@@ -84,7 +84,7 @@ void net_detach( void )
    ioctl(fd, TIOCNOTTY, 0);
    close(fd);
    chdir("/");		/* cd to safe directory */
-   umask(027);		/* set safe umask */
+   umask(0);		/* set safe umask */
    setpgid(0,getpid());	/* Get process group */
    fd = open("/dev/null", O_RDWR); /* stdin */
    dup(fd);			      /* stdout */
