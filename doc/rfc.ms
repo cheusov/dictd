@@ -1,8 +1,8 @@
 .\"
-.\" Revised: Mon Jun  9 08:25:56 1997 by faith@acm.org
+.\" Revised: Fri Jun 27 22:02:48 1997 by faith@acm.org
 .\" Distribution of this memo is unlimited.
 .\"
-.\" $Id: rfc.ms,v 1.12 1997/06/11 01:54:42 faith Exp $
+.\" $Id: rfc.ms,v 1.13 1997/06/28 02:03:49 faith Exp $
 .\" 
 .pl 10.0i
 .po 0
@@ -11,7 +11,7 @@
 .nr LL 7.2i
 .nr LT 7.2i
 .ds LF Faith, Martin
-.ds DA 26 May 1997
+.ds DA 27 June 1997
 .ds RF FORMFEED[Page %]
 .ds CF
 .ds LH RFC Unassigned
@@ -132,9 +132,9 @@ functions.
 Lexical Tokens
 .RS
 
-Commands and replies are composed of characters from the US-ASCII
-character set [ASCII].  More specifically, using the grammar
-conventions from [RFC822]:
+Commands and replies are composed of characters from the ISO-8859-1
+character set [ISO].  More specifically, using the grammar conventions
+from [RFC822]:
 
 .DS
                                             ; (  Octal, Decimal.)
@@ -473,7 +473,7 @@ A Note on Virtual Datbases
 .RS
 
 The ability to search all of the provided databases using a single
-command is given using the "*" and "!" wildcards.
+command is given using the special "*" and "!" databases.
 
 However, sometimes, a client may want to search over some but not all
 of the databases that a particular server provides.  One alternative
@@ -487,11 +487,14 @@ Another alternative is for the server to provide "virtual" databases
 which merge several of the regular databases into one.  For example, a
 virtual database may be provided which includes all of the translating
 dictionaries, but which does not include regular dictionaries or
-thesauri.  The "*" and "!" wildcard databases can be considered as
+thesauri.  The special "*" and "!" databases can be considered as
 names of virtual databases which provide access to all of the
-databases.  If a server implements virtual databases, then the "*" and
-"!" wildcards should probably exclude other virtual databases (since
-they merely provide information duplicated in other databases).
+databases.  If a server implements virtual databases, then the special
+"*" and "!" databases should probably exclude other virtual databases
+(since they merely provide information duplicated in other databases).
+If virtual databases are supported, they should be listed as a regular
+database with the SHOW DB command (although, since "*" and "!" are
+required, they need not be listed).
 
 Virtual databases are an implementation-specific detail which has
 absolutely no impact on the DICT protocol.  The DICT protocol views
@@ -996,33 +999,35 @@ See [RFC1738] for the specification of Uniform Resource Locators.
 .NH 1
 Summary of Response Codes
 .RS
+Below is a summary of response codes.  A star (*) in the first column
+indicates the response has defined arguments that must be provided.
 .DS
-110 n databases present - text follows
-111 n strategies available - text follows
-112 database information follows
-113 help text follows
-114 server information follows
-150 n definitions retrieved - definitions follow
-151 word database name - text follows
-152 n matches found - text follows
-210 (optional timing and statistical information here)
-220 text msg-id
-221 Closing Connection
-230 Authentication successful
-250 ok (optional timing information here)
-420 Server temporarily unavailable
-421 Server shutting down at operator request
-500 Syntax error, command not recognized
-501 Syntax error, illegal parameters
-502 Command not implemented
-503 Command parameter not implemented
-530 Access denied
-531 Access denied, use "SHOW INFO" for server information
-550 Invalid database, use "SHOW DB" for list of databases
-551 Invalid strategy, use "SHOW STRAT" for a list of strategies
-552 No match
-554 No databases present
-555 No strategies available
+* 110 n databases present - text follows
+* 111 n strategies available - text follows
+  112 database information follows
+  113 help text follows
+  114 server information follows
+* 150 n definitions retrieved - definitions follow
+* 151 word database name - text follows
+* 152 n matches found - text follows
+  210 (optional timing and statistical information here)
+* 220 text msg-id
+  221 Closing Connection
+  230 Authentication successful
+  250 ok (optional timing information here)
+  420 Server temporarily unavailable
+  421 Server shutting down at operator request
+  500 Syntax error, command not recognized
+  501 Syntax error, illegal parameters
+  502 Command not implemented
+  503 Command parameter not implemented
+  530 Access denied
+  531 Access denied, use "SHOW INFO" for server information
+  550 Invalid database, use "SHOW DB" for list of databases
+  551 Invalid strategy, use "SHOW STRAT" for a list of strategies
+  552 No match
+  554 No databases present
+  555 No strategies available
 .DE
 
 
@@ -1060,6 +1065,18 @@ S: 250 Command complete
 .DE
 
 .DS I 0
+C: DEFINE ! penguin
+
+S: 150 1 definitions found: list follows
+S: 151 "penguin" wn "WordNet 1.5" : definition text follows
+S: penguin
+S:   1. n: short-legged flightless birds of cold southern esp. Antarctic
+S:      regions having webbed feet and wings modified as flippers
+S: .
+S: 250 Command complete
+.DE
+
+.DS I 0
 C: DEFINE * shortcacke
 
 S: 150 2 definitions found: list follows
@@ -1083,25 +1100,6 @@ S: 250 Command complete
 C: DEFINE abcdefgh
 
 S: 552 No match
-.DE
-
-.DS I 0
-C: DEFINE ! Sun
-
-S: 150 2 definitions found: list follows
-S: 151 "Sun" wn "WordNet 1.5" : definition text follows
-S: Sun
-S:   1. n: the star that is the source of light and heat for the
-S:      planets in the solar system
-S: .
-S: 151 "sun" wn "WordNet 1.5" : definition text follows
-S: sun
-S:   1. n: any star around which a planetary system evolves
-S:   2. n: a person considered as a source of warmth or energy
-S:      or glory etc
-S:   3. v: expose to as if to sun rays
-S: .
-S: 250 Command complete
 .DE
 
 .DS I 0
