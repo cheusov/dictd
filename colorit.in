@@ -66,7 +66,7 @@ if test "_$pager" = "_-"; then
 fi
 
 convert_files_to_stdout (){
-    awk -v config_file="$config_file" '
+    gawk -v config_file="$config_file" '
     BEGIN {
 	for (i=1; i <= ARGC; ++i){
 	    if (ARGV [i] == "--help"){
@@ -101,24 +101,37 @@ convert_files_to_stdout (){
 	return s
     }
 
-    function process_config_mark (){
-	mark_re  [mark_count] = $2
-	mark_beg [mark_count] = do_esc($3)
-	mark_end [mark_count] = do_esc($4)
+    function do_unquote (s) {
+	if (s ~ /^".*"$/ || s ~ /^`.*`$/){
+	    return substr(s, 2, length(s)-2)
+	}else{
+	    return s
+	}
+    }
 
-	++mark_count
+    function process_config_mark (       ok, arr){
+	ok = match($0, /mark +("[^"]+"|`[^`]+`|[^ ]+) +("[^"]+"|`[^`]+`|[^ ]+) +("[^"]+"|`[^`]+`|[^ ]+) *$/, arr)
+
+	if (ok){
+	    mark_re  [mark_count] = do_unquote(arr [1])
+	    mark_beg [mark_count] = do_esc(do_unquote(arr [2]))
+	    mark_end [mark_count] = do_esc(do_unquote(arr [3]))
+
+	    ++mark_count
+	    return 1
+	}else{
+	    return 0
+	}
     }
 
     function process_config (){
-	pipe = "cpp <\"" config_file "\""
+	pipe = "m4 <\"" config_file "\""
 
 	while (0 < (ret = (pipe | getline))){
 	    if ($1 == "mark"){
-		if (NF != 4){
+		if (!process_config_mark()){
 		    print "missing arguments to `mark` at line:\n`" $0 "`" > "/dev/stderr"
 		    exit 1
-		}else{
-		    process_config_mark()
 		}
 	    }
 	}
