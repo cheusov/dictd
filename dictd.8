@@ -661,7 +661,8 @@ Makes dictionary invisible to the clients i.e. this dictionary
 will not be recognized or shown by DEFINE, MATCH, SHOW INFO, SHOW SERVER and
 SHOW DB commands. If some definitions or matches are found in invisible
 dictionary,
-the name of the upper visible virtual dictionary or '*' is returned.
+the name of the upper visible virtual dictionary is returned.
+Dictionaries '*' and '!' don't include invisible ones.
 .B NOTE:
 There is no sense to make dictionary invisible unless it is included
 to the virtual dictionary.
