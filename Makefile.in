@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.102 2004/10/12 14:39:03 cheusov Exp $
+# $Id: Makefile.in,v 1.103 2004/12/13 19:12:55 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -90,7 +90,8 @@ all: $(EXES) $(LIBRARIES)
 
 ifdef USE_PLUGIN
 
-PLUGINS := dictdplugin_man.so
+PLUGINS := 
+#dictdplugin_man.so
 
 ifdef JUDYLIB
 PLUGINS := $(PLUGINS) dictdplugin_judy.so
