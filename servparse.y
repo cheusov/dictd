@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.13 2003/01/16 19:26:42 hilliard Exp $
+ * $Id: servparse.y,v 1.14 2003/02/21 20:41:15 cheusov Exp $
  * 
  */
 
@@ -49,8 +49,9 @@ static dictDatabase *db;
 %token <token> T_INDEX T_INDEX_SUFFIX T_INDEX_WORD
 %token <token> T_FILTER T_PREFILTER T_POSTFILTER T_NAME
 %token <token> T_USER T_AUTHONLY T_SITE T_DATABASE_EXIT
+%token <token> T_STRING
+%token <token> T_INVISIBLE
 
-%token <token>  T_STRING
 %type  <token>  Site
 %type  <access> AccessSpec
 %type  <db>     Database
@@ -196,5 +197,6 @@ Spec : T_DATA T_STRING              { SET(dataFilename,$1,$2); }
      | T_PREFILTER T_STRING  { SET(prefilter,$1,$2); }
      | T_POSTFILTER T_STRING { SET(postfilter,$1,$2); }
      | T_NAME T_STRING       { SET(databaseShort,$1,$2); }
+     | T_INVISIBLE           { db->invisible = 1; }
      | Access                { db->acl = $1; }
      ;

@@ -213,6 +213,8 @@ typedef struct dictDatabase {
    dictIndex  *index_word;
 
    lst_List   *virtual_db_list;
+
+   int        invisible; /* non-zero if database is not visible for clients */
 } dictDatabase;
 
 #define DICT_DENY     0
@@ -243,7 +245,7 @@ typedef struct dictWord {
    unsigned long start;
    unsigned long end;
 
-/* Used for plugins */
+/* Used by plugins */
    const char    *def;
    int            def_size;
 } dictWord;

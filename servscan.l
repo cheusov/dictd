@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servscan.l,v 1.16 2003/02/20 19:35:37 cheusov Exp $
+ * $Id: servscan.l,v 1.17 2003/02/21 20:41:15 cheusov Exp $
  * 
  */
 
@@ -67,6 +67,7 @@ name                        RETURN(T_NAME);
 user                        RETURN(T_USER);
 authonly                    RETURN(T_AUTHONLY);
 site                        RETURN(T_SITE);
+invisible                   RETURN(T_INVISIBLE);
 {word}                      { yylval.token.string = str_findn(yytext, yyleng);
                               RETURN(T_STRING);
                             }

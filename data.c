@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: data.c,v 1.17 2003/01/03 19:43:36 cheusov Exp $
+ * $Id: data.c,v 1.18 2003/02/21 20:41:15 cheusov Exp $
  * 
  */
 
@@ -257,7 +257,7 @@ dictData *dict_data_open( const char *filename, int computeCRC )
       if ((void *)h->start == (void *)(-1))
 	 err_fatal_errno(
 	    __FUNCTION__,
-	    "Cannot mmap data file \"%s\"\b", filename );
+	    "Cannot mmap data file \"%s\"\n", filename );
 #else
       err_fatal (__FUNCTION__, "This should not happen");
 #endif
@@ -266,7 +266,7 @@ dictData *dict_data_open( const char *filename, int computeCRC )
       if (-1 == read (h->fd, (char *) h->start, h->size))
 	 err_fatal_errno (
 	    __FUNCTION__,
-	    "Cannot read data file \"%s\"\b", filename );
+	    "Cannot read data file \"%s\"\n", filename );
 
       close (h -> fd);
       h -> fd = 0;

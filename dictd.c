@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.66 2003/02/10 19:24:25 cheusov Exp $
+ * $Id: dictd.c,v 1.67 2003/02/21 20:41:15 cheusov Exp $
  * 
  */
 
@@ -653,8 +653,35 @@ static void dict_ltdl_close ()
 #endif
 }
 
+/*
+  Makes dictionary_exit db invisible if it is the last visible one
+ */
+static void make_dictexit_invisible (dictConfig *c)
+{
+   lst_Position p;
+   dictDatabase *db;
+   dictDatabase *db_exit = NULL;
+
+   LST_ITERATE(c -> dbl, p, db) {
+      if (!db -> invisible){
+	 if (db_exit)
+	    db_exit -> invisible = 0;
+
+	 db_exit = NULL;
+      }
+
+      if (!db -> dataFilename){
+	 /* exit db */
+	 db_exit = db;
+	 db_exit -> invisible = 1;
+      }
+   }
+}
+
 static void dict_init_databases( dictConfig *c )
 {
+   make_dictexit_invisible (c);
+
    lst_iterate( c->dbl, init_database );
    lst_iterate( c->dbl, log_database_info );
    lst_iterate( c->dbl, init_virtual_db_list );
@@ -747,7 +774,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.66 2003/02/10 19:24:25 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.67 2003/02/21 20:41:15 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;

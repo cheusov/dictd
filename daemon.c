@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.48 2003/01/19 17:26:44 cheusov Exp $
+ * $Id: daemon.c,v 1.49 2003/02/21 20:41:14 cheusov Exp $
  * 
  */
 
@@ -653,11 +653,13 @@ static void daemon_dump_defs( lst_List list )
 
       buf = dict_data_obtain ( db, dw );
 
-      daemon_printf( "%d \"%s\" %s \"%s\"\n",
-		     CODE_DEFINITION_FOLLOWS,
-		     dw->word,
-		     db->databaseName,
-		     db->databaseShort );
+      daemon_printf (
+	  "%d \"%s\" %s \"%s\"\n",
+	  CODE_DEFINITION_FOLLOWS,
+	  dw->word,
+	  db->invisible ? "*" : db->databaseName,
+	  db->invisible ? ""  : db->databaseShort);
+
       daemon_mime();
       daemon_text(buf);
       xfree( buf );
@@ -690,16 +692,22 @@ static void daemon_dump_matches( lst_List list )
    dictWord     *dw;
    const char   *prevword     = NULL;
    const dictDatabase *prevdb = NULL;
+   const dictDatabase *db     = NULL;
 
    daemon_mime();
    LST_ITERATE(list,p,dw) {
+      db = dw -> database;
+
       if (prevdb == dw->database && prevword && !strcmp(prevword,dw->word))
 	  continue;
 
       prevword = dw->word;
       prevdb   = dw->database;
 
-      daemon_printf( "%s \"%s\"\n", dw->database->databaseName, dw->word );
+      daemon_printf (
+	  "%s \"%s\"\n",
+	  db -> invisible ? "*" : db -> databaseName,
+	  dw -> word );
    }
    daemon_printf( ".\n" );
 }
@@ -861,7 +869,8 @@ static dictDatabase *next_database (
 
    assert (databasePosition);
 
-   if (!name) return NULL;
+   if (!name)
+      return NULL;
 
    if (*name == '*' || *name == '!') {
       if (*databasePosition) {
@@ -875,9 +884,11 @@ static dictDatabase *next_database (
       while (*databasePosition) {
          db = lst_get_position( *databasePosition );
 	 *databasePosition = lst_next_position( *databasePosition );
-         if (db && !strcmp(db->databaseName,name)) {
-	    if (db->available) return db;
-	    else               return NULL;
+         if (db && !strcmp(db -> databaseName,name) && !db -> invisible) {
+	    if (db->available)
+	       return db;
+	    else
+               return NULL;
 	 }
       }
       return NULL;
@@ -887,11 +898,15 @@ static dictDatabase *next_database (
 static int count_databases( void )
 {
    int count = 0;
+   const dictDatabase *db;
 
    lst_Position databasePosition = first_database_pos ();
 
-   while (next_database (&databasePosition, "*"))
-      ++count;
+   while (NULL != (db = next_database (&databasePosition, "*"))){
+      if (!db->invisible){
+	 ++count;
+      }
+   }
 
    return count;
 }
@@ -918,7 +933,7 @@ int dict_search_databases (
    int mc;
    int error         = 0;
 
-   dictDatabase *db;
+   const dictDatabase *db;
    dictWord *dw;
    char *p;
 
@@ -1029,7 +1044,7 @@ int dict_search_databases (
 static void daemon_show_db( const char *cmdline, int argc, char **argv )
 {
    int          count;
-   dictDatabase *db;
+   const dictDatabase *db;
    
    lst_Position databasePosition;
 
@@ -1049,8 +1064,10 @@ static void daemon_show_db( const char *cmdline, int argc, char **argv )
 
       daemon_mime();
       while ((db = next_database(&databasePosition, "*"))) {
-	 daemon_printf( "%s \"%s\"\n",
-			db->databaseName, db->databaseShort );
+	 if (!db->invisible){
+	    daemon_printf( "%s \"%s\"\n",
+			   db->databaseName, db->databaseShort );
+	 }
       }
       daemon_printf( ".\n" );
       daemon_ok( CODE_OK, "ok", NULL );
@@ -1095,7 +1112,7 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
 {
    char         *buf;
    dictWord     *dw;
-   dictDatabase *db;
+   const dictDatabase *db;
    lst_List     list;
    
    lst_Position databasePosition = first_database_pos ();
@@ -1114,6 +1131,8 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
 
    list = lst_create();
    while ((db = next_database(&databasePosition, argv[2] ))) {
+      fprintf (stderr, "dbname: %s\n", db -> databaseName);
+
       if (dict_search (
 	 list,
 	 db->databaseInfoPointer ?
@@ -1152,7 +1171,7 @@ static void daemon_show_server( const char *cmdline, int argc, char **argv )
 {
    FILE          *str;
    char          buffer[1024];
-   dictDatabase  *db;
+   const dictDatabase  *db;
    double        uptime;
    
    lst_Position databasePosition = first_database_pos ();
