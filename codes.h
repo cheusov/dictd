@@ -4,7 +4,7 @@
  * Copyright 1997, 2000 Rickard E. Faith (faith@dict.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: codes.h,v 1.4 2000/12/22 14:15:25 faith Exp $
+ * $Id: codes.h,v 1.5 2004/04/26 16:22:13 cheusov Exp $
  * 
  */
 
@@ -40,6 +40,7 @@
 
 #define CODE_ACCESS_DENIED           530 /* access denied */
 #define CODE_AUTH_DENIED             531 /* authentication denied */
+#define CODE_UNKNOWN_MECH            532 /* unknown authentication mechanism */
 
 #define CODE_INVALID_DB              550 /* invalid database */
 #define CODE_INVALID_STRATEGY        551 /* invalid strategy */
