@@ -1,10 +1,10 @@
 /* net.c -- 
  * Created: Fri Feb 21 20:58:10 1997 by faith@cs.unc.edu
- * Revised: Tue Mar 11 11:28:46 1997 by faith@cs.unc.edu
+ * Revised: Tue Mar 11 23:12:46 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: net.c,v 1.6 1997/03/12 01:14:15 faith Exp $
+ * $Id: net.c,v 1.7 1997/03/13 05:24:19 faith Exp $
  * 
  */
 
@@ -37,6 +37,7 @@ int net_open_tcp( const char *service, int queueLength )
    struct protoent    *protocolEntry;
    struct sockaddr_in ssin;
    int                s;
+   const int          one = 1;
 
    memset( &ssin, 0, sizeof(ssin) );
    ssin.sin_family      = AF_INET;
@@ -54,6 +55,8 @@ int net_open_tcp( const char *service, int queueLength )
       err_fatal_errno( __FUNCTION__, "Can't open socket on port %d\n",
 		       ntohs(ssin.sin_port) );
 
+   setsockopt( s, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one) );
+
    if (bind(s, (struct sockaddr *)&ssin, sizeof(ssin)) < 0)
       err_fatal_errno( __FUNCTION__, "Can't bind %s/tcp to port %d\n",
 		       service, ntohs(ssin.sin_port) );
@@ -67,26 +70,35 @@ int net_open_tcp( const char *service, int queueLength )
 
 void net_detach( void )
 {
-   int result = fork();
    int i;
    int fd;
+
+   switch (fork) {
+   case -1: err_fatal_errno( __FUNCTION__, "Cannot fork\n" ); break;
+   case 0:  break;		/* child */
+   default: exit(0);		/* parent */
+   }
    
-   if (result < 0)
-      err_fatal_errno( __FUNCTION__, "Cannot fork\n" );
-   if (result) exit(0);	/* parent */
+   /* The detach algorithm is a modification of that presented by Comer,
+      Douglas E. and Stevens, David L. INTERNETWORKING WITH TCP/IP, VOLUME
+      III: CLIENT-SERVER PROGRAMMING AND APPLICATIONS (BSD SOCKET VERSION).
+      Englewood Cliffs, New Jersey: Prentice Hall, 1993 (Chapter 27). */
    
-   /* The detach algorithm is from Comer, Douglas E. and Stevens, David
-      L. INTERNETWORKING WITH TCP/IP, VOLUME III: CLIENT-SERVER PROGRAMMING
-      AND APPLICATIONS (BSD SOCKET VERSION).  Englewood Cliffs, New Jersey:
-      Prentice Hall, 1993 (Chapter 27). */
    for (i=getdtablesize()-1; i >= 0; --i) close(i); /* close everything */
-   fd = open("/dev/tty", O_RDWR); /* detach from controlling tty */
-   ioctl(fd, TIOCNOTTY, 0);
-   close(fd);
+   
+   if ((fd = open("/dev/tty", O_RDWR)) >= 0) {
+				/* detach from controlling tty */
+      ioctl(fd, TIOCNOTTY, 0);
+      close(fd);
+   }
+   
    chdir("/");		/* cd to safe directory */
+   
    umask(0);		/* set safe umask */
+   
    setpgid(0,getpid());	/* Get process group */
-   fd = open("/dev/null", O_RDWR); /* stdin */
+   
+   fd = open("/dev/null", O_RDWR);    /* stdin */
    dup(fd);			      /* stdout */
    dup(fd);			      /* stderr */
 }

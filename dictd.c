@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Tue Mar 11 16:24:03 1997 by faith@cs.unc.edu
+ * Revised: Tue Mar 11 22:42:45 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.10 1997/03/12 01:14:14 faith Exp $
+ * $Id: dictd.c,v 1.11 1997/03/13 05:24:17 faith Exp $
  * 
  */
 
@@ -13,7 +13,8 @@
 
 extern int        yy_flex_debug;
 extern int        _dict_comparisons;
-static int        masterSocket;
+static int        _dict_forks;
+static int        _dict_child;
        dictConfig *DictConfig;
 
 static void reaper( int dummy )
@@ -39,11 +40,18 @@ static void handler( int sig )
    case SIGPIPE: name = "SIGPIPE"; break;
    }
 
-   if (name)
-      log_info( "Caught %s, exiting\n", name );
-   else
-      log_info( "Caught signal %d, exiting\n", sig );
-   close(masterSocket);
+   if (_dict_child) {
+      if (name) log_info( "Child caught %s, exiting (%d comparisons)\n",
+			  name, _dict_comparisons );
+      else      log_info( "Child caught signal %d, exiting (%d comparisons)\n",
+			  sig, _dict_comparisons );
+   } else {
+      if (name) log_info( "Caught %s, exiting (%d comparisons, %d forks)\n",
+			  name, _dict_comparisons, _dict_forks );
+      else      log_info( "Caught signal %d,"
+			  " exiting (%d comparisons, %d forks\n",
+			  sig, _dict_comparisons, _dict_forks );
+   }
    exit(sig+128);
 }
 
@@ -188,7 +196,7 @@ static const char *id_string( const char *id )
 const char *dict_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dictd.c,v 1.10 1997/03/12 01:14:14 faith Exp $";
+   const char        *id = "$Id: dictd.c,v 1.11 1997/03/13 05:24:17 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -253,6 +261,7 @@ static void help( void )
 int main( int argc, char **argv )
 {
    int                childSocket;
+   int                masterSocket;
    struct sockaddr_in csin;
    int                alen        = sizeof(csin);
    pid_t              pid;
@@ -399,8 +408,10 @@ int main( int argc, char **argv )
       if (dbg_test(DBG_NOFORK)) {
 	 dict_daemon(childSocket,&csin);
       } else {
+	 ++_dict_forks;
 	 switch ((pid = fork())) {
 	 case 0:			/* child */
+	    ++_dict_child;
 	    close(masterSocket);
 	    exit(dict_daemon(childSocket,&csin));
 	 case -1:

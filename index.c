@@ -1,6 +1,6 @@
 /* index.c -- 
  * Created: Wed Oct  9 14:52:23 1996 by faith@cs.unc.edu
- * Revised: Tue Mar 11 16:38:19 1997 by faith@cs.unc.edu
+ * Revised: Tue Mar 11 21:39:30 1997 by faith@cs.unc.edu
  * Copyright 1996, 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.8 1997/03/12 01:14:15 faith Exp $
+ * $Id: index.c,v 1.9 1997/03/13 05:24:19 faith Exp $
  * 
  */
 
@@ -561,6 +561,7 @@ dictIndex *dict_index_open( const char *filename )
    struct stat sb;
 #if OPTSTART
    int         j;
+   char        buf[2];
 #endif
 
    memset( i, 0, sizeof( struct dictIndex ) );
@@ -581,16 +582,21 @@ dictIndex *dict_index_open( const char *filename )
    i->end = i->start + i->size;
 
 #if OPTSTART
-   for (j = 0; j < 256; j++) {
-      char buf[2];
-
-      if (j != ' ' && !isalnum(j)) {
-	 i->optStart[j] = i->end;
-      } else {
-	 buf[0] = tolower(j);
-	 buf[1] = '\0';
-	 i->optStart[j] = binary_search( buf, i->start, i->end );
-      }
+   for (j = 0; j < 256; j++) i->optStart[j] = i->start;
+   buf[0] = ' ';
+   buf[1] = '\0';
+   i->optStart[ ' ' ] = binary_search( buf, i->start, i->end );
+   for (j = 'a'; j <= 'z'; j++) {
+      buf[0] = j;
+      buf[1] = '\0';
+      i->optStart[toupper(j)]
+	 = i->optStart[j]
+	 = binary_search( buf, i->start, i->end );
+   }
+   for (j = '0'; j <= '9'; j++) {
+      buf[0] = j;
+      buf[1] = '\0';
+      i->optStart[j] = binary_search( buf, i->start, i->end );
    }
    i->optStart[256] = i->end;
 #endif
