@@ -1,5 +1,7 @@
 2003-03-09  Aleksey Cheusov  <vle@gmx.net>
 
+  * ChangeLog: ChangeLog is up-to-date
+
   * dictd.c: nothing serious
 
   * index.c, dictd.c:
