@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.74 2003/06/10 14:23:10 cheusov Exp $
+# $Id: Makefile.in,v 1.75 2003/07/07 12:24:16 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -33,7 +33,7 @@ endif
 srcdir=		@srcdir@
 VPATH=		@srcdir@
 prefix=		@prefix@
-subdirs=        @allsubdirs@ regex # doc -- use rfc2229 instead
+subdirs=        @allsubdirs@ # doc -- use rfc2229 instead
 exec_prefix=	@exec_prefix@
 man1_prefix=	@mandir@/man1
 man8_prefix=	@mandir@/man8
@@ -72,9 +72,9 @@ CFLAGS=		@CFLAGS@ -DDICT_PLUGIN_PATH=\"$(PLUGIN_DIR)\" -DDICT_DICTIONARY_PATH=\"
 
 SCFLAGS=        @SCFLAGS@
 LDFLAGS=        @LDFLAGS@
-XTRACFLAGS=     @WCFLAGS@ @XTRACFLAGS@ @DEFS@ @CPPFLAGS@ -I. -Iregex
+XTRACFLAGS=     @WCFLAGS@ @XTRACFLAGS@ @DEFS@ @CPPFLAGS@ -I.
 XTRALDFLAGS=    @WLDFLAGS@ @XTRALDFLAGS@
-LDLIBS=		    @LIBOBJS@ @LIBS@ -Lregex -lregex
+LDLIBS=		    @LIBOBJS@ @LIBS@
 
 EXES=	 	dict dictd dictzip dictfmt
 
@@ -101,7 +101,7 @@ uninstall.samples :
 endif
 
 HEADERS= 	./config.h @XTRAHEADERS@ dictzip.h dictd.h dict.h dictP.h \
-                codes.h md5.h strategy.h defs.h plugin.h data.h index.h
+                codes.h md5.h strategy.h defs.h plugin.h data.h index.h parse.h
 
 ifdef USE_PLUGIN
 SRCHOBJS=       index.o data.o dictdplugin.o plugin.o
@@ -136,16 +136,20 @@ all $(EXES)::
 all:: $(EXES) $(LIBRARIES) plugins
 
 
-%.o: %.c
-	$(CC) -c $(XTRACFLAGS) $(CFLAGS) $<
 
-ALLFLAGS=$(XTRACFLAGS) $(CFLAGS) $(XTRALDFLAGS) $(LDFLAGS)
-%: %.c
-	$(CC) $(ALLFLAGS) -o $@ $< $(OBJS) $(LDLIBS)
+ALLCFLAGS=$(XTRACFLAGS) $(CFLAGS)
+ALLLDFLAGS=$(XTRALDFLAGS) $(LDFLAGS) $(LDLIBS)
+
+%.o: %.c
+	$(CC) -c $(ALLCFLAGS) $(CFLAGS) $(SCFLAGS) $<
+%: %.o
+	$(CC) $(ALLLDFLAGS) -o $@ $^ $(OBJS)
 
 $(SRCHOBJS):  $(HEADERS)
 $(NETOBJS):  $(HEADERS)
 $(CLIOBJS):  $(HEADERS)
+dict.o dictfmt.o dictd.o dictzip.o : $(HEADERS)
+dictd.o : servparse.h
 
 dictdplugin_exit.so : libdictdplugin.a
 
@@ -168,23 +172,18 @@ man_popen.dict : dictdplugin-config dictfmt_plugin dictfmt
    } | ./dictfmt_plugin dictdplugin_popen.so -s \
       'Example man dict based on example POPEN plugin' man_popen
 
-dict:: dict.c $(HEADERS) $(CLIOBJS) @LIBOBJS@
-	$(CC) $(ALLFLAGS) -o $@ $< $(CLIOBJS) $(LDLIBS)
+dict :: dict.o $(CLIOBJS) @LIBOBJS@ parse.o
 
-dictd:: dictd.c $(HEADERS) $(NETOBJS) $(SRCHOBJS) @LIBOBJS@
-	$(CC) $(ALLFLAGS) -o $@ $< $(NETOBJS) $(SRCHOBJS) $(ZIPOBJS) $(LDLIBS)
+dictd :: dictd.o $(NETOBJS) $(SRCHOBJS) @LIBOBJS@ parse.o
 
-dictzip:: dictzip.c $(HEADERS) data.o @LIBOBJS@
-	$(CC) $(ALLFLAGS) -o $@ $< data.o $(LDLIBS)
+dictzip :: dictzip.o data.o @LIBOBJS@
 
-dictfmt:: dictfmt.c $(HEADERS) @LIBOBJS@
-	$(CC) $(ALLFLAGS) -o $@ $< $(LDLIBS)
+dictfmt :: dictfmt.o @LIBOBJS@
 
 servscan.c: servscan.l
 	$(LEX) $(LFLAGS) -o$@ $<
 
-servscan.o: servscan.c servparse.o servparse.h $(HEADERS)
-	$(CC) -c $(XTRACFLAGS) $(CFLAGS) $(SCFLAGS) $<
+servscan.o: servscan.c servparse.o servparse.h
 
 servparse.c servparse.h : servparse.y
 	$(YACC) -tdv $<; \
@@ -192,14 +191,12 @@ servparse.c servparse.h : servparse.y
     cmp -s y.tab.c servparse.c || mv y.tab.c servparse.c; \
     rm -f y.tab.h y.tab.c
 
-servparse.o: servparse.c $(HEADERS)
-	$(CC) -c $(XTRACFLAGS) $(CFLAGS) $(SCFLAGS) $<
+servparse.o: servparse.c
 
 clientscan.c: clientscan.l
 	$(LEX) $(LFLAGS) -o$@ $<
 
-clientscan.o: clientscan.c clientparse.o clientparse.h $(HEADERS)
-	$(CC) -c $(XTRACFLAGS) $(CFLAGS) $(SCFLAGS) $<
+clientscan.o: clientscan.c clientparse.o clientparse.h
 
 clientparse.c clientparse.h: clientparse.y
 	$(YACC) -tdv $<; \
@@ -207,8 +204,7 @@ clientparse.c clientparse.h: clientparse.y
     cmp -s y.tab.c clientparse.c || mv y.tab.c clientparse.c; \
     rm -f y.tab.h y.tab.c
 
-clientparse.o: clientparse.c $(HEADERS)
-	$(CC) -c $(XTRACFLAGS) $(CFLAGS) $(SCFLAGS) $<
+clientparse.o: clientparse.c
 
 .PHONY: install.dict install.dictzip install.dictfmt install.dictd \
         install.libs install.includes
@@ -397,7 +393,7 @@ distclean: recursive-clean
 	done; \
 	rm -f regex/regex.h; \
 	rm -f config.h config.cache config.status stamp-h.in stamp-h; \
-	rm -f Makefile doc/Makefile dictdplugin-config
+	rm -f Makefile doc/Makefile dictdplugin-config include_regex.h
 
 cvsclean: distclean
 	-rm -f configure libmaa/configure

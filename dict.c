@@ -17,11 +17,12 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.c,v 1.37 2003/06/10 14:23:12 cheusov Exp $
+ * $Id: dict.c,v 1.38 2003/07/07 12:24:16 cheusov Exp $
  * 
  */
 
 #include "dict.h"
+#include "parse.h"
 #include "md5.h"
 #include <stdarg.h>
 
@@ -964,7 +965,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.37 2003/06/10 14:23:12 cheusov Exp $";
+   const char        *id = "$Id: dict.c,v 1.38 2003/07/07 12:24:16 cheusov Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;

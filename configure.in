@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.50 2003/06/30 16:27:06 cheusov Exp $
+dnl $Id: configure.in,v 1.51 2003/07/07 12:24:16 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -35,10 +35,10 @@ dnl     LCFLAGS is for lex
 define(VERSION, 1.9.9)
 
 
-AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.50 $)
+AC_PREREQ(2.53)
+AC_REVISION($Revision: 1.51 $)
 
-AC_INIT(dict, VERSION, "dict-beta@dict.org")
+AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
 AC_CONFIG_SRCDIR([dictd.c])
 AC_CONFIG_HEADER(config.h)
@@ -83,6 +83,7 @@ fi
 local_dmalloc=0
 local_libmaa=0
 local_zlib=0
+local_regex=0
 
 AC_ARG_WITH(cflags,
 [  --with-cflags=FLAGS     use FLAGS for CFLAGS],
@@ -160,6 +161,21 @@ if test "x${withval}" = xyes; then
 fi
 ])
 
+AC_ARG_WITH(local-regex,
+[  --with-local-regex      with regex built in local source tree],
+[
+if test "x${withval}" = xyes; then
+    local_regex=1
+fi
+])
+
+REGEX_INCLUDE='regex.h'
+AC_ARG_WITH(regex-include,
+[  --with-regex-include=FILE  set an alternative to regex.h],
+[
+    REGEX_INCLUDE=${withval}
+])
+
 AC_ARG_WITH(checker,
 [  --with-checker          with Checker support (Linux only)],
 [
@@ -234,10 +250,8 @@ AC_CHECK_PROGS(EXPAND,expand cat)
 echo .
 echo Checking for libraries
 
-dnl Always use local libmaa due to recent bug fixes
-local_libmaa=1
 if test "$local_libmaa" = 0; then
-    AC_CHECK_LIB(maa,maa_init,REALLIBS="$REALLIBS -lmaa",local_libmaa=1)
+    AC_CHECK_LIB(maa,maa_shutdown,REALLIBS="$REALLIBS -lmaa",local_libmaa=1)
 fi
 
 if test "$local_libmaa" = 1; then
@@ -247,13 +261,13 @@ if test "$local_libmaa" = 1; then
         XTRACFLAGS="$XTRACFLAGS -Ilibmaa"
         subdirs="$subdirs libmaa"
 
-	AC_CONFIG_SUBDIRS(libmaa)
+        AC_CONFIG_SUBDIRS(libmaa)
 
         allsubdirs="$allsubdirs libmaa"
         AC_MSG_RESULT(yes)
     else
         AC_MSG_RESULT(no)
-        AC_MSG_ERROR(Libmaa not found, cannot continue)
+        AC_MSG_ERROR([Libmaa not found, cannot continue])
     fi
 fi
 
@@ -271,7 +285,23 @@ if test "$local_zlib" = 1; then
         AC_MSG_RESULT(yes)
     else
         AC_MSG_RESULT(no)
-        AC_MSG_ERROR(Zlib not found, cannot continue)
+        AC_MSG_ERROR([Zlib not found, cannot continue])
+    fi
+fi
+
+AC_CHECK_LIB(c,regcomp,,local_regex=1)
+
+if test "$local_regex" = 1; then
+    AC_MSG_CHECKING(for regex in local source tree)
+    if test -d regex; then
+        REALLIBS="$REALLIBS -Lregex -lregex"
+        XTRACFLAGS="$XTRACFLAGS -Iregex"
+        allsubdirs="$allsubdirs regex"
+
+        AC_MSG_RESULT(yes)
+    else
+        AC_MSG_RESULT(no)
+        AC_MSG_ERROR([Regex not found, cannot continue])
     fi
 fi
 
@@ -293,7 +323,7 @@ if test "$local_dmalloc" = 1; then
         XTRAHEADERS="$XTRAHEADERS dmalloc/dmalloc.h"
         allsubdirs="$allsubdirs dmalloc"
 
-	AC_CONFIG_SUBDIRS(dmalloc)
+        AC_CONFIG_SUBDIRS(dmalloc)
 
         subdirs="$subdirs dmalloc"
         AC_MSG_RESULT(yes)
@@ -384,8 +414,9 @@ AC_SUBST(USE_PLUGIN)
 AC_SUBST(EXEEXT)
 AC_SUBST(allsubdirs)
 AC_SUBST(USE_DICT_ORG)
+AC_SUBST(REGEX_INCLUDE)
 
-AC_CONFIG_FILES([Makefile doc/Makefile])
+AC_CONFIG_FILES([Makefile doc/Makefile include_regex.h])
 AC_CONFIG_FILES([dictdplugin-config], [chmod +x dictdplugin-config])
 
 AC_OUTPUT

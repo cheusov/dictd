@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.85 2003/04/14 09:40:29 cheusov Exp $
+ * $Id: dictd.c,v 1.86 2003/07/07 12:24:16 cheusov Exp $
  * 
  */
 
@@ -26,6 +26,7 @@
 #include "strategy.h"
 #include "index.h"
 #include "data.h"
+#include "parse.h"
 
 #ifdef USE_PLUGIN
 #include "plugin.h"
@@ -795,7 +796,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.85 2003/04/14 09:40:29 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.86 2003/07/07 12:24:16 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;

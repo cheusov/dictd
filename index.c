@@ -17,14 +17,14 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.66 2003/07/07 11:47:46 cheusov Exp $
+ * $Id: index.c,v 1.67 2003/07/07 12:24:16 cheusov Exp $
  * 
  */
 
 #include "dictP.h"
 #include "dictzip.h"
 #include "index.h"
-#include "regex.h"
+#include "include_regex.h"
 #include "strategy.h"
 
 #ifdef USE_PLUGIN
