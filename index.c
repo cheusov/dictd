@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.53 2003/02/23 13:03:12 cheusov Exp $
+ * $Id: index.c,v 1.54 2003/02/23 14:10:57 cheusov Exp $
  * 
  */
 
@@ -1599,7 +1599,7 @@ static int plugin_initdata_set_dbnames (dictPluginData *data, int data_size)
       db = (const dictDatabase *)(lst_nth_get (DictConfig -> dbl, i));
 
       data -> id   = DICT_PLUGIN_INITDATA_DBNAME;
-      if (db -> databaseShort){
+      if (db -> databaseName){
 	 data -> size = strlen (db -> databaseName);
 	 data -> data = xstrdup (db -> databaseName);
       }else{
@@ -1685,7 +1685,9 @@ static void plugin_init_data_free (
    int i=0;
 
    for (i = 0; i < data_size; ++i){
-      xfree ((void *) data -> data);
+      if (data -> data)
+	 xfree ((void *) data -> data);
+
       ++data;
    }
 }
@@ -2075,7 +2077,7 @@ static dictPlugin *create_plugin (
    return plugin;
 }
 
-int dict_plugin_open (const dictIndex *i, dictDatabase *db)
+int dict_plugin_open (dictDatabase *db)
 {
    int ret = 0;
    lst_List list;

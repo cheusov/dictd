@@ -316,8 +316,7 @@ extern void       dict_destroy_list( lst_List list );
 extern int        dict_destroy_datum( const void *datum );
 
 #ifdef USE_PLUGIN
-extern int        dict_plugin_open (
-   const dictIndex *i, dictDatabase *db);
+extern int        dict_plugin_open (dictDatabase *db);
 extern void       dict_plugin_close (dictDatabase *db);
 #endif
 
