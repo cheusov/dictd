@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.33 2003/12/05 01:06:30 hilliard Exp $
+ * $Id: dictfmt.c,v 1.34 2003/12/08 17:30:02 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -439,7 +439,7 @@ static void fmt_newheadword( const char *word )
    }
 
    fmt_indent = 0;
-   fmt_newline();
+//   fmt_newline();
    fflush(stdout);
    end = ftell(str);
 
@@ -466,6 +466,7 @@ static void fmt_newheadword( const char *word )
    }
 
    if (word) {
+      fmt_newline ();
       strlcpy(prev, word, sizeof (prev));
 
       start = end;
@@ -496,13 +497,12 @@ static void banner( FILE *out_stream )
 {
    fprintf( out_stream, "dictfmt v. %s December 2000 \n", DICT_VERSION );
    fprintf( out_stream,
-         "Copyright 1997-2000 Rickard E. Faith (faith@cs.unc.edu)\n" );
+         "Copyright 1997-2000 Rickard E. Faith (faith@cs.unc.edu)\n\n" );
 }
 
 static void license( void )
 {
    static const char *license_msg[] = {
-     "",
      "This program is free software; you can redistribute it and/or modify it",
      "under the terms of the GNU General Public License as published by the",
      "Free Software Foundation; either version 1, or (at your option) any",
@@ -529,7 +529,6 @@ static void help( FILE *out_stream )
    "Usage: dictfmt [-c5|-t|-e|-f|-h|-j|-p] -u url -s name [options] basename",
    "Create a dictionary databse and index file for use by a dictd server",
    "",
-     "usage: dictfmt [-jfephDLV] [-c5] -u url -s name basename",
      "-c5       headwords are preceded by a line containing at least \n\
                 5 underscore (_) characters",
      "-t        implies -c5, --without-headword and --without-info options",
@@ -539,8 +538,10 @@ static void help( FILE *out_stream )
      "-p        headwords are preceded by %p, with %d on following line",
      "-u <url>  URL of site where database was obtained",
      "-s <name> name of the database", 
-     "-L        display copyright and license information",
-     "-V        display version information",
+     "--license\n\
+-L        display copyright and license information",
+     "--version\n\
+-V        display version information",
      "-D        debug",
 "--quiet\n\
 --silent\n\
@@ -644,7 +645,7 @@ static void fmt_headword_for_info (void)
    if (!without_header){
       fmt_string(
 	 "The original data was distributed with the notice shown below."
-	 "  No additional restrictions are claimed.  Please redistribute"
+	 " No additional restrictions are claimed.  Please redistribute"
 	 " this changed version under the same conditions and restriction"
 	 " that apply to the original version." );
       fmt_newline();
@@ -736,6 +737,8 @@ int main( int argc, char **argv )
       { "without-info",         0, 0, 509 },
       { "quiet",                0, 0, 'q' },
       { "silent",               0, 0, 'q' },
+      { "version",              0, 0, 'V' },
+      { "license",              0, 0, 'L' },
    };
 
    while ((c = getopt_long( argc, argv, "qVLjvfephDu:s:c:t",
@@ -1017,7 +1020,9 @@ int main( int argc, char **argv )
       }
       if (buf){
 	 fmt_string(buf);
+	 fmt_indent = 0;
 	 fmt_newline();
+	 fmt_indent = FMT_INDENT;
       }
    skip:;
    }
