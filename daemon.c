@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.80 2005/03/29 16:12:51 cheusov Exp $
+ * $Id: daemon.c,v 1.81 2005/03/29 17:55:47 cheusov Exp $
  * 
  */
 
@@ -496,6 +496,17 @@ static void daemon_mime( void )
    if (daemonMime) daemon_write( "\r\n", 2 );
 }
 
+static void daemon_mime_definition (const dictDatabase *db)
+{
+   if (daemonMime){
+      if (db -> mime_header){
+	 daemon_printf ("%s", db -> mime_header);
+      }
+
+      daemon_write ("\r\n", 2);
+   }
+}
+
 static void daemon_text( const char *text, int dot )
 {
    char *pt = alloca( 2*strlen(text) + 10 );
@@ -607,7 +618,7 @@ static void daemon_dump_defs( lst_List list )
 	  db->invisible ? "*" : db->databaseName,
 	  db->invisible ? ""  : db->databaseShort);
 
-      daemon_mime();
+      daemon_mime_definition (db);
 
       if (db->filter){
 	 count = strlen(buf);

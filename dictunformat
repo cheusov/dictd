@@ -203,6 +203,7 @@ BEGIN {
 	skip("00-database-allchars")
 	skip("00-database-alphabet")
 	skip("00-database-default-strategy")
+	skip("00-database-mime-header")
 
 	offset  = 0
 }

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.22 2005/03/29 16:12:52 cheusov Exp $
+ * $Id: servparse.y,v 1.23 2005/03/29 17:55:57 cheusov Exp $
  * 
  */
 
@@ -368,10 +368,8 @@ SpecList_mime : Spec_mime
 
 Spec_mime : Spec__name
      | Spec__info
-     | TOKEN_MIME_DBNAME TOKEN_STRING
-         {  SET(mime_mimeDbname,$1,$2);  }
-     | TOKEN_NOMIME_DBNAME TOKEN_STRING 
-         {  SET(mime_nomimeDbname,$1,$2);  }
+     | Spec__dbname_mime
+     | Spec__dbname_nomime
      | Spec__invisible
      | Spec__disable_strat
      | Spec__default_strat
@@ -444,3 +442,9 @@ Spec__disable_strat : TOKEN_DISABLE_STRAT TOKEN_STRING
 
 Spec__default_strat : TOKEN_DEFAULT_STRAT TOKEN_STRING
      {  db -> default_strategy = lookup_strategy_ex ($2.string);  };
+
+Spec__dbname_mime : TOKEN_MIME_DBNAME TOKEN_STRING
+     {  SET(mime_mimeDbname,$1,$2);  }
+
+Spec__dbname_nomime : TOKEN_NOMIME_DBNAME TOKEN_STRING 
+         {  SET(mime_nomimeDbname,$1,$2);  }

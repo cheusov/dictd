@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.121 2005/03/29 16:12:52 cheusov Exp $
+ * $Id: dictd.c,v 1.122 2005/03/29 17:55:50 cheusov Exp $
  * 
  */
 
@@ -789,6 +789,40 @@ static void init_database_default_strategy (dictDatabase *db)
    dict_destroy_list (l);
 }
 
+static int init_database_mime_header (const void *datum)
+{
+   dictDatabase *db = (dictDatabase *) datum;
+   int ret;
+   lst_List l;
+   const dictWord *dw;
+   char *data;
+
+   if (!db -> normal_db)
+      return 0;
+
+   if (db -> mime_header){
+      /* already set by `mime_header' directive*/
+      return 0;
+   }
+
+   l = lst_create ();
+
+   ret = dict_search_database_ (l, DICT_FLAG_MIME_HEADER, db, DICT_STRAT_EXACT);
+
+   if (ret){
+      dw = (const dictWord *) lst_top (l);
+      data = dict_data_obtain (db, dw);
+
+      db -> mime_header = xstrdup (data);
+
+      xfree (data);
+   }
+
+   dict_destroy_list (l);
+
+   return 0;
+}
+
 static int init_database( const void *datum )
 {
    dictDatabase *db = (dictDatabase *)datum;
@@ -926,6 +960,8 @@ static int close_database (const void *datum)
       xfree ((void *) db -> strategy_disabled);
    if (db -> alphabet)
       xfree ((void *) db -> alphabet);
+   if (db -> mime_header)
+      xfree ((void *) db -> mime_header);
 
    return 0;
 }
@@ -998,6 +1034,7 @@ static void dict_init_databases( dictConfig *c )
    lst_iterate( c->dbl, init_virtual_db_list );
    lst_iterate( c->dbl, init_mime_db_list );
    lst_iterate( c->dbl, init_database_short );
+   lst_iterate( c->dbl, init_database_mime_header);
    lst_iterate( c->dbl, log_database_info );
 }
 
@@ -1081,7 +1118,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.121 2005/03/29 16:12:52 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.122 2005/03/29 17:55:50 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;

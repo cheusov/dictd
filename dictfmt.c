@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.54 2004/11/19 19:42:12 cheusov Exp $
+ * $Id: dictfmt.c,v 1.55 2005/03/29 17:55:51 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -94,6 +94,7 @@ static int ignore_hw_def_strat = 0;
 
 static const char *locale      = "C";
 static const char *default_strategy = NULL;
+static const char *mime_header = NULL;
 
 static str_Pool alphabet_pool = NULL;
 
@@ -710,6 +711,9 @@ static void help( FILE *out_stream )
 "--default-strategy  Sets the default search strategy for the database.\n\
                     Special entry 00-database-default-strategy is created\n\
                     for this purpose.",
+"--mime-header       Sets MIME header stored in .data file which\n\
+                    prepend definition\n\
+                    when client sent OPTION MIME to `dictd'",
       0 };
    const char        **p = help_msg;
 
@@ -758,6 +762,16 @@ static void fmt_headword_for_def_strat (void)
 
    fmt_newheadword ("00-database-default-strategy");
    fmt_string (default_strategy);
+   fmt_newline ();
+}
+
+static void fmt_headword_for_MIME_header (void)
+{
+   if (!mime_header)
+      return;
+
+   fmt_newheadword ("00-database-mime-header");
+   fmt_string (mime_header);
    fmt_newline ();
 }
 
@@ -890,6 +904,7 @@ static void fmt_predefined_headwords_before ()
    fmt_headword_for_8bit ();
    fmt_headword_for_allchars ();
    fmt_headword_for_def_strat ();
+   fmt_headword_for_MIME_header ();
 
    if (url != string_unknown){
       /*
@@ -949,6 +964,7 @@ int main( int argc, char **argv )
       { "version",              0, 0, 'V' },
       { "license",              0, 0, 'L' },
       { "default-strategy",     1, 0, 512 },
+      { "mime-header",          1, 0, 513 },
    };
 
    init (argv[0]);
@@ -1010,6 +1026,9 @@ int main( int argc, char **argv )
 	 break;
       case 512:
 	 default_strategy = str_copy (optarg);
+	 break;
+      case 513:
+	 mime_header = str_copy (optarg);
 	 break;
       case 't':
 	 without_info = 1;
