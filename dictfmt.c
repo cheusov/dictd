@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.40 2004/01/05 23:21:28 hilliard Exp $
+ * $Id: dictfmt.c,v 1.41 2004/01/06 10:40:12 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -47,7 +47,7 @@
 #include <getopt.h>
 #endif
 
-#define FMT_MAXPOS  200
+#define FMT_MAXPOS  79
 #define FMT_INDENT  0
 
 #define JARGON    1
@@ -93,6 +93,40 @@ static int ignore_hw_info      = 0;
 static const char *locale         = "C";
 
 static str_Pool alphabet_pool = NULL;
+
+/* analog to wcswidth(3) */
+static int mbswidth_ (const char *s)
+{
+   int ret = 0;
+   wchar_t wchar;
+
+   int width;
+   size_t len;
+   mbstate_t ps;
+
+   memset (&ps, 0, sizeof (ps));
+
+   while (*s){
+      len = mbrtowc (&wchar, s, MB_CUR_MAX, &ps);
+
+      switch (len){
+      case (size_t) (-1):
+      case (size_t) (-2):
+	 return -1;
+
+      default:
+	 width = wcwidth (wchar);
+	 if (-1 == width)
+	    return -1;
+
+	 ret += width;
+      }
+
+      s += len;
+   }
+
+   return ret;
+}
 
 static void init (const char *fn)
 {
@@ -149,9 +183,43 @@ static void fmt_newline( void )
    }
 
    fputc('\n', str);
-   for (i = 0; i < fmt_indent; i++) fputc(' ', str);
-   fmt_pos = fmt_indent;
+   for (i = 0; i < fmt_indent; i++){
+      fputc(' ', str);
+   }
+
+   fmt_pos     = 0;
    fmt_pending = 0;
+}
+
+static void fmt_wrap_and_print (const char *s)
+{
+   size_t len;
+   int print_space;
+
+   if (utf8_mode){
+      len = mbswidth_ (s);
+      if (len == (size_t) -1)
+	 err_fatal (__FUNCTION__, "invalid utf-8 string '%s'\n", s);
+   }else{
+      len = strlen (s);
+   }
+
+   print_space = (fmt_pending || !len);
+
+   if (fmt_pos && fmt_pos + print_space + len > fmt_maxpos){
+      fmt_newline();
+   }
+
+   if (fmt_pending || !len){
+      fputc (' ', str);
+      ++fmt_pos;
+   }
+
+   if (len > 0){
+      fprintf (str, "%s", s);
+      fmt_pos += len;
+      fmt_pending = 1;
+   }
 }
 
 static void fmt_string( const char *s )
@@ -183,46 +251,16 @@ static void fmt_string( const char *s )
    *t = '\0';
 #endif
 
-   while ((pt = strchr(pt, ' '))) {
-      *pt++ = '\0';
+   while ((pt = strchr(p, ' '))) {
+      *pt = '\0';
 
-      if (utf8_mode){
-	 len = mbstowcs (NULL, p, 0);
-	 if (len == (size_t) -1)
-	    err_fatal (__FUNCTION__, "invalid utf-8 string '%s'\n", s);
-      }else{
-	 len = strlen (p);
-      }
+      fmt_wrap_and_print (p /*pt == p ? " " : p*/);
 
-      if (fmt_pending && fmt_pos + len > fmt_maxpos) {
-	 fmt_newline();
-      }
-      if (fmt_pending) {
-	 fputc(' ', str);
-	 ++fmt_pos;
-	 fmt_pending = 0;
-      }
-      fprintf( str, "%s", p );
-      fmt_pos += len;
-      p = pt;
-      fmt_pending = 1;
+      p = pt + 1;
    }
-   
-   len = strlen(p);
-   if (fmt_pending && fmt_pos + len > fmt_maxpos) {
-      fmt_newline();
-   }
-   if (len && fmt_pending) {
-      fputc(' ', str);
-      ++fmt_pos;
-      fmt_pending = 0;
-   }
-   if (!len) {
-      fmt_pending = 1;
-   } else {
-      fprintf( str, "%s", p );
-      fmt_pos += len;
-   }
+
+   if (*p)
+      fmt_wrap_and_print (p);
 
    free(sdup);
 }
@@ -670,7 +708,6 @@ static const char *sname = string_unknown;
 static void fmt_headword_for_url (void)
 {
    fmt_newheadword("00-database-url");
-   fmt_string( "     " );
    fmt_string( url );
    fmt_newline ();
 
@@ -863,7 +900,7 @@ int main( int argc, char **argv )
 	 type = HITCHCOCK;
 	 without_hw = 1;
 	 break;
-      case 'v': type = VERA; fmt_maxpos=75;break;
+      case 'v': type = VERA;               break;
       case 'D': ++Debug;                   break;
       case 'u': url = optarg;              break;
       case 's': sname = optarg;            break;
