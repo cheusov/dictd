@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.72 2004/01/08 17:25:03 cheusov Exp $
+ * $Id: daemon.c,v 1.73 2004/03/06 15:19:15 cheusov Exp $
  * 
  */
 
@@ -480,7 +480,7 @@ static void daemon_printf( const char *format, ... )
       daemon_terminate( 0, __FUNCTION__ );
    }
 
-   pt = alloca(2*len);
+   pt = alloca(2*len + 10); /* +10 for the case when buf == "\n"*/
    daemon_crlf(pt, buf, 0);
    daemon_write(pt, strlen(pt));
 }
