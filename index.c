@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.98 2005/03/29 16:17:11 cheusov Exp $
+ * $Id: index.c,v 1.99 2005/03/30 10:35:26 cheusov Exp $
  * 
  */
 
@@ -1504,65 +1504,65 @@ int dict_search (
       return 0;
    }
 
-      PRINTF (DBG_SEARCH, (":S: Searching in '%s'\n", database -> databaseName));
+   PRINTF (DBG_SEARCH, (":S: Searching in '%s'\n", database -> databaseName));
 
 #if 0
-      fprintf (stderr, "STRATEGY: %x\n", strategy);
+   fprintf (stderr, "STRATEGY: %x\n", strategy);
 #endif
 
-      if (database -> index){
-	 PRINTF (DBG_SEARCH, (":S:   database search\n"));
-	 count = dict_search_database_ (l, word, database, norm_strategy);
-      }
+   if (database -> index){
+      PRINTF (DBG_SEARCH, (":S:   database search\n"));
+      count = dict_search_database_ (l, word, database, norm_strategy);
+   }
 
 #ifdef USE_PLUGIN
-      if (!count && database -> plugin){
-	 PRINTF (DBG_SEARCH, (":S:   plugin search\n"));
-	 count = dict_search_plugin (
-	    l, word, database, strategy,
-	    extra_result, extra_data, extra_data_size);
+   if (!count && database -> plugin){
+      PRINTF (DBG_SEARCH, (":S:   plugin search\n"));
+      count = dict_search_plugin (
+	 l, word, database, strategy,
+	 extra_result, extra_data, extra_data_size);
 
-	 if (count)
-	    return count;
-      }
+      if (count)
+	 return count;
+   }
 #endif
 
-      if (!count && database -> virtual_db_list){
-	 lst_Position db_list_pos;
-	 dictDatabase *db = NULL;
-	 int old_count = lst_length (l);
+   if (!count && database -> virtual_db_list){
+      lst_Position db_list_pos;
+      dictDatabase *db = NULL;
+      int old_count = lst_length (l);
 
-	 assert (lst_init_position (database -> virtual_db_list));
+      assert (lst_init_position (database -> virtual_db_list));
 
-	 LST_ITERATE (database -> virtual_db_list, db_list_pos, db){
-	    count += dict_search (
-	       l, word, db, strategy, option_mime,
-	       extra_result, extra_data, extra_data_size);
-	 }
-
-	 if (count > old_count){
-	    replace_invisible_databases (
-	       lst_nth_position (l, old_count + 1),
-	       database);
-	 }
-      }
-
-      if (!count && database -> mime_db){
-	 int old_count = lst_length (l);
-
+      LST_ITERATE (database -> virtual_db_list, db_list_pos, db){
 	 count += dict_search (
-	    l, word,
-	    (option_mime ? database -> mime_mimeDB :
-	     database -> mime_nomimeDB),
-	    strategy, 0,
+	    l, word, db, strategy, option_mime,
 	    extra_result, extra_data, extra_data_size);
-
-	 if (count > old_count){
-	    replace_invisible_databases (
-	       lst_nth_position (l, old_count + 1),
-	       database);
-	 }
       }
+
+      if (count > old_count){
+	 replace_invisible_databases (
+	    lst_nth_position (l, old_count + 1),
+	    database);
+      }
+   }
+
+   if (!count && database -> mime_db){
+      int old_count = lst_length (l);
+
+      count += dict_search (
+	 l, word,
+	 (option_mime ? database -> mime_mimeDB :
+	  database -> mime_nomimeDB),
+	 strategy, 0,
+	 extra_result, extra_data, extra_data_size);
+
+      if (count > old_count){
+	 replace_invisible_databases (
+	    lst_nth_position (l, old_count + 1),
+	    database);
+      }
+   }
 
    if (count > 0 && extra_result)
       *extra_result = DICT_PLUGIN_RESULT_FOUND;
