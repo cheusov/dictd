@@ -53,6 +53,8 @@ enum {
    DICT_PLUGIN_INITDATA_DBNAME,   /* database name */
    DICT_PLUGIN_INITDATA_STRATEGY, /* search strategy */
    DICT_PLUGIN_INITDATA_DEFDBDIR, /* default directory for databases */
+   DICT_PLUGIN_INITDATA_ALPHABET_8BIT,  /* alphanumeric and space characters for 8bit charset*/
+   DICT_PLUGIN_INITDATA_ALPHABET_ASCII, /* alphanumeric and space characters for ASCII*/
 
    /* this list can be enlarged*/
 };

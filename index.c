@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.87 2004/01/08 17:25:03 cheusov Exp $
+ * $Id: index.c,v 1.88 2004/01/16 19:30:29 cheusov Exp $
  * 
  */
 
@@ -66,8 +66,8 @@ static int isspacepuncttab [UCHAR_MAX + 1];
 static int char2indextab[UCHAR_MAX + 2];
 static int index2chartab[UCHAR_MAX + 2];
 
-static char global_alphabet_8bit [UCHAR_MAX + 2];
-static char global_alphabet_ascii [UCHAR_MAX + 2];
+char global_alphabet_8bit [UCHAR_MAX + 2];
+char global_alphabet_ascii [UCHAR_MAX + 2];
 
 static int chartab [UCHAR_MAX + 1];
 static int charcount = 0;

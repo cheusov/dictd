@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: index.h,v 1.2 2003/04/07 14:21:17 cheusov Exp $
+ * $Id: index.h,v 1.3 2004/01/16 19:30:29 cheusov Exp $
  */
 
 #ifndef _INDEX_H_
@@ -56,5 +56,8 @@ extern int dict_search_databases (
 extern int        utf8_mode;
 extern int        bit8_mode;
 extern int        optStart_mode;
+
+extern char global_alphabet_8bit [];
+extern char global_alphabet_ascii [];
 
 #endif /* _INDEX_H_ */

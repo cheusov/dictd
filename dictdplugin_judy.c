@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.18 2004/01/08 17:25:03 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.19 2004/01/16 19:30:29 cheusov Exp $
  * 
  */
 
@@ -100,6 +100,10 @@ typedef struct global_data_s {
 
    BOOL m_flag_allchars;
    BOOL m_flag_utf8;
+
+   char *m_alphabet_global_8bit;
+   char *m_alphabet_global_ascii;
+   char *m_alphabet;
 } global_data;
 
 int dictdb_close (void *dict_data);
@@ -147,6 +151,15 @@ static void global_data_destroy (global_data *d)
 
    if (d -> m_offs_size_array)
       xfree (d -> m_offs_size_array);
+
+   if (d -> m_alphabet)
+      xfree (d -> m_alphabet);
+
+   if (d -> m_alphabet_global_8bit)
+      xfree (d -> m_alphabet_global_8bit);
+
+   if (d -> m_alphabet_global_ascii)
+      xfree (d -> m_alphabet_global_ascii);
 
    JudySLFreeArray (&d -> m_judy_array, 0);
    heap_destroy (&d -> m_heap);
@@ -610,6 +623,47 @@ static void init_data_file (global_data *dict_data)
    dict_data -> m_data = dict_data_open (dict_data -> m_conf_data_fn, 0);
 }
 
+static void init_alphabet (global_data *dict_data)
+{
+   int ret = 0;
+   int exit_code = 0;
+   const char * const* defs;
+   const int * defs_sizes;
+   int count = 0;
+   int len = 0;
+   char *p = NULL;
+   char *alphabet = NULL;
+
+   assert (dict_data);
+
+   exit_code = dictdb_search (
+      dict_data, "00-database-alphabet", -1,
+      dict_data -> m_strat_exact,
+      &ret,
+      NULL, 0,
+      &defs, &defs_sizes,
+      &count);
+
+   if (!exit_code && ret == DICT_PLUGIN_RESULT_FOUND && count > 0){
+      if (-1 == defs_sizes [0])
+	 len = strlen (defs [0]);
+      else
+	 len = defs_sizes [0];
+
+      alphabet = dict_data -> m_alphabet = xmalloc (len + 1);
+      memcpy (alphabet, defs [0], len);
+      alphabet [len] = 0;
+
+      p = strchr (alphabet, '\n');
+      if (p)
+	 *p = 0;
+
+/*      fprintf (stderr, "alphabet = `%s`\n", alphabet);*/
+   }
+
+   dictdb_free (dict_data);
+}
+
 int dictdb_open (
    const dictPluginData *init_data,
    int init_data_size,
@@ -678,13 +732,23 @@ int dictdb_open (
 	    }
 	 }
 	 break;
+
       case DICT_PLUGIN_INITDATA_DEFDBDIR:
 	 strlcpy (
 	    dict_data -> m_default_db_dir,
 	    init_data [i].data,
 	    sizeof (dict_data -> m_default_db_dir));
+	 break;
+
+      case DICT_PLUGIN_INITDATA_ALPHABET_8BIT:
+	 dict_data -> m_alphabet_global_8bit = xstrdup (init_data [i].data);
 
 	 break;
+      case DICT_PLUGIN_INITDATA_ALPHABET_ASCII:
+	 dict_data -> m_alphabet_global_ascii = xstrdup (init_data [i].data);
+
+	 break;
+
       default:
 	 break;
       }
@@ -701,6 +765,8 @@ int dictdb_open (
       return 8;
    }
 
+   init_alphabet (dict_data);
+
 /*   debug_print (dict_data); */
    return 0;
 }
@@ -708,7 +774,6 @@ int dictdb_open (
 int dictdb_close (void *data)
 {
    global_data_destroy (data);
-
    return 0;
 }
 
@@ -852,7 +917,12 @@ static int match_lev (
    global_data *dict_data,
    const char *word)
 {
-   dict_search_lev (word, global_alphabet, dict_data -> m_flag_utf8, dict_data);
+   const char *alphabet = dict_data -> m_alphabet;
+
+   if (!alphabet)
+      alphabet = global_alphabet;
+
+   dict_search_lev (word, alphabet, dict_data -> m_flag_utf8, dict_data);
    return 0;
 }
 

@@ -15,7 +15,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: plugin.c,v 1.13 2004/01/08 17:35:56 cheusov Exp $
+ * $Id: plugin.c,v 1.14 2004/01/16 19:30:29 cheusov Exp $
  * 
  */
 
@@ -321,10 +321,6 @@ static int plugin_initdata_set_stratnames (
 
 static int plugin_initdata_set_defdbdir (dictPluginData *data, int data_size)
 {
-   const dictDatabase *db;
-   int count;
-   int i;
-
    if (data_size <= 0)
       err_fatal (__FUNCTION__, "too small initial array");
 
@@ -335,7 +331,33 @@ static int plugin_initdata_set_defdbdir (dictPluginData *data, int data_size)
    return 1;
 }
 
-/* all dict [i]->data are xmalloc'd*/
+static int plugin_initdata_set_alphabet_8bit (
+   dictPluginData *data, int data_size)
+{
+   if (data_size <= 0)
+      err_fatal (__FUNCTION__, "too small initial array");
+
+   data -> size = -1;
+   data -> data = xstrdup (global_alphabet_8bit);
+   data -> id   = DICT_PLUGIN_INITDATA_ALPHABET_8BIT;
+
+   return 1;
+}
+
+static int plugin_initdata_set_alphabet_ascii (
+   dictPluginData *data, int data_size)
+{
+   if (data_size <= 0)
+      err_fatal (__FUNCTION__, "too small initial array");
+
+   data -> size = -1;
+   data -> data = xstrdup (global_alphabet_ascii);
+   data -> id   = DICT_PLUGIN_INITDATA_ALPHABET_ASCII;
+
+   return 1;
+}
+
+/* all dict [i]->data are xmalloc'ed */
 static int plugin_initdata_set (
    dictPluginData *data, int data_size,
    const dictDatabase *db)
@@ -356,6 +378,14 @@ static int plugin_initdata_set (
    data_size -= count;
 
    count = plugin_initdata_set_data (data, data_size, db);
+   data      += count;
+   data_size -= count;
+
+   count = plugin_initdata_set_alphabet_8bit (data, data_size);
+   data      += count;
+   data_size -= count;
+
+   count = plugin_initdata_set_alphabet_ascii (data, data_size);
    data      += count;
    data_size -= count;
 
