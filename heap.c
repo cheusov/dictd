@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: heap.c,v 1.2 2003/08/11 17:06:27 cheusov Exp $
+ * $Id: heap.c,v 1.3 2004/03/18 19:49:53 cheusov Exp $
  * 
  */
 
@@ -80,6 +80,8 @@ void heap_destroy (void **heap)
 void * heap_alloc (void *heap, size_t size)
 {
    heap_s *h = (heap_s *) heap;
+
+   assert (h -> magic_num == HEAP_MAGIC);
 //   fprintf (stderr, "heap_alloc\n");
 
    if (size >= HEAP_LIMIT || h -> allocated_bytes + size > HEAP_ARRAY_SIZE){
@@ -97,8 +99,12 @@ void * heap_alloc (void *heap, size_t size)
 
 char * heap_strdup (void *heap, const char *s)
 {
+   heap_s *h = (heap_s *) heap;
    size_t len = strlen (s);
    char *p = (char *) heap_alloc (heap, len + 1);
+
+   assert (h -> magic_num == HEAP_MAGIC);
+
    memcpy (p, s, len + 1);
    return p;
 }
@@ -108,6 +114,8 @@ void heap_free (void *heap, void *p)
    heap_s *h = (heap_s *) heap;
 
 //   fprintf (stderr, "heap_free\n");
+
+   assert (h -> magic_num == HEAP_MAGIC);
 
    if (!p){
 //      fprintf (stderr, "heap_free(NULL)\n");
@@ -135,6 +143,8 @@ void * heap_realloc (void *heap, void *p, size_t size)
    heap_s *h = (heap_s *) heap;
    char *new_p;
 
+   assert (h -> magic_num == HEAP_MAGIC);
+
    if (!p)
       return heap_alloc (heap, size);
 
@@ -160,5 +170,8 @@ void * heap_realloc (void *heap, void *p, size_t size)
 int heap_isempty (void *heap)
 {
    heap_s *h = (heap_s *) heap;
+
+   assert (h -> magic_num == HEAP_MAGIC);
+
    return h -> allocation_count == 0;
 }
