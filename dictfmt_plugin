@@ -9,7 +9,7 @@ It creates two special entries:
   Its "definition" is a filename for plugin (possibly .so)
   You should specify the filename as a parameter (see below).
   If the filename does not begin with '.' or '/', it is prepended with
-  $libexecdir/. It is a compile time option. You can change this behaviour
+  \$libexecdir. It is a compile time option. You can change this behaviour
   by editing Makefile or running ./configure --libexecdir=...
 00-database-plugin-data
   Its "definition" is a data passed to plugin during
@@ -42,6 +42,11 @@ done
 
 filename=$1
 shift
+
+if test -z "$filename"; then
+	usage
+	exit 1
+fi
 
 {
 	echo -en "\
