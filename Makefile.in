@@ -1,6 +1,6 @@
 # Makefile.in -- Makefile for dict
 # Created: Wed Apr 24 14:14:09 1996 by faith@cs.unc.edu
-# Revised: Wed Dec 22 09:02:43 1999 by faith@acm.org
+# Revised: Wed Dec 22 09:22:45 1999 by faith@acm.org
 # Copyright 1996, 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.36 1999/12/22 14:21:28 faith Exp $
+# $Id: Makefile.in,v 1.37 1999/12/22 14:26:44 faith Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -164,9 +164,8 @@ ChangeLog:
 
 
 dist: ChangeLog
-	@( CVSROOT=`cat CVS/Root`; LIBMAACVSROOT=`cat libmaa/CVS/Root`; \
+	@( CVSROOT=`cat CVS/Root`; \
 	export CVSROOT; \
-	export LIBMAACVSROOT; \
 	VERSION=$(DICT_VERSION) ; \
 	export VERSION; \
 	echo "***** Copying ChangeLog for dictd-$${VERSION}..."; \
@@ -174,10 +173,8 @@ dist: ChangeLog
 	echo "***** Exporting files for dictd-$${VERSION}..."; \
 	cd /tmp; \
 	rm -rf /tmp/dictd-$${VERSION}; \
-	cvs export -fNd dictd-$${VERSION} -r HEAD dictd; \
+	cvs export -fNd dictd-$${VERSION} -r HEAD dictd1; \
 	cd dictd-$${VERSION}; \
-	echo "***** Exporting files for libmaa..."; \
-	cvs -d $${LIBMAACVSROOT} export -fNd libmaa -r HEAD libmaa; \
 	make -f Makefile.conf; \
 	mv ../ChangeLog .; \
 	cd ..; \

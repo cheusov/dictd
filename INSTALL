@@ -21,6 +21,10 @@ INSTALLATION
     NOTE: If you want to build only the client software, use 'make dict'
     instead of 'make'
 
+    [If using the Cygwin tools under Win98, please edit regex/mkh and
+    remove the line that sets the PATH.  The dict client has been tested
+    under Cygwin+Win98, but the dictd server has not.]
+
 3.  Install the client, server, and manual pages:
 
         make install
