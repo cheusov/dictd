@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.21 2005/03/28 09:55:27 cheusov Exp $
+ * $Id: servparse.y,v 1.22 2005/03/29 16:12:52 cheusov Exp $
  * 
  */
 
@@ -59,8 +59,8 @@ static dictDatabase *db;
 %token <token> TOKEN_INVISIBLE TOKEN_DISABLE_STRAT
 %token <token> TOKEN_DATABASE_VIRTUAL TOKEN_DATABASE_LIST
 %token <token> TOKEN_DATABASE_PLUGIN TOKEN_PLUGIN
+%token <token> TOKEN_DATABASE_MIME
 %token <token> TOKEN_DEFAULT_STRAT
-
 %token <token> TOKEN_GLOBAL
 %token <token> TOKEN_PORT
 %token <token> TOKEN_DELAY
@@ -77,6 +77,9 @@ static dictDatabase *db;
 %token <token> TOKEN_LOG_FILE
 %token <token> TOKEN_FAST_START
 %token <token> TOKEN_WITHOUT_MMAP
+
+%token <token> TOKEN_MIME_DBNAME
+%token <token> TOKEN_NOMIME_DBNAME
 
 %type  <token>  Site
 %type  <access> AccessSpec
@@ -323,6 +326,15 @@ Database : TOKEN_DATABASE TOKEN_STRING
 	   }
            '{' SpecList_plugin '}' { $$ = db; }
            |
+           TOKEN_DATABASE_MIME TOKEN_STRING
+	   {
+	      db = xmalloc (sizeof (struct dictDatabase));
+	      memset (db, 0, sizeof (struct dictDatabase));
+	      db->databaseName = $2.string;
+	      db->mime_db      = 1;
+	   }
+           '{' SpecList_mime '}' { $$ = db; }
+           |
 	   TOKEN_DATABASE_EXIT
 	   {
 	      db = xmalloc(sizeof(struct dictDatabase));
@@ -349,6 +361,22 @@ Spec_virtual : Spec__name
 SpecList_plugin : Spec_plugin
          | SpecList_plugin Spec_plugin
          ;
+
+SpecList_mime : Spec_mime
+         | SpecList_mime Spec_mime
+         ;
+
+Spec_mime : Spec__name
+     | Spec__info
+     | TOKEN_MIME_DBNAME TOKEN_STRING
+         {  SET(mime_mimeDbname,$1,$2);  }
+     | TOKEN_NOMIME_DBNAME TOKEN_STRING 
+         {  SET(mime_nomimeDbname,$1,$2);  }
+     | Spec__invisible
+     | Spec__disable_strat
+     | Spec__default_strat
+     | Spec__access
+     ;
 
 Spec_plugin : Spec__name
      | Spec__info

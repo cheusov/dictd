@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.96 2004/11/19 19:42:12 cheusov Exp $
+ * $Id: index.c,v 1.97 2005/03/29 16:12:52 cheusov Exp $
  * 
  */
 
@@ -1474,6 +1474,7 @@ int dict_search (
    const char *const word,
    const dictDatabase *database,
    int strategy,
+   int option_mime,
    int *extra_result,
    const dictPluginData **extra_data,
    int *extra_data_size)
@@ -1535,11 +1536,29 @@ int dict_search (
 
 	 LST_ITERATE (database -> virtual_db_list, db_list_pos, db){
 	    count += dict_search (
-	       l, word, db, strategy,
+	       l, word, db, strategy, option_mime,
 	       extra_result, extra_data, extra_data_size);
 	 }
 
-	 if (count > 0){
+	 if (count > old_count){
+	    replace_invisible_databases (
+	       lst_nth_position (l, old_count + 1),
+	       database);
+	 }
+      }
+
+      if (!count && database -> mime_db){
+	 int old_count = lst_length (l);
+
+	 count += dict_search (
+	    l, word,
+	    (option_mime ? database -> mime_mimeDB :
+	     database -> mime_nomimeDB),
+	    strategy, 0,
+	    extra_result, extra_data, extra_data_size);
+
+	 if (count > old_count){
+	    fprintf (stderr, "drdrdr\n");
 	    replace_invisible_databases (
 	       lst_nth_position (l, old_count + 1),
 	       database);

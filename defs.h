@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: defs.h,v 1.9 2004/11/19 19:42:00 cheusov Exp $
+ * $Id: defs.h,v 1.10 2005/03/29 16:12:52 cheusov Exp $
  */
 
 #ifndef _DEFS_H_
@@ -209,6 +209,7 @@ typedef struct dictDatabase {
    int virtual_db;   /* non-zero for virtual databases */
    int plugin_db;    /* non-zero for plugin entry */
    int normal_db;    /* non-zero for normal database */
+   int mime_db;      /* non-zero for MIME database */
 
    int default_strategy;    /* default search strategy for `.' */
 
@@ -220,6 +221,12 @@ typedef struct dictDatabase {
    const char *plugin_data;    /* data for initializing plugin */
    dictPlugin *plugin;
 
+   /* database_mime members */
+   const char *mime_mimeDbname;
+   const char *mime_nomimeDbname;
+
+   struct dictDatabase *mime_mimeDB;
+   struct dictDatabase *mime_nomimeDB;
 } dictDatabase;
 
 #define DICT_DENY     0

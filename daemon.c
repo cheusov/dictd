@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.79 2004/11/17 12:39:42 cheusov Exp $
+ * $Id: daemon.c,v 1.80 2005/03/29 16:12:51 cheusov Exp $
  * 
  */
 
@@ -41,6 +41,7 @@ static const char   *daemonIP        = NULL;
 static int          daemonPort       = -1;
 static char         daemonStamp[256] = "";
 static jmp_buf      env;
+
 static int          daemonMime;
 
 static void daemon_define( const char *cmdline, int argc, const char **argv );
@@ -938,6 +939,7 @@ static int dict_search_words (
       if (word){
 	 matches_count = dict_search (
 	    l, word, db, strategy,
+	    daemonMime,
 	    result, extra_result, extra_result_size);
 
 	 if (*result == DICT_PLUGIN_RESULT_PREPROCESS){
@@ -1005,7 +1007,8 @@ int dict_search_databases (
       matches_count = dict_search_words (
 	 l,
 	 preprocessed_words, db, strategy,
-	 &error, &result, &extra_result, &extra_result_size);
+	 &error,
+	 &result, &extra_result, &extra_result_size);
 
       if (matches < 0)
 	 matches = 0;
@@ -1155,8 +1158,7 @@ void daemon_show_info(
       if (dict_search (
 	 list,
 	 info_entry_name,
-	 db,
-	 DICT_STRAT_EXACT,
+	 db, DICT_STRAT_EXACT, 0,
 	 NULL, NULL, NULL))
       {
 	 int i=1;

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servscan.l,v 1.24 2005/03/28 09:55:27 cheusov Exp $
+ * $Id: servscan.l,v 1.25 2005/03/29 16:12:52 cheusov Exp $
  * 
  */
 
@@ -112,6 +112,10 @@ database_plugin             RETURN(TOKEN_DATABASE_PLUGIN);
 plugin                      RETURN(TOKEN_PLUGIN);
 disable_strategy            RETURN(TOKEN_DISABLE_STRAT);
 default_strategy            RETURN(TOKEN_DEFAULT_STRAT);
+
+dbname_nomime               RETURN(TOKEN_NOMIME_DBNAME);
+dbname_mime                 RETURN(TOKEN_MIME_DBNAME);
+database_mime               RETURN(TOKEN_DATABASE_MIME);
 
 global                      RETURN(TOKEN_GLOBAL);
 port                        RETURN(TOKEN_PORT);

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.120 2005/03/28 09:55:27 cheusov Exp $
+ * $Id: dictd.c,v 1.121 2005/03/29 16:12:52 cheusov Exp $
  * 
  */
 
@@ -503,7 +503,7 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
 
    if (
       0 >= dict_search (
-	 list, entryName, db, DICT_STRAT_EXACT,
+	 list, entryName, db, DICT_STRAT_EXACT, 0,
 	 NULL, NULL, NULL ))
    {
 #ifdef USE_PLUGIN
@@ -515,7 +515,9 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
 
    dw = lst_nth_get( list, 1 );
 
-   buf = pt = dict_data_obtain( db, dw );
+   assert (dw -> database);
+
+   buf = pt = dict_data_obtain( dw -> database, dw );
 
    if (!strncmp (pt, "00database", 10) || !strncmp (pt, "00-database", 11)){
       while (*pt != '\n')
@@ -541,14 +543,31 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
    return pt;
 }
 
+static dictDatabase *dbname2database (const char *dbname)
+{
+   dictDatabase *db    = NULL;
+   lst_Position db_pos = lst_init_position (DictConfig->dbl);
+
+   while (db_pos){
+      db = lst_get_position (db_pos);
+
+      if (!strcmp (db -> databaseName, dbname)){
+	 return db;
+      }
+
+      db_pos = lst_next_position (db_pos);
+   }
+
+   return NULL;
+}
+
 static lst_List string2virtual_db_list (char *s)
 {
-   lst_Position db_pos;
    int len, i;
    lst_List virtual_db_list;
    char *p;
 
-   dictDatabase *global_db_list = NULL;
+   dictDatabase *db = NULL;
 
    p   = s;
    len = strlen (s);
@@ -560,20 +579,11 @@ static lst_List string2virtual_db_list (char *s)
 	 s [i] = '\0';
 
 	 if (*p){
-	    db_pos = lst_init_position (DictConfig->dbl);
+	    db = dbname2database (p);
 
-	    while (db_pos){
-	       global_db_list = lst_get_position (db_pos);
-
-	       if (!strcmp (global_db_list -> databaseName, p)){
-		  lst_append (virtual_db_list, global_db_list);
-		  break;
-	       }
-
-	       db_pos = lst_next_position (db_pos);
-	    }
-
-	    if (!db_pos){
+	    if (db){
+	       lst_append (virtual_db_list, db);
+	    }else{
 	       log_info( ":E: Unknown database '%s'\n", p );
 	       PRINTF(DBG_INIT, (":E: Unknown database '%s'\n", p));
 	       exit (2);
@@ -605,7 +615,7 @@ static int init_virtual_db_list (const void *datum)
 
       list = lst_create();
       ret = dict_search (
-	 list, DICT_FLAG_VIRTUAL, db, DICT_STRAT_EXACT,
+	 list, DICT_FLAG_VIRTUAL, db, DICT_STRAT_EXACT, 0,
 	 NULL, NULL, NULL);
 
       switch (ret){
@@ -628,6 +638,54 @@ static int init_virtual_db_list (const void *datum)
       }
 
       dict_destroy_list (list);
+   }
+
+   return 0;
+}
+
+static int init_mime_db_list (const void *datum)
+{
+   lst_List list;
+   dictDatabase *db  = (dictDatabase *)datum;
+   dictWord *dw;
+   char *buf;
+   int ret;
+
+   if (!db -> mime_db)
+      return 0;
+
+   /* MIME */
+   if (db -> mime_mimeDbname){
+      db -> mime_mimeDB = dbname2database (db -> mime_mimeDbname);
+
+      if (!db -> mime_mimeDB){
+	 err_fatal (
+	    __FUNCTION__,
+	    "Incorrect database name '%s'\n",
+	    db -> mime_mimeDbname);
+      }
+   }else{
+      err_fatal (
+	 __FUNCTION__,
+	 "MIME database '%s' has no mime_dbname keyword\n",
+	 db -> databaseName);
+   }
+
+   /* NO MIME */
+   if (db -> mime_nomimeDbname){
+      db -> mime_nomimeDB = dbname2database (db -> mime_nomimeDbname);
+
+      if (!db -> mime_nomimeDB){
+	 err_fatal (
+	    __FUNCTION__,
+	    "Incorrect database name '%s'\n",
+	    db -> mime_nomimeDbname);
+      }
+   }else{
+      err_fatal (
+	 __FUNCTION__,
+	 "MIME database '%s' has no nomime_dbname keyword\n",
+	 db -> databaseName);
    }
 
    return 0;
@@ -938,6 +996,7 @@ static void dict_init_databases( dictConfig *c )
    lst_iterate( c->dbl, init_database );
    lst_iterate( c->dbl, init_plugin );
    lst_iterate( c->dbl, init_virtual_db_list );
+   lst_iterate( c->dbl, init_mime_db_list );
    lst_iterate( c->dbl, init_database_short );
    lst_iterate( c->dbl, log_database_info );
 }
@@ -1022,7 +1081,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.120 2005/03/28 09:55:27 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.121 2005/03/29 16:12:52 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
