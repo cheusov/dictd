@@ -179,10 +179,12 @@ BEGIN {
 		offset    = b64_decode($2)
 		head_word = $1
 
-		if (offset in offs2word)
-			offs2word [offset] = offs2word [offset] SUBSEP head_word
-		else
+		if (offset in offs2word){
+			offs2word [offset] = \
+				offs2word [offset] SUBSEP head_word
+		}else{
 			offs2word [offset] = head_word
+		}
 	}
 
 	if (ret < 0){
@@ -198,6 +200,7 @@ BEGIN {
 	skip("00-database-utf8")
 	skip("00-database-8bit")
 	skip("00-database-allchars")
+	skip("00-database-alphabet")
 
 	offset  = 0
 }
@@ -207,8 +210,8 @@ BEGIN {
 		hw = offs2word [offset]
 		hw_is_skipped = (hw in skipped)
 		if (!hw_is_skipped){
-				gsub(SUBSEP, separator, hw)
-				printf "_____\n\n%s\n", hw
+			gsub(SUBSEP, separator, hw)
+			printf "_____\n\n%s\n", hw
 		}
 	}
 
