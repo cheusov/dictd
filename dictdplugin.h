@@ -15,16 +15,14 @@
 
 __BEGIN_DECLS
 
-extern const char * zzz;
+extern const char * DICT_ENTRY_PLUGIN;
+extern const char * DICT_ENTRY_PLUGIN_DATA;
 
-#define DICT_ENTRY_PLUGIN         "00-database-plugin"
-#define DICT_ENTRY_PLUGIN_DATA    "00-database-plugin-data"
-
-#define DICT_PLUGINFUN_OPEN      "dictdb_open"
-#define DICT_PLUGINFUN_ERROR     "dictdb_error"
-#define DICT_PLUGINFUN_FREE      "dictdb_free"
-#define DICT_PLUGINFUN_SEARCH    "dictdb_search"
-#define DICT_PLUGINFUN_CLOSE     "dictdb_close"
+extern const char * DICT_PLUGINFUN_OPEN;
+extern const char * DICT_PLUGINFUN_ERROR;
+extern const char * DICT_PLUGINFUN_FREE;
+extern const char * DICT_PLUGINFUN_SEARCH;
+extern const char * DICT_PLUGINFUN_CLOSE;
 
 #define DICT_EXACT        1     /* Exact */ 
 #define DICT_PREFIX       2     /* Prefix */ 
@@ -65,7 +63,6 @@ typedef int (*dictdb_open_type)
 
 enum {
    DICT_PLUGIN_INITDATA_DICT, /* data obtained from .dict file */
-   DICT_PLUGIN_INITDATA_AUTH
 
    /* this list can be enlarged*/
 };
@@ -108,7 +105,7 @@ typedef int (*dictdb_search_type) (
    const char *word,        /* in: word */
    int word_size,           /* in: wordsize or -1 for 0-terminated string */
    int search_strategy,     /* in: search strategy */
-   int *ret,                /* out: result type - plt_XXX */
+   int *ret,                /* out: result type - DICT_PLUGIN_RESULT_XXX */
    const char **result_extra,       /* out: extra information */
    int *result_extra_size,          /* out: extra information size */
    const char * const* *definitions,/* out: definitions */
