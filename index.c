@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.48 2003/01/08 23:14:05 hilliard Exp $
+ * $Id: index.c,v 1.49 2003/01/09 14:53:33 cheusov Exp $
  * 
  */
 
@@ -125,15 +125,21 @@ static int tolower_alnumspace_utf8 (
    size_t len;
    int    len2;
 
+   mbstate_t ps;
+   mbstate_t ps2;
+
+   memset (&ps,  0, sizeof (ps));
+   memset (&ps2, 0, sizeof (ps2));
+
    while (src && src [0]){
-      len = mbrtowc (&ucs4_char, src, MB_CUR_MAX, NULL);
+      len = mbrtowc (&ucs4_char, src, MB_CUR_MAX, &ps);
       if ((int) len < 0)
 	 return 0;
 
       if (iswspace (ucs4_char)){
 	 *dest++ = ' ';
       }else if (allchars_mode || iswalnum (ucs4_char)){
-	 len2 = wcrtomb (dest, towlower (ucs4_char), NULL);
+	 len2 = wcrtomb (dest, towlower (ucs4_char), &ps2);
 	 if (len2 < 0)
 	    return 0;
 
@@ -1237,10 +1243,14 @@ static int stranagram_utf8 (char *str)
    size_t len;
    char   *p;
 
+   mbstate_t ps;
+
    assert (str);
 
+   memset (&ps,  0, sizeof (ps));
+
    for (p = str; *p; ){
-      len = mbrlen (p, MB_CUR_MAX, NULL);
+      len = mbrlen (p, MB_CUR_MAX, &ps);
       if ((int) len < 0)
 	 return 0; /* not a UTF-8 string */
 

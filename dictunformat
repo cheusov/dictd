@@ -5,7 +5,7 @@ export LC_ALL
 
 exec awk '
 BEGIN {
-	NL_size = 1
+	NL_size = 1 # 2 for \r\n
 }
 
 function usage (){
