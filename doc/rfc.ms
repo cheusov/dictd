@@ -1,8 +1,8 @@
 .\"
-.\" Revised: Thu Jul 17 09:58:13 1997 by faith@acm.org
+.\" Revised: Sat Jul 26 21:39:25 1997 by faith@acm.org
 .\" Distribution of this memo is unlimited.
 .\"
-.\" $Id: rfc.ms,v 1.17 1997/07/18 20:36:50 faith Exp $
+.\" $Id: rfc.ms,v 1.18 1997/07/27 01:43:44 faith Exp $
 .\" 
 .pl 10.0i
 .po 0
@@ -10,28 +10,64 @@
 .lt 7.2i
 .nr LL 7.2i
 .nr LT 7.2i
-.ds LF Faith, Martin
-.ds DA 11 July 1997
-.ds RF FORMFEED[Page %]
-.ds CF
-.ds LH RFC Unassigned
-.ds RH \*(DA
+.ds DA 26 July 1997
+.ds LH INTERNET-DRAFT
 .ds CH Dictionary Server Protocol
+.ds RH \*(DA
+.ds LF Faith, Martin
+.ds CF
+.ds RF FORMFEED[Page %]
 .hy 0
 .ad l
 .in 0
+.de id
+.tl 'INTERNET-DRAFT'EXPIRES JANUARY 1998'INTERNET-DRAFT'
+..
+.de Id
+.tl '\*(LF'\*(CF'[Page %]'
+.ds LF INTERNET-DRAFT
+.ds CF EXPIRES JANUARY 1998
+.ds RF FORMFEEDINTERNET-DRAFT
+..
+.de iD
+.wh -5 Id
+..
+.em iD
+.id
 .tl 'Network Working Group''R. Faith'
-.tl 'Request for Comments: Unassigned''U. North Carolina, Chapel Hill'
-.tl 'Category: Standards Track''B. Martin'
+.tl 'INTERNET-DRAFT''U. North Carolina, Chapel Hill'
+.tl 'Category: Informational''B. Martin'
 .tl '''Miranda Productions'
 .tl '''\*(DA'
 
 
-.ce
+.ce 2
 A Dictionary Server Protocol
+<draft-rfced-info-faith-01.txt>
 
 .SH
 Status of this Memo
+.RS
+
+This document is an Internet-Draft.  Internet-Drafts are working
+documents of the Internet Engineering Task Force (IETF), its areas,
+and its working groups.  Note that other groups may also distribute
+working documents as Internet-Drafts.
+
+Internet-Drafts are draft documents valid for a maximum of six months
+and may be updated, replaced, or obsoleted by other documents at any
+time.  It is inappropriate to use Internet- Drafts as reference
+material or to cite them other than as ``work in progress.''
+
+To learn the current status of any Internet-Draft, please check the
+``1id-abstracts.txt'' listing contained in the Internet- Drafts Shadow
+Directories on ftp.is.co.za (Africa), nic.nordu.net (Europe),
+munnari.oz.au (Pacific Rim), ds.internic.net (US East Coast), or
+ftp.isi.edu (US West Coast).
+
+.RE
+.SH
+Authors' Note
 .RS
 
 [[This document has not yet been submitted or accepted as an official
@@ -39,10 +75,6 @@ RFC.  Two independent server implementations have been completed, one
 at dict://dict.miranda.org:2628 and the other at
 dict://proteus.cs.unc.edu:2628.  This note should be deleted when this
 memo is assigned an RFC number.]]
-
-This memo provides information for the Internet community.  This memo
-does not specify an Internet standard of any kind.  Distribution of
-this memo is unlimited.
 
 .RE
 .SH
@@ -337,20 +369,39 @@ When a client initially connects to a DICT server, a code 220 is sent if
 the client's IP is allowed to connect:
 
 .DS
-220 text msg-id
+220 text capabilities msg-id
 .DE
 
 The code 220 is a banner, usually containing host name and DICT server
-version information.  The last sequence of characters in the banner is
-a msg-id, similar to the format specified in [RFC822].  The simplified
-description is given below:
+version information.
+
+The second-to-last sequence of characters in the banner is the
+optional capabilities string, which will allow servers to declare
+support for extensions to the DICT protocol.  The capabilities string
+is defined below:
 
 .DS
-msg-id      =  "<" spec ">"            ; Unique message id
-spec        =  local-part "@" domain
-local-part  =  msg-atom *("." msg-atom)
-domain      =  msg-atom *("." msg-atom)
-msg-atom    =  1*<any CHAR except SPACE, CTLs, "<", ">", and "\\">
+capabilities =  ["<" msg-atom *("." msg-atom) ">"]
+msg-atom     =  1*<any CHAR except SPACE, CTLs,
+                   "<", ">", ".", and "\\">
+.DE
+
+Individual capabilities are described by a single msg-atom.  For
+example, the string <html.gzip> might be used to describe a server
+that supports extensions which allow HTML or compressed output.
+Capability names beginning with "x" or "X" are reserved for
+experimental extensions, and SHOULD NOT be defined in any future DICT
+protocol specification.
+
+The last sequence of characters in the banner is a msg-id, similar to
+the format specified in [RFC822].  The simplified description is given
+below:
+
+.DS
+msg-id       =  "<" spec ">"            ; Unique message id
+spec         =  local-part "@" domain
+local-part   =  msg-atom *("." msg-atom)
+domain       =  msg-atom *("." msg-atom)
 .DE
 
 Note that, in contrast to [RFC822], spaces and quoted pairs are not
@@ -997,6 +1048,61 @@ dict://dict.org/m:sun:::
 
 See [RFC1738] for the specification of Uniform Resource Locators.
 
+
+.RE
+.NH 1
+Extensions
+.RS
+
+This protocol was designed so that flat text databases can be
+used with a server after a minimum of analysis and formatting.  Our
+experience is that merely constructing an index for a database may be
+sufficient to make it useful with a DICT server.  The ability to serve
+preformatted text is especially important since freely-available
+databases are often distributed as flat text files without any
+semantic mark-up information (and often contain "ASCII art" which
+precludes the automation of even simple formatting).
+
+However, given a database with sufficient mark-up information, it may
+be possible to generate output in a variety of different formats
+(e.g., simple HTML or more sophisticated SGML).  The specification of
+formatting is beyond the scope of this document.  The requirements for
+negotiation of format (including character set and other encodings) is
+complex and should be examined over time as more experience is gained.
+We suggest that the use of different formats, as well as other server
+features, be explored as extensions to the protocol.
+
+.RE
+.NH 2
+Experimental Command Syntax
+.RS
+
+Single-letter commands are reserved for debugging and testing, SHOULD
+NOT be defined in any future DICT protocol specification, and MUST NOT
+be used by any client software.
+
+Commands beginning with the letter "X" are reserved for experimental
+extensions, and SHOULD NOT be defined in any future DICT protocol
+specification.  Authors of client software should understand that
+these commands are not part of the DICT protocol and may not be
+available on all DICT servers.
+
+.RE
+.NH 2
+Experimental Commands and Pipelining
+.RS
+
+Experimental commands should be designed so that a client can pipeline
+the experimental commands without knowing if a server supports the
+commands (e.g., instead of using feature negotiation).  If the server
+does not support the commands, then a response code of 500 will be
+given, notifying the client that the extension is not supported.
+Of course, depending on the complexity of the extensions added,
+feature negotiation may be necessary.  To help minimize negotiation
+time, server-supported features may be announced in the banner (code
+220) using the optional capabilities parameter.
+
+
 .RE
 .NH 1
 Summary of Response Codes
@@ -1335,7 +1441,6 @@ EMail: bamartin@miranda.org
 The majority of this work was completed while Bret Martin was a
 student at Yale University.
 .DE
-
 .RE
 .\" Local Variables:
 .\" mode: nroff
