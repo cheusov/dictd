@@ -1,10 +1,10 @@
 /* dict.c -- 
- * Created: Fri Mar 28 19:16:29 1997 by faith@cs.unc.edu
- * Revised: Wed Dec 22 09:10:50 1999 by faith@acm.org
- * Copyright 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
+ * Created: Fri Mar 28 19:16:29 1997 by faith@dict.org
+ * Revised: Thu Nov  9 16:27:12 2000 by faith@dict.org
+ * Copyright 1997, 1998, 1999, 2000 Rickard E. Faith (faith@dict.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dict.c,v 1.20 1999/12/22 14:21:28 faith Exp $
+ * $Id: dict.c,v 1.21 2000/11/09 21:27:29 faith Exp $
  * 
  */
 
@@ -811,7 +811,11 @@ static void process( int html )
 	 expected = cmd_reply.retcode;
 	 break;
       case CMD_WIND:
-	 if (cmd_reply.matches) {
+	 if (cmd_reply.matches > 100) {
+	     fprintf(dict_output,
+		     "Your request would have returned %d definitions\n",
+		     cmd_reply.matches);
+	 } else if (cmd_reply.matches) {
 	    if (!cmd_reply.data)
 	       err_internal( __FUNCTION__,
 			     "%d matches, but no list\n", cmd_reply.matches );
@@ -933,7 +937,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.20 1999/12/22 14:21:28 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.21 2000/11/09 21:27:29 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
