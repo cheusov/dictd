@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.92 2004/10/12 14:39:03 cheusov Exp $
+ * $Id: index.c,v 1.93 2004/11/07 12:07:33 cheusov Exp $
  * 
  */
 
@@ -1631,7 +1631,6 @@ dictIndex *dict_index_open(
 	 0 != dict_search_database_ (NULL, DICT_FLAG_UTF8, &db, DICT_STRAT_EXACT);
       PRINTF(DBG_INIT, (":I:     \"%s\": flag_utf8=%i\n", filename, i->flag_utf8));
       if (i->flag_utf8 && !utf8_mode){
-	 fprintf (stderr, "locale '%s' can not be used for utf-8 dictionaries\n", locale);
 	 log_info( ":E: locale '%s' can not be used for utf-8 dictionaries. Exiting\n", locale );
 	 exit (1);
       }
@@ -1641,7 +1640,6 @@ dictIndex *dict_index_open(
 	 0 != dict_search_database_ (NULL, DICT_FLAG_8BIT, &db, DICT_STRAT_EXACT);
       PRINTF(DBG_INIT, (":I:     \"%s\": flag_8bit=%i\n", filename, i->flag_8bit));
       if (i->flag_8bit && !bit8_mode){
-	 fprintf (stderr, "locale '%s' can not be used for 8-bit dictionaries\n", locale);
 	 log_info( ":E: locale '%s' can not be used for 8-bit dictionaries. Exiting\n", locale );
 	 exit (1);
       }

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.118 2004/10/12 14:39:03 cheusov Exp $
+ * $Id: dictd.c,v 1.119 2004/11/07 12:07:33 cheusov Exp $
  * 
  */
 
@@ -980,7 +980,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.118 2004/10/12 14:39:03 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.119 2004/11/07 12:07:33 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1630,14 +1630,21 @@ int main (int argc, char **argv, char **envp)
    if (! inetd && detach)
       net_detach();
 
-   if (logFile) log_file( "dictd", logFile );
-   if (useSyslog) log_syslog( "dictd" );
+   if (logFile)   log_file ("dictd", logFile);
+   if (useSyslog) log_syslog ("dictd");
+   if (! inetd && ! detach)   log_stream ("dictd", stderr);
 
    release_root_privileges();
 
-   set_locale_and_flags (locale);
+   if ((logFile || useSyslog || !detach) && !logOptions)
+      set_minimal();
 
    time(&startTime);
+   log_info(":I: %d starting %s %24.24s\n",
+	    getpid(), dict_get_banner(0), ctime(&startTime));
+
+   set_locale_and_flags (locale);
+
    tim_start( "dictd" );
    alarm(_dict_markTime);
 
@@ -1682,12 +1689,6 @@ int main (int argc, char **argv, char **envp)
    fflush(stdout);
    fflush(stderr);
 
-   if (!detach && !inetd)   log_stream( "dictd", stderr );
-   if ((logFile || useSyslog || !detach) && !logOptions)
-      set_minimal();
-
-   log_info(":I: %d starting %s %24.24s\n",
-	    getpid(), dict_get_banner(0), ctime(&startTime));
    if (strcmp(locale, "C"))
       log_info(":I: using locale \"%s\"\n", locale);
 
