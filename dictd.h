@@ -157,6 +157,7 @@ typedef struct dictPlugin {
    /*   int         status;*/
 
    dictdb_open_type   dictdb_open;
+   dictdb_set_type    dictdb_set;
    dictdb_search_type dictdb_search;
    dictdb_free_type   dictdb_free;
    dictdb_error_type  dictdb_error;
@@ -218,7 +219,7 @@ typedef struct dictConfig {
 } dictConfig;
 
 typedef struct dictWord {
-   dictDatabase  *database;
+   const dictDatabase  *database;
 
    const char    *word;
 
@@ -243,7 +244,7 @@ extern int      dict_data_zip(
    const char *preFilter, const char *postFilter );
 
 extern char *dict_data_obtain (
-   dictDatabase *db, const dictWord *dw);
+   const dictDatabase *db, const dictWord *dw);
 extern char *dict_data_read_ (
    dictData *data,
    unsigned long start, unsigned long end,
@@ -259,7 +260,13 @@ extern const char *dict_index_search( const char *word, dictIndex *idx );
 extern int         dict_search (
    lst_List l,
    const char *word,
-   dictDatabase *database, int strategy );
+   const dictDatabase *database, int strategy,
+   int *extra_result,                  /* may be NULL */
+   const dictPluginData **extra_data,  /* may be NULL */
+   int *extra_data_size);              /* may be NULL */
+extern int dict_search_databases (
+   lst_List *l,
+   const char *databaseName, const char *word, int strategy);
 
 extern dictIndex  *dict_index_open(
    const char *filename,
@@ -271,8 +278,11 @@ extern void       dict_destroy_list( lst_List list );
 
 extern int        dict_destroy_datum( const void *datum );
 
-extern int        dict_plugin_open (dictIndex *i, dictDatabase *db);
+#ifdef USE_PLUGIN
+extern int        dict_plugin_open (
+   dictIndex *i, const dictDatabase *db);
 extern void       dict_plugin_close (dictIndex *i);
+#endif
 
 /* dictd.c */
 

@@ -14,8 +14,14 @@
 /* Define if you have <alloca.h> and it should be used (not on Ultrix). */
 #undef HAVE_ALLOCA_H
 
+/* Define if you have the `getpagesize' function. */
+#undef HAVE_GETPAGESIZE
+
 /* Define if you have the `inet_aton' function. */
 #undef HAVE_INET_ATON
+
+/* Define if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
 
 /* Define if you have the <limits.h> header file. */
 #undef HAVE_LIMITS_H
@@ -23,8 +29,20 @@
 /* Define if you have the <ltdl.h> header file. */
 #undef HAVE_LTDL_H
 
+/* Define if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H
+
+/* Define if you have a working `mmap' system call. */
+#undef HAVE_MMAP
+
 /* Define if you have the `semget' function. */
 #undef HAVE_SEMGET
+
+/* Define if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
 
 /* Define if you have the `strdup' function. */
 #undef HAVE_STRDUP
@@ -34,6 +52,9 @@
 
 /* Define if you have the <strings.h> header file. */
 #undef HAVE_STRINGS_H
+
+/* Define if you have the <string.h> header file. */
+#undef HAVE_STRING_H
 
 /* Define if you have the `strtol' function. */
 #undef HAVE_STRTOL
@@ -47,8 +68,14 @@
 /* Define if you have the <sys/resource.h> header file. */
 #undef HAVE_SYS_RESOURCE_H
 
+/* Define if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
 /* Define if you have the <sys/time.h> header file. */
 #undef HAVE_SYS_TIME_H
+
+/* Define if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
 
 /* Define if you have the <sys/wait.h> header file. */
 #undef HAVE_SYS_WAIT_H

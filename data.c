@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: data.c,v 1.13 2002/09/12 13:08:06 cheusov Exp $
+ * $Id: data.c,v 1.14 2002/09/27 16:57:44 cheusov Exp $
  * 
  */
 
@@ -25,12 +25,16 @@
 #include "utf8_ucs4.h"
 
 #include <sys/stat.h>
+#ifdef HAVE_MMAP
 #include <sys/mman.h>
+#endif
 #include <ctype.h>
 #include <fcntl.h>
 #include <assert.h>
 
 #define USE_CACHE 1
+
+extern int mmap_mode;
 
 int dict_data_filter( char *buffer, int *len, int maxLength,
 		      const char *filter )
@@ -236,10 +240,26 @@ dictData *dict_data_open( const char *filename, int computeCRC )
 		       "Cannot stat index file \"%s\"\n", filename );
    h->size = sb.st_size;
 
-   h->start = mmap( NULL, h->size, PROT_READ, MAP_SHARED, h->fd, 0 );
-   if ((void *)h->start == (void *)(-1))
-      err_fatal_errno( __FUNCTION__,
-		       "Cannot mmap index file \"%s\"\b", filename );
+   if (mmap_mode){
+#ifdef HAVE_MMAP
+      h->start = mmap( NULL, h->size, PROT_READ, MAP_SHARED, h->fd, 0 );
+      if ((void *)h->start == (void *)(-1))
+	 err_fatal_errno(
+	    __FUNCTION__,
+	    "Cannot mmap data file \"%s\"\b", filename );
+#else
+      err_fatal (__FUNCTION__, "This should not happen");
+#endif
+   }else{
+      h->start = xmalloc (h->size);
+      if (-1 == read (h->fd, (char *) h->start, h->size))
+	 err_fatal_errno (
+	    __FUNCTION__,
+	    "Cannot read data file \"%s\"\b", filename );
+
+      close (h -> fd);
+      h -> fd = 0;
+   }
 
    h->end = h->start + h->size;
 
@@ -261,10 +281,19 @@ void dict_data_close( dictData *header )
       return;
 
    if (header->fd >= 0) {
-      munmap( (void *)header->start, header->size );
-      close( header->fd );
-      header->fd = 0;
-      header->start = header->end = NULL;
+      if (mmap_mode){
+#ifdef HAVE_MMAP
+	 munmap( (void *)header->start, header->size );
+	 close( header->fd );
+	 header->fd = 0;
+	 header->start = header->end = NULL;
+#else
+	 err_fatal (__FUNCTION__, "This should not happen");
+#endif
+      }else{
+	 if (header -> start)
+	    xfree ((char *) header -> start);
+      }
    }
 
    if (header->chunks)       xfree( header->chunks );
@@ -286,7 +315,7 @@ void dict_data_close( dictData *header )
    xfree( header );
 }
 
-char *dict_data_obtain (dictDatabase *db, const dictWord *dw)
+char *dict_data_obtain (const dictDatabase *db, const dictWord *dw)
 {
    char *word_copy;
    int len;

@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.24 2002/09/16 12:48:39 cheusov Exp $
+dnl $Id: configure.in,v 1.25 2002/09/27 16:57:44 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -32,7 +32,7 @@ dnl     YCFLAGS is for yacc
 dnl     LCFLAGS is for lex
 
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.24 $)
+AC_REVISION($Revision: 1.25 $)
 AC_INIT
 AC_CONFIG_SRCDIR([dictd.c])
 AC_CONFIG_HEADER(config.h)
@@ -167,6 +167,13 @@ if test "x${withval}" = xyes; then
 fi
 ])
 
+AC_ARG_ENABLE([plugin],[  --disable-plugin        without plugin support])
+if test "x${enableval}" != xno; then
+    CFLAGS="$CFLAGS -DUSE_PLUGIN"
+	AC_CHECK_LIB(ltdl,lt_dlopen,REALLIBS="$REALLIBS -lltdl")
+	USE_PLUGIN=1
+fi
+
 dnl Checks for programs.
 echo Checking for programs
 
@@ -237,7 +244,6 @@ fi
 
 AC_CHECK_LIB(socket,main,REALLIBS="$REALLIBS -lsocket")
 AC_CHECK_LIB(nsl,main,REALLIBS="$REALLIBS -lnsl")
-AC_CHECK_LIB(ltdl,lt_dlopen,REALLIBS="$REALLIBS -lltdl")
 
 if test "$local_dmalloc" = 0 -a "$needs_dmalloc" = 1; then
     AC_CHECK_LIB(dmalloc,main,
@@ -286,6 +292,7 @@ echo .
 echo Checking for library functions
 
 AC_FUNC_ALLOCA
+AC_FUNC_MMAP
 AC_CHECK_FUNCS(strdup strtol strtoul semget strerror inet_aton)
 AC_REPLACE_FUNCS(strdup strtol strtoul)
 
@@ -302,6 +309,7 @@ AC_SUBST(WLDFLAGS)
 AC_SUBST(XTRACFLAGS)
 AC_SUBST(XTRALDFLAGS)
 AC_SUBST(XTRAHEADERS)
+AC_SUBST(USE_PLUGIN)
 AC_SUBST(allsubdirs)
 AC_CONFIG_FILES([Makefile doc/Makefile])
 AC_CONFIG_FILES([dictdplugin-config], [chmod +x dictdplugin-config])

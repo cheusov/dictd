@@ -19,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.5 2000/12/22 14:15:25 faith Exp $
+ * $Id: dictP.h,v 1.6 2002/09/27 16:57:44 cheusov Exp $
  * 
  */
 
@@ -145,7 +145,9 @@ extern void     srandom( unsigned int );
 #include <netinet/in.h>
 
 /* Provide mmap stuff */
+#ifdef HAVE_MMAP
 #include <sys/mman.h>
+#endif
 
 /* System dependent declarations: Many brain damaged systems don't provide
 declarations for standard library calls.  We provide them here for

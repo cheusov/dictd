@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.34 2002/09/17 06:04:57 cheusov Exp $
+ * $Id: index.c,v 1.35 2002/09/27 16:57:44 cheusov Exp $
  * 
  */
 
@@ -26,11 +26,18 @@
 #include "utf8_ucs4.h"
 
 #include <sys/stat.h>
+
+#ifdef HAVE_MMAP
 #include <sys/mman.h>
+#endif
+
 #include <fcntl.h>
 #include <ctype.h>
-#include <ltdl.h>
 #include <stdio.h>
+
+#ifdef USE_PLUGIN
+#include <ltdl.h>
+#endif
 
 #define FIND_NEXT(pt,end) while (pt < end && *pt++ != '\n');
 #define OPTSTART        1	/* Optimize search range for constant start */
@@ -38,7 +45,13 @@
 #define BMH_THRESHOLD   3	/* When to start using Boyer-Moore-Hoorspool */
 
 int utf8_mode;     /* dictd uses UTF-8 dictionaries */
+dictConfig *DictConfig;
+
+#ifdef HAVE_MMAP
 int mmap_mode = 1; /* dictd uses mmap() function (the default) */
+#else
+int mmap_mode = 0;
+#endif
 
 int _dict_comparisons;
 static int isspacealnumtab[UCHAR_MAX + 1];
@@ -134,69 +147,69 @@ static int tolower_alnumspace_utf8 (
 
 static void dict_table_init(void)
 {
-    int      i;
-    unsigned char s[2 * UCHAR_MAX + 2];
-    unsigned char *p[UCHAR_MAX + 1];
+   int      i;
+   unsigned char s[2 * UCHAR_MAX + 2];
+   unsigned char *p[UCHAR_MAX + 1];
 
-    for (i = 0; i <= UCHAR_MAX; i++) {
-	if (isspace(i) || isalnum(i) || (utf8_mode && i >= 0x80)){
-	    isspacealnumtab [i] = 1;
-	}else{
-	    isspacealnumtab [i] = 0;
-	}
-	isspacealnumtab_allchars [i] = 1;
-    }
-    isspacealnumtab['\t'] = isspacealnumtab['\n'] = 0; /* special */
-    isspacealnumtab_allchars['\t'] = isspacealnumtab_allchars['\n'] = 0; /* special */
+   for (i = 0; i <= UCHAR_MAX; i++) {
+      if (isspace(i) || isalnum(i) || (utf8_mode && i >= 0x80)){
+	 isspacealnumtab [i] = 1;
+      }else{
+	 isspacealnumtab [i] = 0;
+      }
+      isspacealnumtab_allchars [i] = 1;
+   }
+   isspacealnumtab['\t'] = isspacealnumtab['\n'] = 0; /* special */
+   isspacealnumtab_allchars['\t'] = isspacealnumtab_allchars['\n'] = 0; /* special */
 
-    for (i = 0; i <= UCHAR_MAX; i++){
-	if (islower (i) || (utf8_mode && i >= 0xC0))
-	    chartab[charcount++] = i;
-    }
+   for (i = 0; i <= UCHAR_MAX; i++){
+      if (islower (i) || (utf8_mode && i >= 0xC0))
+	 chartab[charcount++] = i;
+   }
 
                                 /* Populate an array with length-1 strings */
-    for (i = 0; i <= UCHAR_MAX; i++) {
-	if (!isupper (i)){
-	    s[2 * i] = i;
-	}else{
-	    s[2 * i] = 0;
-	}
+   for (i = 0; i <= UCHAR_MAX; i++) {
+      if (!isupper (i)){
+	 s[2 * i] = i;
+      }else{
+	 s[2 * i] = 0;
+      }
 
-	s[2 * i + 1] = '\0';
-	p[i]         = &s[2 * i];
-    }
+      s[2 * i + 1] = '\0';
+      p[i]         = &s[2 * i];
+   }
                                 /* Sort those strings in the locale */
-    if (utf8_mode)
-	qsort(p, UCHAR_MAX + 1, sizeof(p[0]), dict_table_init_compare_utf8);
-    else
-	qsort(p, UCHAR_MAX + 1, sizeof(p[0]), dict_table_init_compare_strcoll);
+   if (utf8_mode)
+      qsort(p, UCHAR_MAX + 1, sizeof(p[0]), dict_table_init_compare_utf8);
+   else
+      qsort(p, UCHAR_MAX + 1, sizeof(p[0]), dict_table_init_compare_strcoll);
 
                                 /* Extract our unordered arrays */
-    for (i = 0; i <= UCHAR_MAX; i++) {
-        char2indextab[*p[i]] = i;
-        index2chartab[i]     = *p[i];
-    }
-    char2indextab[UCHAR_MAX + 1] = UCHAR_MAX;
-    index2chartab[UCHAR_MAX + 1] = UCHAR_MAX; /* we may index here in  */
+   for (i = 0; i <= UCHAR_MAX; i++) {
+      char2indextab[*p[i]] = i;
+      index2chartab[i]     = *p[i];
+   }
+   char2indextab[UCHAR_MAX + 1] = UCHAR_MAX;
+   index2chartab[UCHAR_MAX + 1] = UCHAR_MAX; /* we may index here in  */
 
-    if (dbg_test(DBG_SEARCH)) {
-	for (i = 0; i <= UCHAR_MAX; ++i){
-	    if (p [i][0] <= CHAR_MAX)
-		printf ("sorted list: %s\n", p [i]);
-	    else
-		printf ("sorted list: %i\n", (unsigned char) p [i] [0]);
-	}
-    }
+   if (dbg_test(DBG_SEARCH)) {
+      for (i = 0; i <= UCHAR_MAX; ++i){
+	 if (p [i][0] <= CHAR_MAX)
+	    printf ("sorted list: %s\n", p [i]);
+	 else
+	    printf ("sorted list: %i\n", (unsigned char) p [i] [0]);
+      }
+   }
 
-    if (dbg_test(DBG_SEARCH)) {
-        for (i = 0; i < charcount; i++)
-            printf("%03d %d ('%c')\n", i, c(i), c(i));
-        for (i = 0; i <= UCHAR_MAX; i++)
-            printf("c2i(%d/'%c') = %d; i2c(%d) = %d/'%c'\n",
-                   i, (char) isgraph(i) ? i : '.',
-		   c2i(i), c2i(i),
-		   i2c(c2i(i)), (char) i2c(c2i(i)) ? i2c(c2i(i)) : '.');
-    }
+   if (dbg_test(DBG_SEARCH)) {
+      for (i = 0; i < charcount; i++)
+	 printf("%03d %d ('%c')\n", i, c(i), c(i));
+      for (i = 0; i <= UCHAR_MAX; i++)
+	 printf("c2i(%d/'%c') = %d; i2c(%d) = %d/'%c'\n",
+		i, (char) isgraph(i) ? i : '.',
+		c2i(i), c2i(i),
+		i2c(c2i(i)), (char) i2c(c2i(i)) ? i2c(c2i(i)) : '.');
+   }
 }
 
 static int compare_allchars(
@@ -571,7 +584,7 @@ const char *dict_index_search( const char *word, dictIndex *idx )
 
 static dictWord *dict_word_create(
     const char *entry,
-    dictDatabase *database,
+    const dictDatabase *database,
     dictIndex *dbindex)
 {
    int        firstTab  = 0;
@@ -665,7 +678,7 @@ void dict_destroy_list( lst_List list )
 
 static int dict_search_exact( lst_List l,
 			      const char *word,
-			      dictDatabase *database,
+			      const dictDatabase *database,
 			      dictIndex *dbindex)
 {
    const char *pt   = NULL;
@@ -693,7 +706,7 @@ static int dict_search_exact( lst_List l,
 
 static int dict_search_prefix( lst_List l,
 			       const char *word,
-			       dictDatabase *database,
+			       const dictDatabase *database,
 			       dictIndex *dbindex)
 {
    const char *pt   = dict_index_search( word, dbindex );
@@ -728,7 +741,7 @@ static int dict_search_prefix( lst_List l,
 
 static int dict_search_brute( lst_List l,
 			      const unsigned char *word,
-			      dictDatabase *database,
+			      const dictDatabase *database,
 			      dictIndex *dbindex,
 			      int suffix,
 			      int patlen )
@@ -785,7 +798,7 @@ static int dict_search_brute( lst_List l,
 
 static int dict_search_bmh( lst_List l,
 			    const unsigned char *word,
-			    dictDatabase *database,
+			    const dictDatabase *database,
 			    dictIndex *dbindex,
 			    int suffix )
 {
@@ -861,7 +874,7 @@ continue2:
 
 static int dict_search_substring( lst_List l,
 				  const char *word,
-				  dictDatabase *database,
+				  const dictDatabase *database,
 				  dictIndex *dbindex)
 {
    return dict_search_bmh( l, word, database, dbindex, 0 );
@@ -869,7 +882,7 @@ static int dict_search_substring( lst_List l,
 
 static int dict_search_suffix( lst_List l,
 			       const char *word,
-			       dictDatabase *database,
+			       const dictDatabase *database,
 			       dictIndex *dbindex)
 {
    return dict_search_bmh( l, word, database, dbindex, 1 );
@@ -877,7 +890,7 @@ static int dict_search_suffix( lst_List l,
 
 static int dict_search_regexpr( lst_List l,
 				const char *word,
-				dictDatabase *database,
+				const dictDatabase *database,
 				dictIndex *dbindex,
 				int type )
 {
@@ -937,7 +950,7 @@ static int dict_search_regexpr( lst_List l,
 
 static int dict_search_re( lst_List l,
 			   const char *word,
-			   dictDatabase *database,
+			   const dictDatabase *database,
 			   dictIndex    *dbindex)
 {
    return dict_search_regexpr( l, word, database, dbindex, REG_EXTENDED );
@@ -945,7 +958,7 @@ static int dict_search_re( lst_List l,
 
 static int dict_search_regexp( lst_List l,
 			       const char *word,
-			       dictDatabase *database,
+			       const dictDatabase *database,
 			       dictIndex    *dbindex)
 {
    return dict_search_regexpr( l, word, database, dbindex, REG_BASIC );
@@ -953,7 +966,7 @@ static int dict_search_regexp( lst_List l,
 
 static int dict_search_soundex( lst_List l,
 				const char *word,
-				dictDatabase *database,
+				const dictDatabase *database,
 				dictIndex    *dbindex)
 {
    const char *pt;
@@ -1017,7 +1030,7 @@ static int dict_search_soundex( lst_List l,
 
 static int dict_search_levenshtein( lst_List l,
 				    const char *word,
-				    dictDatabase *database,
+				    const dictDatabase *database,
 				    dictIndex *dbindex)
 {
    int        len   = strlen(word);
@@ -1155,13 +1168,18 @@ static int stranagram (char *str, int utf8_string)
    }
 }
 
+
+#ifdef USE_PLUGIN
 static int dict_search_plugin (
    lst_List l,
    const char *const word,
-   dictDatabase *database,
-   int strategy )
+   const dictDatabase *database,
+   int strategy,
+   int *extra_result,
+   const dictPluginData **extra_data,
+   int *extra_data_size)
 {
-   int                  ret = 0;
+   int ret;
    int                  failed = 0;
    const char * const * defs;
    const int          * defs_sizes;
@@ -1178,8 +1196,11 @@ static int dict_search_plugin (
       word, -1,
       strategy,
       &ret,
-      NULL, NULL,
+      extra_data, extra_data_size,
       &defs, &defs_sizes, &defs_count);
+
+   if (extra_result)
+      *extra_result = ret;
 
    if (failed){
       err_msg = database -> index -> plugin -> dictdb_error (
@@ -1194,6 +1215,12 @@ static int dict_search_plugin (
       case DICT_PLUGIN_RESULT_NOTFOUND:
 	 PRINTF (DBG_SEARCH, (":S:     not found\n"));
 	 return 0;
+      case DICT_PLUGIN_RESULT_EXIT:
+	 PRINTF (DBG_SEARCH, (":S:     exiting\n"));
+	 return 0;
+      case DICT_PLUGIN_RESULT_PREPROCESS:
+	 PRINTF (DBG_SEARCH, (":S:     preprocessing\n"));
+	 break;
       default:
 	 err_fatal (__FUNCTION__, "invalid pligin's exit status\n");
       }
@@ -1208,17 +1235,20 @@ static int dict_search_plugin (
 	 if (-1 == len)
 	    len = strlen (defs [i]);
 
-	 if (strategy & DICT_MATCH_MASK){
+	 if (
+	    strategy & DICT_MATCH_MASK &&
+	    ret != DICT_PLUGIN_RESULT_PREPROCESS)
+	 {
 	    def -> word     = xstrdup (defs [i]);
 	    def -> def      = def -> word;
-	    def -> def_size = len;
+	    def -> def_size = -1;
 	 }else{
 	    def -> word     = xstrdup (word);
 	    def -> def      = defs [i];
 	    def -> def_size = len;
 	 }
 
-	 lst_append (l, def);
+	 lst_push (l, def);
       }
 
       return defs_count;
@@ -1226,6 +1256,7 @@ static int dict_search_plugin (
 
    return 0;
 }
+#endif
 
 static const char *utf8_err_msg = "\
 error: The request is not a valid UTF-8 string";
@@ -1233,7 +1264,7 @@ error: The request is not a valid UTF-8 string";
 static int dict_search_database_ (
    lst_List l,
    const char *const word,
-   dictDatabase *database,
+   const dictDatabase *database,
    int strategy )
 {
    char       *buf = NULL;
@@ -1322,13 +1353,147 @@ static int dict_search_database_ (
    }
 }
 
+/* reads data without headword 00-... */
+static char *dict_plugin_data (const dictDatabase *db, const dictWord *dw)
+{
+   char *buf = dict_data_obtain (db, dw);
+   char *p = buf;
+   int len;
+
+   if (!strncmp (p, DICT_ENTRY_PLUGIN_DATA, strlen (DICT_ENTRY_PLUGIN_DATA))){
+      while (*p != '\n')
+	 ++p;
+   }
+
+   while (*p == '\n')
+      ++p;
+
+   len = strlen (p);
+
+   while (len > 0 && p [len - 1] == '\n')
+      --len;
+
+   p [len] = 0;
+
+   p = xstrdup (p);
+   xfree (buf);
+
+   return p;
+}
+
+static int plugin_initdata_set_data (
+   dictPluginData *data, int data_size,
+   const dictDatabase *db)
+{
+   char *plugin_data;
+   int ret = 0;
+   lst_List list;
+   dictWord *dw;
+
+   if (data_size <= 0)
+      err_fatal (__FUNCTION__, "too small initial array");
+
+   list = lst_create ();
+
+   ret = dict_search_database_ (
+      list, DICT_ENTRY_PLUGIN_DATA, db, DICT_EXACT);
+
+   if (0 == ret){
+      lst_destroy (list);
+      return 0;
+   }
+
+   dw = (dictWord *) lst_pop (list);
+   plugin_data = dict_plugin_data (db, dw);
+
+   dict_destroy_datum (dw);
+   if (2 == ret)
+      dict_destroy_datum (lst_pop (list));
+
+   data -> id   = DICT_PLUGIN_INITDATA_DICT;
+   data -> data = plugin_data;
+   data -> size = -1;
+
+   lst_destroy (list);
+
+   return 1;
+}
+
+static int plugin_initdata_set_dbnames (dictPluginData *data, int data_size)
+{
+   const dictDatabase *db;
+   int count;
+   int i;
+
+   if (data_size <= 0)
+      err_fatal (__FUNCTION__, "too small initial array");
+
+   count = lst_length (DictConfig -> dbl);
+   if (count == 0)
+      return 0;
+
+   if (count > data_size)
+      err_fatal (__FUNCTION__, "too small initial array");
+
+   for (i = 1; i <= count; ++i){
+      db = (const dictDatabase *)(lst_nth_get (DictConfig -> dbl, i));
+
+      data -> id   = DICT_PLUGIN_INITDATA_DBNAME;
+      if (db -> databaseShort){
+	 data -> size = strlen (db -> databaseName);
+	 data -> data = xstrdup (db -> databaseName);
+      }else{
+	 data -> size = 0;
+	 data -> data = NULL;
+      }
+
+      ++data;
+   }
+
+   return count;
+}
+
+/* all dict [i]->data are xmalloc'd*/
+static int plugin_initdata_set (
+   dictPluginData *data, int data_size,
+   const dictDatabase *db)
+{
+   int count = 0;
+   dictPluginData *p = data;
+
+   count = plugin_initdata_set_dbnames (data, data_size);
+   data      += count;
+   data_size -= count;
+
+   count = plugin_initdata_set_data (data, data_size, db);
+   data      += count;
+   data_size -= count;
+
+   return data - p;
+}
+
+static void plugin_init_data_free (
+   dictPluginData *data, int data_size)
+{
+   int i=0;
+
+   for (i = 0; i < data_size; ++i){
+      xfree (data -> data);
+      ++data;
+   }
+}
+
 int dict_search (
    lst_List l,
    const char *const word,
-   dictDatabase *database,
-   int strategy )
+   const dictDatabase *database,
+   int strategy,
+   int *extra_result,
+   const dictPluginData **extra_data,
+   int *extra_data_size)
 {
-   int ret;
+   int count;
+   int res;
 
    PRINTF (DBG_SEARCH, (":S: Searching in '%s'\n", database -> databaseName));
 
@@ -1336,23 +1501,49 @@ int dict_search (
    fprintf (stderr, "STRATEGY: %x\n", strategy);
 #endif
 
+#ifdef USE_PLUGIN
    if (database -> index -> plugin){
       PRINTF (DBG_SEARCH, (":S:   plugin search\n"));
-      ret = dict_search_plugin (l, word, database, strategy);
+      count = dict_search_plugin (
+	 l, word, database, strategy,
+	 &res, extra_data, extra_data_size);
 
-      if (ret)
-	 return ret;
+      if (extra_result)
+	 *extra_result = res;
+
+      if (count)
+	 return count;
+
+      switch (res){
+      case DICT_PLUGIN_RESULT_EXIT:
+	 return count;
+      default:
+	 break;
+      }
    }
+#endif
 
    strategy &= ~DICT_MATCH_MASK;
 
    PRINTF (DBG_SEARCH, (":S:   database search\n"));
-   return dict_search_database_ (l, word, database, strategy);
+   count = dict_search_database_ (l, word, database, strategy);
+
+   if (extra_result){
+      if (count > 0){
+	 *extra_result = DICT_PLUGIN_RESULT_FOUND;
+      }else{
+	 *extra_result = DICT_PLUGIN_RESULT_NOTFOUND;
+      }
+   }
+
+   return count;
 }
 
 /* Reads plugin's file name from .dict file */
 /* do not free() returned value*/
-static char *dict_plugin_filename (dictDatabase *db, dictWord *dw)
+static char *dict_plugin_filename (
+   const dictDatabase *db,
+   const dictWord *dw)
 {
    static char filename [FILENAME_MAX];
 
@@ -1381,34 +1572,6 @@ static char *dict_plugin_filename (dictDatabase *db, dictWord *dw)
    xfree (buf);
 
    return filename;
-}
-
-/* reads data without headword 00-... */
-static char *dict_plugin_data (dictDatabase *db, dictWord *dw)
-{
-   char *buf = dict_data_obtain (db, dw);
-   char *p = buf;
-   int len;
-
-   if (!strncmp (p, DICT_ENTRY_PLUGIN_DATA, strlen (DICT_ENTRY_PLUGIN_DATA))){
-      while (*p != '\n')
-	 ++p;
-   }
-
-   while (*p == '\n')
-      ++p;
-
-   len = strlen (p);
-
-   while (len > 0 && p [len - 1] == '\n')
-      --len;
-
-   p [len] = 0;
-
-   p = xstrdup (p);
-   xfree (buf);
-
-   return p;
 }
 
 dictIndex *dict_index_open(
@@ -1443,11 +1606,15 @@ dictIndex *dict_index_open(
    i->size = sb.st_size;
 
    if (mmap_mode){
+#ifdef HAVE_MMAP
       i->start = mmap( NULL, i->size, PROT_READ, MAP_SHARED, i->fd, 0 );
       if ((void *)i->start == (void *)(-1))
 	 err_fatal_errno (
 	    __FUNCTION__,
 	    "Cannot mmap index file \"%s\"\b", filename );
+#else
+      err_fatal (__FUNCTION__, "This should not happen");
+#endif
    }else{
       i->start = xmalloc (i->size);
       if (-1 == read (i->fd, (char *) i->start, i->size))
@@ -1529,11 +1696,15 @@ void dict_index_close( dictIndex *i )
       return;
 
    if (mmap_mode){
+#ifdef HAVE_MMAP
       if (i->fd >= 0) {
 	 munmap( (void *)i->start, i->size );
 	 close( i->fd );
 	 i->fd = 0;
       }
+#else
+      err_fatal (__FUNCTION__, "This should not happen");
+#endif
    }else{
       if (i -> start)
 	 xfree ((char *) i -> start);
@@ -1547,14 +1718,63 @@ void dict_index_close( dictIndex *i )
    xfree (i);
 }
 
-int dict_plugin_open (dictIndex *i, dictDatabase *db)
+#ifdef USE_PLUGIN
+
+static void dict_plugin_test (dictIndex *i, int version, int ret)
+{
+   if (ret)
+      err_fatal (__FUNCTION__, "Cannot initialize plugin\n");
+
+   switch (version){
+   case 0:
+      break;
+   case 1:
+      if (!i -> plugin -> dictdb_set)
+	 err_fatal (__FUNCTION__, "'%s' function is not found\n", DICT_PLUGINFUN_SET);
+      break;
+   default:
+      err_fatal (__FUNCTION__, "Invalid version returned by plugin\n");
+   }
+}
+
+static void dict_plugin_dlsym (dictIndex *i)
+{
+   PRINTF(DBG_INIT, (":I:     getting functions addresses\n"));
+
+   i -> plugin -> dictdb_open   =
+      lt_dlsym (i -> plugin -> handle, DICT_PLUGINFUN_OPEN);
+   i -> plugin -> dictdb_free   =
+      lt_dlsym (i -> plugin -> handle, DICT_PLUGINFUN_FREE);
+   i -> plugin -> dictdb_search =
+      lt_dlsym (i -> plugin -> handle, DICT_PLUGINFUN_SEARCH);
+   i -> plugin -> dictdb_close  =
+      lt_dlsym (i -> plugin -> handle, DICT_PLUGINFUN_CLOSE);
+   i -> plugin -> dictdb_error  =
+      lt_dlsym (i -> plugin -> handle, DICT_PLUGINFUN_ERROR);
+   i -> plugin -> dictdb_set   =
+      lt_dlsym (i -> plugin -> handle, DICT_PLUGINFUN_SET);
+
+   if (!i -> plugin -> dictdb_open ||
+       !i -> plugin -> dictdb_search ||
+       !i -> plugin -> dictdb_free ||
+       !i -> plugin -> dictdb_error ||
+       !i -> plugin -> dictdb_close)
+   {
+      PRINTF(DBG_INIT, (":I:     faild\n"));
+      exit (1);
+   }
+}
+
+int dict_plugin_open (dictIndex *i, const dictDatabase *db)
 {
    int ret = 0;
    lst_List list;
    char *plugin_filename;
-   char *plugin_data;
    dictWord *dw;
-   dictPluginInitData init_data;
+
+   dictPluginInitData init_data [3000];
+   int init_data_size;
+
    int version;
 
    list = lst_create();
@@ -1581,80 +1801,19 @@ int dict_plugin_open (dictIndex *i, dictDatabase *db)
 	 exit (1);
       }
 
-      PRINTF(DBG_INIT, (":I:     getting functions addresses\n"));
-      i -> plugin -> dictdb_open   =
-	 lt_dlsym (i -> plugin -> handle, DICT_PLUGINFUN_OPEN);
-      i -> plugin -> dictdb_free   =
-	 lt_dlsym (i -> plugin -> handle, DICT_PLUGINFUN_FREE);
-      i -> plugin -> dictdb_search =
-	 lt_dlsym (i -> plugin -> handle, DICT_PLUGINFUN_SEARCH);
-      i -> plugin -> dictdb_close  =
-	 lt_dlsym (i -> plugin -> handle, DICT_PLUGINFUN_CLOSE);
-      i -> plugin -> dictdb_error  =
-	 lt_dlsym (i -> plugin -> handle, DICT_PLUGINFUN_ERROR);
+      dict_plugin_dlsym (i);
 
-      if (!i -> plugin -> dictdb_open || !i -> plugin -> dictdb_search ||
-	  !i -> plugin -> dictdb_free ||
-	  !i -> plugin -> dictdb_error || !i -> plugin -> dictdb_close)
-      {
-	 PRINTF(DBG_INIT, (":I:     faild\n"));
-	 exit (1);
-      }
+      init_data_size = plugin_initdata_set (
+	 init_data, sizeof (init_data)/sizeof (init_data [0]),
+	 db);
 
-      ret = dict_search_database_ (list, DICT_ENTRY_PLUGIN_DATA, db, DICT_EXACT);
+      PRINTF(DBG_INIT, (":I:     initializing plugin\n"));
+      ret = i -> plugin -> dictdb_open (
+	 init_data, init_data_size, &version, &i -> plugin -> data);
 
-      switch (ret){
-      case 0:
-	 PRINTF(DBG_INIT, (":I:     initializing plugin\n"));
-	 ret = i -> plugin -> dictdb_open (NULL, 0, &version, &i -> plugin -> data);
-	 if (ret){
-	    err_fatal (__FUNCTION__, "Cannot initialize plugin '%s'\n", plugin_filename);
-	 }
+      plugin_init_data_free (init_data, init_data_size);
 
-	 switch (version){
-	 case 0:
-	    break;
-	 default:
-	    err_fatal (__FUNCTION__, "Invalid version returned\n");
-	 }
-
-	 break;
-
-      case 1: case 2:
-	 dw = (dictWord *) lst_pop (list);
-	 plugin_data = dict_plugin_data (db, dw);
-
-	 dict_destroy_datum (dw);
-	 if (2 == ret)
-	    dict_destroy_datum (lst_pop (list));
-
-	 PRINTF(DBG_INIT, (":I:     initializing plugin\n"));
-
-	 init_data.id   = DICT_PLUGIN_INITDATA_DICT;
-	 init_data.data = plugin_data;
-	 init_data.size = -1;
-
-	 ret = i -> plugin -> dictdb_open (
-	    &init_data, 1,
-	    NULL, &i -> plugin -> data);
-
-	 if (ret){
-	    PRINTF(DBG_INIT, (":I:     faild\n"));
-	    exit (1);
-	 }
-
-	 xfree (plugin_data);
-
-	 break;
-
-      default:
-	 err_internal(
-	    __FUNCTION__,
-	    "more than one %s entry\n",
-	    DICT_ENTRY_PLUGIN_DATA );
-
-	 break;
-      }
+      dict_plugin_test (i, version, ret);
 
       break;
 
@@ -1666,6 +1825,7 @@ int dict_plugin_open (dictIndex *i, dictDatabase *db)
    }
 
    lst_destroy (list);
+
    return 0;
 }
 
@@ -1690,3 +1850,5 @@ void dict_plugin_close ( dictIndex *i )
 
    xfree (i -> plugin);
 }
+
+#endif /* USE_PLUGIN */

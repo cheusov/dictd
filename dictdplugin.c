@@ -8,3 +8,4 @@ const char * DICT_PLUGINFUN_ERROR=  "dictdb_error";
 const char * DICT_PLUGINFUN_FREE=   "dictdb_free";
 const char * DICT_PLUGINFUN_SEARCH= "dictdb_search";
 const char * DICT_PLUGINFUN_CLOSE=  "dictdb_close";
+const char * DICT_PLUGINFUN_SET=    "dictdb_set";

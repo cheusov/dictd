@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.54 2002/09/16 12:48:39 cheusov Exp $
+# $Id: Makefile.in,v 1.55 2002/09/27 16:57:44 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -39,11 +39,14 @@ man1_prefix=	@mandir@/man1
 man8_prefix=	@mandir@/man8
 bindir=         @bindir@
 libdir=         @libdir@
+libexecdir=     @libexecdir@
 sbindir=        @sbindir@
 conf=           @sysconfdir@/
 includedir=     @includedir@
 
 SHELL=		/bin/sh
+
+USE_PLUGIN= @USE_PLUGIN@
 
 CC=		    @CC@
 CPP=		@CPP@
@@ -66,8 +69,12 @@ XTRALDFLAGS=    @WLDFLAGS@ @XTRALDFLAGS@
 LDLIBS=		@LIBS@ -Lregex -lregex
 
 EXES=	 	dict dictd dictzip dictfmt
-LIBRARIES=  libdictdplugin.a
-INCLUDES=   dictdplugin.h
+
+ifeq ($(USE_PLUGIN), 1)
+	PLUGINS=    dictdplugin_exit.so #dictdplugin_tr.so
+	LIBRARIES=  libdictdplugin.a
+	INCLUDES=   dictdplugin.h
+endif
 
 HEADERS= 	./config.h @XTRAHEADERS@ dictzip.h dictd.h dict.h \
                 codes.h md5.h utf8_ucs4.h
@@ -97,7 +104,7 @@ all $(EXES)::
 		fi; \
 	done
 
-all:: $(EXES) $(LIBRARIES)
+all:: $(EXES) $(LIBRARIES) plugins
 
 %.o: %.c
 	$(CC) -c $(XTRACFLAGS) $(CFLAGS) $<
@@ -110,8 +117,16 @@ $(SRCHOBJS):  $(HEADERS)
 $(NETOBJS):  $(HEADERS)
 $(CLIOBJS):  $(HEADERS)
 
-libdictdplugin.a : dictdplugin.o
+lib%.a : %.o
 	$(AR) rc $@ $^
+
+%.so: %.c
+	$(CC) $(LDFLAGS) -shared $^ libdictdplugin.a  -o $@
+%.so: %.cpp
+	$(CXX) $(LDFLAGS) -shared $^ libdictdplugin.a  -o $@
+
+.PHONY: plugins
+plugins: $(PLUGINS)
 
 dict:: dict.c $(HEADERS) $(CLIOBJS)
 	$(CC) $(ALLFLAGS) -o $@ $< $(CLIOBJS) $(LDLIBS)
@@ -131,11 +146,11 @@ servscan.c: servscan.l
 servscan.o: servscan.c servparse.o servparse.h $(HEADERS)
 	$(CC) -c $(XTRACFLAGS) $(CFLAGS) $(SCFLAGS) $<
 
-servparse.c: servparse.y
+servparse.c servparse.h : servparse.y
 	$(YACC) -tdv $<; \
-	cmp -s y.tab.h servparse.h || mv y.tab.h servparse.h; \
-	cmp -s y.tab.c servparse.c || mv y.tab.c servparse.c; \
-	rm -f y.tab.h y.tab.c
+    cmp -s y.tab.h servparse.h || mv y.tab.h servparse.h; \
+    cmp -s y.tab.c servparse.c || mv y.tab.c servparse.c; \
+    rm -f y.tab.h y.tab.c
 
 servparse.o: servparse.c $(HEADERS)
 	$(CC) -c $(XTRACFLAGS) $(CFLAGS) $(SCFLAGS) $<
@@ -146,11 +161,11 @@ clientscan.c: clientscan.l
 clientscan.o: clientscan.c clientparse.o clientparse.h $(HEADERS)
 	$(CC) -c $(XTRACFLAGS) $(CFLAGS) $(SCFLAGS) $<
 
-clientparse.c: clientparse.y
+clientparse.c clientparse.h: clientparse.y
 	$(YACC) -tdv $<; \
-	cmp -s y.tab.h clientparse.h || mv y.tab.h clientparse.h; \
-	cmp -s y.tab.c clientparse.c || mv y.tab.c clientparse.c; \
-	rm -f y.tab.h y.tab.c
+    cmp -s y.tab.h clientparse.h || mv y.tab.h clientparse.h; \
+    cmp -s y.tab.c clientparse.c || mv y.tab.c clientparse.c; \
+    rm -f y.tab.h y.tab.c
 
 clientparse.o: clientparse.c $(HEADERS)
 	$(CC) -c $(XTRACFLAGS) $(CFLAGS) $(SCFLAGS) $<
@@ -175,8 +190,9 @@ install.dictfmt: dictfmt dictfmt_index2suffix dictfmt_plugin
 	if test ! -d $(man1_prefix); then $(INSTALL) -d 755 $(man1_prefix); fi; \
 	$(INSTALL_PROGRAM) dictfmt $(bindir); \
 	$(INSTALL_SCRIPT) dictfmt_index2suffix $(bindir); \
-	$(INSTALL_SCRIPT) dictfmt_plugin $(bindir); \
-	$(INSTALL_DATA) dictfmt.1 $(man1_prefix)/dictfmt.1
+	$(INSTALL_DATA) dictfmt.1 $(man1_prefix)/dictfmt.1; \
+	test _$(USE_PLUGIN) = _1 && \
+	    $(INSTALL_SCRIPT) dictfmt_plugin $(bindir) || true
 
 install.dictd: dictd
 	if test ! -d $(sbindir); then $(INSTALL) -d 755 $(sbindir); fi; \
@@ -185,19 +201,28 @@ install.dictd: dictd
 	$(INSTALL_DATA) dictd.8 $(man8_prefix)/dictd.8
 
 install.libs: $(LIBRARIES)
-	if test ! -d $(libdir); then $(INSTALL) -d 755 $(libdir); fi; \
-	$(INSTALL_DATA) $(LIBRARIES) $(libdir)
+	test _$(USE_PLUGIN) = _1 && \
+	{ if test ! -d $(libdir); then $(INSTALL) -d 755 $(libdir); fi; \
+	$(INSTALL_DATA) $(LIBRARIES) $(libdir); } || true
 
 install.includes:
-	if test ! -d $(includedir); then $(INSTALL) -d 755 $(includedir); fi; \
-	$(INSTALL_DATA) $(INCLUDES) $(includedir)
+	test _$(USE_PLUGIN) = _1 && \
+	{ if test ! -d $(includedir); then $(INSTALL) -d 755 $(includedir); fi; \
+    $(INSTALL_DATA) $(INCLUDES) $(includedir); } || true
+
+install.plugins:
+	test _$(USE_PLUGIN) = _1 && \
+	{ if test ! -d $(libexecdir)/dictd; then $(INSTALL) -d 755 $(libexecdir)/dictd; fi; \
+    $(INSTALL_DATA) $(PLUGINS) $(libexecdir)/dictd; } || true
 
 .PHONY: install
 
 install: \
 install.dict install.dictzip install.dictd install.dictfmt \
-install.libs install.includes
+install.libs install.includes install.plugins
+ifeq ($(USE_PLUGIN), 1)
 	$(INSTALL_SCRIPT) dictdplugin-config $(bindir)
+endif
 
 .PHONY: uninstall.dict uninstall.dictzip uninstall.dictfmt uninstall.dictd \
         uninstall.libs uninstall.includes
@@ -213,20 +238,32 @@ uninstall.dictd:
 
 uninstall.dictfmt:
 	rm -f $(bindir)/dictfmt $(man1_prefix)/dictfmt.1 \
-	$(bindir)/dictfmt_index2suffix $(bindir)/dictfmt_plugin
+	$(bindir)/dictfmt_index2suffix; \
+	test _$(USE_PLUGIN) = _1 && rm -f $(bindir)/dictfmt_plugin || true
 
 uninstall.includes:
+ifeq ($(USE_PLUGIN), 1)
 	rm -f $(addprefix $(includedir)/, $(INCLUDES))
+endif
 
 uninstall.libs:
+ifeq ($(USE_PLUGIN), 1)
 	rm -f $(addprefix $(libdir)/, $(LIBRARIES))
+endif
+
+uninstall.plugins:
+ifeq ($(USE_PLUGIN), 1)
+	rm -f $(addprefix $(libexecdir)/dictd/, $(PLUGINS))
+endif
 
 .PHONY: uninstall
 
 uninstall: \
 uninstall.dict uninstall.dictd uninstall.dictfmt uninstall.dictzip \
-uninstall.libs uninstall.includes
+uninstall.libs uninstall.includes uninstall.plugins
+ifeq ($(USE_PLUGIN), 1)
 	rm -f $(bindir)/dictdplugin-config
+endif
 
 .PHONY: ChangeLog
 ChangeLog:
@@ -235,7 +272,7 @@ ChangeLog:
 	AWK=@AWK@ rcs2log -i 2 -r -d'1996-09-20<' . doc regex zlib libmaa \
 	| sed 's,/cvsroot/dict/dictd1/,,g; \
 	       s,/cvs/dict/dictd1/,,g;\
-	       s/cheusov[^>]*/Aleksey Cheusov <vle@gmx.net/;\
+           s/cheusov@[^>]*/vle@gmx.net/g;\
 	       s,faith@[^>]*,faith@dict.org,g;\
 	       s,hilliard...hilliard@.*,Bob Hilliard  <hilliard@debian.org>,g; \
 	       s,tek...tek@.*,Julian Squires  <tek@wiw.org>,g' \
@@ -265,10 +302,10 @@ dist: ChangeLog
 
 .PHONY: clean distclean tags
 clean:
-	-rm -f *.o *.s *~ core a.out config.log $(EXES) $(TMPS)
+	-rm -f *.o *.a *.so *.s *~ core a.out config.log $(EXES) $(TMPS)
 	-rm -f *.log *.aux *.toc *.dvi *.ps
 	-rm -f *.cfg *.dtk .inslog tca.map
-	-rm -f *.dct *.idx y.output TAGS dictdplugin-config
+	-rm -f *.dct *.idx y.output TAGS
 
 recursive-clean: clean
 	@for subdir in `echo $(subdirs)`; do \
@@ -290,7 +327,7 @@ distclean: recursive-clean
 	done; \
 	rm -f regex/regex.h; \
 	rm -f config.h config.cache config.status stamp-h.in stamp-h; \
-	rm -f Makefile doc/Makefile
+	rm -f Makefile doc/Makefile dictdplugin-config
 
 cvsclean: distclean
 	-rm -f configure libmaa/configure
