@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.46 2002/08/05 11:54:03 cheusov Exp $
+ * $Id: dictd.c,v 1.47 2002/08/05 12:07:03 cheusov Exp $
  * 
  */
 
@@ -335,8 +335,16 @@ static int init_database( const void *datum )
 {
    dictDatabase *db = (dictDatabase *)datum;
 
-   db->index_suffix = dict_index_open( db->indexsuffixFilename );
-   db->index        = dict_index_open( db->indexFilename );
+   db->index        = dict_index_open( db->indexFilename, 1, 0, 0 );
+   db->index_suffix = dict_index_open(
+       db->indexsuffixFilename,
+       0, db->index->flag_utf8, db->index->flag_allchars);
+
+   if (db->index_suffix){
+      db->index_suffix->flag_utf8     = db->index->flag_utf8;
+      db->index_suffix->flag_allchars = db->index->flag_allchars;
+   }
+
    db->data         = dict_data_open( db->dataFilename, 0 );
 
    if (!db->databaseShort)
@@ -406,7 +414,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.46 2002/08/05 11:54:03 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.47 2002/08/05 12:07:03 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.29 2002/08/05 12:01:24 cheusov Exp $
+ * $Id: index.c,v 1.30 2002/08/05 12:07:03 cheusov Exp $
  * 
  */
 
@@ -39,11 +39,12 @@
 
        int _dict_comparisons;
 static int isspacealnumtab[UCHAR_MAX + 1];
+static int isspacealnumtab_allchars[UCHAR_MAX + 1];
 static int char2indextab[UCHAR_MAX + 2];
 static int index2chartab[UCHAR_MAX + 2];
 static int chartab[UCHAR_MAX + 1];
 static int charcount;
-#define isspacealnum(x) (isspacealnumtab[(unsigned char)(x)])
+/* #define isspacealnum(x) (isspacealnumtab[(unsigned char)(x)]) */
 #define c2i(x) (char2indextab[(unsigned char)(x)])
 #define i2c(x) (index2chartab[(unsigned char)(x)])
 #define c(x)   (((x) < charcount) ? chartab[(unsigned char)(x)] : 0)
@@ -79,7 +80,9 @@ static int dict_table_init_compare_utf8 (const void *a, const void *b)
   Copies alphanumeric and space characters converting them to lower case.
   Strings are represented in 8-bit character set.
 */
-static int tolower_alnumspace_8bit (const char *src, char *dest)
+static int tolower_alnumspace_8bit (
+   const char *src, char *dest,
+   int allchars_mode)
 {
    int c;
 
@@ -88,7 +91,7 @@ static int tolower_alnumspace_8bit (const char *src, char *dest)
 
       if (isspace( c )) {
          *dest++ = ' ';
-      }else if (isalnum( c )){
+      }else if (allchars_mode || isalnum( c )){
 	 *dest++ = tolower (c);
       }
    }
@@ -101,7 +104,9 @@ static int tolower_alnumspace_8bit (const char *src, char *dest)
   Copies alphanumeric and space characters converting them to lower case.
   Strings are represented in UTF-8 character set.
 */
-static int tolower_alnumspace_utf8 (const char *src, char *dest)
+static int tolower_alnumspace_utf8 (
+   const char *src, char *dest,
+   int allchars_mode)
 {
     wint_t      ucs4_char;
 
@@ -110,7 +115,7 @@ static int tolower_alnumspace_utf8 (const char *src, char *dest)
 	if (src){
 	    if (iswspace (ucs4_char)){
 		*dest++ = ' ';
-	    }else if (iswalnum (ucs4_char)){
+	    }else if (allchars_mode || iswalnum (ucs4_char)){
 		if (!ucs4_to_utf8 (towlower (ucs4_char), dest))
 		    return 0;
 
@@ -133,9 +138,13 @@ static void dict_table_init(void)
     for (i = 0; i <= UCHAR_MAX; i++) {
 	if (isspace(i) || isalnum(i) || (utf8_mode && i >= 0x80)){
 	    isspacealnumtab [i] = 1;
+	}else{
+	    isspacealnumtab [i] = 0;
 	}
+	isspacealnumtab_allchars [i] = 1;
     }
     isspacealnumtab['\t'] = isspacealnumtab['\n'] = 0; /* special */
+    isspacealnumtab_allchars['\t'] = isspacealnumtab_allchars['\n'] = 0; /* special */
 
     for (i = 0; i <= UCHAR_MAX; i++){
 	if (islower (i) || (utf8_mode && i >= 0xC0))
@@ -187,7 +196,9 @@ static void dict_table_init(void)
     }
 }
 
-static int compare_utf8( const char *word, const char *start, const char *end )
+static int compare_allchars(
+    const char *word,
+    const char *start, const char *end )
 {
    int c1, c2;
    int result;
@@ -291,14 +302,19 @@ static int compare_utf8(
 }
 */
 
-static int compare_8bit( const char *word, const char *start, const char *end )
+static int compare_alnumspace(
+    const char *word,
+    const dictIndex *dbindex,
+    const char *start, const char *end )
 {
    int c1, c2;
    int result;
 
+   assert (dbindex);
+
    /* FIXME.  Optimize this inner loop. */
    while (*word && start < end && *start != '\t') {
-      if (!isspacealnum(*start)) {
+      if (!dbindex -> isspacealnum[* (const unsigned char *) start]) {
 	 ++start;
 	 continue;
       }
@@ -336,7 +352,12 @@ static int compare_8bit( const char *word, const char *start, const char *end )
       ++start;
    }
 
-   while (*start != '\t' && !isspacealnum(*start)) ++start;
+   while (
+       *start != '\t' &&
+       !dbindex -> isspacealnum[* (const unsigned char *) start])
+   {
+      ++start;
+   }
 
    PRINTF(DBG_SEARCH,("   result = %d\n",
 		      *word ? 1 : ((*start != '\t') ? -1 : 0)));
@@ -375,10 +396,11 @@ static int compare(
 
    ++_dict_comparisons;		/* counter for profiling */
 
-   if (utf8_mode && dbindex && dbindex -> flag_utf8)
-      return compare_utf8( word, start, end );
-   else
-      return compare_8bit( word, start, end );
+   if (dbindex && (dbindex -> flag_allchars || dbindex -> flag_utf8)){
+      return compare_allchars( word, start, end );
+   }else{
+      return compare_alnumspace( word, dbindex, start, end );
+   }
 }
 
 static const char *binary_search(
@@ -421,6 +443,7 @@ static const char *binary_search_8bit(
    char       buf[80], *d;
    const char *s;
    const char *pt;
+   int cmp;
 
    PRINTF(DBG_SEARCH,("%s %p %p\n",word,start,end));
 
@@ -434,7 +457,16 @@ static const char *binary_search_8bit(
             word, buf, strlen( word ), strlen( buf ) );
       }
 
-      switch (compare_8bit ( word, pt, end )){
+      if (
+	 dbindex &&
+	 (dbindex -> flag_utf8 || dbindex -> flag_allchars))
+      {
+	 cmp = compare_allchars ( word, pt, end );
+      }else{
+	 cmp = compare_alnumspace ( word, dbindex, pt, end );
+      }
+
+      switch (cmp){
 	 case -2: case -1: case 0:
 	    end = pt;
 	    break;
@@ -632,8 +664,10 @@ static int dict_search_exact( lst_List l,
       if (!compare( word, dbindex, pt, dbindex->end )) {
 	 if (!previous || altcompare(previous, pt, dbindex->end)) {
 	    ++count;
-	    datum = dict_word_create( previous = pt, database, dbindex );
-	    lst_append( l, datum );
+	    if (l){
+	       datum = dict_word_create( previous = pt, database, dbindex );
+	       lst_append( l, datum );
+	    }
 	 }
       } else break;
       FIND_NEXT( pt, dbindex->end );
@@ -692,13 +726,15 @@ static int dict_search_brute( lst_List l,
    int        result;
    const char *previous = NULL;
 
+   assert (dbindex);
+
    p = start;
-   while (p < end && !isspacealnum(*p)) ++p;
+   while (p < end && !dbindex -> isspacealnum[*p]) ++p;
    for (; p < end; ++p) {
       if (*p == '\t') {
 	 while (p < end && *p != '\n') ++p;
 	 ++p;
-	 while (p < end && !isspacealnum(*p)) ++p;
+	 while (p < end && !dbindex -> isspacealnum[*p]) ++p;
       }
       if (tolower(*p) == *word) {
 	 result = compare( word, dbindex, p, end );
@@ -755,8 +791,10 @@ static int dict_search_bmh( lst_List l,
       return dict_search_brute( l, word, database, dbindex, suffix, patlen );
 
    for (i = 0; i <= UCHAR_MAX; i++) {
-      if (isspacealnum(i)) skip[i] = patlen;
-      else                 skip[i] = 1;
+      if (dbindex -> isspacealnum[i])
+	 skip[i] = patlen;
+      else
+	 skip[i] = 1;
    }
    for (i = 0; i < patlen-1; i++) skip[(unsigned char)word[i]] = patlen-i-1;
 
@@ -771,7 +809,7 @@ static int dict_search_bmh( lst_List l,
 				/* FIXME.  Optimize this inner loop. */
       for (j = patlen - 1, pt = p, wpt = word + patlen - 1; j >= 0; j--) {
 	 if (pt < start) break;
- 	 while (pt >= start && !isspacealnum(*pt)) {
+ 	 while (pt >= start && !dbindex -> isspacealnum[*pt]) {
 	    if (*pt == '\n' || *pt == '\t') goto continue2;
 	    --pt;
 	 }
@@ -792,7 +830,8 @@ static int dict_search_bmh( lst_List l,
 		     datum->word,
 		     word );
 #endif
-	    lst_append( l, datum );
+	    if (l)
+	       lst_append( l, datum );
 	 }
 	 FIND_NEXT(p,end);
 	 f = p += patlen-1;	/* Set boolean flag to non-NULL value */
@@ -840,7 +879,7 @@ static int dict_search_regexpr( lst_List l,
    const char    *previous = NULL;
 
 #if OPTSTART
-   if (*word == '^' && isspacealnum(word[1])) {
+   if (*word == '^' && dbindex -> isspacealnum [(unsigned char) word[1]]) {
       first = word[1];
       end   = dbindex->optStart[i2c(c2i(first)+1)];
       start = dbindex->optStart[first];
@@ -909,7 +948,7 @@ static int dict_search_soundex( lst_List l,
    char       soundex[10];
    char       buffer[MAXWORDLEN];
    char       *d;
-   const char *s;
+   const unsigned char *s;
    int        i;
    int        c = (unsigned char)*word;
    const char *previous = NULL;
@@ -928,7 +967,7 @@ static int dict_search_soundex( lst_List l,
    while (pt && pt < end) {
       for (i = 0, s = pt, d = buffer; i < MAXWORDLEN - 1; i++, ++s) {
 	 if (*s == '\t') break;
-	 if (!isspacealnum(*s)) continue;
+	 if (!dbindex -> isspacealnum [*s]) continue;
 	 *d++ = *s;
       }
       *d = '\0';
@@ -1108,16 +1147,16 @@ int dict_search_database( lst_List l,
 {
    char       *buf = alloca( strlen( word ) + 1 );
 
-   if (!l)
-      err_internal( __FUNCTION__, "List NULL\n" );
-
    if (utf8_mode){
-      if (!tolower_alnumspace_utf8 (word, buf)){
+      if (!tolower_alnumspace_utf8 (
+	  word, buf, database -> index -> flag_allchars))
+      {
 	 PRINTF(DBG_SEARCH, ("tolower_... ERROR!!!\n"));
 	 return 0;
       }
    }else{
-      tolower_alnumspace_8bit (word, buf);
+      tolower_alnumspace_8bit (
+	  word, buf, database -> index -> flag_allchars);
    }
 
    if (!buf [0] && word [0]){
@@ -1129,9 +1168,13 @@ int dict_search_database( lst_List l,
       return 0;
    }
    if (!database->index)
-      database->index = dict_index_open( database->indexFilename );
+      database->index =
+	  dict_index_open( database->indexFilename, 1, 0, 0 );
    if (!database->index_suffix && database->indexsuffixFilename)
-      database->index_suffix = dict_index_open( database->indexsuffixFilename );
+      database->index_suffix =
+	  dict_index_open(
+	      database->indexsuffixFilename,
+	      0, database->index->flag_utf8, database->index->flag_allchars );
 
    switch (strategy) {
    case DICT_EXACT:
@@ -1177,11 +1220,14 @@ int dict_search_database( lst_List l,
    }
 }
 
-dictIndex *dict_index_open( const char *filename )
+dictIndex *dict_index_open(
+   const char *filename,
+   int init_flags, int flag_utf8, int flag_allchars)
 {
    struct stat sb;
    static int  tabInit = 0;
    dictIndex   *i;
+   dictDatabase db;
 #if OPTSTART
    int         j;
    char        buf[2];
@@ -1212,20 +1258,45 @@ dictIndex *dict_index_open( const char *filename )
 
    i->end = i->start + i->size;
 
+   i->flag_utf8     = flag_utf8;
+   i->flag_allchars = flag_allchars;
+   i->isspacealnum  = isspacealnumtab;
+
 #if OPTSTART
    for (j = 0; j <= UCHAR_MAX; j++)
       i->optStart[j] = i->start;
+#endif
 
+   if (init_flags){
+      memset (&db, 0, sizeof (db));
+      db.index = i;
+
+      i->flag_allchars = 1;
+      i->isspacealnum = isspacealnumtab_allchars;
+
+      i->flag_allchars =
+	 0 != dict_search_database (NULL, DICT_FLAG_ALLCHARS, &db, DICT_EXACT);
+      PRINTF(DBG_INIT, ("\"%s\": flag_allchars=%i\n", filename, i->flag_allchars));
+
+      if (!i -> flag_allchars)
+	 i -> isspacealnum = isspacealnumtab;
+
+      i->flag_utf8 =
+	 0 != dict_search_database (NULL, DICT_FLAG_UTF8, &db, DICT_EXACT);
+      PRINTF(DBG_INIT, ("\"%s\": flag_utf8=%i\n", filename, i->flag_utf8));
+   }
+
+#if OPTSTART
    buf[0] = ' ';
    buf[1] = '\0';
-   i->optStart[ ' ' ] = binary_search_8bit( buf, NULL, i->start, i->end );
+   i->optStart[ ' ' ] = binary_search_8bit( buf, i, i->start, i->end );
 
    for (j = 0; j < charcount; j++) {
       buf[0] = c(j);
       buf[1] = '\0';
       i->optStart[toupper(c(j))]
 	 = i->optStart[c(j)]
-	 = binary_search_8bit( buf, NULL, i->start, i->end );
+	 = binary_search_8bit( buf, i, i->start, i->end );
       if (dbg_test (DBG_SEARCH)){
 	 if (!utf8_mode || c(j) <= CHAR_MAX)
 	    printf ("optStart [%c] = %p\n", c(j), i->optStart[c(j)]);
@@ -1237,21 +1308,13 @@ dictIndex *dict_index_open( const char *filename )
    for (j = '0'; j <= '9'; j++) {
       buf[0] = j;
       buf[1] = '\0';
-      i->optStart[j] = binary_search_8bit( buf, NULL, i->start, i->end );
+      i->optStart[j] = binary_search_8bit( buf, i, i->start, i->end );
    }
 
    i->optStart[UCHAR_MAX]   = i->end;
    i->optStart[UCHAR_MAX+1] = i->end;
 #endif
 
-   i->flag_utf8 = 0;
-   i->flag_utf8 =
-       NULL != linear_search(
-	   DICT_FLAG_UTF8_ALNUM,
-	   NULL,
-	   i->start/*binary_search_8bit (DICT_FLAG_UTF8, i->start, i->end)*/,
-	   i->end);
-   PRINTF(DBG_INIT, ("\"%s\": flag_utf8=%i\n", filename, i->flag_utf8));
    return i;
 }
 
@@ -1262,6 +1325,8 @@ void dict_index_close( dictIndex *i )
       close( i->fd );
       i->fd = 0;
       i->start = i->end = NULL;
-      i->flag_utf8 = 0;
+      i->flag_utf8      = 0;
+      i->flag_allchars  = 0;
+      i->isspacealnum   = NULL;
    }
 }

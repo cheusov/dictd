@@ -54,7 +54,7 @@
 #define DICT_INFO_ENTRY_NAME     "00-database-info"
 
 #define DICT_FLAG_UTF8           "00-database-utf8"
-#define DICT_FLAG_UTF8_ALNUM     "00databaseutf8"
+#define DICT_FLAG_ALLCHARS       "00-database-allchars"
 
 #define DICT_DEFAULT_STRATEGY    DICT_LEVENSHTEIN
 
@@ -157,7 +157,10 @@ typedef struct dictIndex {
    const char    *optStart[UCHAR_MAX+2]; /* Optimized starting points */
    unsigned long headwords;	 /* computed number of headwords */
 
-   int        flag_utf8; /* not zero if it has 00-database-ut8 entry*/
+   int        flag_utf8;         /* not zero if it has 00-database-ut8 entry*/
+   int        flag_allchars;     /* not zero if it has 00-database-allchars entry*/
+
+   const int *isspacealnum;
 } dictIndex;
 
 typedef struct dictDatabase {
@@ -238,7 +241,9 @@ extern const char *dict_index_search( const char *word, dictIndex *idx );
 extern int        dict_search_database( lst_List l,
 					const char *word,
 					dictDatabase *database, int strategy );
-extern dictIndex  *dict_index_open( const char *filename );
+extern dictIndex  *dict_index_open(
+    const char *filename,
+    int init_flags, int flag_utf8, int flag_allchars );
 extern void       dict_index_close( dictIndex *i );
 extern void       dict_dump_list( lst_List list );
 extern void       dict_destroy_list( lst_List list );
