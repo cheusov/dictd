@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servscan.l,v 1.21 2003/10/01 17:09:04 cheusov Exp $
+ * $Id: servscan.l,v 1.22 2003/10/11 16:51:36 cheusov Exp $
  * 
  */
 
@@ -86,40 +86,40 @@ WS                          [[:blank:]]+
    .*                       src_line(yytext,yyleng); yyless(0); BEGIN(OTHER);
 }
 include{WS}({word}|{string})   include_file();
-access                      RETURN(T_ACCESS);
-allow                       RETURN(T_ALLOW);
-deny                        RETURN(T_DENY);
-group                       RETURN(T_GROUP);
-database                    RETURN(T_DATABASE);
-database_exit               RETURN(T_DATABASE_EXIT);
-data                        RETURN(T_DATA);
-index                       RETURN(T_INDEX);
-index_suffix                RETURN(T_INDEX_SUFFIX);
-index_word                  RETURN(T_INDEX_WORD);
-filter                      RETURN(T_FILTER);
-prefilter                   RETURN(T_PREFILTER);
-postfilter                  RETURN(T_POSTFILTER);
-name                        RETURN(T_NAME);
-user                        RETURN(T_USER);
-authonly                    RETURN(T_AUTHONLY);
-site                        RETURN(T_SITE);
-invisible                   RETURN(T_INVISIBLE);
-database_virtual            RETURN(T_DATABASE_VIRTUAL);
-info                        RETURN(T_INFO);
-database_list               RETURN(T_DATABASE_LIST);
-database_plugin             RETURN(T_DATABASE_PLUGIN);
-plugin                      RETURN(T_PLUGIN);
-disable_strategy            RETURN(T_DISABLE_STRAT);
+access                      RETURN(TOKEN_ACCESS);
+allow                       RETURN(TOKEN_ALLOW);
+deny                        RETURN(TOKEN_DENY);
+group                       RETURN(TOKEN_GROUP);
+database                    RETURN(TOKEN_DATABASE);
+database_exit               RETURN(TOKEN_DATABASE_EXIT);
+data                        RETURN(TOKEN_DATA);
+index                       RETURN(TOKEN_INDEX);
+index_suffix                RETURN(TOKEN_INDEX_SUFFIX);
+index_word                  RETURN(TOKEN_INDEX_WORD);
+filter                      RETURN(TOKEN_FILTER);
+prefilter                   RETURN(TOKEN_PREFILTER);
+postfilter                  RETURN(TOKEN_POSTFILTER);
+name                        RETURN(TOKEN_NAME);
+user                        RETURN(TOKEN_USER);
+authonly                    RETURN(TOKEN_AUTHONLY);
+site                        RETURN(TOKEN_SITE);
+invisible                   RETURN(TOKEN_INVISIBLE);
+database_virtual            RETURN(TOKEN_DATABASE_VIRTUAL);
+info                        RETURN(TOKEN_INFO);
+database_list               RETURN(TOKEN_DATABASE_LIST);
+database_plugin             RETURN(TOKEN_DATABASE_PLUGIN);
+plugin                      RETURN(TOKEN_PLUGIN);
+disable_strategy            RETURN(TOKEN_DISABLE_STRAT);
 
 {word}                      { yylval.token.string = str_findn(yytext, yyleng);
-                              RETURN(T_STRING);
+                              RETURN(TOKEN_STRING);
                             }
 {string}                    {
 				yylval.token.string =
 					str_findn (
 						yytext+1,
 						escape_string (yytext+1, yyleng-2));
-				RETURN(T_STRING);
+				RETURN(TOKEN_STRING);
                             }
 {NL}                        BEGIN(INITIAL);
 {WS}                        src_advance( yyleng );

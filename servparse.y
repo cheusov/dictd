@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.18 2003/10/01 17:09:04 cheusov Exp $
+ * $Id: servparse.y,v 1.19 2003/10/11 16:51:36 cheusov Exp $
  * 
  */
 
@@ -45,14 +45,14 @@ static dictDatabase *db;
 
 				/* Terminals */
 
-%token <token> '{' '}' T_ACCESS T_ALLOW T_DENY T_GROUP T_DATABASE T_DATA
-%token <token> T_INDEX T_INDEX_SUFFIX T_INDEX_WORD
-%token <token> T_FILTER T_PREFILTER T_POSTFILTER T_NAME T_INFO
-%token <token> T_USER T_AUTHONLY T_SITE T_DATABASE_EXIT
-%token <token> T_STRING
-%token <token> T_INVISIBLE T_DISABLE_STRAT
-%token <token> T_DATABASE_VIRTUAL T_DATABASE_LIST
-%token <token> T_DATABASE_PLUGIN T_PLUGIN
+%token <token> '{' '}' TOKEN_ACCESS TOKEN_ALLOW TOKEN_DENY TOKEN_GROUP TOKEN_DATABASE TOKEN_DATA
+%token <token> TOKEN_INDEX TOKEN_INDEX_SUFFIX TOKEN_INDEX_WORD
+%token <token> TOKEN_FILTER TOKEN_PREFILTER TOKEN_POSTFILTER TOKEN_NAME TOKEN_INFO
+%token <token> TOKEN_USER TOKEN_AUTHONLY TOKEN_SITE TOKEN_DATABASE_EXIT
+%token <token> TOKEN_STRING
+%token <token> TOKEN_INVISIBLE TOKEN_DISABLE_STRAT
+%token <token> TOKEN_DATABASE_VIRTUAL TOKEN_DATABASE_LIST
+%token <token> TOKEN_DATABASE_PLUGIN TOKEN_PLUGIN
 
 %type  <token>  Site
 %type  <access> AccessSpec
@@ -117,7 +117,7 @@ Program : DatabaseList
         ;
 
 
-Access : T_ACCESS '{' AccessSpecList '}' { $$ = $3; }
+Access : TOKEN_ACCESS '{' AccessSpecList '}' { $$ = $3; }
        ;
 
 DatabaseList : Database { $$ = lst_create(); lst_append($$, $1); }
@@ -128,39 +128,39 @@ AccessSpecList : AccessSpec { $$ = lst_create(); lst_append($$, $1); }
                | AccessSpecList AccessSpec { lst_append($1, $2); $$ = $1; }
                ;
 
-Site : T_SITE T_STRING { $$ = $2; }
+Site : TOKEN_SITE TOKEN_STRING { $$ = $2; }
      ;
 
-UserList : T_USER T_STRING T_STRING
+UserList : TOKEN_USER TOKEN_STRING TOKEN_STRING
            { $$ = hsh_create(NULL,NULL);
 	     hsh_insert( $$, $2.string, $3.string );
 	   }
-         | UserList T_USER T_STRING T_STRING
+         | UserList TOKEN_USER TOKEN_STRING TOKEN_STRING
            { hsh_insert( $1, $3.string, $4.string ); $$ = $1; }
          ;
 
-AccessSpec : T_ALLOW T_STRING
+AccessSpec : TOKEN_ALLOW TOKEN_STRING
              {
 		dictAccess *a = xmalloc(sizeof(struct dictAccess));
 		a->type = DICT_ALLOW;
 		a->spec = $2.string;
 		$$ = a;
 	     }
-           | T_DENY T_STRING
+           | TOKEN_DENY TOKEN_STRING
              {
 		dictAccess *a = xmalloc(sizeof(struct dictAccess));
 		a->type = DICT_DENY;
 		a->spec = $2.string;
 		$$ = a;
 	     }
-           | T_AUTHONLY T_STRING
+           | TOKEN_AUTHONLY TOKEN_STRING
              {
 		dictAccess *a = xmalloc(sizeof(struct dictAccess));
 		a->type = DICT_AUTHONLY;
 		a->spec = $2.string;
 		$$ = a;
 	     }
-           | T_USER T_STRING
+           | TOKEN_USER TOKEN_STRING
              {
 		dictAccess *a = xmalloc(sizeof(struct dictAccess));
 		a->type = DICT_USER;
@@ -169,7 +169,7 @@ AccessSpec : T_ALLOW T_STRING
 	     }
            ;
 
-Database : T_DATABASE T_STRING
+Database : TOKEN_DATABASE TOKEN_STRING
            {
 	      db = xmalloc(sizeof(struct dictDatabase));
 	      memset( db, 0, sizeof(struct dictDatabase));
@@ -178,7 +178,7 @@ Database : T_DATABASE T_STRING
 	   }
            '{' SpecList '}' { $$ = db; }
            |
-           T_DATABASE_VIRTUAL T_STRING
+           TOKEN_DATABASE_VIRTUAL TOKEN_STRING
            {
 	      db = xmalloc(sizeof(struct dictDatabase));
 	      memset( db, 0, sizeof(struct dictDatabase));
@@ -187,7 +187,7 @@ Database : T_DATABASE T_STRING
 	   }
            '{' SpecList_virtual '}' { $$ = db; }
            |
-           T_DATABASE_PLUGIN T_STRING
+           TOKEN_DATABASE_PLUGIN TOKEN_STRING
            {
 	      db = xmalloc(sizeof(struct dictDatabase));
 	      memset( db, 0, sizeof(struct dictDatabase));
@@ -196,7 +196,7 @@ Database : T_DATABASE T_STRING
 	   }
            '{' SpecList_plugin '}' { $$ = db; }
            |
-	   T_DATABASE_EXIT
+	   TOKEN_DATABASE_EXIT
 	   {
 	      db = xmalloc(sizeof(struct dictDatabase));
 	      memset( db, 0, sizeof(struct dictDatabase));
@@ -211,11 +211,11 @@ SpecList_virtual : Spec_virtual
          | SpecList_virtual Spec_virtual
          ;
 
-Spec_virtual : T_NAME T_STRING       { SET(databaseShort,$1,$2); }
-     | T_INFO T_STRING               { SET(databaseInfo,$1,$2); }
-     | T_DATABASE_LIST T_STRING      { SET(database_list,$1,$2);}
-     | T_INVISIBLE               { db->invisible = 1; }
-     | T_DISABLE_STRAT T_STRING { dict_disable_strat (db, $2.string); };
+Spec_virtual : TOKEN_NAME TOKEN_STRING       { SET(databaseShort,$1,$2); }
+     | TOKEN_INFO TOKEN_STRING               { SET(databaseInfo,$1,$2); }
+     | TOKEN_DATABASE_LIST TOKEN_STRING      { SET(database_list,$1,$2);}
+     | TOKEN_INVISIBLE               { db->invisible = 1; }
+     | TOKEN_DISABLE_STRAT TOKEN_STRING { dict_disable_strat (db, $2.string); }
      | Access                    { db->acl = $1; }
      ;
 
@@ -223,12 +223,12 @@ SpecList_plugin : Spec_plugin
          | SpecList_plugin Spec_plugin
          ;
 
-Spec_plugin : T_NAME T_STRING       { SET(databaseShort,$1,$2); }
-     | T_INFO T_STRING               { SET(databaseInfo,$1,$2); }
-     | T_PLUGIN T_STRING      { SET(pluginFilename,$1,$2);}
-     | T_DATA T_STRING        { SET(plugin_data,$1,$2);}
-     | T_INVISIBLE               { db->invisible = 1; }
-     | T_DISABLE_STRAT T_STRING { dict_disable_strat (db, $2.string); };
+Spec_plugin : TOKEN_NAME TOKEN_STRING       { SET(databaseShort,$1,$2); }
+     | TOKEN_INFO TOKEN_STRING               { SET(databaseInfo,$1,$2); }
+     | TOKEN_PLUGIN TOKEN_STRING      { SET(pluginFilename,$1,$2);}
+     | TOKEN_DATA TOKEN_STRING        { SET(plugin_data,$1,$2);}
+     | TOKEN_INVISIBLE               { db->invisible = 1; }
+     | TOKEN_DISABLE_STRAT TOKEN_STRING { dict_disable_strat (db, $2.string); }
      | Access                    { db->acl = $1; }
      ;
 
@@ -236,16 +236,16 @@ SpecList : Spec
          | SpecList Spec
          ;
 
-Spec : T_DATA T_STRING              { SET(dataFilename,$1,$2); }
-     | T_INDEX T_STRING             { SET(indexFilename,$1,$2); }
-     | T_INDEX_SUFFIX T_STRING      { SET(indexsuffixFilename,$1,$2); }
-     | T_INDEX_WORD T_STRING        { SET(indexwordFilename,$1,$2); }
-     | T_FILTER T_STRING     { SET(filter,$1,$2); }
-     | T_PREFILTER T_STRING  { SET(prefilter,$1,$2); }
-     | T_POSTFILTER T_STRING { SET(postfilter,$1,$2); }
-     | T_NAME T_STRING       { SET(databaseShort,$1,$2); }
-     | T_INFO T_STRING               { SET(databaseInfo,$1,$2); }
-     | T_INVISIBLE           { db->invisible = 1; }
-     | T_DISABLE_STRAT T_STRING { dict_disable_strat (db, $2.string); };
+Spec : TOKEN_DATA TOKEN_STRING              { SET(dataFilename,$1,$2); }
+     | TOKEN_INDEX TOKEN_STRING             { SET(indexFilename,$1,$2); }
+     | TOKEN_INDEX_SUFFIX TOKEN_STRING      { SET(indexsuffixFilename,$1,$2); }
+     | TOKEN_INDEX_WORD TOKEN_STRING        { SET(indexwordFilename,$1,$2); }
+     | TOKEN_FILTER TOKEN_STRING     { SET(filter,$1,$2); }
+     | TOKEN_PREFILTER TOKEN_STRING  { SET(prefilter,$1,$2); }
+     | TOKEN_POSTFILTER TOKEN_STRING { SET(postfilter,$1,$2); }
+     | TOKEN_NAME TOKEN_STRING       { SET(databaseShort,$1,$2); }
+     | TOKEN_INFO TOKEN_STRING               { SET(databaseInfo,$1,$2); }
+     | TOKEN_INVISIBLE           { db->invisible = 1; }
+     | TOKEN_DISABLE_STRAT TOKEN_STRING { dict_disable_strat (db, $2.string); }
      | Access                { db->acl = $1; }
      ;

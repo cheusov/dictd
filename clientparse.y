@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: clientparse.y,v 1.5 2003/08/28 00:04:54 hilliard Exp $
+ * $Id: clientparse.y,v 1.6 2003/10/11 16:51:37 cheusov Exp $
  * 
  */
 
@@ -36,9 +36,9 @@ static dictServer *s;
 
 				/* Terminals */
 
-%token <token> '{' '}' T_SERVER T_PORT T_USER T_FILTER T_PAGER
+%token <token> '{' '}' TOKEN_SERVER TOKEN_PORT TOKEN_USER TOKEN_FILTER TOKEN_PAGER
 
-%token <token>  T_STRING
+%token <token>  TOKEN_STRING
 %type  <list>   Options Pager Server ServerList
 
 %%
@@ -49,22 +49,22 @@ Options : ServerList
         | Pager
         ;
 
-Pager : T_PAGER T_STRING { if (!dict_pager) dict_pager = $2.string; }
-      | T_PAGER T_PAGER  { if (!dict_pager) dict_pager = "pager"; }
+Pager : TOKEN_PAGER TOKEN_STRING { if (!dict_pager) dict_pager = $2.string; }
+      | TOKEN_PAGER TOKEN_PAGER  { if (!dict_pager) dict_pager = "pager"; }
       ;
 
 ServerList : Server { $$ = dict_Servers = lst_create(); lst_append($$, $1); }
            | ServerList Server { lst_append($1, $2); $$ = $1; }
            ;
 
-Server : T_SERVER T_STRING
+Server : TOKEN_SERVER TOKEN_STRING
            {
 	      s = xmalloc(sizeof(struct dictServer));
 	      memset( s, 0, sizeof(struct dictServer));
 	      s->host = $2.string;
 	   }
            '{' SpecList '}' { $$ = s; }
-       | T_SERVER T_STRING
+       | TOKEN_SERVER TOKEN_STRING
            {
 	      s = xmalloc(sizeof(struct dictServer));
 	      memset( s, 0, sizeof(struct dictServer));
@@ -77,6 +77,6 @@ SpecList : Spec
          | SpecList Spec
          ;
 
-Spec : T_PORT T_STRING          { s->port = $2.string; }
-     | T_USER T_STRING T_STRING { s->user = $2.string; s->secret = $3.string; }
+Spec : TOKEN_PORT TOKEN_STRING          { s->port = $2.string; }
+     | TOKEN_USER TOKEN_STRING TOKEN_STRING { s->user = $2.string; s->secret = $3.string; }
      ;

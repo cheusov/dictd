@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: clientscan.l,v 1.3 1999/12/22 11:49:56 faith Exp $
+ * $Id: clientscan.l,v 1.4 2003/10/11 16:51:36 cheusov Exp $
  * 
  */
 
@@ -46,17 +46,17 @@ WS                          [[:blank:]]+
    .*                       src_line(yytext,yyleng); yyless(0); BEGIN(OTHER);
 }
 
-pager                       RETURN(T_PAGER);
-server                      RETURN(T_SERVER);
-port                        RETURN(T_PORT);
-user                        RETURN(T_USER);
-filter                      RETURN(T_FILTER);
+pager                       RETURN(TOKEN_PAGER);
+server                      RETURN(TOKEN_SERVER);
+port                        RETURN(TOKEN_PORT);
+user                        RETURN(TOKEN_USER);
+filter                      RETURN(TOKEN_FILTER);
 {word}                      { yylval.token.string = str_findn(yytext, yyleng);
-                              RETURN(T_STRING);
+                              RETURN(TOKEN_STRING);
                             }
 {string}                    { yylval.token.string
 				 = str_findn(yytext+1, yyleng-2);
-                              RETURN(T_STRING);
+                              RETURN(TOKEN_STRING);
                             }
 {NL}                        BEGIN(INITIAL);
 {WS}                        src_advance( yyleng );

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.76 2003/10/02 12:31:46 cheusov Exp $
+ * $Id: index.c,v 1.77 2003/10/11 16:51:36 cheusov Exp $
  * 
  */
 
@@ -1345,6 +1345,7 @@ int dict_search_database_ (
 
    buf = alloca( strlen( word ) + 1 );
 
+#if HAVE_UTF8
    if (
       !strcmp(utf8_err_msg, word) ||
       tolower_alnumspace (
@@ -1364,6 +1365,7 @@ int dict_search_database_ (
       
       return -1;
    }
+#endif
 
    if (!buf [0] && word [0]){
       /*
