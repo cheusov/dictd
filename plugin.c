@@ -15,7 +15,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: plugin.c,v 1.11 2003/11/03 00:28:52 cheusov Exp $
+ * $Id: plugin.c,v 1.12 2004/01/08 10:52:15 cheusov Exp $
  * 
  */
 
@@ -588,21 +588,6 @@ void dict_plugin_destroy ( dictDatabase *db )
 
    xfree (db -> plugin);
    db -> plugin = NULL;
-}
-
-static int call_dictdb_free1 (const void *datum)
-{
-   const dictDatabase *db = (const dictDatabase *) datum;
-
-   if (db -> plugin){
-      if (db -> plugin -> dictdb_free_called){
-	 db -> plugin -> dictdb_free (db -> plugin -> data);
-
-	 db -> plugin -> dictdb_free_called = 0;
-      }
-   }
-
-   return 0;
 }
 
 void call_dictdb_free (lst_List db_list)
