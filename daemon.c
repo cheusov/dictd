@@ -1,6 +1,6 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@cs.unc.edu
- * Revised: Mon Feb 16 14:56:19 1998 by faith@acm.org
+ * Revised: Thu Feb 19 21:09:22 1998 by faith@acm.org
  * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.25 1998/02/16 19:58:13 faith Exp $
+ * $Id: daemon.c,v 1.26 1998/02/20 02:23:20 faith Exp $
  * 
  */
 
@@ -470,43 +470,79 @@ static void daemon_ok( int code, const char *string, const char *timer )
    lastComparisons = _dict_comparisons;
 }
 
-static int dump_def( const void *datum )
+static int daemon_count_defs( lst_List list )
 {
-   char         *buf;
-   dictWord     *dw = (dictWord *)datum;
-   dictDatabase *db = dw->database;
+   lst_Position  p;
+   dictWord      *dw;
+   unsigned long previousStart = 0;
+   unsigned long previousEnd   = 0;
+   int           count         = 0;
 
-   buf = dict_data_read( db->data, dw->start, dw->end,
-			 db->prefilter, db->postfilter );
-
-   daemon_printf( "%d \"%s\" %s \"%s\"\n",
-		  CODE_DEFINITION_FOLLOWS,
-                  dw->word,
-		  db->databaseName,
-		  db->databaseShort );
-   daemon_mime();
-   daemon_text(buf);
-   xfree( buf );
-   return 0;
+   LST_ITERATE(list,p,dw) {
+      if (previousStart == dw->start && previousEnd == dw->end) continue;
+      previousStart = dw->start;
+      previousEnd   = dw->end;
+      ++count;
+   }
+   return count;
 }
 
 static void daemon_dump_defs( lst_List list )
 {
-   lst_iterate( list, dump_def );
+   lst_Position  p;
+   char          *buf;
+   dictWord      *dw;
+   dictDatabase  *db;
+   unsigned long previousStart = 0;
+   unsigned long previousEnd   = 0;
+
+   LST_ITERATE(list,p,dw) {
+      db = dw->database;
+
+      if (previousStart == dw->start && previousEnd == dw->end) continue;
+      previousStart = dw->start;
+      previousEnd   = dw->end;
+      buf = dict_data_read( db->data, dw->start, dw->end,
+			    db->prefilter, db->postfilter );
+
+      daemon_printf( "%d \"%s\" %s \"%s\"\n",
+		     CODE_DEFINITION_FOLLOWS,
+		     dw->word,
+		     db->databaseName,
+		     db->databaseShort );
+      daemon_mime();
+      daemon_text(buf);
+      xfree( buf );
+   }
 }
 
-static int dump_match( const void *datum )
+static int daemon_count_matches( lst_List list )
 {
-   dictWord     *dw = (dictWord *)datum;
-
-   daemon_printf( "%s \"%s\"\n", dw->database->databaseName, dw->word );
-   return 0;
+   lst_Position p;
+   dictWord     *dw;
+   const char   *previous = NULL;
+   int          count     = 0;
+   
+   LST_ITERATE(list,p,dw) {
+      if (previous && !strcmp(previous,dw->word)) continue;
+      previous = dw->word;
+      ++count;
+   }
+   return count;
 }
 
 static void daemon_dump_matches( lst_List list )
 {
+   lst_Position p;
+   dictWord     *dw;
+   const char   *previous = NULL;
+   
    daemon_mime();
-   lst_iterate( list, dump_match );
+   LST_ITERATE(list,p,dw) {
+      if (previous && !strcmp(previous,dw->word)) continue;
+      previous = dw->word;
+      daemon_printf( "%s \"%s\"\n", dw->database->databaseName, dw->word );
+   }
    daemon_printf( ".\n" );
 }
 
@@ -566,12 +602,14 @@ static void daemon_define( const char *cmdline, int argc, char **argv )
    }
 
    if (matches) {
-      _dict_defines += matches;
+      int actual_matches = daemon_count_defs( list );
+      
+      _dict_defines += actual_matches;
       daemon_log( DICT_LOG_DEFINE,
-		  "%s \"%s\" %d\n", databaseName, word, matches);
+		  "%s \"%s\" %d\n", databaseName, word, actual_matches);
       daemon_printf( "%d %d definitions retrieved\n",
 		     CODE_DEFINITIONS_FOUND,
-		     matches );
+		     actual_matches );
       daemon_dump_defs( list );
       daemon_ok( CODE_OK, "ok", "c" );
       dict_destroy_list( list );
@@ -639,11 +677,14 @@ static void daemon_match( const char *cmdline, int argc, char **argv )
    }
 
    if (matches) {
-      _dict_matches += matches;
+      int actual_matches = daemon_count_matches( list );
+      
+      _dict_matches += actual_matches;
       daemon_log( DICT_LOG_MATCH,
 		  "%s %s \"%s\" %d\n",
-		  databaseName, strategy, word, matches);
-      daemon_printf( "%d %d matches found\n", CODE_MATCHES_FOUND, matches );
+		  databaseName, strategy, word, actual_matches);
+      daemon_printf( "%d %d matches found\n",
+		     CODE_MATCHES_FOUND, actual_matches );
       daemon_dump_matches( list );
       daemon_ok( CODE_OK, "ok", "c" );
       dict_destroy_list( list );
@@ -843,9 +884,9 @@ static void daemon_client( const char *cmdline, int argc, char **argv )
    const char *pt = strchr( cmdline, ' ' );
    
    if (pt)
-      daemon_log( DICT_LOG_CLIENT, "%.80s\n", pt + 1 );
+      daemon_log( DICT_LOG_CLIENT, "%.200s\n", pt + 1 );
    else
-      daemon_log( DICT_LOG_CLIENT, "%.80s\n", cmdline );
+      daemon_log( DICT_LOG_CLIENT, "%.200s\n", cmdline );
    daemon_ok( CODE_OK, "ok", NULL );
 }
 

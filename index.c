@@ -1,6 +1,6 @@
 /* index.c -- 
  * Created: Wed Oct  9 14:52:23 1996 by faith@cs.unc.edu
- * Revised: Sun Jan 25 19:33:01 1998 by faith@acm.org
+ * Revised: Thu Feb 19 21:01:47 1998 by faith@acm.org
  * Copyright 1996, 1997, 1998 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.16 1998/02/16 02:25:21 faith Exp $
+ * $Id: index.c,v 1.17 1998/02/20 02:23:21 faith Exp $
  * 
  */
 
@@ -37,6 +37,7 @@
        int _dict_comparisons;
 static int isspacealnumtab[256];
 #define isspacealnum(x) (isspacealnumtab[(unsigned char)x])
+#define altcompare(a,b,c) (1)
 
 /* Compare:
    
@@ -91,36 +92,6 @@ static int compare( const char *word, const char *start, const char *end )
    PRINTF(DBG_SEARCH,("   result = %d\n",
 		      *word ? 1 : ((*start != '\t') ? -1 : 0)));
    return  *word ? 1 : ((*start != '\t') ? -1 : 0);
-}
-
-static int altcompare( const char *word, const char *start, const char *end )
-{
-   char       buf[80], buf2[80], *d;
-   const char *s;
-   
-   if (dbg_test(DBG_ALT)) {
-      for (d = buf, s = start; s < end && *s != '\t';) *d++ = *s++;
-      *d = '\0';
-      for (d = buf2, s = word; s < end && *s != '\t';) *d++ = *s++;
-      *d = '\0';
-      printf( "altcompare \"%s\" with \"%s\"\n", buf2, buf );
-   }
-
-   ++_dict_comparisons;		/* counter for profiling */
-   
-				/* FIXME.  Optimize this inner loop. */
-   while (*word && start < end && *start != '\t') {
-      if (*word != *start) {
-	 PRINTF(DBG_ALT,("   result = %d\n", (*word < *start) ? -2 : 1 ));
-	 return (*word < *start) ? -2 : 1;
-      }
-      ++word;
-      ++start;
-   }
-   
-   PRINTF(DBG_ALT,("   result = %d\n",
-		   (*word != '\t') ? 1 : ((*start != '\t') ? -1 : 0)));
-   return  (*word != '\t') ? 1 : ((*start != '\t') ? -1 : 0);
 }
 
 static const char *binary_search( const char *word,
