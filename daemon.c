@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.65 2003/07/21 10:02:33 cheusov Exp $
+ * $Id: daemon.c,v 1.66 2003/08/27 16:05:22 cheusov Exp $
  * 
  */
 
@@ -1189,6 +1189,10 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
 	 dw = lst_nth_get( list, 1 );
 	 buf = dict_data_obtain( db, dw );
 
+#ifdef USE_PLUGIN
+	 call_dictdb_free (list);
+#endif
+
 	 dict_destroy_list( list );
 	 daemon_printf( "%d information for %s\n",
 			CODE_DATABASE_INFO, argv[2] );
@@ -1197,6 +1201,10 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
 	 daemon_ok( CODE_OK, "ok", NULL );
 	 return;
       } else {
+#ifdef USE_PLUGIN
+	 call_dictdb_free (list);
+#endif
+
 	 dict_destroy_list( list );
 	 daemon_printf( "%d information for %s\n",
 			CODE_DATABASE_INFO, argv[2] );
@@ -1282,8 +1290,8 @@ static void daemon_show_server( const char *cmdline, int argc, char **argv )
 	    data_size,
 	    data_size_uom,
 
-	    data_size,
-	    data_size_uom);
+	    data_length,
+	    data_length_uom);
       }
    }
 
@@ -1341,7 +1349,7 @@ static void daemon_auth( const char *cmdline, int argc, char **argv )
       daemon_printf( "%d syntax error, illegal parameters\n",
 		     CODE_ILLEGAL_PARAM );
    if (!h || !(secret = hsh_retrieve(h, argv[1]))) {
-      daemon_log( DICT_LOG_AUTH, "%s@%s/%s denied: no invalid username\n",
+      daemon_log( DICT_LOG_AUTH, "%s@%s/%s denied: invalid username\n",
                   argv[1], daemonHostname, daemonIP );
       daemon_printf( "%d auth denied\n", CODE_AUTH_DENIED );
       return;
@@ -1356,7 +1364,7 @@ static void daemon_auth( const char *cmdline, int argc, char **argv )
    MD5Final(digest, &ctx);
 
    for (i = 0; i < 16; i++)
-      snprintf( hex+2*i, 2, "%02x", digest[i] );
+      snprintf( hex+2*i, 3, "%02x", digest[i] );
 
    hex[32] = '\0';
 

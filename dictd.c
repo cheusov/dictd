@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.90 2003/08/18 13:04:13 cheusov Exp $
+ * $Id: dictd.c,v 1.91 2003/08/27 16:05:22 cheusov Exp $
  * 
  */
 
@@ -423,6 +423,9 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
 	 list, entryName, db, DICT_EXACT,
 	 NULL, NULL, NULL ))
    {
+#ifdef USE_PLUGIN
+      call_dictdb_free (list);
+#endif
       lst_destroy( list );
       return NULL;
    }
@@ -441,6 +444,9 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
 
    pt[ strlen(pt) - 1 ] = '\0';
 
+#ifdef USE_PLUGIN
+   call_dictdb_free (list);
+#endif
    dict_destroy_list( list );
 
    pt = xstrdup (pt);
@@ -610,12 +616,13 @@ static int init_database_short (const void *datum)
 
    dictDatabase *db = (dictDatabase *)datum;
 
-   if (!db->databaseShort)
+   if (!db->databaseShort){
       db->databaseShort = get_entry_info( db, DICT_SHORT_ENTRY_NAME );
-   else if (*db->databaseShort == '@' && !db -> virtual_db)
+   }else if (*db->databaseShort == '@' && !db -> virtual_db){
       db->databaseShort = get_entry_info( db, db->databaseShort + 1 );
-   else
+   }else{
       db->databaseShort = xstrdup (db->databaseShort);
+   }
 
    NL = strchr (db->databaseShort, '\n');
    if (NL)
@@ -811,7 +818,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.90 2003/08/18 13:04:13 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.91 2003/08/27 16:05:22 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
