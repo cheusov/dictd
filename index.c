@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.64 2003/04/07 14:21:14 cheusov Exp $
+ * $Id: index.c,v 1.65 2003/07/07 11:06:25 cheusov Exp $
  * 
  */
 
@@ -1030,7 +1030,11 @@ static int dict_search_regexpr( lst_List l,
    assert (dbindex);
 
    if (optStart_mode){
-      if (*word == '^' && dbindex -> isspacealnum [(unsigned char) word[1]]) {
+      if (
+	 *word == '^'
+	 && dbindex -> isspacealnum [(unsigned char) word[1]]
+	 && strchr (word, '|') == NULL)
+      {
 	 first = word[1];
 
 	 end   = dbindex->optStart[i2c(c2i(first)+1)];
