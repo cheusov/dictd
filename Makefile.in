@@ -1,6 +1,6 @@
 # Makefile.in -- Makefile for dict
 # Created: Wed Apr 24 14:14:09 1996 by faith@cs.unc.edu
-# Revised: Wed Sep 25 22:12:14 1996 by faith@cs.unc.edu
+# Revised: Sun Sep 29 10:29:33 1996 by faith@cs.unc.edu
 # Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.1 1996/09/26 02:27:35 faith Exp $
+# $Id: Makefile.in,v 1.2 1996/09/30 03:51:48 faith Exp $
 #
 
 ifneq (,)
@@ -52,7 +52,7 @@ XTRALDFLAGS=    @WLDFLAGS@ @XTRALDFLAGS@ -Llibmaa -Lzlib
 LDLIBS=		@LIBS@ -lmaa -lz
 
 HEADERS= 	./config.h @XTRAHEADERS@ dict.h
-EXES=	 	jargdump wndump # dictzip
+EXES=	 	dictzip # jargdump wndump # dictzip
 OBJS=           fmt.o
 
 all::
@@ -73,7 +73,7 @@ ALLFLAGS=$(XTRACFLAGS) $(CFLAGS) $(XTRALDFLAGS) $(LDFLAGS)
 %: %.c
 	$(CC) $(ALLFLAGS) -o $@ $< $(OBJS) $(LDLIBS)
 
-$(EXES):  $(HEADERS) $(OBJS)
+$(EXES):  $(HEADERS) $(OBJS) libmaa/libmaa.a zlib/libz.a
 $(OBJS):  $(HEADERS)
 
 wordnet.dct wordnet.idx: wndump data/wordnet/data.*
