@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.38 2004/01/04 19:35:19 cheusov Exp $
+ * $Id: dictfmt.c,v 1.39 2004/01/05 18:46:12 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -858,7 +858,7 @@ int main( int argc, char **argv )
 	 destroy_and_exit (1);
 	 break;         
       case 'j': type = JARGON;             break;
-      case 'f': type = FOLDOC; fmt_maxpos=79; break;
+      case 'f': type = FOLDOC;             break;
       case 'e': type = EASTON;             break;
       case 'p': type = PERIODIC;           break;
       case 'h':
@@ -1117,6 +1117,9 @@ int main( int argc, char **argv )
 	       fmt_newheadword(buffer);
 	       continue;
 	    }
+	 }
+	 if (*buf == ' '){
+	    ++buf;
 	 }
 	 if (*buf == '\t') {
 	    memmove( buf+2, buf, strlen(buf)+1 ); /* move \0 */
