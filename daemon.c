@@ -1,7 +1,7 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@cs.unc.edu
- * Revised: Wed Dec 22 08:09:58 1999 by faith@acm.org
- * Copyright 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
+ * Revised: Mon May 22 16:09:43 2000 by faith@acm.org
+ * Copyright 1997, 1998, 1999, 2000 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.29 1999/12/22 13:22:10 faith Exp $
+ * $Id: daemon.c,v 1.30 2000/05/29 10:37:29 faith Exp $
  * 
  */
 
@@ -524,12 +524,15 @@ static int daemon_count_matches( lst_List list )
 {
    lst_Position p;
    dictWord     *dw;
-   const char   *previous = NULL;
+   const char   *prevword = NULL;
+   dictDatabase *prevdb   = NULL;
    int          count     = 0;
    
    LST_ITERATE(list,p,dw) {
-      if (previous && !strcmp(previous,dw->word)) continue;
-      previous = dw->word;
+      if (prevdb == dw->database && prevword && !strcmp(prevword,dw->word))
+	  continue;
+      prevword = dw->word;
+      prevdb   = dw->database;
       ++count;
    }
    return count;
@@ -539,12 +542,15 @@ static void daemon_dump_matches( lst_List list )
 {
    lst_Position p;
    dictWord     *dw;
-   const char   *previous = NULL;
+   const char   *prevword = NULL;
+   dictDatabase *prevdb   = NULL;
    
    daemon_mime();
    LST_ITERATE(list,p,dw) {
-      if (previous && !strcmp(previous,dw->word)) continue;
-      previous = dw->word;
+      if (prevdb == dw->database && prevword && !strcmp(prevword,dw->word))
+	  continue;
+      prevword = dw->word;
+      prevdb   = dw->database;
       daemon_printf( "%s \"%s\"\n", dw->database->databaseName, dw->word );
    }
    daemon_printf( ".\n" );
