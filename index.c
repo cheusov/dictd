@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.43 2002/12/04 19:12:47 cheusov Exp $
+ * $Id: index.c,v 1.44 2002/12/04 19:20:29 cheusov Exp $
  * 
  */
 
@@ -2004,10 +2004,12 @@ static void dict_plugin_test (dictIndex *i, int version, int ret)
    switch (version){
    case 0:
       break;
+/*
    case 1:
       if (!i -> plugin -> dictdb_set)
 	 err_fatal (__FUNCTION__, "'%s' function is not found\n", DICT_PLUGINFUN_SET);
       break;
+*/
    default:
       err_fatal (__FUNCTION__, "Invalid version returned by plugin\n");
    }
