@@ -15,9 +15,30 @@ INSTALLATION
         ./configure --prefix=/opt/gnu
 
     NOTE: as of version 1.8.0, dictd supports plugins.
-    If you do not want it, you can do something like:
+    If you do not want it, disable it:
 
         ./configure --disable-plugin
+
+    NOTE: as of version 1.9.10, dictd can be built
+    with a regex engine you want. By default system-wide one is used.
+    It is assumed that it is libc library.
+
+      Example1 (to build dictd with TRE regex library):
+
+        DICTD_LDFLAGS='-L/usr/local/lib/ -ltre' \
+           CPPFLAGS='-I/usr/local/include/tre' ./configure
+        make
+
+      Example2 (to build dictd with pcreposix regex library):
+
+        DICTD_LDFLAGS='-lpcreposix -lpcre' \
+           ./configure --with-regex-include='pcreposix.h'
+        make
+
+      Example3 (to build regex with local regex library by Henry Spencer)
+
+        ./configure --with-local-regex
+        make
 
 2.  Compile the client and server software:
 

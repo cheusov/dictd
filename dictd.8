@@ -943,6 +943,17 @@ more information, and consult with your attorney to resolve these issues.
 The regular expression searches do not ignore non-whitespace,
 non-alphanumeric characters as do the other searches.  In practice, this
 isn't much of a problem.
+
+The 'lev' strategy doesn't work with utf8 dictionaries.
+
+Conformance of regular expressions
+(used by 're' and 'regexp' search strategies)
+to ERE and BRE depends on
+what library you build dictd with.
+
+Whether 're' and 'regex' strategies support utf8 depends on 
+library you build dictd with.
+
 .SH "FILES"
 .I /etc/dictd.conf
 .br
