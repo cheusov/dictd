@@ -17,19 +17,16 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.41 2002/12/03 14:04:02 cheusov Exp $
+ * $Id: index.c,v 1.42 2002/12/03 19:56:32 cheusov Exp $
  * 
  */
 
 #include "dictzip.h"
+#include "dictd.h"
 #include "regex.h"
 #include "utf8_ucs4.h"
 
 #include <sys/stat.h>
-
-#ifdef HAVE_MMAP
-#include <sys/mman.h>
-#endif
 
 #include <fcntl.h>
 #include <ctype.h>
@@ -39,6 +36,8 @@
 #include <ltdl.h>
 #endif
 
+extern int mmap_mode;
+
 #define FIND_NEXT(pt,end) while (pt < end && *pt++ != '\n');
 #define OPTSTART        1	/* Optimize search range for constant start */
 #define MAXWORDLEN    512
@@ -46,12 +45,6 @@
 
 int utf8_mode;     /* dictd uses UTF-8 dictionaries */
 dictConfig *DictConfig;
-
-#ifdef HAVE_MMAP
-int mmap_mode = 1; /* dictd uses mmap() function (the default) */
-#else
-int mmap_mode = 0;
-#endif
 
 int _dict_comparisons;
 static int isspacealnumtab[UCHAR_MAX + 1];
@@ -1604,6 +1597,49 @@ static int plugin_initdata_set_dbnames (dictPluginData *data, int data_size)
    return count;
 }
 
+static int plugin_initdata_set_stratnames (dictPluginData *data, int data_size)
+{
+   const dictStrategy *strats;
+   int count;
+   int ret = 0;
+   int i;
+   dictPluginData_strategy datum;
+
+   if (data_size <= 0)
+      err_fatal (__FUNCTION__, "too small initial array");
+
+   count = get_strategies_count ();
+   assert (count > 0);
+
+   strats = get_strategies ();
+
+   for (i = 0; i < count; ++i){
+      if (strats [i].number >= 0){
+	 data -> id   = DICT_PLUGIN_INITDATA_STRATEGY;
+
+	 if (
+	    strlen (strats [i].name) + 1 >
+	    sizeof (datum.name))
+	 {
+	    err_fatal (__FUNCTION__, "too small initial array");
+	 }
+
+	 datum.number = strats [i].number;
+	 strcpy (datum.name, strats [i].name);
+
+	 data -> size = sizeof (datum);
+	 data -> data = xmalloc (sizeof (datum));
+
+	 memcpy (data -> data, &datum, sizeof (datum));
+
+	 ++data;
+	 ++ret;
+      }
+   }
+
+   return ret;
+}
+
 /* all dict [i]->data are xmalloc'd*/
 static int plugin_initdata_set (
    dictPluginData *data, int data_size,
@@ -1613,6 +1649,10 @@ static int plugin_initdata_set (
    dictPluginData *p = data;
 
    count = plugin_initdata_set_dbnames (data, data_size);
+   data      += count;
+   data_size -= count;
+
+   count = plugin_initdata_set_stratnames (data, data_size);
    data      += count;
    data_size -= count;
 
@@ -1936,7 +1976,7 @@ int dict_plugin_open (dictIndex *i, const dictDatabase *db)
    char *plugin_filename;
    dictWord *dw;
 
-   dictPluginInitData init_data [3000];
+   dictPluginData init_data [3000];
    int init_data_size;
 
    int version;

@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.58 2002/12/03 14:04:01 cheusov Exp $
+# $Id: Makefile.in,v 1.59 2002/12/03 19:56:30 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -75,9 +75,25 @@ LDLIBS=		@LIBS@ -Lregex -lregex
 EXES=	 	dict dictd dictzip dictfmt
 
 ifeq ($(USE_PLUGIN), 1)
-	PLUGINS=    dictdplugin_exit.so #dictdplugin_tr.so
+
+	PLUGINS=    
 	LIBRARIES=  libdictdplugin.a
 	INCLUDES=   dictdplugin.h
+all             :: plugins
+.PHONY : samples install.samples uninstall.samples
+samples         : dictdplugin_exit.so dictdplugin_popen.so man_popen.dict
+install.samples : samples
+	{ \
+    if test ! -d $(libexecdir); then $(INSTALL) -d 755 $(libexecdir); fi; \
+    if test ! -d $(datadir); then $(INSTALL) -d 755 $(datadir); fi; \
+    $(INSTALL_DATA) dictdplugin_exit.so dictdplugin_popen.so $(libexecdir); \
+    $(INSTALL_DATA) man_popen.{dict,index} $(datadir); \
+    $(INSTALL_SCRIPT) search_man $(libexecdir); \
+    } || true
+
+uninstall.samples :
+	rm -f $(datadir)/man_popen.{dict,index} $(libexecdir)/{search_man,dictdplugin_exit.so,dictdplugin_popen.so}
+
 endif
 
 HEADERS= 	./config.h @XTRAHEADERS@ dictzip.h dictd.h dict.h \
@@ -127,12 +143,19 @@ lib%.a : %.o
 	$(AR) rc $@ $^
 
 %.so: %.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -shared $^ -o $@ # libdictdplugin.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared $^ -o $@ libdictdplugin.a
 %.so: %.cpp
-	$(CXX) $(CFLAGS) $(LDFLAGS) -shared $^ -o $@ # libdictdplugin.a
+	$(CXX) $(CFLAGS) $(LDFLAGS) -shared $^ -o $@ libdictdplugin.a
 
 .PHONY: plugins
 plugins: $(PLUGINS)
+
+man_popen.dict : dictdplugin-config dictfmt_plugin
+	{ \
+      echo `dictdplugin-config --plugindir`'/search_man'; \
+      echo "qwertyuioplkjhgfdsazxcvbnm 0987654321QWERTYUIOPLKJHGFDSAZXCVBNM"; \
+   } | ./dictfmt_plugin dictdplugin_popen.so -s \
+      'Example man dict based on example POPEN plugin' man_popen
 
 dict:: dict.c $(HEADERS) $(CLIOBJS)
 	$(CC) $(ALLFLAGS) -o $@ $< $(CLIOBJS) $(LDLIBS)
@@ -140,8 +163,8 @@ dict:: dict.c $(HEADERS) $(CLIOBJS)
 dictd:: dictd.c $(HEADERS) $(NETOBJS) $(SRCHOBJS)
 	$(CC) $(ALLFLAGS) -o $@ $< $(NETOBJS) $(SRCHOBJS) $(ZIPOBJS) $(LDLIBS)
 
-dictzip:: dictzip.c $(HEADERS) $(SRCHOBJS)
-	$(CC) $(ALLFLAGS) -o $@ $<  $(SRCHOBJS) $(LDLIBS)
+dictzip:: dictzip.c $(HEADERS) data.o
+	$(CC) $(ALLFLAGS) -o $@ $< data.o $(LDLIBS)
 
 dictfmt:: dictfmt.c $(HEADERS) utf8_ucs4.o
 	$(CC) $(ALLFLAGS) -o $@ $< utf8_ucs4.o $(LDLIBS)
@@ -220,8 +243,8 @@ install.includes:
 
 install.plugins:
 	test _$(USE_PLUGIN) = _1 && \
-	{ if test ! -d $(libexecdir)/dictd; then $(INSTALL) -d 755 $(libexecdir)/dictd; fi; \
-    $(INSTALL_DATA) $(PLUGINS) $(libexecdir)/dictd; } || true
+	{ if test ! -d $(libexecdir); then $(INSTALL) -d 755 $(libexecdir); fi; \
+    $(INSTALL_DATA) $(PLUGINS) $(libexecdir); } || true
 
 .PHONY: install
 
@@ -263,7 +286,7 @@ endif
 
 uninstall.plugins:
 ifeq ($(USE_PLUGIN), 1)
-	rm -f $(addprefix $(libexecdir)/dictd/, $(PLUGINS))
+	rm -f $(addprefix $(libexecdir), $(PLUGINS))
 endif
 
 .PHONY: uninstall
@@ -316,6 +339,7 @@ clean:
 	-rm -f *.log *.aux *.toc *.dvi *.ps
 	-rm -f *.cfg *.dtk .inslog tca.map
 	-rm -f *.dct *.idx y.output TAGS
+	-rm -f *.dict *.index
 
 recursive-clean: clean
 	@for subdir in `echo $(subdirs)`; do \

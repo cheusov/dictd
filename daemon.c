@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.44 2002/11/19 11:20:45 cheusov Exp $
+ * $Id: daemon.c,v 1.45 2002/12/03 19:56:30 cheusov Exp $
  * 
  */
 
@@ -101,12 +101,12 @@ static dictStrategy strategyInfo[] = {
 };
 #define STRATEGIES (sizeof(strategyInfo)/sizeof(strategyInfo[0]))
 
-int get_strategies_count ()
+int get_strategies_count (void)
 {
    return STRATEGIES;
 }
 
-const dictStrategy *get_strategies ()
+const dictStrategy *get_strategies (void)
 {
    return strategyInfo;
 }

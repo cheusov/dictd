@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: data.c,v 1.14 2002/09/27 16:57:44 cheusov Exp $
+ * $Id: data.c,v 1.15 2002/12/03 19:56:30 cheusov Exp $
  * 
  */
 
@@ -31,10 +31,17 @@
 #include <ctype.h>
 #include <fcntl.h>
 #include <assert.h>
+#ifdef HAVE_MMAP
+#include <sys/mman.h>
+#endif
 
 #define USE_CACHE 1
 
-extern int mmap_mode;
+#ifdef HAVE_MMAP
+int mmap_mode = 1; /* dictd uses mmap() function (the default) */
+#else
+int mmap_mode = 0;
+#endif
 
 int dict_data_filter( char *buffer, int *len, int maxLength,
 		      const char *filter )

@@ -14,6 +14,11 @@ INSTALLATION
 
         ./configure --prefix=/opt/gnu
 
+    NOTE: as of version 1.8.0, dictd supports plugins.
+    If you do not want it, you can do something like:
+
+        ./configure --disable-plugin
+
 2.  Compile the client and server software:
 
         make 
@@ -35,7 +40,52 @@ INSTALLATION
     NOTE: If you only built the client software in step 2, use
     'make install.dict' instead of 'make install'
 
-4.  Install any databases you would like dict/dictd to utilize.  The
+4.  Uninstall the client, server, and manual pages:
+
+        make uninstall
+
+    NOTE: If you only built the client software in step 2, use
+    'make uninstall.dict' instead of 'make uninstall'
+
+5.  Several plugin examples are available.
+    One of them is C++-based 'popen' plugin which runs external program
+    for both DEFINE and MATCH queries.
+
+    If you want to build/install/uninstall these samples,
+    run the following commands respectively:
+
+        make samples
+
+        make install.samples
+
+        make uninstall.samples
+
+    Also 'man_popen' dictionary based on 'popen' plugin is available.
+    Its functionality is a subset of that of the 'man' command.
+    Only 'exact' and 'substring' search strategies are implemented.
+    In order to test 'man_dict' dictionary and 'popen' plugin,
+    you can make the following:
+
+        ./configure --prefix /tmp/dictd
+        make dict
+        make dictd
+        make samples
+        make install.samples
+        ./dictd -p 2627 -dnofork -c example_popen.conf
+
+    and then from another terminal run
+
+        ./dict -h localhost -p 2627 man
+        ./dict -h localhost -p 2627 -s substring -m malloc
+
+    NOTE: If you configure 'dictd' with '--disable-plugin' option,
+          this test will fail.
+
+    NOTE: After testing complete, do not forget to run
+
+        rm -rf /tmp/dictd
+
+6.  Install any databases you would like dict/dictd to utilize.  The
     database(s) should be installed in a location that the 'dictd'
     server process has access to.  The preformatted dictd-usable databases
     you need can be found at any of the following locations:
@@ -57,7 +107,7 @@ INSTALLATION
            web1913.dict.dz   The 'dictzip' format database
            web1913.index     The index of the database
 
-5.  To setup a proper server, you will need to configure a dictd.conf
+7.  To setup a proper server, you will need to configure a dictd.conf
     file.  Please see the man page dictd.8 and the example .conf files
     included with the source code for an explanation of the syntax needed
     and other important details.  By default, dictd will try to find this
@@ -71,7 +121,7 @@ INSTALLATION
         database web1913 { data "/opt/public/dict-dbs/web1913.dict.dz"
                           index "/opt/public/dict-dbs/web1913.index" }
 
-6.  If you're installing this software for "intranet" use, you will want to
+8.  If you're installing this software for "intranet" use, you will want to
     setup a 'dict.conf' file which the client software (dict) uses to
     locate servers and such.  The syntax of the dict.conf file is not
     documented anywhere that I can find, however if you have your 'dictd'
@@ -82,7 +132,7 @@ INSTALLATION
 
         server dict.company.com
 
-7.  That's it really.  Now piece everything together, run your dictd and
+9.  That's it really.  Now piece everything together, run your dictd and
     point it at your config file, and try running dict!
 
 
@@ -94,6 +144,7 @@ distributed environment's setup:
 
     /usr/local/sbin/dictd         # Accessible from all hosts on our net
     /usr/local/bin/dict           # Accessible from all hosts on our net
+    /usr/local/bin/dictfmt        # Accessible from all hosts on our net
     /usr/local/etc/dictd.conf     # Accessible from all hosts on our net
     /usr/local/etc/dict.conf      # Accessible from all hosts on our net
     /usr/local/lib/dict-dbs       # Accessible from all hosts on our net

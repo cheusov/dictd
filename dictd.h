@@ -261,8 +261,8 @@ extern int   dict_data_filter(
    char *buffer, int *len, int maxLength,
    const char *filter );
 
-extern int get_strategies_count ();
-extern const dictStrategy *get_strategies ();
+extern int get_strategies_count (void);
+extern const dictStrategy *get_strategies (void);
 extern dictStrategy * lookup_strat( const char *strategy );
 extern int lookup_strategy( const char *strategy );
 

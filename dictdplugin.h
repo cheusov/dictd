@@ -48,21 +48,24 @@ extern const char * DICT_PLUGINFUN_SET;
   EACH FUNCTION RETURNS ZERO IF SUCCESS
 */
 
-typedef struct dictPluginInitData {
+typedef struct dictPluginData {
    int id;           /* DICT_PLUGIN_INITDATA_XXX constant */
    int size;
    void *data;
-} dictPluginInitData;
+} dictPluginData;
 
-typedef dictPluginInitData dictPluginData;
+typedef struct dictPluginData_strategy {
+   int number;
+   char name [20];
+} dictPluginData_strategy;
 
 /*
   Initializes dictionary and returns zero if success.
  */
 typedef int (*dictdb_open_type)
    (
-      const dictPluginInitData *init_data, /* in: data for initializing dictionary */
-      int init_data_size, /* in: a number of dictPluginInitData strctures */
+      const dictPluginData *init_data, /* in: data for initializing dictionary */
+      int init_data_size, /* in: a number of dictPluginData strctures */
       int *version,       /* out: version of plugin's interface*/
       void ** dict_data   /* out: plugin's global data */
       );
@@ -70,6 +73,7 @@ typedef int (*dictdb_open_type)
 enum {
    DICT_PLUGIN_INITDATA_DICT, /* data obtained from .dict file */
    DICT_PLUGIN_INITDATA_DBNAME,
+   DICT_PLUGIN_INITDATA_STRATEGY,
 
    /* this list can be enlarged*/
 };

@@ -3,7 +3,7 @@
 #include "dictdplugin.h"
 
 int dictdb_open (
-    const dictPluginInitData * init_data,
+    const dictPluginData * init_data,
     int init_data_size,
     int *version,
     void ** dict_data)
