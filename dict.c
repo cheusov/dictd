@@ -1,10 +1,10 @@
 /* dict.c -- 
  * Created: Fri Mar 28 19:16:29 1997 by faith@cs.unc.edu
- * Revised: Sun Feb 15 18:52:24 1998 by faith@acm.org
+ * Revised: Sun Feb 15 22:44:18 1998 by faith@acm.org
  * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dict.c,v 1.17 1998/02/16 02:25:14 faith Exp $
+ * $Id: dict.c,v 1.18 1998/02/16 03:48:15 faith Exp $
  * 
  */
 
@@ -931,14 +931,14 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.17 1998/02/16 02:25:14 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.18 1998/02/16 03:48:15 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
    uname( &uts );
    buffer = xmalloc(256);
    sprintf( buffer,
-	    "%s %s on %s %s", err_program_name(), id_string( id ),
+	    "%s %s/rf on %s %s", err_program_name(), id_string( id ),
 	    uts.sysname,
 	    uts.release );
    return buffer;

@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Sun Feb 15 18:44:25 1998 by faith@acm.org
+ * Revised: Sun Feb 15 22:44:19 1998 by faith@acm.org
  * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.35 1998/02/16 02:25:18 faith Exp $
+ * $Id: dictd.c,v 1.36 1998/02/16 03:48:17 faith Exp $
  * 
  */
 
@@ -17,7 +17,7 @@
 
 extern int        yy_flex_debug;
 static int        _dict_daemon;
-static int        _dict_daemon_count;
+static int        _dict_reaps;
 static int        _dict_daemon_limit        = DICT_DAEMON_LIMIT;
 static int        _dict_markTime;
 static char       *_dict_argvstart;
@@ -99,7 +99,7 @@ static void reaper( int dummy )
    pid_t      pid;
 
    while ((pid = wait3(&status, WNOHANG, NULL)) > 0) {
-      --_dict_daemon_count;
+      ++_dict_reaps;
       
       if (flg_test(LOG_SERVER))
          log_info( ":I: Reaped %d%s%s\n",
@@ -123,7 +123,6 @@ static int start_daemon( void )
       pause();
       break;
    default:
-      ++_dict_daemon_count;
       if (flg_test(LOG_SERVER)) log_info( ":I: Forked %d\n", pid );
       break;
    }
@@ -154,7 +153,7 @@ static void handler( int sig )
 	 time(&t);
 	 log_info( ":T: %24.24s; %d/%d %sr %su %ss\n",
 		   ctime(&t),
-		   _dict_daemon_count,
+		   _dict_forks - _dict_reaps,
 		   _dict_forks,
 		   dict_format_time( tim_get_real( "dictd" ) ),
 		   dict_format_time( tim_get_user( "dictd" ) ),
@@ -377,7 +376,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.35 1998/02/16 02:25:18 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.36 1998/02/16 03:48:17 faith Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -686,7 +685,7 @@ int main( int argc, char **argv, char **envp )
    for (;;) {
       dict_setproctitle( "%s: %d/%d",
 			 dict_get_banner(1),
-			 _dict_daemon_count,
+			 _dict_forks - _dict_reaps,
 			 _dict_forks );
       if (flg_test(LOG_SERVER))
          log_info( ":I: %d accepting on %s\n", getpid(), service );
@@ -700,7 +699,7 @@ int main( int argc, char **argv, char **envp )
 	 dict_daemon(childSocket,&csin,&argv,delay,0);
 	 close(childSocket);
       } else {
-	 if (_dict_daemon_count < _dict_daemon_limit) {
+	 if (_dict_forks - _dict_reaps < _dict_daemon_limit) {
 	    if (!start_daemon()) { /* child */
 	       alarm(0);
 	       dict_daemon(childSocket,&csin,&argv,delay,0);
