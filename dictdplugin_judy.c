@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.19 2004/01/16 19:30:29 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.20 2004/02/23 19:28:25 cheusov Exp $
  * 
  */
 
@@ -1060,7 +1060,7 @@ int dictdb_search (
 	 dict_data -> m_mres [i] =
 	    dict_data_read_ (
 	       dict_data -> m_data,
-	       (*offs_size) [0], (*offs_size) [1],
+	       (*offs_size) [i + i], (*offs_size) [i + i + 1],
 	       NULL, NULL);
       }
 
