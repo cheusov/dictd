@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Mon Feb 16 14:43:17 1998 by faith@acm.org
+ * Revised: Fri Feb 27 19:30:36 1998 by faith@acm.org
  * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.37 1998/02/16 19:58:15 faith Exp $
+ * $Id: dictd.c,v 1.38 1998/02/28 00:32:58 faith Exp $
  * 
  */
 
@@ -376,7 +376,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.37 1998/02/16 19:58:15 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.38 1998/02/28 00:32:58 faith Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -692,7 +692,18 @@ int main( int argc, char **argv, char **envp )
       if ((childSocket = accept(masterSocket,
 				(struct sockaddr *)&csin, &alen)) < 0) {
 	 if (errno == EINTR) continue;
+#ifdef __linux__
+				/* Linux seems to return more types of
+                                   errors than other OSs. */
+	 if (errno == ETIMEDOUT
+	     || errno == ECONNRESET
+	     || errno == EHOSTUNREACH
+	     || errno == ENETUNREACH) continue;
+	 log_info( ":E: can't accept: errno = %d: %s\n",
+		   errno, strerror(errno) );
+#else
 	 err_fatal_errno( __FUNCTION__, ":E: can't accept" );
+#endif
       }
 
       if (_dict_daemon || dbg_test(DBG_NOFORK)) {
