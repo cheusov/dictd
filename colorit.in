@@ -1,0 +1,145 @@
+#!/bin/sh
+
+#
+# Written by Aleksey Cheusov <vle@gmx.net>
+#
+
+sysconfdir=@sysconfdir@
+
+if test -r $HOME/.coloritrc; then
+   config_file=$HOME/.coloritrc
+else if test -r "$sysconfdir/colorit.conf"; then
+   config_file="$sysconfdir/colorit.conf"
+else
+   echo "configuration file is not readable" > "/dev/stderr"
+   exit 1
+fi fi
+
+usage (){
+   echo -en "\
+colorit is intended to markup stdin or input files\n\
+and output result to stdout\n\
+\n\
+usage: colorit [OPTIONS] [files...]\n\
+OPTIONS:\n\
+     --help      display this screen\n\
+     --verbose   display version\n\
+ -c  --config    specify a configuration file\n\
+ -P  --pager     specify pager (- for none). The default is \"less -r\"\n\
+"
+}
+
+version (){
+    echo -en "\
+colorit 0.0.1\n\
+"
+}
+
+pager='less -r'
+
+while test $# -ne 0; do
+    case $1 in
+	--help)
+	    usage
+	    exit 0;;
+	--version)
+	    version
+	    exit 0;;
+	-c|--config)
+	    config_file=$2
+	    shift;;
+	-P|--pager)
+	    pager=$2
+	    shift;;
+	--)
+	    shift
+	    break;;
+	-*)
+	    echo "unknown argument '$1'" 1>&2
+	    break;;
+    esac
+    shift
+done
+
+if test "_$pager" = "_-"; then
+   pager=
+fi
+
+convert_files_to_stdout (){
+    awk -v config_file="$config_file" '
+    BEGIN {
+	for (i=1; i <= ARGC; ++i){
+	    if (ARGV [i] == "--help"){
+		usage()
+		exit 1
+	    }
+	    if (ARGV [i] == "--version"){
+		version()
+		exit 1
+	    }
+	    if (ARGV [i] == "--config" || ARGV [i] == "-c"){
+		config_file = ARGV [i + 1]
+		ARGV [i] = ARGV [i + 1] = ""
+		++i
+		continue
+	    }
+	    if (ARGV [i] == "--pager" || ARGV [i] == "-P"){
+		pager = ARGV [i + 1]
+		ARGV [i] = ARGV [i + 1] = ""
+		++i
+		continue
+	    }
+	}
+    }
+
+    BEGIN {
+	mark_count = 0
+    }
+
+    function do_esc (s){
+	gsub(/\\033/, "\033", s)
+	return s
+    }
+
+    function process_config_mark (){
+	mark_re  [mark_count] = $2
+	mark_beg [mark_count] = do_esc($3)
+	mark_end [mark_count] = do_esc($4)
+
+	++mark_count
+    }
+
+    function process_config (){
+	pipe = "cpp <\"" config_file "\""
+
+	while (0 < (ret = (pipe | getline))){
+	    if ($1 == "mark"){
+		if (NF != 4){
+		    print "missing arguments to `mark` at line:\n`" $0 "`" > "/dev/stderr"
+		    exit 1
+		}else{
+		    process_config_mark()
+		}
+	    }
+	}
+	close(pipe)
+    }
+
+    BEGIN {
+	process_config()
+    }
+
+    {
+	for (i=0; i < mark_count; ++i){
+	    gsub(mark_re [i], mark_beg [i] "&" mark_end [i])
+	}
+
+	print $0
+    } ' "$@"
+}
+
+if test "$pager"; then
+   eval convert_files_to_stdout | $pager
+else
+   convert_files_to_stdout
+fi
