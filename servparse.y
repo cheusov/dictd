@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.10 2002/10/14 07:01:41 cheusov Exp $
+ * $Id: servparse.y,v 1.11 2002/11/25 15:50:59 cheusov Exp $
  * 
  */
 
@@ -126,6 +126,7 @@ AccessSpecList : AccessSpec { $$ = lst_create(); lst_append($$, $1); }
                ;
 
 Site : T_SITE T_STRING { $$ = $2; }
+     ;
 
 UserList : T_USER T_STRING T_STRING
            { $$ = hsh_create(NULL,NULL);
