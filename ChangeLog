@@ -1,3 +1,26 @@
+2003-03-26  Aleksey Cheusov  <vle@gmx.net>
+
+  * configure.in:
+  version == 1.9.8
+
+2003-03-24  Aleksey Cheusov  <vle@gmx.net>
+
+  * data.c:
+  fixed: incorrect dzip format detection
+  fixed: possible crash while reading too long COMMENT or FNAME fields of
+      the dzip'ed file
+
+2003-03-19  Aleksey Cheusov  <vle@gmx.net>
+
+  * libmaa/maaP.h, strategy.c, strategy.h, vsnprintf.c, wcrtomb.c, wctomb.c, index.c, index.h, mbrlen.c, mbrtowc.c, mbstowcs.c, mbtowc.c, plugin.c, plugin.h, snprintf.c, dictdplugin.h, dictfmt.c, dictzip.c, dictd.h, dictd.c, dictP.h, defs.h, data.h, data.c, config.h.in, configure.in, daemon.c, Makefile.in:
+  Functions related to plugin have moved to plugin.c.
+  Several declarations have been moved to defs.h, index.h, data.h, plugin.h
+      It makes sources easier to understand (at least for me)
+  UTF-8 support is optional. It is disabled on platforms which don't
+      support 'iswalnum', 'iswspace' and 'towlower' functions.
+      As a result 'dictd' can be compiled on CYGWIN.
+  fixed: 'dictdb_free' function is not called
+
 2003-03-09  Aleksey Cheusov  <vle@gmx.net>
 
   * ChangeLog: ChangeLog is up-to-date
