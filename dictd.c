@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.84 2003/04/10 18:52:32 cheusov Exp $
+ * $Id: dictd.c,v 1.85 2003/04/14 09:40:29 cheusov Exp $
  * 
  */
 
@@ -129,10 +129,10 @@ const char *dict_format_time( double t )
 
 static void reaper( int dummy )
 {
-#if defined(__osf__) || (defined(__sparc) && defined(__SVR4))
-   int        status;
-#else
+#if 0
    union wait status;
+#else
+   int        status;
 #endif
    pid_t      pid;
 
@@ -795,7 +795,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.84 2003/04/10 18:52:32 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.85 2003/04/14 09:40:29 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
