@@ -44,7 +44,7 @@
 #include <errno.h>
 #include <string>
 #include <unistd.h>
-#include <strstream>
+#include <sstream>
 #include <list>
 #include <assert.h>
 
@@ -155,7 +155,7 @@ int dictdb_open (
 	 break;
       case DICT_PLUGIN_INITDATA_DICT:
 	 {
-	    std::strstream ostr;
+	    std::stringstream ostr;
 	    if (-1 == init_data [i].size)
 	       ostr << (const char *) init_data [i].data << '\0';
 	    else
