@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #
-# By Aleksey Cheusov (vle@gmx.net)
+# By Aleksey Cheusov <vle@gmx.net>
 #
 
 usage (){
@@ -105,7 +105,7 @@ BEGIN {
 		}
 		print OFS $2, $3
 	}
-}' $@ |
+}' "$@" |
 if test "_$utf8_mode" = "_1"; then
 	sort
 else

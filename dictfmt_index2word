@@ -104,7 +104,7 @@ function b64_encode (value,        ret){
 {
 	# +1 for \n
 	offset += size + 1
-}' $@ |
+}' "$@" |
 if test "_$utf8_mode" = "_1"; then
 	sort
 else
