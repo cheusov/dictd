@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.73 2003/02/23 15:31:39 cheusov Exp $
+ * $Id: dictd.c,v 1.74 2003/02/23 18:07:27 cheusov Exp $
  * 
  */
 
@@ -603,6 +603,9 @@ static int init_database_short (const void *datum)
       db->databaseShort = get_entry_info( db, DICT_SHORT_ENTRY_NAME );
    else if (*db->databaseShort == '@' && !db -> virtual_db)
       db->databaseShort = get_entry_info( db, db->databaseShort + 1 );
+   else
+      db->databaseShort = xstrdup (db->databaseShort);
+
    if (!db->databaseShort)
       db->databaseShort = xstrdup (db->databaseName);
 
@@ -755,13 +758,16 @@ static int dump_def( const void *datum )
 {
    char         *buf;
    const dictWord     *dw = (dictWord *)datum;
-   const dictDatabase *db = dw -> database;
+
+   const dictDatabase *db = dw -> database_visible;
+   if (!db)
+      db = dw -> database;
 
    if (match_mode){
       printf (
 	 "%s:\t\"%s\"\n", db -> databaseName, dw -> word );
    }else{
-      buf = dict_data_obtain( db, dw );
+      buf = dict_data_obtain( dw -> database, dw );
 
       printf (
 	 "From %s [%s]:\n\n%s\n", db -> databaseShort, db -> databaseName, buf );
@@ -802,7 +808,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.73 2003/02/23 15:31:39 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.74 2003/02/23 18:07:27 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;

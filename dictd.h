@@ -251,6 +251,7 @@ typedef struct dictConfig {
 
 typedef struct dictWord {
    const dictDatabase  *database;
+   const dictDatabase  *database_visible;
 
    char    *word;
 

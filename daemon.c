@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.57 2003/02/23 15:31:38 cheusov Exp $
+ * $Id: daemon.c,v 1.58 2003/02/23 18:07:27 cheusov Exp $
  * 
  */
 
@@ -653,6 +653,10 @@ static void daemon_dump_defs( lst_List list )
 
       buf = dict_data_obtain ( db, dw );
 
+      if (dw -> database_visible){
+	 db = dw -> database_visible;
+      }
+
       daemon_printf (
 	  "%d \"%s\" %s \"%s\"\n",
 	  CODE_DEFINITION_FOLLOWS,
@@ -703,6 +707,10 @@ static void daemon_dump_matches( lst_List list )
 
       prevword = dw->word;
       prevdb   = dw->database;
+
+      if (dw -> database_visible){
+	 db = dw -> database_visible;
+      }
 
       daemon_printf (
 	  "%s \"%s\"\n",
@@ -924,6 +932,26 @@ static void destroy_word_list (lst_List l)
 }
 
 /*
+  Replaces invisible databases with db argument.
+ */
+static void replace_invisible_databases (
+   lst_Position *pos,
+   const dictDatabase *db)
+{
+   dictWord *dw;
+
+   while (pos){
+      dw = (dictWord *) lst_get_position (pos);
+
+      if (dw -> database && dw -> database -> invisible){
+	 dw -> database_visible = db;
+      }
+
+      pos = lst_next_position (pos);
+   }
+}
+
+/*
   Search for all words in word_list in the database db
  */
 static int dict_search_words (
@@ -939,6 +967,8 @@ static int dict_search_words (
    int matches_count = 0;
    const char *word;
 
+   int old_count = 0;
+
    word_list_pos = lst_init_position (word_list);
    while (word_list_pos){
       word = lst_get_position (word_list_pos);
@@ -947,9 +977,17 @@ static int dict_search_words (
 	 if (db -> virtual_db_list){
 	    assert (lst_init_position (db -> virtual_db_list));
 
+	    old_count = lst_length (l);
+
 	    matches_count = dict_search_databases (
 	       l, lst_init_position (db -> virtual_db_list),
 	       "*", word, strategy);
+
+	    if (matches_count > 0){
+	       replace_invisible_databases (
+		  lst_nth_position (l, old_count + 1),
+		  db);
+	    }
 	 }else{
 	    matches_count = dict_search (
 	       l, word, db, strategy,
