@@ -1,0 +1,131 @@
+# Makefile.in -- Makefile for dict
+# Created: Wed Apr 24 14:14:09 1996 by faith@cs.unc.edu
+# Revised: Wed Sep 25 22:12:14 1996 by faith@cs.unc.edu
+# Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)
+# 
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 1, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 675 Mass Ave, Cambridge, MA 02139, USA.
+# 
+# $Id: Makefile.in,v 1.1 1996/09/26 02:27:35 faith Exp $
+#
+
+ifneq (,)
+This makefile requires GNU Make.
+endif
+
+.SUFFIXES:	
+
+srcdir=		@srcdir@
+VPATH=		@srcdir@
+prefix=		@prefix@
+subdirs=        @subdirs@ zlib
+exec_prefix=	@exec_prefix@
+man1_prefix=	$(prefix)/man/man1
+
+SHELL=		/bin/sh
+
+CC=		@CC@
+CPP=		@CPP@
+RANLIB=		@RANLIB@
+INSTALL=	@INSTALL@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+INSTALL_DATA=	@INSTALL_DATA@
+LEX=		@LEX@
+LEXLIB= 	@LEXLIB@
+YACC=		@YACC@
+
+CFLAGS=		@CFLAGS@
+LDFLAGS=        @LDFLAGS@
+XTRACFLAGS=     @WCFLAGS@ @XTRACFLAGS@ @DEFS@ @CPPFLAGS@ -I. -Ilibmaa -Izlib
+XTRALDFLAGS=    @WLDFLAGS@ @XTRALDFLAGS@ -Llibmaa -Lzlib
+LDLIBS=		@LIBS@ -lmaa -lz
+
+HEADERS= 	./config.h @XTRAHEADERS@ dict.h
+EXES=	 	jargdump wndump # dictzip
+OBJS=           fmt.o
+
+all::
+	@for subdir in $(subdirs); do \
+		echo making in $$subdir; \
+		(cd $$subdir && $(MAKE)) || exit 1; \
+	done
+
+all:: $(EXES)
+
+%.o: %.c
+	$(CC) -c $(XTRACFLAGS) $(CFLAGS) $<
+
+#%: %.o
+#	$(CC) $(XTRALDFLAGS) $(LDFLAGS) -o $@ $< $(LDLIBS)
+
+ALLFLAGS=$(XTRACFLAGS) $(CFLAGS) $(XTRALDFLAGS) $(LDFLAGS)
+%: %.c
+	$(CC) $(ALLFLAGS) -o $@ $< $(OBJS) $(LDLIBS)
+
+$(EXES):  $(HEADERS) $(OBJS)
+$(OBJS):  $(HEADERS)
+
+wordnet.dct wordnet.idx: wndump data/wordnet/data.*
+	./wndump < data/wordnet/data.*
+
+jargon.dct jargon.idx: jargdump data/jarg400.txt
+	./jargdump < data/jarg400.txt
+
+.PHONY: clean distclean tags
+clean:
+	-rm -f *.o *.s *~ core a.out config.log $(EXES) $(TMPS)
+	-rm -f *.log *.aux *.toc *.dvi *.ps
+	-rm -f *.cfg *.dtk .inslog tca.map
+	-rm -f *.dct *.idx
+
+recursive-clean: clean
+	@for subdir in $(subdirs); do \
+		echo making clean in $$subdir; \
+		(cd $$subdir && $(MAKE) clean) || exit 1; \
+	done
+
+distclean: clean
+	@for subdir in $(subdirs); do \
+		echo making $@ in $$subdir; \
+		(cd $$subdir && $(MAKE) $@) || exit 1; \
+	done
+	-rm -f config.h config.cache config.status stamp-h.in stamp-h
+	-rm -f configure Makefile
+
+tags:
+	etags *.[ch]
+
+
+# The following is based on the "Automatic Remaking" node in the GNU
+# Autoconf documentation:
+
+$(srcdir)/configure: configure.in
+	cd $(srcdir) && autoconf
+
+# autoheader might not change config.h.in, so touch a stamp file.
+${srcdir}/config.h.in: stamp-h.in
+${srcdir}/stamp-h.in: configure.in
+	cd ${srcdir} && autoheader
+	date > ${srcdir}/stamp-h.in
+     
+config.h: stamp-h
+stamp-h: config.h.in config.status
+	./config.status
+     
+Makefile: Makefile.in config.status
+	./config.status
+     
+config.status: configure
+	./config.status --recheck
+

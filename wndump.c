@@ -1,46 +1,17 @@
 /* wndump.c -- Dump WordNet datafiles
  * Created: Sun Sep 22 14:03:26 1996 by faith@cs.unc.edu
- * Revised: Mon Sep 23 20:42:14 1996 by faith@cs.unc.edu
- * Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)
- * 
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *    1. Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *    2. Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in
- *       the documentation and/or other materials provided with the
- *       distribution.  (Accompanying source code, or an offer for such
- *       source code as described in the GNU General Public License, is
- *       sufficient to meet this condition.)
- * 
- * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN
- * NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
- * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- * 
- * $Id: wndump.c,v 1.1 1996/09/24 01:07:52 faith Exp $
+ * Revised: Wed Sep 25 22:06:44 1996 by faith@cs.unc.edu
+ * Public Domain 1996 Rickard E. Faith (faith@cs.unc.edu)
+ * This program comes with ABSOLUTELY NO WARRANTY.
+ *
+ * $Id: wndump.c,v 1.2 1996/09/26 02:27:43 faith Exp $
  * 
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include "fmt.h"
+#include "dict.h"
 
 #define PROGRAM_NAME    "wndump"
 #define PROGRAM_VERSION "1.0"
-
-#define BUFFERSIZE 10240
 
 static void process( const char *w, const char *p, const char *d,
 		     const char *lastW, const char *lastP,
@@ -88,13 +59,32 @@ int main( int argc, char **argv )
    int  haveLicense = 0;
    int  license     = 0;
    long t;
+   FILE *one, *two;
+   int  pid;
+
+   maa_init( argv[0] );
+   time( &t );
+
+   if (argc == 1) {
+#if 0
+      dbg_set( ".pr" );
+#endif
+      sprintf( buffer, "%s 1", argv[0] );
+      pr_open( buffer, PR_CREATE_STDOUT, NULL, &one, NULL );
+      pr_open( "sort", PR_USE_STDIN | PR_CREATE_STDOUT, &one, &two, NULL );
+      sprintf( buffer, "%s 2", argv[0] );
+      pid = pr_open( buffer, PR_USE_STDIN, &two, NULL, NULL );
+
+      printf( "\nstatus = 0x%02x\n", pr_wait( pid ) );
+ 
+      exit( 0 );
+   }
 
    if (argc != 2 || (argv[1][0] != '1'
 		     && argv[1][0] != '2'
 		     && argv[1][0] != 'd')) usage();
 
    if (argv[1][0] == '1') {
-      time( &t );
       printf( "!info! ! %02d Original database from:"
 	      " ftp://clarity.princeton.edu/pub/wordnet/wn1.5unix.tar.gz\n",
 	      ++license );

@@ -1,39 +1,27 @@
 /* fmt.c -- 
  * Created: Sun Sep 22 15:56:04 1996 by faith@cs.unc.edu
- * Revised: Sun Sep 22 20:05:41 1996 by faith@cs.unc.edu
+ * Revised: Wed Sep 25 22:00:04 1996 by faith@cs.unc.edu
  * Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)
- *  
- *  Redistribution and use in source and binary forms, with or without
- *  modification, are permitted provided that the following conditions are
- *  met:
- *     1. Redistributions of source code must retain the above copyright
- *        notice, this list of conditions and the following disclaimer.
- *     2. Redistributions in binary form must reproduce the above copyright
- *        notice, this list of conditions and the following disclaimer in
- *        the documentation and/or other materials provided with the
- *        distribution.  (Accompanying source code, or an offer for such
- *        source code as described in the GNU General Public License, is
- *        sufficient to meet this condition.)
- *  
- *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
- *  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- *  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN
- *  NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- *  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- *  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- *  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
- *  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- *  POSSIBILITY OF SUCH DAMAGE.
- *  
- * $Id: fmt.c,v 1.1 1996/09/24 01:07:50 faith Exp $
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 1, or (at your option) any
+ * later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 675 Mass Ave, Cambridge, MA 02139, USA.
+ * 
+ * $Id: fmt.c,v 1.2 1996/09/26 02:27:40 faith Exp $
  * 
  */
 
-#include <stdio.h>
-#include <string.h>
-#include "base64.h"
+#include "dict.h"
 
 #define MAX_WIDTH 73
 
@@ -44,6 +32,8 @@ static int  currentPosition;
 static int  firstString;
 static FILE *dct;
 static FILE *idx;
+static int  pending;
+static int  count;
 
 void fmt_newline( void )
 {
@@ -58,18 +48,53 @@ void fmt_newline( void )
 void fmt_new( const char *word )
 {
    static int first = 1;
+   char       buf[BUFFERSIZE];
+   char       *pt;
+
+   if (word) {
+      for (pt = buf; *word; word++) {
+	 if (*word == '_') *pt++ = ' ';
+	 else              *pt++ = *word;
+      }
+      *pt = '\0';
+   }
    
+   pending = 0;
    indentLevel = 0;
    currentPosition = 0;
    firstString = 1;
    if (!first) {
       fmt_newline();
-      if (idx) fprintf( idx, "\t%s\n", base64_encode( ftell( dct ) ) );
+      if (idx) fprintf( idx, "\t%s\n", b64_encode( ftell( dct ) ) );
       fmt_newline();
    } else
       first = 0;
-   if (word && idx)
-      fprintf( idx, "%s\t%s", word, base64_encode( ftell( dct ) ) );
+   if (word && idx) {
+      fprintf( idx, "%s\t%s", buf, b64_encode( ftell( dct ) ) );
+      ++count;
+      if (count && !(count % 1000)) {
+	 printf( "%10d words\r", count );
+	 fflush( stdout );
+      }
+   }
+}
+
+void fmt_line( const char *line )
+{
+   if (strlen( line )) {
+      while (pending) {
+	 fmt_newline();
+	 --pending;
+      }
+      fprintf( dct, "%s", line );
+      fmt_newline();
+   } else ++pending;
+}
+
+void fmt_flush( void )
+{
+   indentLevel = 0;
+   fmt_newline();
 }
 
 void fmt_string( const char *string )
@@ -133,8 +158,8 @@ void fmt_open( const char *basename )
 	 exit( 1 );
       }
       
-      sprintf( buf, "%s.idx", basename );
-      if (!(idx = fopen( buf, "w" ))) {
+      sprintf( buf, "sort -df > %s.idx", basename );
+      if (!(idx = popen( buf, "w" ))) {
 	 fprintf( stderr, "Cannot open \"%s\" for write\n", buf );
 	 exit( 1 );
       }
@@ -149,5 +174,7 @@ void fmt_close()
    }
    fmt_new( NULL );
    if (dct && dct != stdout) fclose( dct );
-   if (idx && idx != stdout) fclose( idx );
+   if (idx && idx != stdout) pclose( idx );
+   printf( "%12d words total\n", count );
+   fflush( stdout );
 }
