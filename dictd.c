@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.111 2004/05/21 12:47:50 cheusov Exp $
+ * $Id: dictd.c,v 1.112 2004/05/30 12:46:06 cheusov Exp $
  * 
  */
 
@@ -915,7 +915,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.111 2004/05/21 12:47:50 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.112 2004/05/30 12:46:06 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1423,6 +1423,9 @@ int main( int argc, char **argv, char **envp )
       default:  help(); exit(0);                          break;
       }
 
+   if (testWord || testFile || inetd)
+      detach = 0;
+
    if (
       -1 == strategy ||
       (strategy_arg = default_strategy_arg, -1 == default_strategy))
@@ -1437,11 +1440,6 @@ int main( int argc, char **argv, char **envp )
       exit (1);
    }
 
-   if (logFile) log_file( "dictd", logFile );
-   if (useSyslog) log_syslog( "dictd" );
-
-   release_root_privileges();
-
    if (dbg_test(DBG_NOFORK))    dbg_set_flag( DBG_NODETACH);
    if (dbg_test(DBG_NODETACH))  detach = 0;
    if (dbg_test(DBG_PARSE))     prs_set_debug(1);
@@ -1449,6 +1447,14 @@ int main( int argc, char **argv, char **envp )
    else                         yy_flex_debug = 0;
    if (flg_test(LOG_TIMESTAMP)) log_option( LOG_OPTION_FULL );
    else                         log_option( LOG_OPTION_NO_FULL );
+
+   if (! inetd && detach)
+      net_detach();
+
+   if (logFile) log_file( "dictd", logFile );
+   if (useSyslog) log_syslog( "dictd" );
+
+   release_root_privileges();
 
    set_locale_and_flags (locale);
 
@@ -1566,9 +1572,6 @@ int main( int argc, char **argv, char **envp )
 
    fflush(stdout);
    fflush(stderr);
-
-   if (! inetd && detach)
-      net_detach();
 
    if (!detach)   log_stream( "dictd", stderr );
    if ((logFile || useSyslog || !detach) && !logOptions)
