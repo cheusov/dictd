@@ -36,6 +36,16 @@ charset2charset (){
     fi fi
 }
 
+if
+    test "_$DICTL_CHARSET" = "_C" ||
+    test "_$DICTL_CHARSET" = "_POSIX" ||
+    test "_$DICTL_SERVER_CHARSET" = "_C" ||
+    test "_$DICTL_SERVER=CHARSET" = "_POSIX"
+then
+    echo "iconv/recode/konwert do not support coversions to or from $charset"
+    exit 1
+fi
+
 #####################################
 
 params="dict"
