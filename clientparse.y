@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: clientparse.y,v 1.4 2002/08/02 19:43:14 faith Exp $
+ * $Id: clientparse.y,v 1.5 2003/08/28 00:04:54 hilliard Exp $
  * 
  */
 
@@ -50,6 +50,7 @@ Options : ServerList
         ;
 
 Pager : T_PAGER T_STRING { if (!dict_pager) dict_pager = $2.string; }
+      | T_PAGER T_PAGER  { if (!dict_pager) dict_pager = "pager"; }
       ;
 
 ServerList : Server { $$ = dict_Servers = lst_create(); lst_append($$, $1); }

@@ -205,6 +205,12 @@ substring, UTF-8 format is expected.
 Note that if your database is not in ASCII7 or UTF-8 format,
 then the dictd server will not be compliant to RFC 2229.
 .TP
+.BI NOTE 
+If utf-8 or 8-bit dictionaries are included in the configuration file,
+and the appropriate --locale has not been specified,
+.B dictd
+will fail to start.
+.TP
 .B \-s
 Log using the
 .BR syslog (3)

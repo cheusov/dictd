@@ -41,15 +41,21 @@ dict \- DICT Protocol Client
 is a client for the Dictionary Server Protocol (DICT), a TCP transaction
 based query/response protocol that provides access to dictionary
 definitions from a set of natural language dictionary databases.
+.B dict
+uses the system's default pager ($PAGER) to display responses.  This
+default behavior may be modified in the configuration file or on the
+command line.
 .SH OPTIONS
 .TP
 .BI \-h " server\fR or " \-\-host " server"
 Specifies the hostname for the DICT server.  Server/port combinations can
-be specified in the configuration file.  If no servers are specified the
-default behavior is to try dict.org, alt0.dict.org, alt1.dict.org, and
-alt2.dict.org, in that order.  If IP lookup for a server expands to a list
-of IP addresses (as dict.org does currently), then each IP will be tried in
-the order listed.
+be specified in the configuration file.  If no servers are specified
+in the configuration file or or on the command line, 
+.B dict 
+will fail.  (This is a compile-time option, ./configure
+--enable-dictorg, which is disabled by default.)  If IP lookup for a
+server expands to a list of IP addresses (as dict.org does currently),
+then each IP will be tried in the order listed.
 .TP
 .BI \-p " service\fR or " \-\-port " service"
 Specifies the port (e.g., 2628) or service (e.g., dict) for connections.
@@ -194,15 +200,17 @@ option is used to specify a username and shared secret to be used for
 authentication to this particular server.
 .P
 Servers are tried in the order listed until a connection is made.  If none
-of the specified servers are available, then an attempt will be made to
+of the specified servers are available, and the compile-time option
+(./configure --enable-dictorg) is enabled, then an attempt will be made to
 connect on
 .B localhost
 and on
 .B dict.org
-at the standard part (2628).  We expect that dict.org will point to one or
-more DICT servers (perhaps in round-robin fashion) for the foreseeable
-future (starting in July 1997), although it is difficult to predict
-anything on the Internet for more than about 3-6 months.
+at the standard part (2628).  (This option is disabled by default.)
+We expect that dict.org will point to one or more DICT servers
+(perhaps in round-robin fashion) for the foreseeable future (starting
+in July 1997), although it is difficult to predict anything on the
+Internet for more than about 3-6 months.
 .P
 The configuration file also allows the setting of a pager (keyword
 .BR pager ),
