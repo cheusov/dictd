@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script for dict.
 dnl
 dnl Created: Wed Apr 24 14:11:05 1996 by faith@cs.unc.edu
-dnl Revised: Fri Mar  7 11:11:56 1997 by faith@cs.unc.edu
+dnl Revised: Sat Mar  8 17:07:55 1997 by faith@cs.unc.edu
 dnl Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)
 dnl
 dnl This program is free software; you can redistribute it and/or modify it
@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.3 1997/03/07 20:37:09 faith Exp $
+dnl $Id: configure.in,v 1.4 1997/03/08 22:09:31 faith Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -32,8 +32,8 @@ dnl     YCFLAGS is for yacc
 dnl     LCFLAGS is for lex
 
 AC_PREREQ(2.1)
-AC_REVISION($Revision: 1.3 $)
-AC_INIT(dict.c)
+AC_REVISION($Revision: 1.4 $)
+AC_INIT(dictd.c)
 AC_CONFIG_HEADER(config.h)
 
 echo Configuring for dict
@@ -134,6 +134,7 @@ if test "$local_libmaa" = 1; then
         REALLIBS="$REALLIBS -L./libmaa -lmaa"
         XTRACFLAGS="$XTRACFLAGS -I./libmaa"
         subdirs="$subdirs libmaa"
+        configsubdirs="$configsubdirs libmaa"
         AC_MSG_RESULT(./libmaa)
     else
         AC_MSG_ERROR(Libmaa not found, cannot continue)
@@ -141,7 +142,7 @@ if test "$local_libmaa" = 1; then
 fi
 
 if test "$local_zlib" = 0; then
-    AC_CHECK_LIB(z,zlibVersion,REALLIBS="$REALLIBS -lzlib",local_zlib=1)
+    AC_CHECK_LIB(z,zlibVersion,REALLIBS="$REALLIBS -lz",local_zlib=1)
 fi
 
 if test "$local_zlib" = 1; then
@@ -170,6 +171,7 @@ if test "$local_dmalloc" = 1; then
         XTRACFLAGS="-DDMALLOC_FUNC_CHECK -I./dmalloc"
         XTRAHEADERS="./dmalloc/dmalloc.h"
         subdirs="$subdirs dmalloc"
+        configsubdirs="$configsubdirs dmalloc"
         AC_MSG_RESULT(./dmalloc)
     else
         AC_MSG_RESULT(no)
@@ -181,7 +183,8 @@ echo Checking for header files
 
 AC_HEADER_STDC
 AC_HEADER_TIME
-AC_CHECK_HEADERS(unistd.h strings.h getopt.h limits.h)
+AC_CHECK_HEADERS(unistd.h strings.h limits.h)
+AC_CHECK_HEADERS(sys/resource.h sys/time.h sys/param.h sys/wait.h)
 
 echo .
 echo Checking for system constants
@@ -201,7 +204,7 @@ echo Making output files
 CC="$REALCC"
 LIBS="$REALLIBS"
 
-AC_CONFIG_SUBDIRS($subdirs)
+AC_CONFIG_SUBDIRS($configsubdirs)
 
 AC_SUBST(WCFLAGS)
 AC_SUBST(WLDFLAGS)

@@ -1,6 +1,6 @@
 /* data.c -- 
  * Created: Tue Jul 16 12:45:41 1996 by r.faith@ieee.org
- * Revised: Fri Mar  7 10:52:27 1997 by faith@cs.unc.edu
+ * Revised: Sat Mar  8 16:04:03 1997 by faith@cs.unc.edu
  * Copyright 1996, 1997 Rickard E. Faith (r.faith@ieee.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: data.c,v 1.3 1997/03/07 16:10:29 faith Exp $
+ * $Id: data.c,v 1.4 1997/03/08 22:09:33 faith Exp $
  * 
  */
 
@@ -266,7 +266,7 @@ char *dict_data_read( dictData *h, unsigned long start, unsigned long end,
 		      const char *preFilter, const char *postFilter )
 {
    char          *buffer, *pt;
-   unsigned long size = end - start;
+   unsigned long size;
    int           count;
    char          inBuffer[IN_BUFFER_SIZE];
    char          outBuffer[OUT_BUFFER_SIZE];
@@ -274,9 +274,9 @@ char *dict_data_read( dictData *h, unsigned long start, unsigned long end,
    int           firstOffset, lastOffset;
    int           i;
 
-   if (end < start)
-      err_internal( __FUNCTION__,
-		    "Section ends (%lu) before starting (%lu)\n", end, start );
+   if (end < start) size = end;
+   else             size = end - start;
+
    buffer = xmalloc( size + 1 );
    
    switch (h->type) {

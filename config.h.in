@@ -24,14 +24,23 @@
 /* Define if you have the strtoul function.  */
 #undef HAVE_STRTOUL
 
-/* Define if you have the <getopt.h> header file.  */
-#undef HAVE_GETOPT_H
-
 /* Define if you have the <limits.h> header file.  */
 #undef HAVE_LIMITS_H
 
 /* Define if you have the <strings.h> header file.  */
 #undef HAVE_STRINGS_H
+
+/* Define if you have the <sys/param.h> header file.  */
+#undef HAVE_SYS_PARAM_H
+
+/* Define if you have the <sys/resource.h> header file.  */
+#undef HAVE_SYS_RESOURCE_H
+
+/* Define if you have the <sys/time.h> header file.  */
+#undef HAVE_SYS_TIME_H
+
+/* Define if you have the <sys/wait.h> header file.  */
+#undef HAVE_SYS_WAIT_H
 
 /* Define if you have the <unistd.h> header file.  */
 #undef HAVE_UNISTD_H

@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Fri Mar  7 11:19:59 1997 by faith@cs.unc.edu
+ * Revised: Sat Mar  8 17:06:12 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.5 1997/03/07 20:37:11 faith Exp $
+ * $Id: dictd.c,v 1.6 1997/03/08 22:09:38 faith Exp $
  * 
  */
 
@@ -187,7 +187,7 @@ static const char *id_string( const char *id )
 const char *dict_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dictd.c,v 1.5 1997/03/07 20:37:11 faith Exp $";
+   const char        *id = "$Id: dictd.c,v 1.6 1997/03/08 22:09:38 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -239,6 +239,9 @@ static void help( void )
       "-v --verbose         verbose mode",
       "-V --version         display version number",
       "-D --debug <option>  select debug option",
+      "-p --port <port>     port number",
+      "-c --config <file>   configuration file",
+      "-t --test <word>     self test",
       0 };
    const char        **p = help_msg;
 
@@ -289,9 +292,10 @@ int main( int argc, char **argv )
       case 'D': dbg_set( optarg );    break;
       case 'p': service = optarg;     break;
       case 'c': configFile = optarg;  break;
-      case 'h': help(); exit(1);      break;
       case 'L': license(); exit(1);   break;
       case 't': testWord = optarg;    break;
+      case 'h':
+      default:  help(); exit(1);      break;
       }
 
    if (dbg_test(DBG_PARSE))     prs_set_debug(1);

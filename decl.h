@@ -1,6 +1,6 @@
 /* decl.h -- Declarations for non-ANSI hosts
  * Created: Sun Nov 19 14:04:27 1995 by faith@cs.unc.edu
- * Revised: Wed Sep 25 12:31:13 1996 by faith@cs.unc.edu
+ * Revised: Sat Mar  8 17:02:57 1997 by faith@cs.unc.edu
  * Copyright 1995, 1996 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -17,12 +17,12 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: decl.h,v 1.1 1997/03/07 16:10:31 faith Exp $
+ * $Id: decl.h,v 1.2 1997/03/08 22:09:34 faith Exp $
  * 
  */
 
-#ifndef _MAA_DECL_H_
-#define _MAA_DECL_H_
+#ifndef _DECL_H_
+#define _DECL_H_
 
 /* System dependent declarations: Many brain damaged systems don't provide
 declarations for standard library calls.  We provide them here for
@@ -51,6 +51,7 @@ extern int    fputc( char, FILE * );
 extern int    fputs( const char *, FILE * );
 extern int    fread( char *, int, int, FILE * );
 extern int    fscanf( FILE *, const char *, ... );
+extern int    fseek( FILE *, long, int );
 extern int    fwrite( char *, int, int, FILE * );
 extern int    gettimeofday( struct timeval *, struct timezone * );
 extern int    on_exit( void (*)(), caddr_t );
@@ -65,6 +66,16 @@ extern long   strtol( const char *, char **, int );
 extern time_t time( time_t * );
 extern void   fclose( FILE * );
 extern void   perror( const char * );
+extern void   rewind( FILE * );
+extern int    gethostname( const char *, int );
+extern int    tolower( int );
+extern int    accept( int s, struct sockaddr *, int * );
+extern int    socket( int, int, int );
+extern int    bind( int, struct sockaddr *, int );
+extern int    listen( int, int );
+extern int    wait3( union wait *, int, struct rusage * );
+extern caddr_t mmap( caddr_t, size_t, int, int, int, off_t );
+extern int     munmap( caddr_t, int );
 #endif
 #endif				/* __sparc__ */
 

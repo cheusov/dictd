@@ -1,23 +1,15 @@
 /* net.c -- 
  * Created: Fri Feb 21 20:58:10 1997 by faith@cs.unc.edu
- * Revised: Fri Mar  7 10:52:24 1997 by faith@cs.unc.edu
+ * Revised: Sat Mar  8 16:55:23 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: net.c,v 1.2 1997/03/07 16:10:35 faith Exp $
+ * $Id: net.c,v 1.3 1997/03/08 22:09:39 faith Exp $
  * 
  */
 
 
-#include <stdlib.h>
-#include <string.h>
-#include <netdb.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-
-#include "maa.h"
-#include "net.h"
+#include "dictd.h"
 
 int net_open_tcp( const char *service, int queueLength )
 {

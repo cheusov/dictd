@@ -1,6 +1,6 @@
 /* dictP.h -- 
  * Created: Fri Mar  7 10:54:05 1997 by faith@cs.unc.edu
- * Revised: Fri Mar  7 10:57:05 1997 by faith@cs.unc.edu
+ * Revised: Sat Mar  8 16:54:34 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
@@ -18,7 +18,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.1 1997/03/07 16:10:32 faith Exp $
+ * $Id: dictP.h,v 1.2 1997/03/08 22:09:37 faith Exp $
  * 
  */
 
@@ -99,16 +99,8 @@ extern unsigned long int strtoul( const char *, char **, int );
 # include <stdlib.h>
 #endif
 
-/* Handle getopt correctly */
-#if HAVE_GETOPT_H
-# include <getopt.h>
-#else
-#if !(defined(__sparc) && defined(__SVR4))
-extern int  getopt( int, char **, char * );
-extern int  optind;
-extern char *optarg;
-#endif
-#endif
+/* Always use local (libmaa) getopt */
+#include <getopt.h>
 
 /* We actually need a few non-ANSI C things... */
 #if defined(__STRICT_ANSI__)
@@ -129,6 +121,17 @@ extern void     srandom( unsigned int );
 
 /* Provide stdarg support */
 #include <stdarg.h>
+
+/* Provide networking stuff */
+#if HAVE_SYS_WAIT_H
+# include <sys/wait.h>
+#endif
+#include <netdb.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+/* Provide mmap stuff */
+#include <sys/mman.h>
 
 /* System dependent declarations: Many brain damaged systems don't provide
 declarations for standard library calls.  We provide them here for

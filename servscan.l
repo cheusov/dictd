@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servscan.l,v 1.2 1997/03/07 16:10:36 faith Exp $
+ * $Id: servscan.l,v 1.3 1997/03/08 22:09:40 faith Exp $
  * 
  */
 
@@ -68,10 +68,10 @@ postfilter                  RETURN(T_POSTFILTER);
                               RETURN(T_STRING);
                             }
 {NL}                        BEGIN(INITIAL);
-<<EOF>>                     RETURN(0);
 {WS}                        src_advance( yyleng );
 {comment}                   src_advance( yyleng );
 .                           RETURN(yytext[0]);
+<<EOF>>                     RETURN(0);
 %%
 int yywrap( void )
 {
