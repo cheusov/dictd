@@ -6,14 +6,6 @@
 #include <stdlib.h>
 #include <regex.h>
 
-#if defined(__sparc__) && !defined(__svr4__)
-#define USEBCOPY
-#endif
-
-#ifndef _POSIX2_RE_DUP_MAX
-#define _POSIX2_RE_DUP_MAX 255
-#endif
-
 #include "utils.h"
 #include "regex2.h"
 
@@ -524,7 +516,7 @@ int starordinary;		/* is a leading * an ordinary character? */
 		REQUIRE(starordinary, REG_BADRPT);
 		/* FALLTHROUGH */
 	default:
-		ordinary(p, c &~ BACKSL);
+		ordinary(p, (char)c);	/* takes off BACKSL, if any */
 		break;
 	}
 
@@ -588,7 +580,6 @@ static void
 p_bracket(p)
 register struct parse *p;
 {
-	register char c;
 	register cset *cs = allocset(p);
 	register int invert = 0;
 
@@ -804,7 +795,6 @@ int endc;			/* name ended by endc,']' */
 	register char *sp = p->next;
 	register struct cname *cp;
 	register int len;
-	register char c;
 
 	while (MORE() && !SEETWO(endc, ']'))
 		NEXT();

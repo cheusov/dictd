@@ -10,6 +10,7 @@
 #include "regerror.ih"
 
 /*
+ = #define	REG_OKAY	 0
  = #define	REG_NOMATCH	 1
  = #define	REG_BADPAT	 2
  = #define	REG_ECOLLATE	 3
@@ -34,6 +35,7 @@ static struct rerr {
 	char *name;
 	char *explain;
 } rerrs[] = {
+	REG_OKAY,	"REG_OKAY",	"no errors detected",
 	REG_NOMATCH,	"REG_NOMATCH",	"regexec() failed to match",
 	REG_BADPAT,	"REG_BADPAT",	"invalid regular expression",
 	REG_ECOLLATE,	"REG_ECOLLATE",	"invalid collating element",
@@ -50,7 +52,7 @@ static struct rerr {
 	REG_EMPTY,	"REG_EMPTY",	"empty (sub)expression",
 	REG_ASSERT,	"REG_ASSERT",	"\"can't happen\" -- you found a bug",
 	REG_INVARG,	"REG_INVARG",	"invalid argument to regex routine",
-	0,		"",		"*** unknown regexp error code ***",
+	-1,		"",		"*** unknown regexp error code ***",
 };
 
 /*
@@ -74,12 +76,12 @@ size_t errbuf_size;
 	if (errcode == REG_ATOI)
 		s = regatoi(preg, convbuf);
 	else {
-		for (r = rerrs; r->code != 0; r++)
+		for (r = rerrs; r->code >= 0; r++)
 			if (r->code == target)
 				break;
 	
 		if (errcode&REG_ITOA) {
-			if (r->code != 0)
+			if (r->code >= 0)
 				(void) strcpy(convbuf, r->name);
 			else
 				sprintf(convbuf, "REG_0x%x", target);
@@ -112,13 +114,11 @@ const regex_t *preg;
 char *localbuf;
 {
 	register struct rerr *r;
-	register size_t siz;
-	register char *p;
 
-	for (r = rerrs; r->code != 0; r++)
+	for (r = rerrs; r->code >= 0; r++)
 		if (strcmp(r->name, preg->re_endp) == 0)
 			break;
-	if (r->code == 0)
+	if (r->code < 0)
 		return("0");
 
 	sprintf(localbuf, "%d", r->code);

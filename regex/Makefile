@@ -38,7 +38,7 @@ default:	r
 lib: libregex.a
 
 libregex.a:	$(OBJPRODN)
-#	rm -f libregex.a
+	rm -f libregex.a
 	ar crv libregex.a $(OBJPRODN)
 
 purge:

@@ -1,4 +1,4 @@
-.TH REGEX 3 "17 May 1993"
+.TH REGEX 3 "25 Sept 1997"
 .BY "Henry Spencer"
 .de ZR
 .\" one other place knows this name:  the SEE ALSO section
@@ -70,6 +70,10 @@ are the default.
 .IP REG_BASIC
 This is a synonym for 0,
 provided as a counterpart to REG_EXTENDED to improve readability.
+This is an extension,
+compatible with but not specified by POSIX 1003.2,
+and should be used with
+caution in software intended to be portable to other systems.
 .IP REG_NOSPEC
 Compile with recognition of all special characters turned off.
 All characters are thus considered ordinary,
@@ -155,8 +159,11 @@ so a single compiled RE can be used simultaneously by multiple threads.
 By default,
 the NUL-terminated string pointed to by
 .I string
-is considered to be the text of an entire line, minus any terminating
-newline.
+is considered to be the text of an entire line,
+with the NUL indicating the end of the line.
+(That is,
+any other end-of-line marker is considered to have been removed
+and replaced by the NUL.)
 The
 .I eflags
 argument is the bitwise OR of zero or more of the following flags:
@@ -258,7 +265,7 @@ set to \-1.
 If a subexpression participated in the match several times,
 the reported substring is the last one it matched.
 (Note, as an example in particular, that when the RE `(b*)+' matches `bbb',
-the parenthesized subexpression matches each of the three `b's and then
+the parenthesized subexpression matches the three `b's and then
 an infinite number of empty strings following the last `b',
 so the reported substring is one of the empties.)
 .PP
@@ -446,7 +453,7 @@ REG_ASSERT	``can't happen''\(emyou found a bug
 REG_INVARG	invalid argument, e.g. negative-length string
 .fi
 .SH HISTORY
-Written by Henry Spencer at University of Toronto,
+Written by Henry Spencer,
 henry@zoo.toronto.edu.
 .SH BUGS
 This is an alpha release with known defects.

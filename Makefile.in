@@ -1,7 +1,7 @@
 # Makefile.in -- Makefile for dict
 # Created: Wed Apr 24 14:14:09 1996 by faith@dict.org
-# Revised: Fri Dec 22 06:07:13 2000 by faith@dict.org
-# Copyright 1996, 1997, 1998, 1999, 2000 Rickard E. Faith (faith@dict.org)
+# Revised: Sun Mar 31 00:43:08 2002 by faith@dict.org
+# Copyright 1996-2002 Rickard E. Faith (faith@dict.org)
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,12 +17,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.45 2001/01/12 09:24:29 faith Exp $
+# $Id: Makefile.in,v 1.46 2002/05/03 14:12:22 faith Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
 # Numbers are for the original author(s) only.
-DICT_VERSION=1.5.5
+DICT_VERSION=1.7.0
 
 ifneq (,)
 This makefile requires GNU Make.
@@ -141,17 +141,22 @@ clientparse.o: clientparse.c $(HEADERS)
 	$(CC) -c $(XTRACFLAGS) $(CFLAGS) $(SCFLAGS) $<
 
 install.dict: dict
-	install dict $(bindir)
-	install -m 644 dict.1 $(man1_prefix)/dict.1
+	if test ! -d $(bindir); then $(INSTALL) -d 755 $(bindir); fi
+	if test ! -d $(man1_prefix); then $(INSTALL) -d 755 $(man1_prefix); fi
+	$(INSTALL_PROGRAM) dict $(bindir)
+	$(INSTALL_DATA	dict.1 $(man1_prefix)/dict.1
 
 install.dictzip: dictzip
-	install dictzip $(bindir)
-	install -m 644 dictzip.1 $(man1_prefix)/dictzip.1
+	if test ! -d $(bindir); then $(INSTALL) -d 755 $(bindir); fi
+	if test ! -d $(man1_prefix); then $(INSTALL) -d 755 $(man1_prefix); fi
+	$(INSTALL_PROGRAM) dictzip $(bindir)
+	$(INSTALL_DATA) dictzip.1 $(man1_prefix)/dictzip.1
 
 install.dictd: dictd
-	install dictd $(sbindir)
+	if test ! -d $(sbindir); then $(INSTALL) -d 755 $(sbindir); fi
 	if test ! -d $(man8_prefix); then install -d 755 $(man8_prefix); fi
-	install -m 644 dictd.8 $(man8_prefix)/dictd.8
+	$(INSTALL_PROGRAM) dictd $(sbindir)
+	$(INSTALL_DATA) dictd.8 $(man8_prefix)/dictd.8
 
 install: $(EXES) install.dict install.dictzip install.dictd
 
@@ -160,11 +165,12 @@ ChangeLog:
 	@(echo "***** Making new ChangeLog..."; \
 	rm -f ChangeLog; \
 	AWK=gawk rcs2log -i 2 -r -d'1996-09-20<' . doc regex zlib libmaa \
-		| sed 's,/cvsroot/dict/dictd1/,,g' \
-		| sed 's,faith@[^>]*,faith@dict.org,g' \
-		| sed 's,yakowenk@.[^>]*,yakowenk@cs.unc.edu,g' \
-		| sed 's,nyland@.[^>]*,nyland@cs.unc.edu,g' \
-		> ChangeLog;)
+	| sed 's,/cvsroot/dict/dictd1/,,g' \
+	| sed 's,/cvs/dict/dictd1/,,g' \
+	| sed 's,faith@[^>]*,faith@dict.org,g' \
+	| sed 's,hilliard...hilliard@.*,Bob Hilliard  <hilliard@debian.org>,g'\
+	| sed 's,tek...tek@.*,Julian Squires  <tek@wiw.org>,g' \
+	> ChangeLog;)
 
 
 dist: ChangeLog
@@ -181,6 +187,7 @@ dist: ChangeLog
 	cd dictd-$${VERSION}; \
 	make -f Makefile.conf; \
 	mv ../ChangeLog .; \
+	chmod -R a+rX,g-w .; \
 	cd ..; \
 	echo "***** Taring and zipping dictd-$${VERSION}.tar.gz..."; \
 	tar cvvf dictd-$${VERSION}.tar dictd-$${VERSION}; \

@@ -36,11 +36,11 @@
  * In state representations, an operator's bit is on to signify a state
  * immediately *preceding* "execution" of that operator.
  */
-typedef unsigned long sop;	/* strip operator */
+typedef long sop;		/* strip operator */
 typedef long sopno;
-#define	OPRMASK	0xf8000000
-#define	OPDMASK	0x07ffffff
-#define	OPSHIFT	((unsigned)27)
+#define	OPRMASK	0x7c000000
+#define	OPDMASK	0x03ffffff
+#define	OPSHIFT	(26)
 #define	OP(n)	((n)&OPRMASK)
 #define	OPND(n)	((n)&OPDMASK)
 #define	SOP(op, opnd)	((op)|(opnd))

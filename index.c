@@ -1,7 +1,7 @@
 /* index.c -- 
  * Created: Wed Oct  9 14:52:23 1996 by faith@dict.org
- * Revised: Sun Dec 31 16:16:11 2000 by faith@dict.org
- * Copyright 1996, 1997, 1998, 2000 Rickard E. Faith (faith@dict.org)
+ * Revised: Tue Apr 23 09:14:43 2002 by faith@dict.org
+ * Copyright 1996, 1997, 1998, 2000, 2002 Rickard E. Faith (faith@dict.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.21 2000/12/31 21:16:40 faith Exp $
+ * $Id: index.c,v 1.22 2002/05/03 14:12:22 faith Exp $
  * 
  */
 
@@ -35,9 +35,60 @@
 #define BMH_THRESHOLD   3	/* When to start using Boyer-Moore-Hoorspool */
 
        int _dict_comparisons;
-static int isspacealnumtab[256];
-#define isspacealnum(x) (isspacealnumtab[(unsigned char)x])
+static int isspacealnumtab[UCHAR_MAX + 1];
+static int char2indextab[UCHAR_MAX + 2];
+static int index2chartab[UCHAR_MAX + 2];
+static int chartab[UCHAR_MAX + 1];
+static int charcount;
+#define isspacealnum(x) (isspacealnumtab[(unsigned char)(x)])
+#define c2i(x) (char2indextab[(unsigned char)(x)])
+#define i2c(x) (index2chartab[(unsigned char)(x)])
+#define c(x)   (((x) < charcount) ? chartab[(unsigned char)(x)] : 0)
 #define altcompare(a,b,c) (1)
+
+static int dict_strcoll(const void *a, const void *b)
+{
+    return strcoll(*(const char **)a, *(const char **)b);
+}
+
+static void dict_table_init(void)
+{
+    int      i;
+    unsigned char s[2 * UCHAR_MAX + 2];
+    unsigned char *p[UCHAR_MAX + 1];
+    
+    for (i = 0; i <= UCHAR_MAX; i++) {
+        if (isspace(i) || isalnum(i)) isspacealnumtab[i] = 1;
+    }
+    isspacealnumtab['\t'] = isspacealnumtab['\n'] = 0; /* special */
+
+    for (i = 0; i <= UCHAR_MAX; i++) if (islower(i)) chartab[charcount++] = i;
+
+                                /* Populate an array with length-1 strings */
+    for (i = 0; i <= UCHAR_MAX; i++) {
+        s[2 * i]     = i;
+        s[2 * i + 1] = '\0';
+        p[i]         = &s[2 * i];
+    }
+                                /* Sort those strings in the locale */
+    qsort(p, UCHAR_MAX + 1, sizeof(p[0]), dict_strcoll);
+
+                                /* Extract our unordered arrays */
+    for (i = 0; i <= UCHAR_MAX; i++) {
+        char2indextab[*p[i]] = i;
+        index2chartab[i]     = *p[i];
+    }
+    char2indextab[UCHAR_MAX + 1] = UCHAR_MAX;
+    index2chartab[UCHAR_MAX + 1] = UCHAR_MAX; /* we may index here in  */
+
+    if (dbg_test(DBG_SEARCH)) {
+        for (i = 0; i < charcount; i++)
+            printf("%03d %d (%c)\n", i, c(i), c(i));
+        for (i = 0; i <= UCHAR_MAX; i++)
+            printf("c2i(%d) = %d; i2c(%d) = %d\n",
+                   i, c2i(i), c2i(i), i2c(c2i(i)));
+    }        
+}
 
 /* Compare:
    
@@ -55,7 +106,7 @@ static int isspacealnumtab[256];
 
 static int compare( const char *word, const char *start, const char *end )
 {
-   int c;
+   int        c;
    char       buf[80], *d;
    const char *s;
 
@@ -80,8 +131,9 @@ static int compare( const char *word, const char *start, const char *end )
       c = tolower(*start);
 #endif
       if (*word != c) {
-	 PRINTF(DBG_SEARCH,("   result = %d\n", (*word < c) ? -2 : 1 ));
-	 return (*word < c) ? -2 : 1;
+         int result = (c2i(*word) < c2i(c)) ? -2 : 1;
+	 PRINTF(DBG_SEARCH,("   result = %d\n", result));
+         return result;
       }
       ++word;
       ++start;
@@ -156,7 +208,7 @@ const char *dict_index_search( const char *word, dictIndex *idx )
    */
 
 #if OPTSTART
-   end   = idx->optStart[first+1];
+   end   = idx->optStart[i2c(c2i(first)+1)];
    start = idx->optStart[first];
    if (end < start) end = idx->end;
    start = binary_search( word, start, end );
@@ -344,6 +396,7 @@ static int dict_search_brute( lst_List l,
 	 }
       }
  continue2:
+      ;
    }
    
    return count;
@@ -362,7 +415,7 @@ static int dict_search_bmh( lst_List l,
    const char *start = database->index->start;
    const char *end   = database->index->end;
    int        patlen = strlen( word );
-   int        skip[256];
+   int        skip[UCHAR_MAX + 1];
    int        i;
    int        j;
    const char *p, *pt;
@@ -375,7 +428,7 @@ static int dict_search_bmh( lst_List l,
    if (patlen < BMH_THRESHOLD)
       return dict_search_brute( l, word, database, suffix, patlen );
 
-   for (i = 0; i < 256; i++) {
+   for (i = 0; i <= UCHAR_MAX; i++) {
       if (isspacealnum(i)) skip[i] = patlen;
       else                 skip[i] = 1;
    }
@@ -420,6 +473,7 @@ static int dict_search_bmh( lst_List l,
 	 if (p > end) return count;
       }
 continue2:
+      ;
    }
 
    return count;
@@ -459,7 +513,7 @@ static int dict_search_regexpr( lst_List l,
 #if OPTSTART
    if (*word == '^' && isspacealnum(word[1])) {
       first = word[1];
-      end   = database->index->optStart[first+1];
+      end   = database->index->optStart[i2c(c2i(first)+1)];
       start = database->index->optStart[first];
       if (end < start) end = database->index->end;
    }
@@ -530,7 +584,7 @@ static int dict_search_soundex( lst_List l,
 
 #if OPTSTART
    pt  = database->index->optStart[ c ];
-   end = database->index->optStart[ c + 1 ];
+   end = database->index->optStart[ i2c(c2i(c)+1) ];
    if (end < pt) end = database->index->end;
 #else
    pt = database->index->start;
@@ -620,11 +674,11 @@ static int dict_search_levenshtein( lst_List l,
 
 				/* Insertions */
    for (i = 0; i < len; i++) {
-      for (k = 'a'; k <= 'z'; k++) {
+      for (k = 0; k < charcount; k++) {
 	 p = buf;
          for (j = 0; j < len; j++) {
             *p++ = word[j];
-            if (i == j) *p++ = k;
+            if (i == j) *p++ = c(k);
          }
          *p = '\0';
 	 CHECK;
@@ -633,8 +687,8 @@ static int dict_search_levenshtein( lst_List l,
                                 /* Insertions at the end */
    strcpy( buf, word );
    buf[ len + 1 ] = '\0';
-   for (k = 'a'; k <= 'z'; k++) {
-      buf[ len ] = k;
+   for (k = 0; k < charcount; k++) {
+      buf[ len ] = c(k);
       CHECK;
    }
 
@@ -642,8 +696,8 @@ static int dict_search_levenshtein( lst_List l,
                                   /* Substitutions */
    for (i = 0; i < len; i++) {
       strcpy( buf, word );
-      for (j = 'a'; j <= 'z'; j++) {
-         buf[i] = j;
+      for (j = 0; j < charcount; j++) {
+         buf[i] = c(j);
 	 CHECK;
       }
    }
@@ -703,14 +757,8 @@ dictIndex *dict_index_open( const char *filename )
    char        buf[2];
 #endif
 
-   if (!tabInit) {
-      int k;
-      for (k = 0; k < 256; k++) {
-	 if (isspace(k) || isalnum(k)) isspacealnumtab[k] = 1;
-      }
-      isspacealnumtab['\t'] = isspacealnumtab['\n'] = 0; /* special */
-      ++tabInit;
-   }
+   if (!tabInit) dict_table_init();
+   tabInit = 1;
 
    memset( i, 0, sizeof( struct dictIndex ) );
 
@@ -730,15 +778,15 @@ dictIndex *dict_index_open( const char *filename )
    i->end = i->start + i->size;
 
 #if OPTSTART
-   for (j = 0; j < 256; j++) i->optStart[j] = i->start;
+   for (j = 0; j <= UCHAR_MAX; j++) i->optStart[j] = i->start;
    buf[0] = ' ';
    buf[1] = '\0';
    i->optStart[ ' ' ] = binary_search( buf, i->start, i->end );
-   for (j = 'a'; j <= 'z'; j++) {
-      buf[0] = j;
+   for (j = 0; j < charcount; j++) {
+      buf[0] = c(j);
       buf[1] = '\0';
-      i->optStart[toupper(j)]
-	 = i->optStart[j]
+      i->optStart[toupper(c(j))]
+	 = i->optStart[c(j)]
 	 = binary_search( buf, i->start, i->end );
    }
    for (j = '0'; j <= '9'; j++) {
@@ -746,7 +794,8 @@ dictIndex *dict_index_open( const char *filename )
       buf[1] = '\0';
       i->optStart[j] = binary_search( buf, i->start, i->end );
    }
-   i->optStart[256] = i->end;
+   i->optStart[UCHAR_MAX]   = i->end;
+   i->optStart[UCHAR_MAX+1] = i->end;
 #endif
    
    return i;

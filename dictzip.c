@@ -1,7 +1,7 @@
 /* dictzip.c -- 
  * Created: Tue Jul 16 12:45:41 1996 by faith@dict.org
- * Revised: Fri Dec 22 06:04:56 2000 by faith@dict.org
- * Copyright 1996, 1997, 1998, 2000 Rickard E. Faith (faith@dict.org)
+ * Revised: Mon Apr 22 11:40:17 2002 by faith@dict.org
+ * Copyright 1996-1998, 2000, 2002 Rickard E. Faith (faith@dict.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictzip.c,v 1.16 2000/12/22 14:15:25 faith Exp $
+ * $Id: dictzip.c,v 1.17 2002/05/03 14:12:22 faith Exp $
  * 
  */
 
@@ -311,11 +311,11 @@ static const char *id_string( const char *id )
 
 static void banner( void )
 {
-   const char *id = "$Id: dictzip.c,v 1.16 2000/12/22 14:15:25 faith Exp $";
+   const char *id = "$Id: dictzip.c,v 1.17 2002/05/03 14:12:22 faith Exp $";
    
    fprintf( stderr, "%s %s\n", err_program_name(), id_string( id ) );
    fprintf( stderr,
-	    "Copyright 1996,1997 Rickard E. Faith (faith@cs.unc.edu)\n" );
+	    "Copyright 1996-2002 Rickard E. Faith (faith@dict.org)\n" );
 }
 
 static void license( void )
@@ -373,6 +373,7 @@ int main( int argc, char **argv )
 {
    int           c;
    int           i;
+   int           j;
    int           decompressFlag = 0;
    int           forceFlag      = 0;
    int           keepFlag       = 0;
@@ -385,6 +386,8 @@ int main( int argc, char **argv )
    char          *post          = NULL;
    unsigned long start          = 0;
    unsigned long size           = 0;
+   unsigned long clSize         = 0; /* from command line */
+   unsigned long clStart        = 0; /* from comment line */
    dictData      *header;
    char          *pt;
    FILE          *str;
@@ -417,7 +420,8 @@ int main( int argc, char **argv )
    dbg_register( DBG_ZIP,     "zip" );
    dbg_register( DBG_UNZIP,   "unzip" );
 
-   if (!(pt = strrchr( argv[0], '/' ))) pt = argv[0];
+   if ((pt = strrchr( argv[0], '/' ))) ++pt;
+   else                                pt = argv[0];
    if (!strcmp(pt, "dictunzip")) ++decompressFlag;
    if (!strcmp(pt, "dictzcat")) {
       ++decompressFlag;
@@ -443,10 +447,10 @@ int main( int argc, char **argv )
       case 'v': dbg_set( "verbose" );                                  break;
       case 'V': banner(); exit( 1 );                                   break;
       case 'D': dbg_set( optarg );                                     break;
-      case 's': ++decompressFlag; start = strtoul( optarg, NULL, 10 ); break;
-      case 'e': ++decompressFlag; size  = strtoul( optarg, NULL, 10 ); break;
-      case 'S': ++decompressFlag; start = b64_decode( optarg );        break;
-      case 'E': ++decompressFlag; size  = b64_decode( optarg );        break;
+      case 's': ++decompressFlag; clStart = strtoul( optarg, NULL, 10 ); break;
+      case 'e': ++decompressFlag; clSize  = strtoul( optarg, NULL, 10 ); break;
+      case 'S': ++decompressFlag; clStart = b64_decode( optarg );        break;
+      case 'E': ++decompressFlag; clSize  = b64_decode( optarg );        break;
       case 'p': pre = optarg;                                          break;
       case 'P': post = optarg;                                         break;
       default:  
@@ -456,6 +460,8 @@ int main( int argc, char **argv )
    if (testFlag) ++listFlag;
 
    for (i = optind; i < argc; i++) {
+      size  = clSize  ? clSize  : 0;
+      start = clStart ? clStart : 0;
       if (listFlag) {
 	 header = dict_data_open( argv[i], 1 );
 	 dict_data_print_header( stdout, header );
@@ -466,9 +472,9 @@ int main( int argc, char **argv )
 	    if (!size) size = header->length;
 	    if (!start) {
 	       len = header->chunkLength;
-	       for (i = 0; i < size; i += len) {
-		  if (i + len >= size) len = size - i;
-		  buf = dict_data_read( header, i, len, pre, post );
+	       for (j = 0; j < size; j += len) {
+		  if (j + len >= size) len = size - j;
+		  buf = dict_data_read( header, j, len, pre, post );
 		  fwrite( buf, len, 1, stdout );
 		  fflush( stdout );
 		  xfree( buf );
@@ -493,9 +499,9 @@ int main( int argc, char **argv )
 	    header = dict_data_open( argv[i], 0 );
 	    if (!size) size = header->length;
 	    len = header->chunkLength;
-	    for (i = 0; i < size; i += len) {
-	       if (i + len >= size) len = size - i;
-	       buf = dict_data_read( header, i, len, pre, post );
+	    for (j = 0; j < size; j += len) {
+	       if (j + len >= size) len = size - j;
+	       buf = dict_data_read( header, j, len, pre, post );
 	       fwrite( buf, len, 1, str );
 	       fflush( str );
 	       xfree( buf );

@@ -1,7 +1,7 @@
 /* dictd.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@dict
- * Revised: Wed Nov  8 05:57:21 2000 by faith@dict.org
- * Copyright 1994-2000 Rickard E. Faith (faith@dict.org)
+ * Revised: Mon Apr 22 15:47:26 2002 by faith@dict.org
+ * Copyright 1994-2000, 2002 Rickard E. Faith (faith@dict.org)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -82,8 +82,8 @@
 #define LOG_CLIENT      (0<<30|1<< 6) /* Log client                         */
 #define LOG_HOST        (0<<30|1<< 7) /* Log remote host name               */
 #define LOG_TIMESTAMP   (0<<30|1<< 8) /* Log with timestamps                */
-#define LOG_SYSLOG      (0<<30|1<< 9) /* Log using syslog(3)                */
-#define LOG_MIN         (0<<30|1<<10) /* Log a few minimal things           */
+#define LOG_MIN         (0<<30|1<< 9) /* Log a few minimal things           */
+#define LOG_AUTH        (0<<30|1<<10) /* Log authentication denials         */
 
 #define DICT_LOG_TERM    0
 #define DICT_LOG_DEFINE  1
@@ -92,6 +92,8 @@
 #define DICT_LOG_CLIENT  4
 #define DICT_LOG_TRACE   5
 #define DICT_LOG_COMMAND 6
+#define DICT_LOG_AUTH    7
+#define DICT_LOG_CONNECT 8
 
 #define DICT_UNKNOWN    0
 #define DICT_TEXT       1
@@ -142,7 +144,7 @@ typedef struct dictIndex {
    const char    *start;	 /* start of mmap'd area */
    const char    *end;		 /* end of mmap'd area */
    unsigned long size;		 /* size of mmap */
-   const char    *optStart[257]; /* Optimized starting points */
+   const char    *optStart[UCHAR_MAX+2]; /* Optimized starting points */
    unsigned long headwords;	 /* computed number of headwords */
 } dictIndex;
 
@@ -167,6 +169,8 @@ typedef struct dictDatabase {
 #define DICT_AUTHONLY 2
 #define DICT_USER     3
 #define DICT_GROUP    4		/* Not implemented */
+#define DICT_MATCH    5         /* For IP matching routines */
+#define DICT_NOMATCH  6         /* For IP matching routines */
 
 typedef struct dictAccess {
    int        type;		/* deny, allow, accessonly, user, group */

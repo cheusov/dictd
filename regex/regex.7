@@ -1,4 +1,4 @@
-.TH REGEX 7 "7 Feb 1994"
+.TH REGEX 7 "25 Oct 1995"
 .BY "Henry Spencer"
 .SH NAME
 regex \- POSIX 1003.2 regular expressions
@@ -71,9 +71,9 @@ it matches any single character
 If two characters in the list are separated by `\-', this is shorthand
 for the full \fIrange\fR of characters between those two (inclusive) in the
 collating sequence,
-e.g. `[0-9]' in ASCII matches any decimal digit.
+e.g. `[0\-9]' in ASCII matches any decimal digit.
 It is illegal\(dg for two ranges to share an
-endpoint, e.g. `a-c-e'.
+endpoint, e.g. `a\-c\-e'.
 Ranges are very collating-sequence-dependent,
 and portable programs should avoid relying on them.
 .PP
@@ -210,6 +210,8 @@ so that (e.g.) `\e([bc]\e)\e1' matches `bb' or `cc' but not `bc'.
 regex(3)
 .PP
 POSIX 1003.2, section 2.8 (Regular Expression Notation).
+.SH HISTORY
+Written by Henry Spencer, based on the 1003.2 spec.
 .SH BUGS
 Having two kinds of REs is a botch.
 .PP

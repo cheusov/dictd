@@ -1,7 +1,7 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@dict.org
- * Revised: Fri Dec 22 06:04:36 2000 by faith@dict.org
- * Copyright 1997, 1998, 1999, 2000 Rickard E. Faith (faith@dict.org)
+ * Revised: Tue Apr 23 09:14:45 2002 by faith@dict.org
+ * Copyright 1997, 1998, 1999, 2000, 2002 Rickard E. Faith (faith@dict.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.32 2000/12/22 14:15:25 faith Exp $
+ * $Id: daemon.c,v 1.33 2002/05/03 14:12:22 faith Exp $
  * 
  */
 
@@ -26,6 +26,10 @@
 #include <setjmp.h>
 #include "md5.h"
 #include "regex.h"
+
+#ifndef HAVE_INET_ATON
+#define inet_aton(a,b) (b)->s_addr = inet_addr(a)
+#endif
 
 static int          _dict_defines, _dict_matches;
 static int          daemonS;
@@ -173,16 +177,209 @@ static int count_databases( void )
    return count;
 }
 
-static int daemon_check_list( const char *user, lst_List acl )
+static unsigned long daemon_compute_mask(int bits)
 {
-   lst_Position p;
-   dictAccess   *a;
+   unsigned long mask = 0xffffffff;
+
+   if (bits < 1) return 0;
+   if (bits < 32) mask -= (1 << (32-bits)) - 1;
+   return mask;
+}
+
+static void daemon_log( int type, const char *format, ... )
+{
+   va_list ap;
+   char    buf[8*1024];
+   char    *buf2;
+   int     len;
+   char    *s, *d;
+   int     c;
+   char    marker = '?';
+
+   switch (type) {
+   case DICT_LOG_TERM:
+      if (!flg_test(LOG_STATS))    return; marker = 'I'; break;
+   case DICT_LOG_TRACE:
+      if (!flg_test(LOG_SERVER))   return; marker = 'I'; break;
+   case DICT_LOG_CLIENT:
+      if (!flg_test(LOG_CLIENT))   return; marker = 'C'; break;
+   case DICT_LOG_CONNECT:
+      if (!flg_test(LOG_CONNECT))  return; marker = 'K'; break;
+   case DICT_LOG_DEFINE:
+      if (!flg_test(LOG_FOUND))    return; marker = 'D'; break;
+   case DICT_LOG_MATCH:
+      if (!flg_test(LOG_FOUND))    return; marker = 'M'; break;
+   case DICT_LOG_NOMATCH:
+      if (!flg_test(LOG_NOTFOUND)) return; marker = 'N'; break;
+   case DICT_LOG_COMMAND:
+      if (!flg_test(LOG_COMMAND))  return; marker = 'T'; break;
+   case DICT_LOG_AUTH:
+      if (!flg_test(LOG_AUTH))     return; marker = 'A'; break;
+   }
+
+   if (dbg_test(DBG_PORT))
+      sprintf( buf, ":%c: %s:%d ", marker, daemonHostname, daemonPort );
+   else if (flg_test(LOG_HOST))
+      sprintf( buf, ":%c: %s ", marker, daemonHostname );
+   else
+      sprintf( buf, ":%c: ", marker );
+      
+   len = strlen( buf );
+   
+   va_start( ap, format );
+   vsprintf( buf+len, format, ap );
+   va_end( ap );
+   len = strlen( buf );
+
+   if (len > 2048) {
+      log_info( ":E: buffer overflow (%d)\n", len );
+      buf[2048] = '\0';
+      len = strlen(buf);
+   }
+
+   buf2 = alloca( 3*(len+3) );
+
+   for (s = buf, d = buf2; *s; s++) {
+      c = (unsigned char)*s;
+      if (c == '\t')      *d++ = ' ';
+      else if (c == '\n') *d++ = c;
+      else {
+	 if (c < 32)        { *d++ = '^'; *d++ = c + 64;           }
+	 else if (c == 127) { *d++ = '^'; *d++ = '?';              }
+	 else                 *d++ = c;
+      }
+   }
+   *d = '\0';
+   log_info( "%s", buf2 );
+
+   if (d != buf2) d[-1] = '\0';	/* kill newline */
+   dict_setproctitle( "dictd %s", buf2 );
+}
+
+static int daemon_check_mask(const char *spec, const char *ip)
+{
+   char           *tmp = alloca(strlen(spec) + 1);
+   char           *pt;
+   char           tstring[64], mstring[64];
+   struct in_addr target, mask;
+   int            bits;
+   unsigned long  bitmask;
+   
+   strcpy(tmp, spec);
+   if (!(pt = strchr(tmp, '/'))) {
+      log_info( ":E: No / in %s, denying access to %s\n", spec, ip);
+      return DICT_DENY;
+   }
+   *pt++ = '\0';
+   if (!*pt) {
+      log_info( ":E: No bit count after / in %s, denying access to %s\n",
+                spec, ip);
+      return DICT_DENY;
+   }
+   
+   inet_aton(ip, &target);
+   inet_aton(tmp, &mask);
+   bits = strtol(pt, NULL, 10);
+   strcpy(tstring, inet_ntoa(target));
+   strcpy(mstring, inet_ntoa(mask));
+   if (bits < 0 || bits > 32) {
+      log_info( ":E: Bit count (%d) out of range, denying access to %s\n",
+                bits, ip);
+      return DICT_DENY;
+   }
+   
+   bitmask = daemon_compute_mask(bits);
+   if ((ntohl(target.s_addr) & bitmask) == (ntohl(mask.s_addr) & bitmask)) {
+       PRINTF(DBG_AUTH, ("%s matches %s/%d\n", tstring, mstring, bits));
+       return DICT_MATCH;
+   }
+   PRINTF(DBG_AUTH, ("%s does NOT match %s/%d\n", tstring, mstring, bits));
+   return DICT_NOMATCH;
+   
+   return 0;
+}
+
+static int daemon_check_range(const char *spec, const char *ip)
+{
+   char           *tmp = alloca(strlen(spec) + 1);
+   char           *pt;
+   char           tstring[64], minstring[64], maxstring[64];
+   struct in_addr target, min, max;
+   
+   strcpy(tmp, spec);
+   if (!(pt = strchr(tmp, ':'))) {
+      log_info( ":E: No : in range %s, denying access to %s\n", spec, ip);
+      return DICT_DENY;
+   }
+   *pt++ = '\0';
+   if (strchr(pt, ':')) {
+      log_info( ":E: More than one : in range %s, denying access to %s\n",
+                spec, ip);
+      return DICT_DENY;
+   }
+   if (!*pt) {
+      log_info( ":E: Misformed range %s, denying access to %s\n", spec, ip);
+      return DICT_DENY;
+   }
+   
+   inet_aton(ip, &target);
+   inet_aton(tmp, &min);
+   inet_aton(pt, &max);
+   strcpy(tstring, inet_ntoa(target));
+   strcpy(minstring, inet_ntoa(min));
+   strcpy(maxstring, inet_ntoa(max));
+   if (ntohl(target.s_addr) >= ntohl(min.s_addr)
+       && ntohl(target.s_addr) <= ntohl(max.s_addr)) {
+      PRINTF(DBG_AUTH,("%s in range from %s to %s\n",
+                       tstring, minstring, maxstring));
+      return DICT_MATCH;
+   }
+   PRINTF(DBG_AUTH,("%s NOT in range from %s to %s\n",
+                    tstring, minstring, maxstring));
+   return DICT_NOMATCH;
+}
+
+static int daemon_check_wildcard(const char *spec, const char *ip)
+{
    char         regbuf[256];
    char         erbuf[100];
    int          err;
    const char   *s;
    char         *d;
    regex_t      re;
+
+   for (d = regbuf, s = spec; s && *s; ++s) {
+      switch (*s) {
+      case '*': *d++ = '.';  *d++ = '*'; break;
+      case '.': *d++ = '\\'; *d++ = '.'; break;
+      case '?': *d++ = '.';              break;
+      default:  *d++ = *s;               break;
+      }
+   }
+   *d = '\0';
+   if ((err = regcomp(&re, regbuf, REG_ICASE|REG_NOSUB))) {
+      regerror(err, &re, erbuf, sizeof(erbuf));
+      log_info( ":E: regcomp(%s): %s\n", regbuf, erbuf );
+      return DICT_DENY;	/* Err on the side of safety */
+   }
+   if (!regexec(&re, daemonHostname, 0, NULL, 0)
+       || !regexec(&re, daemonIP, 0, NULL, 0)) {
+      PRINTF(DBG_AUTH,
+             ("Match %s with %s/%s\n", spec, daemonHostname, daemonIP));
+      regfree(&re);
+      return DICT_MATCH;
+   }
+   regfree(&re);
+   PRINTF(DBG_AUTH,
+          ("No match (%s with %s/%s)\n", spec, daemonHostname, daemonIP));
+   return DICT_NOMATCH;
+}
+
+static int daemon_check_list( const char *user, lst_List acl )
+{
+   lst_Position p;
+   dictAccess   *a;
+   int          retcode;
 
    if (!acl) return DICT_ALLOW;
    for (p = lst_init_position(acl); p; p = lst_next_position(p)) {
@@ -191,35 +388,25 @@ static int daemon_check_list( const char *user, lst_List acl )
       case DICT_DENY:
       case DICT_ALLOW:
       case DICT_AUTHONLY:
-	 for (d = regbuf, s = a->spec; s && *s; ++s) {
-	    switch (*s) {
-	    case '*': *d++ = '.';  *d++ = '*'; break;
-	    case '.': *d++ = '\\'; *d++ = '.'; break;
-	    case '?': *d++ = '.';              break;
-	    default:  *d++ = *s;               break;
-	    }
-	 }
-	 *d = '\0';
-	 if ((err = regcomp(&re, regbuf, REG_ICASE|REG_NOSUB))) {
-	    regerror(err, &re, erbuf, sizeof(erbuf));
-	    log_info( ":E: regcomp(%s): %s\n", regbuf, erbuf );
-	    return DICT_DENY;	/* Err on the side of safety */
-	 }
-	 if (!regexec(&re, daemonHostname, 0, NULL, 0)
-	     || !regexec(&re, daemonIP, 0, NULL, 0)) {
-	    PRINTF(DBG_AUTH,
-		   ("Match %s with %s/%s\n",
-		    a->spec,daemonHostname,daemonIP));
-	    regfree(&re);
-	    return a->type;
-	 }
-	 regfree(&re);
-	 PRINTF(DBG_AUTH,
-		("No match (%s with %s/%s)\n",
-		 a->spec,daemonHostname,daemonIP));
+         if (strchr(a->spec, '/'))
+            retcode = daemon_check_mask(a->spec, daemonIP);
+         else if  (strchr(a->spec, ':'))
+            retcode = daemon_check_range(a->spec, daemonIP);
+         else
+            retcode = daemon_check_wildcard(a->spec, daemonIP);
+         switch (retcode) {
+         case DICT_DENY:
+            return DICT_DENY;
+         case DICT_MATCH:
+            if (a->type == DICT_DENY) {
+                daemon_log( DICT_LOG_AUTH, "spec %s denies %s/%s\n",
+                            a->spec, daemonHostname, daemonIP);
+            }
+            return a->type;
+         }
 	 break;
       case DICT_USER:
-	 if (!strcmp(user,a->spec)) return DICT_ALLOW;
+	 if (user && !strcmp(user,a->spec)) return DICT_ALLOW;
       case DICT_GROUP:		/* Groups are not yet implemented. */
 	 break;
       }
@@ -252,73 +439,6 @@ static int daemon_check_auth( const char *user )
    return 0;
 }
 
-static void daemon_log( int type, const char *format, ... )
-{
-   va_list ap;
-   char    buf[8*1024];
-   char    *buf2;
-   int     len;
-   char    *s, *d;
-   int     c;
-   char    marker = '?';
-
-   switch (type) {
-   case DICT_LOG_TERM:
-      if (!flg_test(LOG_STATS))    return; marker = 'I'; break;
-   case DICT_LOG_TRACE:
-      if (!flg_test(LOG_SERVER))   return; marker = 'I'; break;
-   case DICT_LOG_CLIENT:
-      if (!flg_test(LOG_CLIENT))   return; marker = 'C'; break;
-   case DICT_LOG_DEFINE:
-      if (!flg_test(LOG_FOUND))    return; marker = 'D'; break;
-   case DICT_LOG_MATCH:
-      if (!flg_test(LOG_FOUND))    return; marker = 'M'; break;
-   case DICT_LOG_NOMATCH:
-      if (!flg_test(LOG_NOTFOUND)) return; marker = 'N'; break;
-   case DICT_LOG_COMMAND:
-      if (!flg_test(LOG_COMMAND))  return; marker = 'T'; break;
-   }
-
-   if (dbg_test(DBG_PORT))
-      sprintf( buf, ":%c: %s:%d ", marker, daemonHostname, daemonPort );
-   else if (flg_test(LOG_HOST))
-      sprintf( buf, ":%c: %s ", marker, daemonHostname );
-   else
-      sprintf( buf, ":%c: ", marker );
-      
-   len = strlen( buf );
-   
-   va_start( ap, format );
-   vsprintf( buf+len, format, ap );
-   va_end( ap );
-   len = strlen( buf );
-
-   if (len > 2048) {
-      log_info( ":E: buffer overflow (%d)\n", len );
-      buf[2048] = '\0';
-      len = strlen(buf);
-   }
-
-   buf2 = alloca( 3*(len+3) );
-
-   for (s = buf, d = buf2; *s; s++) {
-      c = (unsigned char)*s;
-      if (c == '\t')      *d++ = ' ';
-      else if (c == '\n') *d++ = c;
-      else {
-	 if (c > 128)       { *d++ = 'M'; *d++ = '-';    c -= 128; }
-	 if (c < 32)        { *d++ = '^'; *d++ = c + 64;           }
-	 else if (c == 127) { *d++ = '^'; *d++ = '?';              }
-	 else                 *d++ = c;
-      }
-   }
-   *d = '\0';
-   log_info( "%s", buf2 );
-
-   if (d != buf2) d[-1] = '\0';	/* kill newline */
-   dict_setproctitle( "dictd %s", buf2 );
-}
-
 void daemon_terminate( int sig, const char *name )
 {
    alarm(0);
@@ -345,7 +465,7 @@ void daemon_terminate( int sig, const char *name )
                   dict_format_time( tim_get_user( "t" ) ),
                   dict_format_time( tim_get_system( "t" ) ) );
    }
-   
+   log_close();
    longjmp(env,1);
    if (sig) exit(sig+128);
    exit(0);
@@ -914,6 +1034,8 @@ static void daemon_auth( const char *cmdline, int argc, char **argv )
       daemon_printf( "%d syntax error, illegal parameters\n",
 		     CODE_ILLEGAL_PARAM );
    if (!h || !(secret = hsh_retrieve(h, argv[1]))) {
+      daemon_log( DICT_LOG_AUTH, "%s@%s/%s denied: no invalid username\n",
+                  argv[1], daemonHostname, daemonIP );
       daemon_printf( "%d auth denied\n", CODE_AUTH_DENIED );
       return;
    }
@@ -931,6 +1053,8 @@ static void daemon_auth( const char *cmdline, int argc, char **argv )
    PRINTF(DBG_AUTH,("Got %s expected %s\n", argv[2], hex ));
 
    if (strcmp(hex,argv[2])) {
+      daemon_log( DICT_LOG_AUTH, "%s@%s/%s denied: hash mismatch\n",
+                  argv[1], daemonHostname, daemonIP );
       daemon_printf( "%d auth denied\n", CODE_AUTH_DENIED );
    } else {
       daemon_printf( "%d authenticated\n", CODE_AUTH_OK );
@@ -1013,6 +1137,8 @@ int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0, int delay,
 
    tim_start( "t" );
    daemon_log( DICT_LOG_TRACE, "connected\n" );
+   daemon_log( DICT_LOG_CONNECT, "%s/%s connected on port %d\n",
+               daemonHostname, daemonIP, daemonPort );
    dict_setproctitle( "dictd: %s connected", daemonHostname );
 
    if (error) {
@@ -1022,6 +1148,8 @@ int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0, int delay,
    }
 
    if (daemon_check_auth( NULL )) {
+      daemon_log( DICT_LOG_AUTH, "%s/%s denied: ip/hostname rules\n",
+                  daemonHostname, daemonIP );
       daemon_printf( "%d access denied\n", CODE_ACCESS_DENIED );
       daemon_terminate( 0, "access denied" );
    }

@@ -1,15 +1,31 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@dict.org
- * Revised: Wed Nov  8 05:57:21 2000 by faith@dict.org
- * Copyright 1997-2000 Rickard E. Faith (faith@dict.org)
- * This program comes with ABSOLUTELY NO WARRANTY.
+ * Revised: Tue Apr 23 09:14:43 2002 by faith@dict.org
+ * Copyright 1997-2000, 2002 Rickard E. Faith (faith@dict.org)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 1, or (at your option) any
+ * later version.
  * 
- * $Id: dictd.c,v 1.42 2000/11/08 11:00:45 faith Exp $
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 675 Mass Ave, Cambridge, MA 02139, USA.
+ * 
+ * $Id: dictd.c,v 1.43 2002/05/03 14:12:22 faith Exp $
  * 
  */
 
 #include "dictd.h"
 #include "servparse.h"
+#include <grp.h>                /* initgroups */
+#include <pwd.h>                /* getpwuid */
+#include <locale.h>             /* setlocale */
 
 #define MAXPROCTITLE 2048       /* Maximum amount of proc title we'll use. */
 #undef MIN
@@ -97,7 +113,7 @@ const char *dict_format_time( double t )
 
 static void reaper( int dummy )
 {
-#if defined(__osf__) || (defined(__sparc__) && defined(__svr4__))
+#if defined(__osf__) || (defined(__sparc) && defined(__SVR4))
    int        status;
 #else
    union wait status;
@@ -382,7 +398,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.42 2000/11/08 11:00:45 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.43 2002/05/03 14:12:22 faith Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -405,9 +421,8 @@ const char *dict_get_banner( int shortFlag )
 
 static void banner( void )
 {
-   fprintf( stderr, "%s\n", dict_get_banner(0) );
-   fprintf( stderr,
-	    "Copyright 1997, 1998 Rickard E. Faith (faith@cs.unc.edu)\n" );
+   printf( "%s\n", dict_get_banner(0) );
+   printf( "Copyright 1997-2002 Rickard E. Faith (faith@dict.org)\n" );
 }
 
 static void license( void )
@@ -431,7 +446,7 @@ static void license( void )
    const char        **p = license_msg;
    
    banner();
-   while (*p) fprintf( stderr, "   %s\n", *p++ );
+   while (*p) printf( "   %s\n", *p++ );
 }
     
 static void help( void )
@@ -450,6 +465,7 @@ static void help( void )
       "-s --syslog           log via syslog(3)",
       "-L --logfile <file>   log via specified file",
       "-m --mark <minutes>   how often should a timestamp be logged",
+      "   --facility <fac>   set syslog logging facility",
       "-d --debug <option>   select debug option",
       "-t --test <word>      self test -- lookup word",
       "   --ftest <file>     self test -- lookup all words in file",
@@ -458,7 +474,7 @@ static void help( void )
    const char        **p = help_msg;
 
    banner();
-   while (*p) fprintf( stderr, "%s\n", *p++ );
+   while (*p) printf( "%s\n", *p++ );
 }
 
 static void set_minimal( void )
@@ -467,6 +483,7 @@ static void set_minimal( void )
    flg_set(flg_name(LOG_NOTFOUND));
    flg_set(flg_name(LOG_STATS));
    flg_set(flg_name(LOG_CLIENT));
+   flg_set(flg_name(LOG_AUTH));
    flg_set("-min");
 }
 
@@ -474,15 +491,75 @@ static void release_root_privileges( void )
 /* At the spring 1999 Linux Expo in Raleigh, Rik Faith told me that he
  * did not want dictd to be allowed to run as root for any reason.
  * This patch irrevocably releases root privileges.  -- Kirk Hilliard
+ *
+ * Updated to set the user to `dictd' if that user exists on the
+ * system; if user dictd doesn't exist, it sets the user to `nobody'.
+ * -- Bob Hilliard
  */
 {
    if (geteuid() == 0) {
-      setgid(GID_NOGROUP);
-      initgroups("nobody", GID_NOGROUP);
-      setuid(UID_NOBODY);
+      struct passwd *pwd;
+      if ((pwd = getpwnam("dictd"))) {
+         setgid(pwd->pw_gid);
+         initgroups("dictd",pwd->pw_gid);
+         setuid(pwd->pw_uid);
+      } else if ((pwd = getpwnam("nobody"))) {
+         setgid(pwd->pw_gid);
+         initgroups("nobody",pwd->pw_gid);
+         setuid(pwd->pw_uid);
+      } else {
+         setgid(GID_NOGROUP);
+         initgroups("nobody", GID_NOGROUP);
+         setuid(UID_NOBODY);
+      }
    }
 }
 
+/* Perform sanity checks that are often problems for people trying to
+ * get dictd running.  Do this early, before we detach from the
+ * console. */
+static void sanity(const char *configFile)
+{
+   int           fail = 0;
+   struct passwd *pw = getpwuid(geteuid());
+   struct group  *gr = getgrgid(getegid());
+    
+   if (access(configFile,R_OK)) {
+      log_info(":E: %s is not readable (config file)\n", configFile);
+      ++fail;
+   }
+   if (!DictConfig->dbl) {
+      log_info(":E: no databases have been defined\n");
+      log_info(":E: check %s or use -c\n", configFile);
+      ++fail;
+   }
+   if (DictConfig->dbl) {
+      lst_Position p;
+      dictDatabase *e;
+      LST_ITERATE(DictConfig->dbl, p, e) {
+           if (access(e->indexFilename, R_OK)) {
+              log_info(":E: %s is not readable (index file)\n",
+                       e->indexFilename);
+              ++fail;
+           }
+           if (access(e->dataFilename, R_OK)) {
+              log_info(":E: %s is not readable (data file)\n",
+                       e->dataFilename);
+              ++fail;
+           }
+       }
+   }
+   if (fail) {
+      log_info(":E: for security, this program will not run as root.\n");
+      log_info(":E: if started as root, this program will change"
+               " to \"dictd\" or \"nobody\".\n");
+      log_info(":E: currently running as user %d/%s, group %d/%s\n",
+               geteuid(), pw && pw->pw_name ? pw->pw_name : "?",
+               getegid(), gr && gr->gr_name ? gr->gr_name : "?");
+      log_info(":E: config and db files must be readable by that user\n");
+      err_fatal(__FUNCTION__, ":E: terminating due to errors\n");
+   }
+}
 int main( int argc, char **argv, char **envp )
 {
    int                childSocket;
@@ -502,6 +579,7 @@ int main( int argc, char **argv, char **envp )
    int                useSyslog    = 0;
    int                logOptions   = 0;
    int                forceStartup = 0;
+   const char         *locale      = "C";
    struct option      longopts[]  = {
       { "verbose",  0, 0, 'v' },
       { "version",  0, 0, 'V' },
@@ -513,12 +591,15 @@ int main( int argc, char **argv, char **envp )
       { "test",     1, 0, 't' },
       { "ftest",    1, 0, 501 },
       { "log",      1, 0, 'l' },
+      { "logfile",  1, 0, 'L' },
       { "syslog",   0, 0, 's' },
       { "mark",     1, 0, 'm' },
       { "delay",    1, 0, 502 },
       { "depth",    1, 0, 503 },
       { "limit",    1, 0, 504 },
+      { "facility", 1, 0, 505 },
       { "force",    1, 0, 'f' },
+      { "locale",   1, 0, 506 },
       { 0,          0, 0,  0  }
    };
 
@@ -535,6 +616,7 @@ int main( int argc, char **argv, char **envp )
    flg_register( LOG_HOST,      "host" );
    flg_register( LOG_TIMESTAMP, "timestamp" );
    flg_register( LOG_MIN,       "min" );
+   flg_register( LOG_AUTH,      "auth" );
 
    dbg_register( DBG_VERBOSE,  "verbose" );
    dbg_register( DBG_UNZIP,    "unzip" );
@@ -574,8 +656,9 @@ int main( int argc, char **argv, char **envp )
       case 502: delay = atoi(optarg);                     break;
       case 503: depth = atoi(optarg);                     break;
       case 504: _dict_daemon_limit = atoi(optarg);        break;
+      case 505: ++useSyslog; log_set_facility(optarg);    break;
       case 'h':
-      default:  help(); exit(1);                          break;
+      default:  help(); exit(0);                          break;
       }
 
    if (dbg_test(DBG_NOFORK))    dbg_set_flag( DBG_NODETACH);
@@ -583,11 +666,28 @@ int main( int argc, char **argv, char **envp )
    if (dbg_test(DBG_PARSE))     prs_set_debug(1);
    if (dbg_test(DBG_SCAN))      yy_flex_debug = 1;
    else                         yy_flex_debug = 0;
+   if (flg_test(LOG_TIMESTAMP)) log_option( LOG_OPTION_FULL );
+   else                         log_option( LOG_OPTION_NO_FULL );
+
+   setlocale(LC_ALL, locale);
+
+   time(&startTime);
+   tim_start( "dictd" );
+   alarm(_dict_markTime);
 
    DictConfig = xmalloc(sizeof(struct dictConfig));
    memset( DictConfig, 0, sizeof( struct dictConfig ) );
    if (!access(configFile,R_OK)) prs_file_nocpp( configFile );
 
+
+                                /* Open up logs for sanity check */
+   if (logFile)   log_file( "dictd", logFile );
+   if (useSyslog) log_syslog( "dictd" );
+   log_stream( "dictd", stderr );
+   sanity(configFile);
+   log_close();
+
+   
    if (testWord) {		/* stand-alone test mode */
       lst_List list = lst_create();
 
@@ -658,24 +758,17 @@ int main( int argc, char **argv, char **envp )
 
    if (detach) net_detach();
 
-   masterSocket = net_open_tcp( service, depth );
-   
-   if (flg_test(LOG_TIMESTAMP)) log_option( LOG_OPTION_FULL );
-   else                         log_option( LOG_OPTION_NO_FULL );
-   
+                                /* Re-open logs for logging */
    if (logFile)   log_file( "dictd", logFile );
-   if (useSyslog) log_syslog( "dictd", 0 );
+   if (useSyslog) log_syslog( "dictd" );
    if (!detach)   log_stream( "dictd", stderr );
-
    if ((logFile || useSyslog || !detach) && !logOptions) set_minimal();
-
-   time(&startTime);
-   tim_start( "dictd" );
-   alarm(_dict_markTime);
 
    log_info(":I: %d starting %s %24.24s\n",
 	    getpid(), dict_get_banner(0), ctime(&startTime));
 
+   masterSocket = net_open_tcp( service, depth );
+   
    if (dbg_test(DBG_VERBOSE)) dict_config_print( NULL, DictConfig );
    dict_init_databases( DictConfig );
 
@@ -708,13 +801,11 @@ int main( int argc, char **argv, char **envp )
 
       if (_dict_daemon || dbg_test(DBG_NOFORK)) {
 	 dict_daemon(childSocket,&csin,&argv,delay,0);
-	 close(childSocket);
       } else {
 	 if (_dict_forks - _dict_reaps < _dict_daemon_limit) {
 	    if (!start_daemon()) { /* child */
 	       alarm(0);
 	       dict_daemon(childSocket,&csin,&argv,delay,0);
-	       close(childSocket);
 	       exit(0);
 	    } else {		   /* parent */
 	       close(childSocket);

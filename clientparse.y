@@ -1,7 +1,7 @@
 /* clientparse.y -- 
  * Created: Fri Jul 11 11:34:05 1997 by faith@acm.org
- * Revised: Sun Jan 18 10:26:29 1998 by faith@acm.org
- * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
+ * Revised: Sun Oct 14 05:42:03 2001 by faith@acm.org
+ * Copyright 1997, 1998, 2001 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: clientparse.y,v 1.2 1998/01/19 03:37:13 faith Exp $
+ * $Id: clientparse.y,v 1.3 2002/05/03 14:12:22 faith Exp $
  * 
  */
 
@@ -44,6 +44,7 @@ static dictServer *s;
 %%
 
 Options : ServerList
+        | ServerList Pager
         | Pager ServerList
         | Pager
         ;

@@ -1,3 +1,19 @@
+New in alpha3.8:  Bug fix for signed/unsigned mixup, found and fixed
+by the FreeBSD folks.
+
+New in alpha3.7:  A bit of cleanup aimed at maximizing portability,
+possibly at slight cost in efficiency.  "ul" suffixes and "unsigned long"
+no longer appear, in particular.
+
+New in alpha3.6:  A couple more portability glitches fixed.
+
+New in alpha3.5:  Active development of this code has been stopped --
+I'm working on a complete reimplementation -- but folks have found some
+minor portability glitches and the like, hence this release to fix them.
+One penalty:  slightly reduced compatibility with old compilers, because
+the ANSI C `unsigned long' type and `ul' constant suffix are used in a
+few places (I could avoid this but it would be considerably more work).
+
 New in alpha3.4:  The complex bug alluded to below has been fixed (in a
 slightly kludgey temporary way that may hurt efficiency a bit; this is
 another "get it out the door for 4.4" release).  The tests at the end of

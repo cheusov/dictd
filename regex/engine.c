@@ -613,6 +613,7 @@ sopno lev;			/* PLUS nesting level */
 	/* "can't happen" */
 	assert(nope);
 	/* NOTREACHED */
+	return((char *)NULL);	/* dummy */
 }
 
 /*
@@ -821,7 +822,7 @@ register states aft;		/* states already known reachable after */
 	register sopno pc;
 	register onestate here;		/* note, macros know this name */
 	register sopno look;
-	register int i;
+	register long i;
 
 	for (pc = start, INIT(here, pc); pc != stop; pc++, INC(here)) {
 		s = g->strip[pc];

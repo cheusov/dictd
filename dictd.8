@@ -1,7 +1,7 @@
 .\" dictd.8 -- 
-.\" Created: Mon Mar 10 16:10:03 1997 by faith@cs.unc.edu
-.\" Revised: Sun Jul  5 19:53:36 1998 by faith@acm.org
-.\" Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
+.\" Created: Mon Mar 10 16:10:03 1997 by faith@dict.org
+." Revised: Tue Apr 23 09:14:42 2002 by faith@dict.org
+.\" Copyright 1997, 1998, 2002 Rickard E. Faith (faith@dict.org)
 .\" 
 .\" Permission is granted to make and distribute verbatim copies of this
 .\" manual provided the copyright notice and this permission notice are
@@ -23,7 +23,7 @@
 .\" Formatted or processed versions of this manual, if unaccompanied by
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" 
-.TH DICTD 8 "15 February 1998" "" ""
+.TH DICTD 8 "29 March 2002" "" ""
 .SH "NAME"
 dictd - a dictionary database server
 .SH "SYNOPSIS"
@@ -36,13 +36,22 @@ is a server for the Dictionary Server Protocol (DICT), a TCP transaction
 based query/response protocol that allows a client to access dictionary
 definitions from a set of natural language dictionary databases.
 .P
+For security reasons, dictd drops root permissions after startup.  If
+user
+.B dictd
+exists on the system, the daemon will run as that user, group
+.BR dictd ", otherwise it will run as user 
+.BR nobody ", group" 
+.BR nobody " or " nogroup
+(depending on the operating system distribution).
+.P
 Since startup time is significant, the server is designed to run
 continuously, and should
 .I not
 be run from
 .BR inetd (8).
 .P
-Databases are distributed seperately from the server.
+Databases are distributed separately from the server.
 .SH "BACKGROUND"
 For many years, the Internet community has relied on the "webster" protocol
 for access to natural language definitions.  The webster protocol supports
@@ -81,11 +90,11 @@ is a server that implements the DICT protocol.  Bret Martin implemented
 another server, and several people (including Bret and myself) have
 implemented clients in a variety of languages.
 .SH "OPTIONS"
-.TP 2
+.TP
 .BR \-V " or " \-\-version
 Display version information.
 .TP
-.BR \-L " or " \-\-license
+.B \-\-license
 Display copyright and license information.
 .TP
 .BR \-h " or " \-\-help
@@ -101,7 +110,7 @@ but may be changed in the
 .I dictd.h
 file at compile time (DICT_CONFIG_FILE).
 .TP
-.BI \-\-port " service"
+.BI \-p " service\fR or " \-\-port " service"
 Specifies the port (e.g., 2628) or service (e.g., dict) for connections.
 The default is 2628, as specified in the DICT Protocol RFC, but may be
 changed in the
@@ -128,6 +137,26 @@ RFC.  The default is 600 seconds (10 minutes), but may be changed in the
 .I dictd.h
 file at compile time (DICT_DEFAULT_DELAY).
 .TP
+.B \-\-facility " facility"
+Specifies the syslog facility to use.  The use of this option implies the
+.B \-s
+option to turn on logging via syslog.  When the operating system
+libraries support SYSLOG_NAMES, the names used for this option should be
+those listed in
+.BR syslog.conf (5).
+Otherwise, the following names are used (assuming the particular
+facility is defined in the header files): auth, authpriv, cron, daemon,
+ftp, kern, lpr, mail, news, syslog, user, uucp, local0, local1, local2,
+local3, local4, local5, local6, and local7.
+.TP
+.BR \-f " or " \-\-force
+Force the daemon to start even if an instance of the daemon is already
+running.  (This is of little value unless a non-default port is
+specified with
+.BR \-p ,
+since, if one instance is bound to a port, the second one fails when it
+can not bind to the port.)
+.TP
 .BI \-\-limit " children"
 Specifies the number of daemons that may be running simultaneously.  Each
 daemon services a single connection.  If the limit is exceeded, a
@@ -140,14 +169,37 @@ the
 .I dictd.h
 file at compile time (DICT_DAEMON_LIMIT).
 .TP
+.BI \-\-locale " locale"
+Specifies the locale used for searching.  If no locale is specified, the
+"C" locale is used.  The locale used for the server should be the same
+as that used for dictfmt when the database was built (specifically, the
+locale under which the index was sorted).  This is a temporary kludge to
+allow support of non-ASCII7 databases until full UTF-8 support is
+added.  Note that if your database is not in ASCII7 or UTF-8 format,
+then the dictd server will not be compliant to RFC 2229.  However, for
+many uses, this is sufficient until full UTF-8 support can be added.
+.TP
 .BI \-l " option\fR or " \-\-log " option"
-Specify a logging option.  Some of the more verbose options are used
-primarily for debugging the server code, and are not practical for normal
-use.
+Specify a logging option.  This is effective only if logging has been
+enabled with the
+.BR \-s " or " \-L
+option, or logging to the console has been activated with a debugging
+option (e.g.,
+.BR "\-\-debug nodetach" .
+Only one option may be set with each invocation of this option; however,
+multiple invocations of this option may be made in one dictd command
+line.  For instance:
+.br
+dictd -s --log stats --log found --log notfound
+.br
+is a valid command line, and sets three logging options.
 .RS
+.P
+Some of the more verbose logging options are used primarily for
+debugging the server code, and are not practical for normal use.
 .TP
 .B server
-Log server diagnostics.  This is extrememly verbose.
+Log server diagnostics.  This is extremely verbose.
 .TP
 .B connect
 Log all connections.
@@ -155,8 +207,8 @@ Log all connections.
 .B stats
 Log all children terminations.
 .TP
-.B commands
-Log all commands.  This is extrememly verbose.
+.B command
+Log all commands.  This is extremely verbose.
 .TP
 .B client
 Log results of CLIENT command.
@@ -174,10 +226,14 @@ produce.  Otherwise, no timestamp is made, making the files shorter.
 .B host
 Log name of foreign host.
 .TP
+.B auth
+Log authentication failures.
+.TP
 .B min
 Set a minimal number of options.  If logging is activated (to a file, or
 via syslog), and no options are set, then the minimal set of options will
-be used.
+be used.  If options are set, then only those options specified will be
+used.
 .TP
 .B all
 Set all of the options.
@@ -204,11 +260,15 @@ Definitions found in the databases searched.
 .TP
 .B M
 Matches found in the database searched.
-.PT
+.TP
 .B N
 Matches which were not found in the databases searched.
+.TP
 .B T
 Trace of exact line sent by client.
+.TP
+.B A
+Authentication information.
 .P
 To preserve anonymity of the client, do
 .I not
@@ -226,8 +286,22 @@ Log using the
 .BR syslog (3)
 facility.
 .TP
-.BI \-L " file"
-Specify the file for logging.
+.BI \-L " file\fR or " \-\-logfile " file"
+Specify the file for logging.  The filename specified is recomputed on
+each use using the
+.BR strftime (3)
+call.  For example, a filename ending in ".%Y%m%d" will write to log
+files ending in the year, month, and date that the log entry was
+written.
+.B NOTE:
+If
+.B dictd
+does not have write permission for this file, it will silently fail.
+.TP
+.BI \-m  " minutes \fR or "\-\-mark " minutes"
+How often a timestamp should be logged.  (This is effective only if
+logging has been enabled with the \-s or \-L option, or with a debugging
+option.)
 .TP
 .BI \-d " option"
 Activate a debugging option.  There are several, all of which are only
@@ -265,7 +339,7 @@ Debug the authorization routines.
 .TP
 .B nodetach
 Do not detach as a background process.  Implies that a copy of the log
-file will appear on the standard outout.
+file will appear on the standard output.
 .TP
 .B nofork
 Do not fork daemons to service requests.  Be a single-threaded server.
@@ -281,6 +355,8 @@ in
 .IR index.c .
 .RE
 .SH "CONFIGURATION FILE"
+.TP
+.B Introduction
 The configuration file defaults to
 .IR /etc/dictd.conf ,
 but can be specified on the command line with the
@@ -288,35 +364,101 @@ but can be specified on the command line with the
 option (see above).  The configuration file has four distinct sections.
 At this time, each section must appear in the specified order, although
 only the Database section is required.
+.RS
+.P
+The file is divided up into different sections.  The Site Section should
+come first, followed by the Access Section, the Database Section, and
+the User Section.  Sections are optional, but they should be in the
+order listed here.
+.RE
 .TP
 .B Syntax
 The following keywords are valid in a configuration file: access, allow,
 deny, group, database, data, index, filter, prefilter, postfilter, name,
-user, authonly, site.  Keywords are case sensitive.  String arguments that
-contain spaces should be surrounded by double quotes.  Without quoting,
-strings may contain alphanumeric characters and _, -, ., and *, but not
-spaces.  Strings must be on a single line and cannot be continued between
-lines.  Comments start with # and extend to the end of the line.
+include, user, authonly, site.  Keywords are case sensitive.  String
+arguments that contain spaces should be surrounded by double quotes.
+Without quoting, strings may contain alphanumeric characters and _, -,
+., and *, but not spaces.  Strings must be on a single line and cannot
+be continued between lines.  Comments start with # and extend to the end
+of the line.
+.TP
+.B Site Section
+.RS
+.TP
+.BI site " string"
+Used to specify the filename for the site information file, a flat text
+file which will be displayed in response to the SHOW SERVER command.  This
+section, if present, must be first.
+.RE
+.TP
+.B Access Section
+.RS
+.TP
+.BI "access {" " access specification " "}"
+This section, the second if the Site Section is present, contains access
+restrictions for the server and all of the databases collectively.
+Per-database control is specified in the Database Section.
+.RE
+.TP
+.B Database Section
+.RS
+.TP
+.BI database " string " "{ " "database specification " "}"
+This section is required.  The string specifies the name of the database
+(e.g., wn or web1913).
+.B NOTE:
+If the files specified in the database specification do not exist on the
+system, dictd may silently fail.
+.RE
+.TP
+.B User Section
+.RS
+.TP
+.BI user " string" " string"
+The first string specifies the username, and the second string specifies
+the shared secret for this username.  When the AUTH command is used, the
+client will provide the username and a hashed version of the shared
+secret.  If the shared secret matches, the user is said to have
+authenticated, and will have access to databases whose access
+specifications allow that user (by name, or by wildcard).  If present, this
+section must appear last in the configuration file.  There may be many user
+entries.  The shared secret should be kept secret, as anyone who has access
+to it can access the shared databases (assuming access is not denied by
+domain name).
+.RE
 .TP
 .B Access Specification
+.RS
 Access specifications may occur in the Access Section or in the Database
 Section.  The access specification will be described here.
 .P
-.RS
 For allow, deny, and authonly, a star (*) may be used as a wild card that
 matches any number of characters.  A question mark (?) may be used as a
 wildcard that matches a single character.  For example, 10.0.0.* and *.edu
 are valid strings.
 .P
+Further, a range of IP addresses and an IP address followed by a netmask
+may be specified.  For example, 10.0.0.0:10.0.0.255, 10.0.0.0/24, and
+10.0.0.* all specify the same range of IP numbers.  Notation cannot be
+combined on the same line.  If the notation does not make sense, access
+will be denied by default.  Use the
+.I "--debug auth"
+option to debug related problems.
+.P
+Note that these specifications take only one string per specification
+line.  However, you can have multiple lines of each type.
+.P
 The syntax is as follows:
-.RS
 .TP
 .BI allow " string"
-The string specifies a domain name or IP address which is allows access the
-server (in the Access Section) or to a database (in the Database Section).
+The string specifies a domain name or IP address which is allowed access
+to the server (in the Access Section) or to a database (in the Database
+Section).  Note that more than one string is not permitted for a single
+"allow" line, but more than one "allow" lines are permitted in the
+configuration file.
 .TP
 .BI deny " string"
-The string specifies a domain name or IP address which is denies access to
+The string specifies a domain name or IP address which is denied access to
 the server (in the Access Section) or to a database (in the Database
 Section).  Note that if reverse DNS is not working, then only the IP number
 will be checked.  Therefore, it is essential to deny networks based on IP
@@ -329,27 +471,15 @@ any of the databases.  All commands are valid except DEFINE, MATCH, and
 SHOW DB.  More specifically AUTH is a valid command, and commands which
 access the databases are not allowed.
 .TP
-.BI user "string"
+.BI user " string"
 This form is only useful in the Database Section.  The string specifies a
 username that is allowed to access this database after a successful AUTH
 command is executed.
 .RE
-.RE
 .TP
-.BI site " string"
-Used to specify the filename for the site information file, a flat text
-file which will be displayed in response to the SHOW SERVER command.  This
-section, if present, must be first.
-.TP
-.BI "access {" " access specification " "}"
-This section, the second if the Site Section is present, contiains access
-restrictions for the server and all of the databases collectively.
-Per-database control is specified in the Database Section
-.TP
-.BI database " string " "{ " "database specification " "}"
-This section is required.  The string specifies the name of the database
-(e.g., wn or web1913).  The database specification describes the database:
+.B Database Specification
 .RS
+The database specification describes the database:
 .TP
 .BI data " string"
 Specifies the filename for the flat text database.
@@ -381,26 +511,10 @@ This is not currently implemented.
 .BI name " string"
 Specifies the short name of the database (e.g., "1913 Webster's").  If the
 string begins with @, then it specifies the headword to look up in the
-dictionary to fine the short name of the database.  The default is
+dictionary to find the short name of the database.  The default is
 "@00-database-short", but this may be changed in the
-.TP
-.BI "access {" " access specification " "}"
-Used to restrict access to this particular database.
 .I dictd.h
 file at compile time (DICT_SHORT_ENTRY_NAME).
-.RE
-.TP
-.BI user " string" " string"
-The first string specifies the username, and the second string specifies
-the shared secret for this username.  When the AUTH command is used, the
-client will provide the username and a hashed version of the shared
-secret.  If the shared secret matches, the user is said to have
-authenticated, and will have access to databases whose access
-specifications allow that user (by name, or by wildcard).  If present, this
-section must appear last in the configuration file.  There may be many user
-entries.  The shared secret should be kept secret, as anyone who has access
-to it can access the shared databases (assuming access is not denied by
-domain name).
 .SH "DETERMINATION OF ACCESS LEVEL"
 When a client connects, the global access specification is scanned, in
 order, until a specification matches.  If no access specification exists,
@@ -409,7 +523,9 @@ only item in the specification).  For each item, both the hostname and IP
 are checked. For example, consider the following access specification:
 .RS
 allow 10.42.*
+.br
 authonly *.edu
+.br
 deny *
 .RE
 With this specification, all clients in the 10.42 network will be allowed
@@ -423,12 +539,15 @@ restricted or unrestricted.
 .P
 When the AUTH command is sent, the access list for each database is
 scanned, in order, just as the global access list is scanned.  However,
-after authentication, the client has an assocciated username.  For example,
+after authentication, the client has an associated username.  For example,
 consider the following access specification:
 .RS
 user u1
+.br
 deny *.com
+.br
 user u2
+.br
 allow *
 .RE
 If the client authenticated as u1, then the client will have access to this
@@ -478,7 +597,7 @@ These regular expressions allow predefined character classes (e.g.,
 [[:alnum:]], [[:alpha:]], [[:digit:]], and [[:xdigit:]] are useful for this
 application); uses * to match a sequence 0 or more matches of the previous
 atom; uses + to match a sequence of 1 or more matches of the previous atom;
-uses ? to match a sequence of 0 or 1 matches of the prevous atom; used ^ to
+uses ? to match a sequence of 0 or 1 matches of the previous atom; used ^ to
 match the beginning of a word, uses $ to match the end of a word, and
 allows nested subexpression and alternation with () and |.  For example,
 "(foo|bar)" matches all words that contain either "foo" or "bar".  To match
@@ -523,7 +642,7 @@ The Levenshtein algorithm (string edit distance of one).  This algorithm
 searches for all words which are within an edit distance of one from the
 target word.  An "edit" means an insertion, deletion, or transposition.
 This is a rapid algorithm for correcting spelling errors, since many
-spelling errors are within a Levenshtein distance of one from the oroginal
+spelling errors are within a Levenshtein distance of one from the original
 word.
 .SH "DATABASE FORMAT"
 Databases for
@@ -536,7 +655,7 @@ data), and the index contains tab-delimited tuples consisting of the
 headword, the byte offset at which this entry begins in the flat text file,
 and the length of the entry in bytes.  The offset and length are encoded
 using base 64 encoding using the 64-character subset of International
-Alphabet IA5 discussed in RFC 1421 (printeable encoding) and RFC 1522
+Alphabet IA5 discussed in RFC 1421 (printable encoding) and RFC 1522
 (base64 MIME).  Encoding the offsets in base 64 saves considerable space
 when compared with the usual base 10 encoding, while still permitting tab
 characters (ASCII 9) to be used for delimiting fields in a record.  Each
@@ -576,31 +695,47 @@ will destroy the random access characteristics of the file.  Always
 compress data files using
 .BR dictzip (1).)
 .SH "ACKNOWLEDGEMENTS"
-Special thanks to Jean-loup Gailly and Mark Adler for writing the zlib
+Special thanks to Jean-loup Gailly and Mark Adler for writing the
+.B zlib
 general purpose data compression library.  The version contained with
 .B dictd
 is not necessarily an original version and
-.BR "may have been modified" ,
-although any modifications are probably trivial.  The key features of the
+.B may have been modified
+(unnecessary files may have been deleted to make the distribution
+smaller; makefiles may have been modified to ease compilation; see
+zlib/README.DICT for any significant changes).  For more information on
+.BR zlib ,
+please see the
+.B zlib
+home page at
+.RS
+.I http://www.gzip.org/zlib/
+.RE
+.P
+The key features of the
 .B dictzip
 random-access compression algorithm utilize a documented extension of the
-gzip format, and do not require any modifications to zlib.  For more
-information on zlib, please see the zlib home page at
-.IR http://quest.jpl.nasa.gov/zlib/ .
+gzip format, and do not require any modifications to
+.BR zlib .
 .P
 Special thanks to Henry Spencer for his regex package.  The package
 contained with
 .B dictd
 is not necessarily an original version and
-.B may have been modified.
-For more information on regex, please see
-.IR ftp://zoo.toronto.edu/pub/regex.shar .
+.B may have been modified
+(unnecessary files may have been deleted to make the distribution
+smaller; makefiles may have been modified to ease compilation; see
+regex/README.DICT for any significant changes).  For more information on
+regex, please see
+.RS
+.I ftp://zoo.toronto.edu/pub/regex.shar
+.RE
 .SH "COPYING"
 The main source files for the
 .B dictd
 server and the
 .B dictzip
-compression program were written by Rik Faith (faith@cs.unc.edu) and are
+compression program were written by Rik Faith (faith@dict) and are
 distributed under the terms of the GNU General Public License.  If you need
 to distribute under other terms, write to the author.
 .P
@@ -622,7 +757,7 @@ so databases cannot be added or deleted on the fly.
 .SH "FILES"
 .I /etc/dictd.conf
 .br
-.I /usr/lib/dictd
+.I /usr/sbin/dictd
 .SH "SEE ALSO"
 .BR dict (1),
 .BR dictzip (1),

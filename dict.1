@@ -1,7 +1,7 @@
 .\" dict.1 -- 
 .\" Created: Tue Jul  8 11:36:19 1997 by faith@acm.org
-." Revised: Wed Dec 22 05:37:23 1999 by faith@acm.org
-.\" Copyright 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
+." Revised: Fri Mar 29 14:51:59 2002 by faith@acm.org
+.\" Copyright 1997, 1998, 1999, 2002 Rickard E. Faith (faith@acm.org)
 .\" 
 .\" Permission is granted to make and distribute verbatim copies of this
 .\" manual provided the copyright notice and this permission notice are
@@ -130,11 +130,6 @@ Be very verbose: show the raw client/server interaction.
 .BI \-P " program\fR or " \-\-pager " program"
 Specify program to use as pager. Use "-" for none.
 .TP
-.B \-\-html
-(This option has been disabled pending a rewrite of the code.)
-Generate HTML tags in the output.  The HTML generated is not very
-useful.  Support for this option needs to be rewritten.
-.TP
 .B \-\-pipesize
 Specify the buffer size for pipelineing commands.  The default is 256,
 which should be sufficient for general tasks and be below the MTU for most
@@ -240,9 +235,6 @@ violates the RFC, and will be corrected in a future release.
 If a
 .B dict:
 URL contains a shared secret, it will not be parsed correctly.
-.P
-HTML mode isn't as useful as it could be.  This will be improved in a
-future release.
 .SH FILES
 .I ~/.dictrc
 .br

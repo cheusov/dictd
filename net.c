@@ -1,7 +1,7 @@
 /* net.c -- 
  * Created: Fri Feb 21 20:58:10 1997 by faith@dict.org
- * Revised: Fri Dec 22 06:05:15 2000 by faith@dict.org
- * Copyright 1997, 1998, 1999, 2000 Rickard E. Faith (faith@dict.org)
+ * Revised: Sat Mar 30 10:31:44 2002 by faith@dict.org
+ * Copyright 1997, 1998, 1999, 2000, 2002 Rickard E. Faith (faith@dict.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: net.c,v 1.20 2000/12/22 14:15:25 faith Exp $
+ * $Id: net.c,v 1.21 2002/05/03 14:12:22 faith Exp $
  * 
  */
 
@@ -26,6 +26,7 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+#include <sys/termios.h>
 
 #if HAVE_SYS_PARAM_H
 # include <sys/param.h>

@@ -1,7 +1,7 @@
 /* servscan.l -- Scanner for dictd server configuration file
  * Created: Fri Feb 28 08:23:03 1997 by faith@cs.unc.edu
- * Revised: Wed Nov  8 05:57:22 2000 by faith@acm.org
- * Copyright 1997, 1999, 2000 Rickard E. Faith (faith@acm.org)
+ * Revised: Fri Mar 29 12:42:57 2002 by faith@acm.org
+ * Copyright 1997, 1999, 2000, 2002 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servscan.l,v 1.10 2000/11/08 11:00:45 faith Exp $
+ * $Id: servscan.l,v 1.11 2002/05/03 14:12:22 faith Exp $
  * 
  */
 
@@ -39,7 +39,7 @@ src_Type orig_source = NULL;
 %}
 %s OTHER
 comment                     #.*
-word                        ([[:alpha:]_/\-\.\*][[:alnum:]_/\-\.\*]*)
+word                        ([[:alnum:]_/\-\.\*][[:alnum:]_/\-\.\*]*)
 string                      \"(([^\"\n])|\"\")*\"
 badstring                   \"(([^\"\n])|\"\")*
 NL                          \n

@@ -25,6 +25,9 @@ INSTALLATION
     remove the line that sets the PATH.  The dict client has been tested
     under Cygwin+Win98, but the dictd server has not.]
 
+    NOTE: If you use an old version of flex, you may get errors.  Try
+    upgrading flex.
+
 3.  Install the client, server, and manual pages:
 
         make install
