@@ -188,8 +188,6 @@ typedef struct dictIndex {
    int    flag_8bit;         /* not zero if it has 00-database-8bit entry*/
    int    flag_allchars;     /* not zero if it has 00-database-allchars entry*/
 
-   dictPlugin    *plugin;
-
    const int     *isspacealnum;
 } dictIndex;
 
@@ -214,12 +212,20 @@ typedef struct dictDatabase {
 
    lst_List   *virtual_db_list;
 
-   int exit;         /* non-zero for dictionary_exit entry */
    int invisible;    /* non-zero for invisible databases */
-   int virtual_db;   /* non-zero for virtual databases */
 
-   /* database_virtual members*/
-   char *database_list;  /* comma-separated list of database names */
+   int exit_db;      /* non-zero for dictionary_exit entry */
+   int virtual_db;   /* non-zero for virtual databases */
+   int plugin_db;    /* non-zero for plugin entry */
+   int normal_db;    /* non-zero for normal database */
+
+   /* database_virtual members */
+   const char *database_list;  /* comma-separated list of database names */
+
+   /* database_plugin members */
+   const char *pluginFilename;
+   const char *plugin_data;    /* data for initializing plugin */
+   dictPlugin *plugin;
 
 } dictDatabase;
 
@@ -311,8 +317,8 @@ extern int        dict_destroy_datum( const void *datum );
 
 #ifdef USE_PLUGIN
 extern int        dict_plugin_open (
-   dictIndex *i, const dictDatabase *db);
-extern void       dict_plugin_close (dictIndex *i);
+   const dictIndex *i, dictDatabase *db);
+extern void       dict_plugin_close (dictDatabase *db);
 #endif
 
 /* dictd.c */

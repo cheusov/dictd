@@ -51,7 +51,7 @@ extern const char * DICT_PLUGINFUN_SET;
 typedef struct dictPluginData {
    int id;           /* DICT_PLUGIN_INITDATA_XXX constant */
    int size;
-   void *data;
+   const void *data;
 } dictPluginData;
 
 typedef struct dictPluginData_strategy {

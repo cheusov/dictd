@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.69 2003/02/23 12:58:59 cheusov Exp $
+ * $Id: dictd.c,v 1.70 2003/02/23 13:03:12 cheusov Exp $
  * 
  */
 
@@ -509,10 +509,6 @@ static int init_virtual_db_list (const void *datum)
       buf = xstrdup (db -> database_list);
       db -> virtual_db_list = string2virtual_db_list (buf);
       xfree (buf);
-/*
-      xfree (db -> database_list);
-      db -> database_list = NULL;
-*/
    }else{
       if (!db -> index)
 	 return 0;
@@ -611,7 +607,7 @@ static int close_plugin (const void *datum)
 {
 #ifdef USE_PLUGIN
    dictDatabase  *db = (dictDatabase *)datum;
-   dict_plugin_close (db -> index);
+   dict_plugin_close (db);
 #endif
 
    return 0;
@@ -694,7 +690,7 @@ static void make_dictexit_invisible (dictConfig *c)
 	 db_exit = NULL;
       }
 
-      if (db -> exit){
+      if (db -> exit_db){
 	 db_exit = db;
 	 db_exit -> invisible = 1;
       }
@@ -772,8 +768,8 @@ static int call_dictdb_free (const void *datum)
    const dictWord     *dw = (dictWord *)datum;
    const dictDatabase *db = dw -> database;
 
-   if (db -> index -> plugin)
-      db -> index -> plugin -> dictdb_free (db -> index -> plugin -> data);
+   if (db -> plugin)
+      db -> plugin -> dictdb_free (db -> plugin -> data);
 
    return 0;
 }
@@ -797,7 +793,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.69 2003/02/23 12:58:59 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.70 2003/02/23 13:03:12 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -946,7 +942,7 @@ static void release_root_privileges( void )
 static void sanity(const char *confFile)
 {
    int           fail = 0;
-   int           readable_error = 0;
+   int           reading_error = 0;
    struct passwd *pw = NULL;
    struct group  *gr = NULL;
 
@@ -967,25 +963,25 @@ static void sanity(const char *confFile)
 	    log_info(":E: %s is not readable (index file)\n",
 		     e->indexFilename);
 	    ++fail;
-	    readable_error = 1;
+	    reading_error = 1;
 	 }
 	 if (e->indexsuffixFilename && access(e->indexsuffixFilename, R_OK)) {
 	    log_info(":E: %s is not readable (index_suffix file)\n",
 		     e->indexsuffixFilename);
 	    ++fail;
-	    readable_error = 1;
+	    reading_error = 1;
 	 }
 	 if (e->indexwordFilename && access(e->indexwordFilename, R_OK)) {
 	    log_info(":E: %s is not readable (index_word file)\n",
 		     e->indexwordFilename);
 	    ++fail;
-	    readable_error = 1;
+	    reading_error = 1;
 	 }
 	 if (e->dataFilename && access(e->dataFilename, R_OK)) {
 	    log_info(":E: %s is not readable (data file)\n",
 		     e->dataFilename);
 	    ++fail;
-	    readable_error = 1;
+	    reading_error = 1;
 	 }
 	 if (e->virtual_db && !e->database_list){
 	    log_info(
@@ -993,22 +989,28 @@ static void sanity(const char *confFile)
 	       e->databaseName);
 	    ++fail;
 	 }
-	 if (!e->virtual_db && !e->exit && !e->dataFilename){
+	 if (e->normal_db && !e->dataFilename){
 	    log_info(
 	       ":E: data filename is not specified for dictionary '%s'\n",
 	       e->databaseName);
 	    ++fail;
 	 }
-	 if (!e->virtual_db && !e->exit && !e->indexFilename){
+	 if (e->normal_db && !e->indexFilename){
 	    log_info(
 	       ":E: index filename is not specified for dictionary '%s'\n",
+	       e->databaseName);
+	    ++fail;
+	 }
+	 if (e->plugin_db && !e->pluginFilename){
+	    log_info(
+	       ":E: plugin filename is not specified for dictionary '%s'\n",
 	       e->databaseName);
 	    ++fail;
 	 }
       }
    }
    if (fail) {
-      if (readable_error){
+      if (reading_error){
 	 pw = getpwuid (geteuid ());
 	 gr = getgrgid (getegid ());
 

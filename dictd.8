@@ -450,7 +450,7 @@ Per-database control is specified in the Database Section.
 .RS
 .TP
 .BI database " string " "{ " "database specification " "}"
-This section is required.  The string specifies the name of the database
+The string specifies the name of the database
 (e.g., wn or web1913).  (This is an arbitrary name selected by the
 administrator, and is not necessarily related to the file name or any
 name listed in the data file.  A short, easy to type name is often
@@ -462,18 +462,12 @@ If the files specified in the database specification do not exist on the
 system, dictd may silently fail.
 .TP
 .BI database_virtual " string " "{ " "virtual database specification " "}"
-This section is optional and specifies the 'virtual' database.
-The string specifies the name of the database
-(e.g., en-ru or fr-en).  (This is an arbitrary name selected by the
-administrator, and is not necessarily related to the file name or any
-name listed in the data file.  A short, easy to type name is often
-selected for easy use with 
-.BR "dict -d".)
-
-.B NOTE:
-If the database names specified in the virtual database specification
-are not listed in the configuration file, dictd may silently fail.
-
+This section specifies the virtual database.
+The string specifies the name of the database (e.g., en-ru or fren).
+.TP
+.BI database_plugin " string " "{ " "plugin specification " "}"
+This section specifies the plugin.
+The string specifies the name of the database.
 .TP
 .BI database_exit
 Excludes following databases from the '*' database.
@@ -650,6 +644,32 @@ Makes dictionary invisible to the clients. See
 .B NOTE:
 Another way to implement a virtual database is to create
 database files by dictfmt_virtual executable
+.RE
+.TP
+.B Plugin Specification
+.RS
+.TP
+.BI plugin " string"
+Specifies a filename of the plugin.
+.TP
+.BI data " string"
+Specifies date for initializing plugin.
+.TP
+.BI name " string"
+Specifies the short name of the database. See
+.I database specification
+.TP
+.BI info " string"
+Specifies the information about database. See
+.I database specification
+.TP
+.BI invisible
+Makes dictionary invisible to the clients. See
+.I database specification
+.TP
+.B NOTE:
+Another way to configure plugin is to create
+database files by dictfmt_plugin executable
 .RE
 .TP
 .BI include " string"
@@ -908,6 +928,8 @@ so databases cannot be added or deleted on the fly.
 .br
 .I /usr/sbin/dictd
 .SH "SEE ALSO"
+.BR dictfmt (1),
+.BR dictfmt_virtual (1),
 .BR dict (1),
 .BR dictzip (1),
 .BR gunzip (1),

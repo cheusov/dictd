@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.16 2003/02/23 12:58:59 cheusov Exp $
+ * $Id: servparse.y,v 1.17 2003/02/23 13:03:12 cheusov Exp $
  * 
  */
 
@@ -47,11 +47,12 @@ static dictDatabase *db;
 
 %token <token> '{' '}' T_ACCESS T_ALLOW T_DENY T_GROUP T_DATABASE T_DATA
 %token <token> T_INDEX T_INDEX_SUFFIX T_INDEX_WORD
-%token <token> T_FILTER T_PREFILTER T_POSTFILTER T_NAME
+%token <token> T_FILTER T_PREFILTER T_POSTFILTER T_NAME T_INFO
 %token <token> T_USER T_AUTHONLY T_SITE T_DATABASE_EXIT
 %token <token> T_STRING
 %token <token> T_INVISIBLE
-%token <token> T_DATABASE_VIRTUAL T_INFO T_DATABASE_LIST
+%token <token> T_DATABASE_VIRTUAL T_DATABASE_LIST
+%token <token> T_DATABASE_PLUGIN T_PLUGIN
 
 %type  <token>  Site
 %type  <access> AccessSpec
@@ -173,6 +174,7 @@ Database : T_DATABASE T_STRING
 	      db = xmalloc(sizeof(struct dictDatabase));
 	      memset( db, 0, sizeof(struct dictDatabase));
 	      db->databaseName = $2.string;
+	      db->normal_db    = 1;
 	   }
            '{' SpecList '}' { $$ = db; }
            |
@@ -185,13 +187,22 @@ Database : T_DATABASE T_STRING
 	   }
            '{' SpecList_virtual '}' { $$ = db; }
            |
+           T_DATABASE_PLUGIN T_STRING
+           {
+	      db = xmalloc(sizeof(struct dictDatabase));
+	      memset( db, 0, sizeof(struct dictDatabase));
+	      db->databaseName = $2.string;
+	      db->plugin_db   = 1;
+	   }
+           '{' SpecList_plugin '}' { $$ = db; }
+           |
 	   T_DATABASE_EXIT
 	   {
 	      db = xmalloc(sizeof(struct dictDatabase));
 	      memset( db, 0, sizeof(struct dictDatabase));
 	      db -> databaseName  = strdup("--exit--");
 	      db -> databaseShort = strdup("Stop default search here.");
-	      db -> exit          = 1;
+	      db -> exit_db       = 1;
 	      $$ = db;
 	   }
          ;
@@ -203,6 +214,18 @@ SpecList_virtual : Spec_virtual
 Spec_virtual : T_NAME T_STRING       { SET(databaseShort,$1,$2); }
      | T_INFO T_STRING               { SET(databaseInfo,$1,$2); }
      | T_DATABASE_LIST T_STRING      { SET(database_list,$1,$2);}
+     | T_INVISIBLE               { db->invisible = 1; }
+     | Access                    { db->acl = $1; }
+     ;
+
+SpecList_plugin : Spec_plugin
+         | SpecList_plugin Spec_plugin
+         ;
+
+Spec_plugin : T_NAME T_STRING       { SET(databaseShort,$1,$2); }
+     | T_INFO T_STRING               { SET(databaseInfo,$1,$2); }
+     | T_PLUGIN T_STRING      { SET(pluginFilename,$1,$2);}
+     | T_DATA T_STRING        { SET(plugin_data,$1,$2);}
      | T_INVISIBLE               { db->invisible = 1; }
      | Access                    { db->acl = $1; }
      ;

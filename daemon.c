@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.54 2003/02/23 13:00:18 cheusov Exp $
+ * $Id: daemon.c,v 1.55 2003/02/23 13:03:12 cheusov Exp $
  * 
  */
 
@@ -1006,7 +1006,7 @@ int dict_search_databases (
    lst_append (preprocessed_words, xstrdup(word));
 
    while (!error && (db = next_database (&databasePosition, databaseName))) {
-      if (db -> exit)
+      if (db -> exit_db)
 	 /* dictionary_exit */
 	 break;
 
