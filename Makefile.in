@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.91 2003/10/11 17:16:01 cheusov Exp $
+# $Id: Makefile.in,v 1.92 2003/10/31 16:28:20 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -72,6 +72,7 @@ INSTALL_DATA=	@INSTALL_DATA@
 LEX=		@LEX@
 LEXLIB= 	@LEXLIB@
 YACC=		@YACC@
+JUDYLIB=        @JUDYLIB@
 
 CFLAGS=		@CFLAGS@ -DDICT_PLUGIN_PATH=\"$(PLUGIN_DIR)\" -DDICT_DICTIONARY_PATH=\"$(DICT_DIR)\" -DDICT_VERSION=\"$(DICT_VERSION)\" -DDICT_CONFIG_PATH=\"$(CONF_DIR)\"
 
@@ -87,7 +88,10 @@ EXES=	 	dict dictd dictzip dictfmt
 all: $(EXES) $(LIBRARIES)
 
 ifdef USE_PLUGIN
-PLUGINS=    dictdplugin_judy.so 
+ifdef JUDYLIB
+PLUGINS=    dictdplugin_judy.so
+endif
+
 LIBRARIES=  libdictdplugin.a
 INCLUDES=   dictdplugin.h
 
@@ -176,7 +180,7 @@ lib%.a : %.o
 
 dictdplugin_judy.so : data.os str.os heap.os dictdplugin_judy.os
 	$(CC) $(filter-out local_regex local_zlib local_libmaa, $^) \
-		 $(ALLLDFLAGS) -lJudy -shared -o $@
+		 $(ALLLDFLAGS) $(JUDYLIB) -shared -o $@
 
 .PHONY: plugins
 plugins: $(PLUGINS)
