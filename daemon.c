@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.58 2003/02/23 18:07:27 cheusov Exp $
+ * $Id: daemon.c,v 1.59 2003/03/02 13:47:57 cheusov Exp $
  * 
  */
 
@@ -745,6 +745,7 @@ static void daemon_define( const char *cmdline, int argc, char **argv )
    char           *word;
    const char     *databaseName;
    int            extension = (argv[0][0] == 'd' && argv[0][1] == '\0');
+   int            db_found = 0;
 
    if (extension) {
       switch (argc) {
@@ -766,11 +767,12 @@ static void daemon_define( const char *cmdline, int argc, char **argv )
 
    matches = abs(dict_search_databases (
       list, NULL,
-      databaseName, word, DICT_EXACT));
+      databaseName, word, DICT_EXACT,
+      &db_found));
 
-   if (matches > 0) {
+   if (db_found && matches > 0) {
       int actual_matches = daemon_count_defs( list );
-      
+
       _dict_defines += actual_matches;
       daemon_log( DICT_LOG_DEFINE,
 		  "%s \"%s\" %d\n", databaseName, word, actual_matches);
@@ -783,7 +785,7 @@ static void daemon_define( const char *cmdline, int argc, char **argv )
       return;
    }
 
-   if (matches < 0) {
+   if (!db_found) {
       dict_destroy_list( list );
       daemon_printf( "%d invalid database, use SHOW DB for list\n",
 		     CODE_INVALID_DB );
@@ -805,6 +807,7 @@ static void daemon_match( const char *cmdline, int argc, char **argv )
    const char     *strategy;
    int            strategyNumber;
    int            extension = (argv[0][0] == 'm' && argv[0][1] == '\0');
+   int            db_found = 0;
 
    if (extension) {
       switch (argc) {
@@ -834,9 +837,10 @@ static void daemon_match( const char *cmdline, int argc, char **argv )
 
    matches = abs(dict_search_databases (
       list, NULL,
-      databaseName, word, strategyNumber | DICT_MATCH_MASK));
+      databaseName, word, strategyNumber | DICT_MATCH_MASK,
+      &db_found));
 
-   if (matches > 0) {
+   if (db_found && matches > 0) {
       int actual_matches = daemon_count_matches( list );
       
       _dict_matches += actual_matches;
@@ -851,7 +855,7 @@ static void daemon_match( const char *cmdline, int argc, char **argv )
       return;
    }
 
-   if (matches < 0) {
+   if (!db_found) {
       dict_destroy_list( list );
       daemon_printf( "%d invalid database, use SHOW DB for list\n",
 		     CODE_INVALID_DB );
@@ -968,6 +972,7 @@ static int dict_search_words (
    const char *word;
 
    int old_count = 0;
+   int db_found  = 0;
 
    word_list_pos = lst_init_position (word_list);
    while (word_list_pos){
@@ -981,7 +986,9 @@ static int dict_search_words (
 
 	    matches_count = dict_search_databases (
 	       l, lst_init_position (db -> virtual_db_list),
-	       "*", word, strategy);
+	       "*", word, strategy, &db_found);
+
+	    assert (db_found);
 
 	    if (matches_count > 0){
 	       replace_invisible_databases (
@@ -1020,11 +1027,13 @@ static int dict_search_words (
 int dict_search_databases (
    lst_List *l,
    lst_Position databasePosition, /* NULL for global database list */
-   const char *databaseName, const char *word, int strategy)
+   const char *databaseName, const char *word, int strategy,
+   int *db_found)
 {
    int matches       = -1;
    int matches_count = 0;
    int error         = 0;
+
 
    const dictDatabase *db;
    dictWord *dw;
@@ -1037,6 +1046,8 @@ int dict_search_databases (
    const dictPluginData *extra_result;
    int                   extra_result_size;
 
+   *db_found = 0;
+
    if (!databasePosition)
       databasePosition = first_database_pos ();
 
@@ -1047,6 +1058,8 @@ int dict_search_databases (
       if (db -> exit_db)
 	 /* dictionary_exit */
 	 break;
+
+      *db_found = 1;
 
       result = DICT_PLUGIN_RESULT_NOTFOUND;
 

@@ -304,7 +304,8 @@ extern int         dict_search (
 extern int dict_search_databases (
    lst_List *l,
    lst_Position db_pos,
-   const char *databaseName, const char *word, int strategy);
+   const char *databaseName, const char *word, int strategy,
+   int *db_found);
 
 extern dictIndex  *dict_index_open(
    const char *filename,
