@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Fri Mar 28 23:35:21 1997 by faith@cs.unc.edu
+ * Revised: Wed Apr  2 21:11:59 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.14 1997/03/31 01:53:29 faith Exp $
+ * $Id: dictd.c,v 1.15 1997/04/03 02:17:38 faith Exp $
  * 
  */
 
@@ -85,10 +85,18 @@ static int access_print( const void *datum, void *arg )
    FILE                       *s     = aps->s;
    int                        offset = aps->offset;
    int                        i;
+   const char                 *desc;
 
    for (i = 0; i < offset; i++) fputc( ' ', s );
-   fprintf( s,
-	    "%s %s\n", a->allow == DICT_ALLOW ? "allow" : "deny ", a->spec );
+   switch (a->type) {
+   case DICT_DENY:     desc = "deny";     break;
+   case DICT_ALLOW:    desc = "allow";    break;
+   case DICT_AUTHONLY: desc = "authonly"; break;
+   case DICT_USER:     desc = "user";     break;
+   case DICT_GROUP:    desc = "group";    break;
+   default:            desc = "unknown";  break;
+   }
+   fprintf( s, "%s %s\n", desc, a->spec );
    return 0;
 }
 
@@ -107,6 +115,19 @@ static void acl_print( FILE *s, lst_List l, int offset)
    fprintf( s, "}\n" );
 }
 
+static int user_print( const void *key, const void *datum, void *arg )
+{
+   const char *username = (const char *)key;
+   const char *secret   = (const char *)datum;
+   FILE       *s        = (FILE *)arg;
+
+   if (dbg_test(DBG_AUTH))
+      fprintf( s, "user %s %s\n", username, secret );
+   else
+      fprintf( s, "user %s *\n", username );
+   return 0;
+}
+
 static int config_print( const void *datum, void *arg )
 {
    dictDatabase *db = (dictDatabase *)datum;
@@ -123,6 +144,10 @@ static int config_print( const void *datum, void *arg )
       fprintf( s, "   prefilter  %s\n", db->prefilter );
    if (db->postfilter)
       fprintf( s, "   postfilter %s\n", db->postfilter );
+   if (db->databaseShort)
+      fprintf( s, "   name       %s\n", db->databaseShort );
+   if (db->databaseURL)
+      fprintf( s, "   url        %s\n", db->databaseURL );
    if (db->acl) acl_print( s, db->acl, 3 );
    fprintf( s, "}\n" );
    return 0;
@@ -134,34 +159,49 @@ static void dict_config_print( FILE *stream, dictConfig *c )
 
    if (c->acl) acl_print( s, c->acl, 0 );
    lst_iterate_arg( c->dbl, config_print, s );
+   if (c->usl) hsh_iterate_arg( c->usl, user_print, s );
+}
+
+static const char *get_entry_info( dictDatabase *db, const char *entryName )
+{
+   dictWord *dw;
+   lst_List list;
+   char     *pt;
+   
+   list = dict_search_database( entryName, db, DICT_EXACT );
+   if (!list) return NULL;
+      
+   dw = lst_nth_get( list, 1 );
+				/* Don't ever free this */
+   pt = dict_data_read( db->data, dw->start, dw->end,
+			db->prefilter, db->postfilter );
+   pt += strlen(entryName) + 1;
+   while (*pt == ' ' || *pt == '\t') ++pt;
+   pt[ strlen(pt) - 1 ] = '\0';
+   return pt;
 }
 
 static int init_database( const void *datum )
 {
    dictDatabase *db = (dictDatabase *)datum;
-   dictWord     *dw;
-   lst_List     list;
-   char         *pt;
 
    db->index = dict_index_open( db->indexFilename );
    db->data  = dict_data_open( db->dataFilename, 0 );
 
-   list = dict_search_database( "!short!", db, DICT_EXACT );
-   if (list && lst_length(list) == 1) {
-      dw = lst_nth_get( list, 1 );
-				/* Don't ever free this */
-      pt = dict_data_read( db->data, dw->start, dw->end,
-			   db->prefilter, db->postfilter );
-      pt += 8;
-      while (*pt == ' ' || *pt == '\t') ++pt;
-      pt[ strlen(pt) - 1 ] = '\0';
-      db->databaseShort = pt;
-   } else {
-      db->databaseShort = strdup( db->databaseName );
-   }
+   if (!db->databaseShort)
+      db->databaseShort = get_entry_info( db, DICT_SHORT_ENTRY_NAME );
+   else if (*db->databaseShort == '@')
+      db->databaseShort = get_entry_info( db, db->databaseShort + 1 );
+   if (!db->databaseShort) db->databaseShort = str_find( db->databaseName );
+   
+   if (!db->databaseURL)
+      db->databaseURL = get_entry_info( db, DICT_URL_ENTRY_NAME );
+   else if (*db->databaseURL == '@')
+      db->databaseURL = get_entry_info( db, db->databaseURL + 1 );
    
    PRINTF(DBG_INIT,
-	  ("%s \"%s\" initialized\n",db->databaseName,db->databaseShort));
+	  ("%s \"%s\" \"%s\" initialized\n",
+	   db->databaseName,db->databaseShort,db->databaseURL));
    return 0;
 }
 
@@ -204,7 +244,7 @@ static const char *id_string( const char *id )
 const char *dict_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dictd.c,v 1.14 1997/03/31 01:53:29 faith Exp $";
+   const char        *id = "$Id: dictd.c,v 1.15 1997/04/03 02:17:38 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -307,6 +347,7 @@ int main( int argc, char **argv )
    dbg_register( DBG_PORT,    "port" );
    dbg_register( DBG_LEV,     "lev" );
    dbg_register( DBG_NOFORK,  "nofork" );
+   dbg_register( DBG_AUTH,    "auth" );
 
    while ((c = getopt_long( argc, argv,
 			    "vVdD:p:c:hLt:l:s", longopts, NULL )) != EOF)

@@ -1,6 +1,6 @@
 /* servparse.y -- Parser for dictd server configuration file
  * Created: Fri Feb 28 08:31:38 1997 by faith@cs.unc.edu
- * Revised: Mon Mar 10 10:52:50 1997 by faith@cs.unc.edu
+ * Revised: Wed Apr  2 18:01:22 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.4 1997/03/10 21:47:00 faith Exp $
+ * $Id: servparse.y,v 1.5 1997/04/03 02:17:49 faith Exp $
  * 
  */
 
@@ -36,36 +36,52 @@ static dictDatabase *db;
 %}
 
 %union {
-   dictToken    token;
-   dictDatabase *db;
-   dictAccess   *access;
-   lst_List     list;
+   dictToken     token;
+   dictDatabase  *db;
+   dictAccess    *access;
+   lst_List      list;
+   hsh_HashTable hash;
 }
 
 				/* Terminals */
 
 %token <token> '{' '}' T_ACCESS T_ALLOW T_DENY T_GROUP T_DATABASE T_DATA
-%token <token> T_INDEX T_FILTER T_PREFILTER T_POSTFILTER
+%token <token> T_INDEX T_FILTER T_PREFILTER T_POSTFILTER T_NAME T_URL
+%token <token> T_USER T_AUTHONLY
 
 %token <token>  T_STRING
 %type  <access> AccessSpec
 %type  <db>     Database
 %type  <list>   DatabaseList Access AccessSpecList
+%type  <hash>   UserList
 
 %%
 
-Program : Access DatabaseList
+Program : DatabaseList
+          { DictConfig = xmalloc(sizeof(struct dictConfig));
+	    memset( DictConfig, 0, sizeof(struct dictConfig) );
+	    DictConfig->dbl = $1;
+	  }
+        | Access DatabaseList
           { DictConfig = xmalloc(sizeof(struct dictConfig));
 	    memset( DictConfig, 0, sizeof(struct dictConfig) );
 	    DictConfig->acl = $1;
 	    DictConfig->dbl = $2;
 	  }
-        | DatabaseList
+        | DatabaseList UserList
           { DictConfig = xmalloc(sizeof(struct dictConfig));
 	    memset( DictConfig, 0, sizeof(struct dictConfig) );
 	    DictConfig->dbl = $1;
+	    DictConfig->usl = $2;
 	  }
-        ;
+        | Access DatabaseList UserList
+          { DictConfig = xmalloc(sizeof(struct dictConfig));
+	    memset( DictConfig, 0, sizeof(struct dictConfig) );
+	    DictConfig->acl = $1;
+	    DictConfig->dbl = $2;
+	    DictConfig->usl = $3;
+	  }
+
 
 Access : T_ACCESS '{' AccessSpecList '}' { $$ = $3; }
        ;
@@ -78,18 +94,40 @@ AccessSpecList : AccessSpec { $$ = lst_create(); lst_append($$, $1); }
                | AccessSpecList AccessSpec { lst_append($1, $2); $$ = $1; }
                ;
 
+UserList : T_USER T_STRING T_STRING
+           { $$ = hsh_create(NULL,NULL);
+	     hsh_insert( $$, $2.string, $3.string );
+	   }
+         | UserList T_USER T_STRING T_STRING
+           { hsh_insert( $1, $3.string, $4.string ); $$ = $1; }
+         ;
+
 AccessSpec : T_ALLOW T_STRING
              {
 		dictAccess *a = xmalloc(sizeof(struct dictAccess));
-		a->allow = DICT_ALLOW;
-		a->spec  = $2.string;
+		a->type = DICT_ALLOW;
+		a->spec = $2.string;
 		$$ = a;
 	     }
            | T_DENY T_STRING
              {
 		dictAccess *a = xmalloc(sizeof(struct dictAccess));
-		a->allow = DICT_DENY;
-		a->spec  = $2.string;
+		a->type = DICT_DENY;
+		a->spec = $2.string;
+		$$ = a;
+	     }
+           | T_AUTHONLY T_STRING
+             {
+		dictAccess *a = xmalloc(sizeof(struct dictAccess));
+		a->type = DICT_AUTHONLY;
+		a->spec = $2.string;
+		$$ = a;
+	     }
+           | T_USER T_STRING
+             {
+		dictAccess *a = xmalloc(sizeof(struct dictAccess));
+		a->type = DICT_USER;
+		a->spec = $2.string;
 		$$ = a;
 	     }
            ;
@@ -112,5 +150,7 @@ Spec : T_DATA T_STRING       { SET(dataFilename,$1,$2); }
      | T_FILTER T_STRING     { SET(filter,$1,$2); }
      | T_PREFILTER T_STRING  { SET(prefilter,$1,$2); }
      | T_POSTFILTER T_STRING { SET(postfilter,$1,$2); }
+     | T_NAME T_STRING       { SET(databaseShort,$1,$2); }
+     | T_URL T_STRING        { SET(databaseURL,$1,$2); }
      | Access                { db->acl = $1; }
      ;

@@ -1,6 +1,6 @@
 /* index.c -- 
  * Created: Wed Oct  9 14:52:23 1996 by faith@cs.unc.edu
- * Revised: Tue Mar 11 21:39:30 1997 by faith@cs.unc.edu
+ * Revised: Wed Apr  2 20:40:16 1997 by faith@cs.unc.edu
  * Copyright 1996, 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.9 1997/03/13 05:24:19 faith Exp $
+ * $Id: index.c,v 1.10 1997/04/03 02:17:44 faith Exp $
  * 
  */
 
@@ -359,6 +359,7 @@ static lst_List dict_search_regexpr( const char *word,
       for (p = pt; *p != '\t' && p < end; ++p);
       subs[0].rm_so = 0;
       subs[0].rm_eo = p - pt;
+      ++_dict_comparisons;
       if (!regexec(&re, pt, 1, subs, REG_STARTEND)) {
 	 ++count;
 	 datum = dict_word_create( pt, database );

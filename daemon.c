@@ -1,6 +1,6 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@cs.unc.edu
- * Revised: Fri Mar 28 23:35:19 1997 by faith@cs.unc.edu
+ * Revised: Wed Apr  2 21:16:14 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,18 +17,56 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.11 1997/03/31 01:53:27 faith Exp $
+ * $Id: daemon.c,v 1.12 1997/04/03 02:17:35 faith Exp $
  * 
  */
 
 #include "dictd.h"
 #include <ctype.h>
+#include "md5.h"
+#include "regex.h"
+
+#define CODE_DATABASE_LIST           210
+#define CODE_STRATEGY_LIST           211
+#define CODE_DATABASE_INFO           212
+#define CODE_STATUS                  213
+#define CODE_HELP                    214
+
+#define CODE_HELLO                   220
+#define CODE_GOODBYE                 221
+
+#define CODE_AUTH_OK                 230
+
+#define CODE_FOUND_DEFINITIONS       250
+#define CODE_DEFINITION_FOLLOWS      251
+#define CODE_MATCHES_FOUND           253
+#define CODE_DEFINITIONS_FINISHED    259
+#define CODE_MATCHES_FINISHED        259
+#define CODE_OK                      259
+
+#define CODE_SYNTAX_ERROR            500
+#define CODE_ILLEGAL_PARAM           501
+#define CODE_COMMAND_NOT_IMPLEMENTED 502
+#define CODE_PARAM_NOT_IMPLEMENTED   503
+
+#define CODE_ACCESS_DENIED           530
+#define CODE_AUTH_DENIED             531
+
+#define CODE_INVALID_DB              550
+#define CODE_INVALID_STRATEGY        551
+#define CODE_NO_MATCH                552
+#define CODE_NO_DATABASES            554
+#define CODE_NO_STRATEGIES           555
+
+
 
 static int          _dict_defines, _dict_matches;
 static int          daemonS;
 static const char   *daemonHostname;
+static const char   *daemonIP;
 static int          daemonPort;
 static lst_Position databasePosition;
+static char         daemonStamp[256];
 
 static void daemon_define( int argc, char **argv );
 static void daemon_match( int argc, char **argv );
@@ -56,9 +94,10 @@ static struct {
 };
 #define STRATEGIES (sizeof(strategyInfo)/sizeof(strategyInfo[0]))
 
+#define MAXARGCS 3
 static struct {
    int        argc;
-   const char *name[];
+   const char *name[MAXARGCS];
    void       (*f)( int argc, char **argv );
 } commandInfo[] = {
    { 1, {"define"},             daemon_define },
@@ -89,19 +128,21 @@ static int lookup_strategy( const char *strategy )
    return -1;
 }
 
-static void *(lookup_command)( const char *command )
+static void *(lookup_command)( int argc, char **argv )
 {
    int i, j;
    int err;
    
    for (i = 0; i < COMMANDS; i++) {
-      for (er = 0, j = 0; j < commandInfo[i].argc; j++) {
-	 if (strcasecmp(command, commandInfo[i].name)) {
-	    err = 1;
-	    break;
+      if (argc >= commandInfo[i].argc) {
+	 for (err = 0, j = 0; j < commandInfo[i].argc; j++) {
+	    if (strcasecmp(argv[j], commandInfo[i].name[j])) {
+	       err = 1;
+	       break;
+	    }
 	 }
+	 if (!err) return commandInfo[i].f;
       }
-      if (!err) return commandInfo[i].f;
    }
    return NULL;
 }
@@ -119,17 +160,111 @@ static dictDatabase *next_database( const char *name )
 
    if (!strcmp(name,"*")) {
       if (databasePosition) {
-         db = lst_get_position( databasePosition );
-         databasePosition = lst_next_position( databasePosition );
+	 do {
+	    db = lst_get_position( databasePosition );
+	    databasePosition = lst_next_position( databasePosition );
+	 } while (db && !db->available);
       }
       return db;
    } else {
       while (databasePosition) {
          db = lst_get_position( databasePosition );
-         if (!strcmp(db->databaseName,name)) return db;
+	 databasePosition = lst_next_position( databasePosition );
+         if (db && !strcmp(db->databaseName,name)) {
+	    if (db->available) return db;
+	    else               return NULL;
+	 }
       }
       return NULL;
    }
+}
+
+static int count_databases( void )
+{
+   int count = 0;
+   
+   reset_databases();
+   while (next_database("*")) ++count;
+   return count;
+}
+
+static int daemon_check_list( const char *user, lst_List acl )
+{
+   lst_Position p;
+   dictAccess   *a;
+   char         regbuf[256];
+   char         erbuf[100];
+   int          err;
+   const char   *s;
+   char         *d;
+   regex_t      re;
+
+   if (!acl) return DICT_ALLOW;
+   for (p = lst_init_position(acl); p; p = lst_next_position(p)) {
+      a = lst_get_position(p);
+      switch (a->type) {
+      case DICT_DENY:
+      case DICT_ALLOW:
+      case DICT_AUTHONLY:
+	 for (d = regbuf, s = a->spec; s && *s; ++s) {
+	    switch (*s) {
+	    case '*': *d++ = '.';  *d++ = '*'; break;
+	    case '.': *d++ = '\\'; *d++ = '.'; break;
+	    case '?': *d++ = '\\'; *d++ = '?'; break;
+	    default:  *d++ = *s;               break;
+	    }
+	 }
+	 *d = '\0';
+	 if ((err = regcomp(&re, regbuf, REG_ICASE|REG_NOSUB))) {
+	    regerror(err, &re, erbuf, sizeof(erbuf));
+	    log_info( "regcomp(%s): %s\n", regbuf, erbuf );
+	    return DICT_DENY;	/* Err on the side of safety */
+	 }
+	 if (!regexec(&re, daemonHostname, 0, NULL, 0)
+	     || !regexec(&re, daemonIP, 0, NULL, 0)) {
+	    PRINTF(DBG_AUTH,
+		   ("Match %s with %s/%s\n",
+		    a->spec,daemonHostname,daemonIP));
+	    regfree(&re);
+	    return a->type;
+	 }
+	 regfree(&re);
+	 PRINTF(DBG_AUTH,
+		("No match (%s with %s/%s)\n",
+		 a->spec,daemonHostname,daemonIP));
+	 break;
+      case DICT_USER:
+	 if (!strcmp(user,a->spec)) return DICT_ALLOW;
+      case DICT_GROUP:
+	 break;
+      }
+   }
+   return DICT_DENY;
+}
+
+static int daemon_check_auth( const char *user )
+{
+   lst_Position p;
+   lst_List     dbl = DictConfig->dbl;
+   dictDatabase *db;
+   
+   switch (daemon_check_list( user, DictConfig->acl )) {
+   default:
+   case DICT_DENY:
+      return 1;
+   case DICT_AUTHONLY:
+      if (!user) return 0;
+   case DICT_ALLOW:
+      for (p = lst_init_position(dbl); p; p = lst_next_position(p)) {
+	 db = lst_get_position(p);
+	 switch (daemon_check_list(user, db->acl)) {
+	 case DICT_ALLOW: db->available = 1; continue;
+	 default:         db->available = 0; continue;
+	 }
+      }
+      break;
+   }
+   return 0;
 }
 
 static void daemon_log( const char *format, ... )
@@ -297,25 +432,26 @@ static int daemon_read( char *buf, int count )
    return n;
 }
 
-static void daemon_ok( const char *string, const char *timer )
+static void daemon_ok( int code, const char *string, const char *timer )
 {
-   time_t t;
    char   buf[1024];
    int    len;
 
-   tim_stop( timer );
-   time(&t);
-      
-   sprintf(buf,
-	   "%s [d/m/c = %d/%d/%d; %0.3fr %0.3fu %0.3fs; %24.24s]\n",
-	   string,
-	   _dict_defines,
-	   _dict_matches,
-	   _dict_comparisons,
-	   tim_get_real( timer ),
-	   tim_get_user( timer ),
-	   tim_get_system( timer ),
-	   ctime(&t));
+   if (!timer) {
+      sprintf(buf, "%d %s\n", code, string);
+   } else {
+      tim_stop( timer );
+      sprintf(buf,
+	      "%d %s [d/m/c = %d/%d/%d; %0.3fr %0.3fu %0.3fs]\n",
+	      code,
+	      string,
+	      _dict_defines,
+	      _dict_matches,
+	      _dict_comparisons,
+	      tim_get_real( timer ),
+	      tim_get_user( timer ),
+	      tim_get_system( timer ));
+   }
 
    len = strlen( buf );
    daemon_write(buf, len);
@@ -330,7 +466,8 @@ static int dump_def( const void *datum, void *arg )
    buf = dict_data_read( db->data, dw->start, dw->end,
 			 db->prefilter, db->postfilter );
 
-   daemon_printf( "251 %s \"%s\" - text follows\n",
+   daemon_printf( "%d %s \"%s\" - text follows\n",
+		  CODE_DEFINITION_FOLLOWS,
 		  db->databaseName,
 		  db->databaseShort );
    daemon_text(buf);
@@ -361,14 +498,17 @@ static void daemon_banner( void )
    time_t         t;
 
    time(&t);
-   
-   daemon_printf( "220 %s %s <%d.%d.%ld@%s>\n",
+
+   sprintf( daemonStamp, "<%d.%d.%ld@%s>", 
+	    _dict_forks,
+	    getpid(),
+	    t,
+	    net_hostname() );
+   daemon_printf( "%d %s %s %s\n",
+		  CODE_HELLO,
                   net_hostname(),
 		  dict_get_banner(),
-		  _dict_forks,
-		  getpid(),
-		  t,
-		  net_hostname());
+		  daemonStamp );
 }
 
 static void daemon_define( int argc, char **argv )
@@ -378,40 +518,45 @@ static void daemon_define( int argc, char **argv )
    int            matches = 0;
    char           *word;
    const char     *databaseName;
+   int            none = 1;
 
    switch (argc) {
    case 2:  databaseName = "*";     word = argv[1]; break;
    case 3:  databaseName = argv[1]; word = argv[2]; break;
    default:
-      daemon_printf( "501 syntax error, illegal parameters\n" );
+      daemon_printf( "% syntax error, illegal parameters\n",
+		     CODE_ILLEGAL_PARAM );
       return;
    }
 
    reset_databases();
    while ((db = next_database(databaseName))) {
+      none = 0;
       list = dict_search_database( word, db, DICT_EXACT );
       if (list && (matches = lst_length(list)) > 0) {
-	 daemon_printf( "250 %d definitions retrieved - definitions follow\n",
+	 _dict_defines += matches;
+	 daemon_printf( "%d %d definitions retrieved - definitions follow\n",
+			CODE_FOUND_DEFINITIONS,
 			matches );
 	 daemon_dump_defs( list, db );
-	 daemon_ok( "259 ok", "c" );
+	 daemon_ok( CODE_DEFINITIONS_FINISHED, "ok", "c" );
 	 daemon_log("define %s \"%s\" %d\n", db->databaseName, word, matches);
       } else {
 	 if (*databaseName == '*') continue; /* keep searching */
 	 goto nomatch;
       }
       if (list) dict_destroy_list( list );
-      _dict_defines += matches;
       if (matches) return;
    }
    
-   if (*databaseName != '*') {
-      daemon_printf( "550 invalid database, use SHOW DB for list\n" );
+   if (none || *databaseName != '*') {
+      daemon_printf( "%d invalid database, use SHOW DB for list\n",
+		     CODE_INVALID_DB );
       return;
    }
 
  nomatch:
-   daemon_printf( "552 nomatch for %s \"%s\"\n", databaseName, word );
+   daemon_ok( CODE_NO_MATCH, "no match", "c" );
    daemon_log( "nomatch %s exact \"%s\"\n", databaseName, word );
 }
 
@@ -424,28 +569,34 @@ static void daemon_match( int argc, char **argv )
    const char     *databaseName;
    const char     *strategy;
    int            strategyNumber;
+   int            none = 1;
 
    switch (argc) {
    case 2:  databaseName = "*";     strategy = "lev";   word = argv[1]; break;
-   case 3:  databaseName = "*";     strategy = argv[2]; word = argv[2]; break;
+   case 3:  databaseName = "*";     strategy = argv[1]; word = argv[2]; break;
    case 4:  databaseName = argv[1]; strategy = argv[2]; word = argv[3]; break;
    default:
-      daemon_printf( "501 syntax error, illegal parameters\n" );
+      daemon_printf( "%d syntax error, illegal parameters\n",
+		     CODE_ILLEGAL_PARAM );
       return;
    }
 
    if ((strategyNumber = lookup_strategy(strategy)) < 0) {
-      daemon_printf( "551 invalid strategy, use SHOW STRAT for a list\n" );
+      daemon_printf( "%d invalid strategy, use SHOW STRAT for a list\n",
+		     CODE_INVALID_STRATEGY );
       return;
    }
 
    reset_databases();
    while ((db = next_database(databaseName))) {
+      none = 0;
       list = dict_search_database( word, db, strategyNumber );
       if (list && (matches = lst_length(list)) > 0) {
-	 daemon_printf( "250 %d matches found - text follow\n", matches );
+	 _dict_matches += matches;
+	 daemon_printf( "%d %d matches found - text follow\n",
+			CODE_MATCHES_FOUND, matches );
 	 daemon_dump_matches( list );
-	 daemon_ok( "259 ok", "c" );
+	 daemon_ok( CODE_MATCHES_FINISHED, "ok", "c" );
 	 daemon_log("match %s %s \"%s\" %d\n",
 		    db->databaseName, strategy, word, matches);
       } else {
@@ -453,18 +604,17 @@ static void daemon_match( int argc, char **argv )
 	 goto nomatch;
       }
       if (list) dict_destroy_list( list );
-      _dict_matches += matches;
       if (matches) return;
    }
    
-   if (*databaseName != '*') {
-      daemon_printf( "550 invalid database, use SHOW DB for list\n" );
+   if (none || *databaseName != '*') {
+      daemon_printf( "%d invalid database, use SHOW DB for list\n",
+		     CODE_INVALID_DB );
       return;
    }
 
  nomatch:
-   daemon_printf( "552 no match for %s %s \"%s\"\n",
-		  databaseName, strategy, word );
+   daemon_ok( CODE_NO_MATCH, "no match for ", "c" );
    daemon_log( "nomatch %s %s \"%s\"\n", databaseName, strategy, word );
 }
 
@@ -474,17 +624,26 @@ static void daemon_show_db( int argc, char **argv )
    dictDatabase *db;
    
    if (argc != 2) {
-      daemon_printf( "501 syntax error, illegal parameters\n" );
+      daemon_printf( "%d syntax error, illegal parameters\n",
+		     CODE_ILLEGAL_PARAM );
       return;
    }
 
-   if (!(count = lst_length( DictConfig->dbl ))) {
-      daemon_printf( "554 no databases present\n" );
+   if (!(count = count_databases())) {
+      daemon_printf( "%d no databases present\n", CODE_NO_DATABASES );
    } else {
-      daemon_printf( "210 %d databases present - text follows\n", count );
+      daemon_printf( "%d %d databases present - text follows\n",
+		     CODE_DATABASE_LIST, count );
       reset_databases();
       while ((db = next_database("*"))) {
-	 daemon_printf( "%s \"%s\"\n", db->databaseName, db->databaseShort );
+	 if (db->databaseURL) {
+	    daemon_printf( "%s \"%s\" %s\n",
+			   db->databaseName, db->databaseShort,
+			   db->databaseURL );
+	 } else {
+	    daemon_printf( "%s \"%s\"\n",
+			   db->databaseName, db->databaseShort );
+	 }
       }
       daemon_printf( ".\n" );
    }
@@ -492,21 +651,22 @@ static void daemon_show_db( int argc, char **argv )
 
 static void daemon_show_strat( int argc, char **argv )
 {
-   int          count;
-   dictDatabase *db;
+   int i;
    
    if (argc != 2) {
-      daemon_printf( "501 syntax error, illegal parameters\n" );
+      daemon_printf( "%d syntax error, illegal parameters\n",
+		     CODE_ILLEGAL_PARAM );
       return;
    }
 
-   if (!(count = lst_length( DictConfig->dbl ))) {
-      daemon_printf( "554 no databases present\n" );
+   if (!STRATEGIES) {
+      daemon_printf( "%d no strategies available\n", CODE_NO_STRATEGIES );
    } else {
-      daemon_printf( "210 %d databases present - text follows\n", count );
-      reset_databases();
-      while ((db = next_database("*"))) {
-	 daemon_printf( "%s \"%s\"\n", db->databaseName, db->databaseShort );
+      daemon_printf( "%d %d databases present - text follows\n",
+		     CODE_STRATEGY_LIST, STRATEGIES );
+      for (i = 0; i < STRATEGIES; i++) {
+	 daemon_printf( "%s \"%s\"\n",
+			strategyInfo[i].name, strategyInfo[i].description );
       }
       daemon_printf( ".\n" );
    }
@@ -515,162 +675,111 @@ static void daemon_show_strat( int argc, char **argv )
 static void daemon_show_info( int argc, char **argv )
 {
    if (argc != 3) {
-      daemon_printf( "501 syntax error, illegal parameters\n" );
+      daemon_printf( "%d syntax error, illegal parameters\n",
+		     CODE_ILLEGAL_PARAM );
       return;
    }
 }
 
 static void daemon_show( int argc, char **argv )
 {
-   daemon_printf( "501 syntax error, illegal parameters\n" );
+   daemon_printf( "%d syntax error, illegal parameters\n",
+		  CODE_ILLEGAL_PARAM );
 }
 
 static void daemon_client( int argc, char **argv )
 {
+   if (argc != 2)
+      daemon_printf( "%d syntax error, illegal parameters\n",
+		     CODE_ILLEGAL_PARAM );
+
+   switch (argc) {
+   case 0:
+   case 1:
+      break;			/* do nothing */
+   case 2:
+      daemon_log( "client: %.80s\n", argv[1] );
+      break;
+   case 3:
+      daemon_log( "client: %.80s %.80s\n", argv[1], argv[2] );
+      break;
+   default:
+      daemon_log( "client: %.80s %.80s %.80s\n", argv[1], argv[2], argv[3] );
+      break;
+   }
+   daemon_ok( CODE_OK, "ok", NULL );
 }
 
 static void daemon_auth( int argc, char **argv )
 {
+   char              *buf;
+   hsh_HashTable     h = DictConfig->usl;
+   const char        *secret;
+   struct MD5Context ctx;
+   unsigned char     digest[16];
+   char              hex[33];
+   int               i;
+   
+   if (argc != 3)
+      daemon_printf( "%d syntax error, illegal parameters\n",
+		     CODE_ILLEGAL_PARAM );
+   if (!h || !(secret = hsh_retrieve(h, argv[1]))) {
+      daemon_printf( "%d auth denied\n", CODE_AUTH_DENIED );
+      return;
+   }
+   
+   buf = alloca(strlen(daemonStamp) + strlen(secret) + 10);
+   sprintf( buf, "%s%s", daemonStamp, secret );
+
+   MD5Init(&ctx);
+   MD5Update(&ctx, buf, strlen(buf));
+   MD5Final(digest, &ctx);
+
+   for (i = 0; i < 16; i++) sprintf( hex+2*i, "%02x", digest[i] );
+   hex[32] = '\0';
+
+   PRINTF(DBG_AUTH,("Got %s expected %s\n", argv[2], hex ));
+
+   if (strcmp(hex,argv[2])) {
+      daemon_printf( "%d auth denied\n", CODE_AUTH_DENIED );
+   } else {
+      daemon_printf( "%d authenticated\n", CODE_AUTH_OK );
+      daemon_check_auth( argv[1] );
+   }
 }
 
 static void daemon_status( int argc, char **argv )
 {
-   daemon_ok( "213 status", "t" );
+   daemon_ok( CODE_STATUS, "status", "t" );
 }
 
 static void daemon_help( int argc, char **argv )
 {
-   daemon_printf( "100 help text follows\n" );
-   daemon_text( "define word\n" );
+   daemon_printf( "%d help text follows\n", CODE_HELP );
+   daemon_text(
+    "DEFINE database word -- look up word in database\n"
+    "DEFINE word          -- look up word in all databases until found\n"
+    "MATCH database strategy word -- match word in database using strategy\n"
+    "MATCH strategy word          -- match word in all databases until found\n"
+    "MATCH word                   -- match word in using lev strategy\n"
+    "SHOW DB              -- list all accessible databases\n"
+    "SHOW DATABASES       -- list all accessible databases\n"
+    "SHOW STRAT           -- list available matching strategies\n"
+    "SHOW STRATEGIES      -- list available matching strategies\n"
+    "SHOW INFO database   -- provide information about the database\n"
+    "CLIENT info          -- identify client to server\n"
+    "AUTH user string     -- provide authentication information\n"
+    "STATUS               -- display timing information\n"
+    "HELP                 -- display this help information\n"
+    "QUIT                 -- terminate connection\n"
+   );
 }
 
 static void daemon_quit( int argc, char **argv )
 {
-   daemon_ok( "221 bye", "t" );
+   daemon_ok( CODE_GOODBYE, "bye", "t" );
    daemon_terminate( 0, __FUNCTION__ );
 }
-
-
-#if 0
-static int daemon_show( const char *what )
-{
-   int          count;
-   int          i;
-   dictDatabase *db;
-   
-   if (!strcmp(what,"databases") || !strcmp(what,"db")) {
-      count = lst_length( DictConfig->dbl );
-      daemon_printf( "databases %d\n", count );
-      for (i = 1; i <= count; i++) {
-	 db = lst_nth_get( DictConfig->dbl, i );
-	 daemon_printf( "database %s \"%s\"\n",
-			db->databaseName, db->databaseShort );
-      }
-      daemon_status("259 ok", "c");
-      return count;
-   } else if (!strcmp(what,"strategies") || !strcmp(what,"strat")) {
-      daemon_printf( "strategies %d\n", STRATEGIES );
-      for (i = 0; i < STRATEGIES; i++) {
-	 daemon_printf( "strategy %s \"%s\"\n",
-			strategyInfo[i].name,
-			strategyInfo[i].description );
-      }
-      daemon_status("259 ok", "c");
-      return STRATEGIES;
-   }
-   
-   daemon_printf("500 Illegal show command" );
-   return 0;
-}
-#endif
-
-#if 0
-static int daemon_define( const char *word, const char *databaseName )
-{
-#if 0
-   lst_List       list;
-   dictDatabase   *db;
-   int            i;
-   int            matches = 0;
-   int            count = lst_length( DictConfig->dbl );
-
-				/* FIXME! Iterative search... */
-   for (i = 1; i <= count; i++) {
-      db = lst_nth_get( DictConfig->dbl, i );
-      if (!databaseName || !strcmp( db->databaseName, databaseName )) {
-	 list = dict_search_database( word, db, DICT_EXACT );
-	 if (list && (matches = lst_length(list)) > 0) {
-	    daemon_printf( "definitions %d\n", matches );
-	    daemon_dump_defs( list, db );
-	    daemon_status();
-	 } else {
-            if (!databaseName) continue; /* keep searching */
-	    daemon_error( 0, "No match" );
-	 }
-	 if (list) dict_destroy_list( list );
-	 daemon_log( "define %s \"%.80s\" %d\n",
-		     db->databaseName, word, matches );
-	 return matches;
-      }
-   }
-   daemon_log( "no match \"%.80s\" %s\n", word, databaseName );
-   daemon_define("unknown",NULL);
-   if (databaseName)
-      daemon_error( 0, "Unknown database \"%s\"", databaseName );
-   else 
-      daemon_error( 0, "No match" );
-   return 0;
-#else
-   daemon_status("259 ok","c");
-#endif
-   return 0;
-}
-#endif
-
-#if 0
-static int daemon_match( const char *word,
-			 const char *strategy, const char *databaseName )
-{
-#if 0
-   lst_List       list;
-   dictDatabase   *db;
-   int            i, j;
-   int            matches = 0;
-
-				/* FIXME! Iterative search... */
-   for (i = 1; i <= lst_length( DictConfig->dbl ); i++) {
-      db = lst_nth_get( DictConfig->dbl, i );
-      if (!databaseName || !strcmp( db->databaseName, databaseName )) {
-	 for (j = 0; j < STRATEGIES; j++) {
-	    if (!strcmp(strategyInfo[j].name,strategy)) {
-	       list = dict_search_database( word, db,
-					    strategyInfo[j].number);
-	       if (list && (matches = lst_length(list)) > 0) {
-		  daemon_printf( "matches %d\n", matches );
-		  daemon_dump_matches( list );
-		  daemon_status();
-	       } else {
-		  daemon_error( 0, "No match" );
-	       }
-	       if (list) dict_destroy_list( list );
-	       daemon_log( "match %s \"%.80s\" %s %d\n",
-			   db->databaseName, word, strategyInfo[j].name,
-			   matches );
-	       return matches;
-	    }
-	 }
-	 daemon_error( 0, "Unknown strategy \"%s\"", strategy );
-	 return 0;
-      }
-   }
-   daemon_error( 0, "Unknown database \"%s\"", databaseName );
-   return 0;
-#else
-   daemon_status("259 ok","c");
-#endif
-   return 0;
-}
-#endif
 
 int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0 )
 {
@@ -680,20 +789,17 @@ int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0 )
    arg_List       cmdline;
    int            argc;
    char           **argv;
-   const char     *hostname;
-   int            port;
    void           (*command)(int, char **);
       
-   port     = ntohs(csin->sin_port);
-   hostname = str_find( inet_ntoa(csin->sin_addr) );
+   daemonPort = ntohs(csin->sin_port);
+   daemonIP   = str_find( inet_ntoa(csin->sin_addr) );
    if ((h = gethostbyaddr((void *)&csin->sin_addr,
 			  sizeof(csin->sin_addr), csin->sin_family))) {
-      hostname = str_find( h->h_name );
-   }
+      daemonHostname = str_find( h->h_name );
+   } else
+      daemonHostname = daemonIP;
 
    daemonS           = s;
-   daemonHostname    = hostname;
-   daemonPort        = port;
    
    _dict_defines     = 0;
    _dict_matches     = 0;
@@ -702,6 +808,10 @@ int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0 )
    tim_start( "t" );
    daemon_log( "connected\n" );
 
+   if (daemon_check_auth( NULL )) {
+      daemon_printf( "%d access denied\n", CODE_ACCESS_DENIED );
+      daemon_terminate( 0, "access denied" );
+   }
 	      
    daemon_banner();
 
@@ -716,10 +826,10 @@ int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0 )
       
       cmdline = arg_argify(buf,0);
       arg_get_vector( cmdline, &argc, &argv );
-      if ((command = lookup_command(argv[0]))) {
+      if ((command = lookup_command(argc,argv))) {
 	 command(argc, argv);
       } else {
-	 daemon_printf( "500 unknown command\n" );
+	 daemon_printf( "%d unknown command\n", CODE_SYNTAX_ERROR );
       }
       arg_destroy(cmdline);
    }

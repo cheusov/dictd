@@ -1,6 +1,6 @@
 /* dictd.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Fri Mar 28 23:08:30 1997 by faith@cs.unc.edu
+ * Revised: Wed Apr  2 18:34:52 1997 by faith@cs.unc.edu
  * Copyright 1994, 1995, 1996 Rickard E. Faith (faith@cs.unc.edu)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -41,6 +41,9 @@
 #define DICT_DEFAULT_SERVICE    "2628"
 #define DICT_QUEUE_DEPTH        10
 #define DICT_CONFIG_FILE        "/etc/dict.conf"
+#define DICT_SHORT_ENTRY_NAME   "00-database-name"
+#define DICT_URL_ENTRY_NAME     "00-database-url"
+#define DICT_INFO_ENTRY_NAME    "00-database-info"
 
 				/* End of configurable things */
 
@@ -55,6 +58,7 @@
 #define DBG_PORT        (0<<30|1<< 7) /* Log port number for connections   */
 #define DBG_LEV         (0<<30|1<< 8) /* Levenshtein matching              */
 #define DBG_NOFORK      (0<<30|1<< 9) /* Don't fork (single threaded)      */
+#define DBG_AUTH        (0<<30|1<<10) /* Debug authentication              */
 
 #define DICT_UNKNOWN    0
 #define DICT_TEXT       1
@@ -111,33 +115,35 @@ typedef struct dictIndex {
 typedef struct dictDatabase {
    const char *databaseName;
    const char *databaseShort;
+   const char *databaseURL;
+   const char *databaseInfoPointer;
    const char *dataFilename;
    const char *indexFilename;
    const char *filter;
    const char *prefilter;
    const char *postfilter;
    lst_List   acl;
+   int        available;	/* if user has authenticated for database */
    
    dictData   *data;
    dictIndex  *index;
 } dictDatabase;
 
-#define DICT_DENY  0
-#define DICT_ALLOW 1
-#define DICT_USER  0
-#define DICT_GROUP 1
-#define DICT_ADDR  2
-#define DICT_NAME  3
+#define DICT_DENY     0
+#define DICT_ALLOW    1
+#define DICT_AUTHONLY 2
+#define DICT_USER     3
+#define DICT_GROUP    4		/* Not implemented */
 
 typedef struct dictAccess {
-   int        allow;		/* 1 = allow; 0 = deny */
-   int        type;		/* user, group, hostaddr, hostname */
+   int        type;		/* deny, allow, accessonly, user, group */
    const char *spec;
 } dictAccess;
 
 typedef struct dictConfig {
-   lst_List   acl;              /* type dictAccess */
-   lst_List   dbl;              /* type dictDatabase */
+   lst_List      acl;		/* type dictAccess */
+   lst_List      dbl;		/* type dictDatabase */
+   hsh_HashTable usl;		/* username/shared-secret list */
 } dictConfig;
 
 #define DICT_EXACT        1

@@ -4,7 +4,7 @@
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: net.c,v 1.9 1997/03/31 01:53:31 faith Exp $
+ * $Id: net.c,v 1.10 1997/04/03 02:17:48 faith Exp $
  * 
  */
 
@@ -13,11 +13,16 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+
 #if HAVE_SYS_PARAM_H
 # include <sys/param.h>
 #endif
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN 64
+#endif
+
+#ifndef INADDR_NONE
+#define INADDR_NONE (-1)
 #endif
 
 static char netHostname[MAXHOSTNAMELEN];
