@@ -1,6 +1,5 @@
 /* index.c -- 
  * Created: Sat Mar 15 16:47:42 2003 by Aleksey Cheusov <vle@gmx.net>
- * Copyright 1996, 1997, 1998, 2000, 2002 Rickard E. Faith (faith@dict.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,7 +15,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: plugin.c,v 1.7 2003/08/27 15:46:50 cheusov Exp $
+ * $Id: plugin.c,v 1.8 2003/10/14 22:31:23 cheusov Exp $
  * 
  */
 
@@ -68,7 +67,7 @@ int dict_search_plugin (
       extra_data, extra_data_size,
       &defs, &defs_sizes, &defs_count);
 
-   database -> plugin -> dictdb_free_called = 0;
+   database -> plugin -> dictdb_free_called = 1;
 
    if (extra_result)
       *extra_result = ret;
@@ -584,21 +583,20 @@ void dict_plugin_destroy ( dictDatabase *db )
 
 static int call_dictdb_free1 (const void *datum)
 {
-   const dictWord     *dw = (dictWord *)datum;
-   const dictDatabase *db = dw -> database;
+   const dictDatabase *db = (const dictDatabase *) datum;
 
    if (db -> plugin){
-      if (!db -> plugin -> dictdb_free_called){
+      if (db -> plugin -> dictdb_free_called){
 	 db -> plugin -> dictdb_free (db -> plugin -> data);
 
-	 db -> plugin -> dictdb_free_called = 1;
+	 db -> plugin -> dictdb_free_called = 0;
       }
    }
 
    return 0;
 }
 
-void call_dictdb_free (lst_List list)
+void call_dictdb_free (lst_List db_list)
 {
-   lst_iterate (list, call_dictdb_free1);
+   lst_iterate (db_list, call_dictdb_free1);
 }

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.67 2003/10/02 12:31:46 cheusov Exp $
+ * $Id: daemon.c,v 1.68 2003/10/14 22:31:22 cheusov Exp $
  * 
  */
 
@@ -729,7 +729,7 @@ static void daemon_define( const char *cmdline, int argc, char **argv )
       daemon_dump_defs( list );
       daemon_ok( CODE_OK, "ok", "c" );
 #ifdef USE_PLUGIN
-      call_dictdb_free (list);
+      call_dictdb_free (DictConfig->dbl);
 #endif
       dict_destroy_list( list );
       return;
@@ -737,7 +737,7 @@ static void daemon_define( const char *cmdline, int argc, char **argv )
 
    if (!db_found) {
 #ifdef USE_PLUGIN
-      call_dictdb_free (list);
+      call_dictdb_free (DictConfig->dbl);
 #endif
       dict_destroy_list( list );
       daemon_printf( "%d invalid database, use SHOW DB for list\n",
@@ -746,7 +746,7 @@ static void daemon_define( const char *cmdline, int argc, char **argv )
    }
 
 #ifdef USE_PLUGIN
-   call_dictdb_free (list);
+   call_dictdb_free (DictConfig->dbl);
 #endif
    dict_destroy_list( list );
    daemon_log( DICT_LOG_NOMATCH,
@@ -808,7 +808,7 @@ static void daemon_match( const char *cmdline, int argc, char **argv )
       daemon_dump_matches( list );
       daemon_ok( CODE_OK, "ok", "c" );
 #ifdef USE_PLUGIN
-      call_dictdb_free (list);
+      call_dictdb_free (DictConfig->dbl);
 #endif
       dict_destroy_list( list );
       return;
@@ -816,7 +816,7 @@ static void daemon_match( const char *cmdline, int argc, char **argv )
 
    if (!db_found) {
 #ifdef USE_PLUGIN
-      call_dictdb_free (list);
+      call_dictdb_free (DictConfig->dbl);
 #endif
       dict_destroy_list( list );
       daemon_printf( "%d invalid database, use SHOW DB for list\n",
@@ -825,7 +825,7 @@ static void daemon_match( const char *cmdline, int argc, char **argv )
    }
 
 #ifdef USE_PLUGIN
-   call_dictdb_free (list);
+   call_dictdb_free (DictConfig->dbl);
 #endif
    dict_destroy_list( list );
    daemon_log( DICT_LOG_NOMATCH,
@@ -1149,7 +1149,7 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
 	 buf = dict_data_obtain( db, dw );
 
 #ifdef USE_PLUGIN
-	 call_dictdb_free (list);
+	 call_dictdb_free (DictConfig->dbl);
 #endif
 
 	 dict_destroy_list( list );
@@ -1161,7 +1161,7 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
 	 return;
       } else {
 #ifdef USE_PLUGIN
-	 call_dictdb_free (list);
+	 call_dictdb_free (DictConfig->dbl);
 #endif
 
 	 dict_destroy_list( list );

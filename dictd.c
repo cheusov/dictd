@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.96 2003/10/14 11:54:15 cheusov Exp $
+ * $Id: dictd.c,v 1.97 2003/10/14 22:31:23 cheusov Exp $
  * 
  */
 
@@ -425,7 +425,7 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
 	 NULL, NULL, NULL ))
    {
 #ifdef USE_PLUGIN
-      call_dictdb_free (list);
+      call_dictdb_free (DictConfig->dbl);
 #endif
       lst_destroy( list );
       return NULL;
@@ -448,7 +448,7 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
    pt[ strlen(pt) - 1 ] = '\0';
 
 #ifdef USE_PLUGIN
-   call_dictdb_free (list);
+   call_dictdb_free (DictConfig->dbl);
 #endif
    dict_destroy_list( list );
 
@@ -564,14 +564,14 @@ static int init_plugin( const void *datum )
 void dict_disable_strat (dictDatabase *db, const char* strategy)
 {
    int strat = -1;
-   int strat_count = get_strategy_count ();
+   int array_size = get_max_strategy_num () + 1;
 
    assert (db);
    assert (strategy);
 
    if (!db -> strategy_disabled){
-      db -> strategy_disabled = xmalloc (strat_count * sizeof (int));
-      memset (db -> strategy_disabled, 0, strat_count * sizeof (int));
+      db -> strategy_disabled = xmalloc (array_size * sizeof (int));
+      memset (db -> strategy_disabled, 0, array_size * sizeof (int));
    }
 
    strat = lookup_strategy (strategy);
@@ -848,7 +848,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.96 2003/10/14 11:54:15 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.97 2003/10/14 22:31:23 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1172,7 +1172,7 @@ static void dict_test (
 
 #ifdef USE_PLUGIN
    if (count != 0){
-      call_dictdb_free (l);
+      call_dictdb_free (DictConfig->dbl);
    }
 #endif
 

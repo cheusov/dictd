@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: strategy.c,v 1.3 2003/08/06 17:55:54 cheusov Exp $
+ * $Id: strategy.c,v 1.4 2003/10/14 22:31:24 cheusov Exp $
  * 
  */
 
@@ -100,6 +100,16 @@ int get_strategy_count (void)
 dictStrategy **get_strategies (void)
 {
    return strategies;
+}
+
+int get_max_strategy_num (void)
+{
+   int i = get_strategy_count ();
+   if (i){
+      return get_strategies () [i-1]->number;
+   }else{
+      return -1;
+   }
 }
 
 static int lookup_strategy_index ( const char *strategy )
