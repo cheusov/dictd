@@ -71,9 +71,10 @@ typedef int (*dictdb_open_type)
       );
 
 enum {
-   DICT_PLUGIN_INITDATA_DICT, /* data obtained from .dict file */
-   DICT_PLUGIN_INITDATA_DBNAME,
-   DICT_PLUGIN_INITDATA_STRATEGY,
+   DICT_PLUGIN_INITDATA_DICT,     /* data from .dict or configuration file */
+   DICT_PLUGIN_INITDATA_DBNAME,   /* database name */
+   DICT_PLUGIN_INITDATA_STRATEGY, /* search strategy */
+   DICT_PLUGIN_INITDATA_DEFDBDIR, /* default directory for databases */
 
    /* this list can be enlarged*/
 };

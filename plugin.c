@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: plugin.c,v 1.6 2003/08/08 12:15:28 cheusov Exp $
+ * $Id: plugin.c,v 1.7 2003/08/27 15:46:50 cheusov Exp $
  * 
  */
 
@@ -308,6 +308,22 @@ static int plugin_initdata_set_stratnames (dictPluginData *data, int data_size)
    return ret;
 }
 
+static int plugin_initdata_set_defdbdir (dictPluginData *data, int data_size)
+{
+   const dictDatabase *db;
+   int count;
+   int i;
+
+   if (data_size <= 0)
+      err_fatal (__FUNCTION__, "too small initial array");
+
+   data -> size = -1;
+   data -> data = xstrdup (DICT_DICTIONARY_PATH);
+   data -> id   = DICT_PLUGIN_INITDATA_DEFDBDIR;
+
+   return 1;
+}
+
 /* all dict [i]->data are xmalloc'd*/
 static int plugin_initdata_set (
    dictPluginData *data, int data_size,
@@ -315,6 +331,10 @@ static int plugin_initdata_set (
 {
    int count = 0;
    dictPluginData *p = data;
+
+   count = plugin_initdata_set_defdbdir (data, data_size);
+   data      += count;
+   data_size -= count;
 
    count = plugin_initdata_set_dbnames (data, data_size);
    data      += count;
