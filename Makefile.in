@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.71 2003/04/14 09:42:50 cheusov Exp $
+# $Id: Makefile.in,v 1.72 2003/04/14 15:12:47 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -372,6 +372,7 @@ clean:
 	-rm -f *.cfg *.dtk .inslog tca.map
 	-rm -f *.dct *.idx y.output TAGS
 	-rm -f *.dict *.index
+	-rm -f *.exe *.dll
 
 recursive-clean: clean
 	@for subdir in `echo $(subdirs)`; do \
