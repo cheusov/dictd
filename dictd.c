@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.63 2003/01/19 11:13:51 cheusov Exp $
+ * $Id: dictd.c,v 1.64 2003/01/19 15:27:14 cheusov Exp $
  * 
  */
 
@@ -732,7 +732,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.63 2003/01/19 11:13:51 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.64 2003/01/19 15:27:14 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -820,7 +820,9 @@ static void help( void )
                                 the default is 'exact'",
 "   --test-db <database>         database name for --test and --ftest.\n\
                                 the default is '*'",
-"   --test-match                 show matched words but the definitions\n",
+"   --test-match                 show matched words but the definitions",
+"   --test-nooutput              produces no output",
+"   --test-idle                  does everything except search",
       0 };
    const char        **p = help_msg;
 
@@ -969,6 +971,9 @@ static void dict_make_dbs_available (dictConfig *cfg)
 
 static const char *database_arg="*";
 
+static int idle_mode     = 0;
+static int nooutput_mode = 0;
+
 static void dict_test (
    const char *word,
    int strategy)
@@ -980,10 +985,12 @@ static void dict_test (
 
    count = dict_search_databases (l, NULL, database_arg, word, strategy);
 
-   if (count != 0){
-      dict_dump_defs (l);
-   }else{
-      fprintf (stderr, "No definitions found for \"%s\"\n", word);
+   if (!nooutput_mode){
+      if (count != 0){
+	 dict_dump_defs (l);
+      }else{
+	 fprintf (stderr, "No definitions found for \"%s\"\n", word);
+      }
    }
 
    dict_destroy_list (l);
@@ -1076,6 +1083,8 @@ int main( int argc, char **argv, char **envp )
       { "default-strategy", 1, 0, 511 },
       { "test-match",       0, 0, 512 },
       { "without-strategy", 1, 0, 513 },
+      { "test-nooutput",    0, 0, 514 },
+      { "test-idle",        0, 0, 515 },
       { 0,                  0, 0, 0  }
    };
 
@@ -1150,6 +1159,12 @@ int main( int argc, char **argv, char **envp )
       case 513:
 	 disable_strategy (optarg);
 	 break;
+      case 514:
+	 nooutput_mode = 1;
+	 break;
+      case 515:
+	 idle_mode = 1;
+	 break;
       case 'h':
       default:  help(); exit(0);                          break;
       }
@@ -1200,16 +1215,24 @@ int main( int argc, char **argv, char **envp )
    sanity(configFile);
    log_close();
 
-   
+
+   if (match_mode)
+      strategy |= DICT_MATCH_MASK;
+
+
    if (testWord) {		/* stand-alone test mode */
       dict_config_print( NULL, DictConfig );
       dict_init_databases( DictConfig );
 
       dict_make_dbs_available (DictConfig);
 
-      dict_test (testWord, strategy);
+      if (!idle_mode){
+	 dict_test (testWord, strategy);
 
-      fprintf( stderr, "%d comparisons\n", _dict_comparisons );
+	 if (!nooutput_mode){
+	    fprintf( stderr, "%d comparisons\n", _dict_comparisons );
+	 }
+      }
 
       dict_close_databases (DictConfig);
 
@@ -1243,16 +1266,27 @@ int main( int argc, char **argv, char **envp )
 
          if (buf[0]){
 	    ++words;
-            dict_test (buf, strategy);
+
+	    if (!idle_mode){
+	       dict_test (buf, strategy);
+	    }
          }
 
-         if (words && !(words % 1000))
-            fprintf( stderr,
-                     "%d comparisons, %d words\n", _dict_comparisons, words );
+         if (words && !(words % 1000)){
+	    if (!nooutput_mode){
+	       fprintf(
+		  stderr,
+		  "%d comparisons, %d words\n", _dict_comparisons, words );
+	    }
+	 }
       }
 
-      fprintf( stderr,
-	       "%d comparisons, %d words\n", _dict_comparisons, words );
+      if (!nooutput_mode){
+	 fprintf(
+	    stderr,
+	    "%d comparisons, %d words\n", _dict_comparisons, words );
+      }
+
       fclose( str);
 
       dict_close_databases (DictConfig);
