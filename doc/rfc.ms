@@ -4,7 +4,7 @@
 .lt 7.2i
 .nr LL 7.2i
 .nr LT 7.2i
-.ds LF Faith
+.ds LF Faith, Martin
 .ds RF FORMFEED[Page %]
 .ds CF
 .ds LH RFC Unassigned
@@ -15,18 +15,20 @@
 .in 0
 Network Working Group                                           R. Faith
 Request for Comments: Unassigned          U. North Carolina, Chapel Hill
-Category: Standards Track                                  24 March 1997
+Category: Standards Track                                      B. Martin
+                                                         Yale University
+                                                            2 April 1997
 
 
-.fi
-.in 3
 .ce
 A Dictionary Server Protocol
 
 .ti 0
 Status of this Memo
 
-Note: This document has not yet been submitted or accepted as an official
+.fi
+.in 3
+This document has not yet been submitted or accepted as an official
 RFC.
 
 This memo provides information for the Internet community.  This memo
@@ -49,17 +51,19 @@ supports access to a single dictionary and (optionally) to a single
 thesaurus.  In recent years, the number of publically available webster
 servers on the Internet has dramatically decreased.
 
-Fortunately, several freely-distributable dictionaries and lexicons have
-recently become available on the Internet.  However, these
-freely-distributable databases are not accessible via a uniform interface,
-and are not accessible from a single site.  Further, they are often small
-and incomplete individually, but would collectively provide an interesting
-and useful database for providing definitions of English words.  Examples
-include the Jargon file [The on-line hacker Jargon File, version 4.0.0, 24
-JUL 1996], the WordNet database [http://www.cogsci.princeton.edu/~wn/], and
-MICRA's version of the 1913 Webster's Revised Unabridged Dictionary
-[http://humanities.uchicago.edu/forms_unrest/webster.form.html], and the
-Free Online Dictionary of Computing [http://wombat.doc.ic.ac.uk/foldoc/].
+Fortunately, several freely-distributable dictionaries and lexicons
+have recently become available on the Internet.  However, these
+freely-distributable databases are not accessible via a uniform
+interface, and are not accessible from a single site.  They are often
+small and incomplete individually, but would collectively provide an
+interesting and useful database for providing definitions of English
+words.  Examples include the Jargon file [The on-line hacker Jargon
+File, version 4.0.0, 24 JUL 1996], the WordNet database
+[http://www.cogsci.princeton.edu/~wn/], and MICRA's version of the
+1913 Webster's Revised Unabridged Dictionary
+[http://humanities.uchicago.edu/forms_unrest/webster.form.html], and
+the Free Online Dictionary of Computing
+[http://wombat.doc.ic.ac.uk/foldoc/].
 
 The webster protocol is not suitable for providing access to a large number
 of separate dictionary databases, and extensions to the current webster
@@ -89,7 +93,7 @@ servers listened on port 2627).
 
 This server is only an interface between programs and the dictionary
 databases.  It does not perform any user interaction or presentation-level
-funcitons.
+functions.
 
 .ti 0
 2.2. Lexical Tokens
@@ -110,14 +114,14 @@ set.  More specifically, using the grammar conventions from [RFC822]:
      <.>         =  <ASCII period>               ; (     56,      46.)
      <*>         =  <ASCII star>                 ; (     52,      42.)
      CRLF        =  CR LF
-     WS          =  SPACE / HTAB
+     WS          =  1*(SPACE / HTAB)
      atom        =  1*<any CHAR except SPACE and CTLs>
      word        =  atom / qstring / string
      qstring     =  <"> *(qtextd/quoted-pair) <">
                  /  <'> *(qtexts/quoted-pair) <'>
      string      =  *(qtextd/quoted-pair)
-     qtextd      =  <any CHAR excepting <">, "\\", CTLs>
-     qtexts      =  <any CHAR excepting <'>, "\\", CTLs>
+     qtextd      =  <any CHAR except <">, "\\", CTLs>
+     qtexts      =  <any CHAR except <'>, "\\", CTLs>
      quoted-pair =  "\\" CHAR                     ; may quote any char
      database    = atom
      strategy    = atom
@@ -145,7 +149,7 @@ CRLF.  There is no provision for the continuation of command lines.
 .ti 0
 2.4. Responses
 
-Responses are of three kinds, textual, binary, and status.
+Responses are of three kinds, textual and status.
 
 .ti 0
 2.4.1. Text Responses
@@ -162,7 +166,7 @@ the original, that first period is doubled.  Therefore, the client must
 examine the first character of each line received.  Those that begin with
 two periods must have those two periods collapsed into one period.  Those
 that contain only a single period followed by a CRLF indicate the end of
-text.
+the text response.
 
 The intention is that text messages are appropriate for display on the
 user's terminal.
@@ -174,7 +178,7 @@ These indicate the server's response to the last command received from the
 client.
 
 Status response lines begin with a 3 digit numeric code which is sufficient
-to distringuish all responses.  Some of these may herald the subsequent
+to distinguish all responses.  Some of these may herald the subsequent
 transmission of text.
 
 The first digit of the response broadly indicates the success, failure, or
@@ -184,7 +188,7 @@ progress of the previous command (based generally on [RFC640,RFC821]):
    1yz - Positive Preliminary reply (not used by DICT)
    2yz - Positive Completion reply
    3yz - Positive Intermediate reply (not used by DICT)
-   4yz - Transient Negative Completion reply (not used by DICT)
+   4yz - Transient Negative Completion reply
    5yz - Permanent Negative Completion reply
 .fi
 
@@ -205,9 +209,13 @@ The next digit in the code indicates the response catagory:
 The exact response codes that should be expected from each command are
 detailed in the description of that command.
 
-Certain status responses contain parameters such as numbers and strings.  The
-number and type of such parameters is fixed for each response code to
-simplify interpretation of the response.
+Certain status responses contain parameters such as numbers and
+strings.  The number and type of such parameters is fixed for each
+response code to simplify interpretation of the response.  Other
+status responses do not require specific text identifiers.  Parameter
+requirements are detailed in the description of relevant commands.
+Except for specifically detailed parameters, the text following
+response codes is server-dependent.
 
 Parameters are separeted from the numeric response code and from each other
 by a single space.  All numeric parameters are decimal, and may have
@@ -217,22 +225,23 @@ leading zeros.  All string parameters are surrounded by double quotes
 If a double quote appears in the string, it is preceeded by a backslash
 (decimal code 92, "\\").
 
-
 Response codes not specified in this standard may be used for any
 installation-specific additional commands also not specified.  These should
 be chosen to fit the pattern of x8z specified above.  The use of
 unspecified response codes for standard commands is prohibited.
 
-.ti
-2.4.3. General Responses
+.ti 0
+2.4.3. General Status Responses
 
-In response to every command, the following general responses are possible:
+In response to every command, the following general status responses
+are possible:
 .nf
    500 Syntax error, command not recognized
    501 Syntax error, illegal parameters
    502 Command not implemented
    503 Command parameter not implemented
 .fi
+
 
 .ti 0
 3. Command and Response Details
@@ -245,7 +254,7 @@ Every command described in this section must be implemented by all DICT
 servers.
 
 .ti 0
- 3.1. Initial Connection
+3.1. Initial Connection
 
 When a client initially connects to a DICT server, a code 220 is sent if
 the client's IP is allowed to connect:
@@ -254,10 +263,10 @@ the client's IP is allowed to connect:
 220 machine version msgid
 .fi
 
-The code 220 is a free-form banner, usually with host name and DICT server
-version information.  The last sequence of characters in the banner is a
-msgid, in the format specified in [RFC822].  A simplified description is
-given below:
+The code 220 is a banner, usually containing host name and DICT server
+version information.  The last sequence of characters in the banner is
+a msgid, in the format specified in [RFC822].  A simplified
+description is given below:
 
 .nf
      msg-id      =  "<" spec ">"            ; Unique message id
@@ -273,7 +282,14 @@ If the client's IP is not allowed to connect, then a code 530 is sent
 instead:
 .sp
 .nf
-530 Access denied
+   530 Access denied
+.fi
+
+Transient failure responses are also possible:
+.sp
+.nf
+   420 Server temporarily unavailable
+   421 Server shutting down at operator request
 .fi
 
 .ti 0
@@ -286,25 +302,29 @@ DEFINE word
 .ti 0
 3.2.1. Description
 
-This command will look up the specified word in the specified database.  If
-the database name is a star (decimal code 42, "*"), then all of the
-databases will be search in the same order as that printed by the "SHOW DB"
-command.  This is the default behavior if a database is not specified.
+This command will look up the specified word in the specified
+database.  If the database name is specified with a star (decimal code
+42, "*"), then all of the databases will be search in the same order
+as that printed by the "SHOW DB" command.  This is the default
+behavior if a database is not specified.  ("DEFINE word" is equivalent
+to "DEFINE * word".)
 
 If the word was not found, then status code 552 is sent.
 
 If the word was found, then status code 250 is sent, indicating that one or
 more definitions follow.
 
-For each definition, status code 251 is sent, followed by the textual body
-of the definition.  The first two space-delimited parameters following
-status code 251 give the short name of the database (which is the same as
-the first column of the SHOW DB command), and a short name for the database
-(which is the same as the second column of the SHOW DB command).  The short
-name is suitable for printing as:
+For each definition, status code 251 is sent, followed by the textual
+body of the definition.  The first three space-delimited parameters
+following status code 251 give the word retrieved, the short name of
+the database (which is the same as the first column of the SHOW DB
+command), and a short name for the database (which is the same as the
+second column of the SHOW DB command).  The short name is suitable for
+printing as:
 .RS
 From name:
 .RE
+.in 3
 before the definition is printed.  This provides source information for the
 user.
 
@@ -318,13 +338,28 @@ information is useful when debugging and tuning the server.
 
 .ti 0
 3.2.2. Responses
+
 .nf
-550 Invalid database, use "SHOW DB" for list of databases
-552 No match
-250 n definitions retrieved - definitions follow
-251 database name - text follows
-259 ok (optional timing information here)
+   550 Invalid database, use "SHOW DB" for list of databases
+   552 No match
+   250 n definitions retrieved - definitions follow
+   251 word database name - text follows
+   259 ok (optional timing information here)
 .fi
+
+Response codes 250 and 251 require special parameters as part of their
+text.  The client can use these parameters to display information on
+the user's terminal.
+
+For code 250, parameter 1 must indicate the number of definitions
+retrieved.
+
+For code 251, parameter 1 must be the word retrieved.  Parameter 2
+must be the short database name (the first name as shown by "SHOW DB")
+for the database from which the definition has been retrieved.
+Parameter 3 must be the short database description (the second name
+shown by "SHOW DB").
+
 
 .ti 0
 3.3. The MATCH Command
@@ -363,6 +398,7 @@ words in the form:
 .RS
 database word
 .RE
+.in 3
 This makes the responses directly useful in a DEFINE command.
 
 The textual body of the match list is terminated with a CRLF period CRLF
@@ -374,13 +410,18 @@ section on the DEFINE command.
 
 .ti 0
 3.3.2. Responses
+
 .nf
-550 Invalid database, use "SHOW DB" for list of databases
-551 Invalid strategy, use "SHOW STRAT" for a list of strategies
-552 No matches
-253 n matches found - text follows
-259 ok (optional timing information here)
+   550 Invalid database, use "SHOW DB" for list of databases
+   551 Invalid strategy, use "SHOW STRAT" for a list of strategies
+   552 No matches
+   253 n matches found - text follows
+   259 ok (optional timing information here)
 .fi
+
+Response code 253 requires a special parameter as part of its text.
+Parameter 1 must be the number of matches retrieved.
+
 
 .ti 0
 3.4. The SHOW Command
@@ -399,11 +440,13 @@ Displays the list of currently accessible databases in the form:
 .RS
 database description URL
 .RE
+.in 3
 The textual body of the database list is terminated with a CRLF period CRLF
 sequence.
 
 The URL field is optional.  If present, it should be a Uniform Resource
-Locator, as described in [RFC1738].
+Locator, as described in [RFC1738].  This URL can specify the location
+of further information about the indicated database.
 
 Note that some databases may be restricted due to client domain or lack of
 user authentication (see the CLIENT and AUTH commands).  Information about
@@ -413,10 +456,14 @@ databases did not exist.
 
 .ti 0
 3.4.1.2. Responses
+
 .nf
-210 n databases present - text follows
-554 no databases present
+   210 n databases present - text follows
+   554 no databases present
 .fi
+
+Response code 210 requires a special parameter.  Parameter 1 must be
+the number of databases available to the user.
 
 .ti 0
 3.4.2. SHOW STRAT
@@ -430,17 +477,22 @@ SHOW STRATEGIES
 
 Displays the list of currently supported search strategies in the form:
 .RS
-stategy description
+strategy description
 .RE
+.in 3
 The textual body of the strategy list is terminated with a CRLF period CRLF
 sequence.
 
 .ti 0
 3.4.2.2. Responses
+
 .nf
-211 n strategies available - text follows
-555 no strategies available
+   211 n strategies available - text follows
+   555 no strategies available
 .fi
+
+Response code 210 requires a special parameter.  Parameter 1 must be
+the number of databases available to the user.
 
 .ti 0
 3.4.3. SHOW INFO
@@ -457,10 +509,13 @@ of the information is terminated with a CRLF period CRLF sequence.
 
 .ti 0
 3.4.3.2. Responses
+
 .nf
-550 Invalid database, use "SHOW DB" for list of databases
-212 text follows
+   550 Invalid database, use "SHOW DB" for list of databases
+   212 text follows
 .fi
+
+These response codes require no special parameters.
 
 .ti 0
 3.5. The CLIENT Command
@@ -476,9 +531,13 @@ this command after connecting to the server.
 
 .ti 0
 3.5.2. Responses
+
 .nf
-259 ok (optional timing information here)
+   259 ok (optional timing information here)
 .fi
+
+This response code requires no special parameters.
+
 
 .ti 0
 3.6. The AUTH Command
@@ -488,16 +547,16 @@ AUTH username authentication-string
 .ti 0
 3.6.1. Description
 
-The client can authenticate to the server using a username and password.
-The authentication-string will be computed as in the APOP protocol
-discussed in [RFC1939].  Briefly, the authentication-string is the MD5
-checksum of the concatenation of the msgid (obtained from the response to
-the CLIENT command) and the ``shared secret'' (or password) that is stored
-in the server and client configuration files.  Since the user does not have
-to type this shared secret when accessing the server, the shared secret can
-be an arbitrarily long passphrase.  Because of the computational ease of
-computing the MD5 checksum, the shared secret should be significantly
-longer than a usual password.
+The client can authenticate itself to the server using a username and
+password.  The authentication-string will be computed as in the APOP
+protocol discussed in [RFC1939].  Briefly, the authentication-string
+is the MD5 checksum of the concatenation of the msgid (obtained from
+the response to the CLIENT command) and the ``shared secret'' (or
+password) that is stored in the server and client configuration files.
+Since the user does not have to type this shared secret when accessing
+the server, the shared secret can be an arbitrarily long passphrase.
+Because of the computational ease of computing the MD5 checksum, the
+shared secret should be significantly longer than a usual password.
 
 Authentication may make more dictionary databases available for the current
 session.  For example, there may be some publicly distributable databases
@@ -510,10 +569,13 @@ provided in a typical server.
 
 .ti 0
 3.6.2. Responses
+
 .nf
-230 Authentication successful
-531 Access denied
+   230 Authentication successful
+   531 Access denied
 .fi
+
+These response codes require no special parameters.
 
 .ti 0
 3.7. The STATUS Command
@@ -528,9 +590,12 @@ information may be useful in debugging or tuning a DICT server.
 
 .ti 0
 3.7.2. Responses
+
 .nf
-213 (optional timing and statistical information here)
+   213 (optional timing and statistical information here)
 .fi
+
+This response code requires no special parameters.
 
 .ti 0
 3.8. The HELP Command
@@ -546,9 +611,12 @@ textual response, terminated by a single period on a line by itself.
 
 .ti 0
 3.8.2. Responses
+
 .nf
-214 help text follows
+   214 help text follows
 .fi
+
+This response code requires no special parameters.
 
 .ti 0
 3.9. The QUIT Command
@@ -562,16 +630,160 @@ This command is used by the client to cleanly exit the server.
 
 .ti 0
 3.9.2. Responses
+
 .nf
-221 Closing Connection
+   221 Closing Connection
 .fi
+
+This response code requires no special parameters.
 
 .ti 0
 4. Sample Conversations
 
 Theses are samples of the conversations that might be expected with a
 typical DICT server.  The notation "C:" indicates commands set by the
-client, and "S:" indicates reponses sent by the server.
+client, and "S:" indicates reponses sent by the server.  Blank lines
+are included for clarity and do not indicate actual newlines in the
+transaction.
+
+.ti 0
+4.1. Sample 1 - opening connection, HELP, DEFINE, and QUIT commands
+
+.nf
+C: [ client initiates connection ]
+
+S: 220 dict.org dictd (version 0.9) <27831.860032493@dict.org>
+
+C: HELP
+
+S: 214 Help text follows
+S: DEFINE database word     look up word in database
+S: DEFINE word              look up word in each database until found
+S: [ more server-dependent help text ]
+S: .
+
+C: DEFINE cow
+
+S: 250 1 definitions found: list follows
+S: 251 "cow" wn "WordNet 1.5" : definition text follows
+S: cow
+S:   1. n: mature female of mammals of which the male is called "bull"
+S:   2. n: female of domestic cattle: "`moo-cow'" is a child's term
+S:   3. n: a large unpleasant woman
+S: .
+S: 259 Command complete
+
+C: DEFINE abcdefgh
+
+S: 552 No matches
+
+C: DEFINE Sun
+
+S: 250 2 definitions found: list follows
+S: 251 "Sun" wn "WordNet 1.5" : definition text follows
+S: Sun
+S:   1. n: the star that is the source of light and heat for the planets in
+S:      the solar system
+S: .
+S: 251 "sun" wn "WordNet 1.5" : definition text follows
+S: sun
+S:   1. n: any star around which a planetary system evolves
+S:   2. n: a person considered as a source of warmth or energy or glory etc
+S:   3. v: expose to as if to sun rays
+S: .
+S: 259 Command complete
+
+C: quit
+
+S: 221 Closing connection
+.fi
+
+
+.ti 0
+4.2. Sample 2 - SHOW commands, MATCH command
+
+.nf
+C: SHOW DB
+
+S: 210 3 databases present: list follows
+S: wn "WordNet 1.5"
+S: foldoc "Free On-Line Dictionary of Computing"
+S: jargon "Hacker Jargon File"
+S: .
+S: 259 Command complete
+
+C: SHOW STRAT
+
+S: 211 5 strategies present: list follows
+S: exact "Match words exactly"
+S: prefix "Match word prefixes"
+S: substring "Match substrings anywhere in word"
+S: regex "Match using regular expressions"
+S: reverse "Match words given definition keywords"
+S: .
+S: 259 Command complete
+
+C: MATCH foldoc regex "s.si"
+
+S: 253 7 matches found: list follows
+S: foldoc Fast SCSI
+S: foldoc SCSI
+S: foldoc SCSI-1
+S: foldoc SCSI-2
+S: foldoc SCSI-3
+S: foldoc Ultra-SCSI
+S: foldoc Wide SCSI
+S: .
+S: 259 Command complete
+
+C: MATCH wn substring "abcdefgh"
+
+S: 552 No matches
+.fi
+
+
+.ti 0
+4.3. Sample 3 - Server downtime
+
+.nf
+C: [ client initiates connection ]
+
+S: 420 Server temporarily unavailable
+.fi
+
+.nf
+C: [ client initiates connection ]
+
+S: 421 Server shutting down at operator request
+.fi
+
+.ti 0
+4.4. Sample 4 - Authentication
+
+.nf
+C: [ client initiates connection ]
+
+S: 220 dict.org dictd (version 0.9) <27831.860032493@dict.org>
+
+C: SHOW DB
+
+S: 210 1 database present: list follows
+S: free "Free database"
+S: .
+S: 259 Command complete
+
+C: AUTH joesmith authentication-string
+
+S: 230 Authentication successful
+
+C: SHOW DB
+
+S: 210 2 databases present: list follows
+S: free "Free database"
+S: licensed "Local licensed database"
+S: .
+S: 259 Command complete
+.fi
 
 .ti 0
 5. Security Considerations
@@ -600,23 +812,28 @@ Proposed Standard for the Stream-Based Transmission of News", RFC-977,
 U.C. San Diego, U.C. Berkeley, February, 1986.
 
 .ti 3
-Berners-Lee, T., Masinter, L., and M. McCahill, "Uniform Resource Locators
-(URL)", RFC-1738, CERN, Xerox PARC, University of Minnesota, December 1994.
-
+[RFC1738] Berners-Lee, T., Masinter, L., and M. McCahill, "Uniform
+Resource Locators (URL)", RFC-1738, CERN, Xerox PARC, University of
+Minnesota, December 1994.
 
 .ti 3
 [RFC1939] Myers, J., Rose, M., "Post Office Protocol - Version 3",
 RFC-1939, Carnegie Mellon/Dover Beach Consulting, May, 1996.
+
+.ti 3
+[RFC2068] Fielding, R., Gettys, J., Mogul, J., Frystyk, H.,
+Berners-Lee, T., "Hypertext Transfer Protocol -- HTTP/1.1", RFC-2068,
+U.C. Irvine, DEC, MIT/LCS, January, 1997.
 
 .in 3
 
 .ti 0
 7. Acknowledgements
 
-Thanks to Bret Martin, Nicolai Langfeldt, and Arnt Gulbrandsen for many
-helpful discussions.  Thanks to Bennet Yee, Doug Hoffman, and Kevin Martin
-for extensive testing and feedback on the initial implementations of the
-DICT server.
+Thanks to Nicolai Langfeldt and Arnt Gulbrandsen for many helpful
+discussions.  Thanks to Bennet Yee, Doug Hoffman, and Kevin Martin for
+extensive testing and feedback on the initial implementations of the
+DICT server.  Thanks to Zhong Shao for advice and support.
 
 (Thanks to Brian Kanto, Phil Lapsley, and Jon Postel for writing exemplary
 RFCs which were consulted during the preparation of this document.)
@@ -627,3 +844,6 @@ RFCs which were consulted during the preparation of this document.)
 .nf
 Rik Faith
 EMail: faith@cs.unc.edu
+
+Bret Martin
+EMail: martin-bret@cs.yale.edu
