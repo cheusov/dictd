@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.16 2003/10/13 23:38:18 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.17 2003/10/22 03:32:49 cheusov Exp $
  * 
  */
 
@@ -294,18 +294,6 @@ static int process_line (char *s, void *data)
 	 sizeof (dict_data -> m_conf_data_fn),
 	 dict_data -> m_default_db_dir,
 	 value);
-   }else if (!strcmp(s, "disable_strat")){
-      if (!strcmp (value, "exact")){
-	 dict_data -> m_strat_exact = -1;
-      }else if (!strcmp (value, "prefix")){
-	 dict_data -> m_strat_prefix = -1;
-      }else if (!strcmp (value, "lev")){
-	 dict_data -> m_strat_lev = -1;
-      }else if (!strcmp (value, "word")){
-	 dict_data -> m_strat_word = -1;
-      }else{
-	 plugin_error (dict_data, "invalid strategy");
-      }
    }
 
    return 0;
@@ -738,6 +726,7 @@ int dictdb_free (void * data)
 {
    int i;
    global_data *dict_data = (global_data *) data;
+/*   fprintf (stderr, "dictdb_free\n"); */
 
    if (dict_data){
       free_minus1_array (dict_data -> m_mres_sizes);
@@ -788,7 +777,6 @@ static int match_prefix (
    const char *word)
 {
    PPvoid_t value;
-   PPvoid_t value_last;
 
    char curr_word [BUFSIZE];
    size_t len = strlen (word);
@@ -796,28 +784,6 @@ static int match_prefix (
 
    strlcpy (curr_word, word, sizeof (curr_word));
 
-   if (len){
-      /* trick:
-	 here we construct a word that is "largest" one
-	 with the prefix 'word' (function argument)
-      */
-      curr_word [len + 0] = UCHAR_MAX;
-      curr_word [len + 1] = UCHAR_MAX;
-      curr_word [len + 2] = UCHAR_MAX;
-      curr_word [len + 3] = UCHAR_MAX;
-      curr_word [len + 4] = UCHAR_MAX;
-      curr_word [len + 5] = UCHAR_MAX;
-      curr_word [len + 6] = UCHAR_MAX;
-      curr_word [len + 7] = 0;
-
-      value_last = JudySLPrev (dict_data -> m_judy_array, curr_word, 0);
-/*      fprintf (stderr, "last=%s %p\n", curr_word, value_last); */
-      curr_word [len + 0] = 0;
-   }else{
-      value_last = NULL;
-   }
-
-   strlcpy (curr_word, word, sizeof (curr_word));
    value = JudySLGet (dict_data -> m_judy_array, curr_word, 0);
    if (!value)
       value = JudySLNext (dict_data -> m_judy_array, curr_word, 0);
@@ -829,13 +795,11 @@ static int match_prefix (
       value;
       value = JudySLNext (dict_data -> m_judy_array, curr_word, 0))
    {
-      if (value == value_last){
-	 cmp_res = strncmp (word, curr_word, len);
+      cmp_res = strncmp (word, curr_word, len);
 
-	 if (cmp_res){
+      if (cmp_res){
 /*	    fprintf (stderr, "%s != %s\n", word, curr_word); */
-	    break;
-	 }
+	 break;
       }
 
       ++dict_data -> m_mres_count;
@@ -848,10 +812,6 @@ static int match_prefix (
 
       dict_data -> m_mres [dict_data -> m_mres_count - 1] =
 	 heap_strdup (dict_data -> m_heap, curr_word);
-
-      if (value == value_last){
-	 break;
-      }
    }
 
    return 0;
