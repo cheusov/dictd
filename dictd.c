@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.109 2004/04/05 17:44:10 cheusov Exp $
+ * $Id: dictd.c,v 1.110 2004/05/16 13:01:40 cheusov Exp $
  * 
  */
 
@@ -605,7 +605,7 @@ void dict_disable_strat (dictDatabase *db, const char* strategy)
 
    if (strat == -1){
       log_info(":E: strategy '%s' is not available\n", strategy);
-      err_fatal(__FUNCTION__, ":E: terminating due to errors\n");
+      err_fatal(__FUNCTION__, ":E: terminating due to errors.\n");
    }else{
       db -> strategy_disabled [strat] = 1;
    }
@@ -914,7 +914,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.109 2004/04/05 17:44:10 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.110 2004/05/16 13:01:40 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1157,7 +1157,7 @@ static void sanity(const char *confFile)
 		  getegid(), gr && gr->gr_name ? gr->gr_name : "?");
 	 log_info(":E: config and db files must be readable by that user\n");
       }
-      err_fatal(__FUNCTION__, ":E: terminating due to errors\n");
+      err_fatal(__FUNCTION__, ":E: terminating due to errors. See log file\n");
    }
 }
 
@@ -1200,10 +1200,6 @@ static void init (const char *fn)
 
 static void destroy ()
 {
-//   src_destroy ();
-//   str_destroy ();
-
-//   tim_stop ("dictd");
    maa_shutdown ();
 
    dict_ltdl_close ();
@@ -1255,9 +1251,6 @@ static void dict_test (
 
    dict_destroy_list (l);
 }
-
-//static const char *       without_strategy_arg = NULL;
-//static dictStrategy *     without_strategy = (dictStrategy *) 1;
 
 int main( int argc, char **argv, char **envp )
 {
@@ -1326,8 +1319,6 @@ int main( int argc, char **argv, char **envp )
       { "pp",               1, 0, 518 },
       { 0,                  0, 0, 0  }
    };
-
-   release_root_privileges();
 
    init (argv[0]);
 
@@ -1430,7 +1421,6 @@ int main( int argc, char **argv, char **envp )
 
    if (
       -1 == strategy ||
-//      (strategy_arg = without_strategy_arg, NULL == without_strategy) ||
       (strategy_arg = default_strategy_arg, -1 == default_strategy))
    {
       fprintf (stderr, "%s is not a valid search strategy\n", strategy_arg);
@@ -1442,6 +1432,11 @@ int main( int argc, char **argv, char **envp )
       }
       exit (1);
    }
+
+   if (logFile) log_file( "dictd", logFile );
+   if (useSyslog) log_syslog( "dictd" );
+
+   release_root_privileges();
 
    if (dbg_test(DBG_NOFORK))    dbg_set_flag( DBG_NODETACH);
    if (dbg_test(DBG_NODETACH))  detach = 0;
@@ -1462,14 +1457,9 @@ int main( int argc, char **argv, char **envp )
       postprocess_filenames (DictConfig);
    }
 
-
-                                /* Open up logs for sanity check */
-   if (logFile)   log_file( "dictd", logFile );
-   if (useSyslog) log_syslog( "dictd" );
-   log_stream( "dictd", stderr );
+/*   log_stream( "dictd", stderr );*/
    sanity(configFile);
-   log_close();
-
+/*   log_stream( "dictd", NULL );*/
 
    if (match_mode)
       strategy |= DICT_MATCH_MASK;
@@ -1576,9 +1566,6 @@ int main( int argc, char **argv, char **envp )
    if (! inetd && detach)
       net_detach();
 
-                                /* Re-open logs for logging */
-   if (logFile)   log_file( "dictd", logFile );
-   if (useSyslog) log_syslog( "dictd" );
    if (!detach)   log_stream( "dictd", stderr );
    if ((logFile || useSyslog || !detach) && !logOptions)
       set_minimal();

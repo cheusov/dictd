@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: net.c,v 1.23 2003/10/31 00:40:04 cheusov Exp $
+ * $Id: net.c,v 1.24 2004/05/16 13:01:40 cheusov Exp $
  * 
  */
 
@@ -167,8 +167,6 @@ void net_detach( void )
       III: CLIENT-SERVER PROGRAMMING AND APPLICATIONS (BSD SOCKET VERSION).
       Englewood Cliffs, New Jersey: Prentice Hall, 1993 (Chapter 27). */
    
-   for (i=getdtablesize()-1; i >= 0; --i) close(i); /* close everything */
-   
 #if !defined(__hpux__) && !defined(__CYGWIN__)
    if ((fd = open("/dev/tty", O_RDWR)) >= 0) {
 				/* detach from controlling tty */
@@ -182,7 +180,7 @@ void net_detach( void )
    umask(0);		/* set safe umask */
    
    setpgid(0,getpid());	/* Get process group */
-   
+
    fd = open("/dev/null", O_RDWR);    /* stdin */
    dup(fd);			      /* stdout */
    dup(fd);			      /* stderr */
