@@ -1,14 +1,14 @@
 % design.tex -- 
 % Created: Fri Feb 21 08:04:03 1997 by faith@cs.unc.edu
-% Revised: Thu Feb 27 16:58:01 1997 by faith@cs.unc.edu
+% Revised: Thu Feb 27 23:49:25 1997 by faith@cs.unc.edu
 % Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
 % This program comes with ABSOLUTELY NO WARRANTY.
 % 
-% $Id: design.tex,v 1.2 1997/02/28 03:50:03 faith Exp $
+% $Id: design.tex,v 1.3 1997/02/28 05:09:54 faith Exp $
 % 
 %
 \def\FileCreated{Fri Feb 21 08:04:03 1997}
-\def\FileRevised{Thu Feb 27 16:58:01 1997}
+\def\FileRevised{Thu Feb 27 23:49:25 1997}
 
 \documentclass{article}
 \usepackage{xspace}
@@ -435,5 +435,68 @@ you want to redistribute a database, you should determine if this is
 allowed by the database owner.  Do \emph{not} assume that the databases are
 distributed under terms which are compatible with the \dict distribution
 terms.
+
+
+\section{Server Setup Files}
+
+\subsection{Configuration File}
+
+\prd{server-config-file}{\opt{\lhs{access}} \opt{\lhs{group-list}}
+  \lhs{database-list}}
+\prd{group-list}{\lhs{group} \opt{\lhs{group-list}}}
+\prd{database-list}{\lhs{databse} \opt{\lhs{database-list}}}
+
+\prd{access}{\lit{access} \lit{\{} \lhs{access-list} \lit{\}}}
+\prd{access-list}{\lit{allow} \lhs{access-spec} \lhs{access-list}}
+\prd{access-list}{\lit{deny} \lhs{access-spec} \lhs{access-list}}
+\prd{access-list}{}
+\prd{access-spec}{\lhs{user} \lit{@} \opt{\lhs{host-spec}}}
+\prd{access-spec}{\lhs{group}\ lit{\#} \opt{\lhs{host-spec}}}
+\prd{access-spec}{\lhs{host-spec}}
+\prd{host-spec}{\lhs{host-addr-spec}}
+\prd{host-spec}{\lhs{host-name-spec}}
+\prd{host-addr-spec}{\lhs{number} \lit{.}}
+\prd{host-addr-spec}{\lhs{number} \lit{.} \lhs{number} \lit{.}}
+\prd{host-addr-spec}{\lhs{number} \lit{.} \lhs{number} \lit{.} \lhs{number}
+  \lit{.}}
+\prd{host-addr-spec}{\lhs{number} \lit{.} \lhs{number} \lit{.} \lhs{number}
+  \lit{.} \lhs{number}}
+\prd{host-name-spec}{\lhs{host-wild-spec}}
+\prd{host-name-spec}{\lhs{string} \lhs{host-wild-spec}}
+\prd{host-wild-spec}{\lit{.} \lhs{string} \opt\lhs{host-wild-spec}}
+
+\prd{group}{\lit{group} \lit{\{} \lhs{user-list} \lit{\}}}
+\prd{user-list}{\lhs{username} \opt{user-list}}
+
+\prd{database}{\lit{database} \lhs{db-id} \lit{\{} \lhs{db-spec} \lit{\}}}
+\prd{db-spec}{\lit{data} \lhs{filename}}
+\prd{db-spec}{\lit{index} \lhs{filename}}
+\prd{db-spec}{\lhs{access}}
+\prd{db-spec}{\lhs{filter} \lhs{string}}
+\prd{db-spec}{\lhs{prefilter} \lhs{string}}
+\prd{db-spec}{\lhs{postfilter} \lhs{string}}
+
+\subsection{Password File}
+
+\prd{password-file}{\lhs{entry-list}}
+\lhs{entry-list}{\lhs{entry} \opt{\lhs{entry-list}}}
+
+\prd{entry}{\lhs{username}:\lhs{shared-secret}}
+
+
+\section{Client Setup File}
+
+\prd{client-config-file}{\lhs{server-spec-list} \opt{\lhs{server-group-list}}}
+\prd{server-list}{\lhs{server-entry} \opt{\lhs{server-list}}}
+\prd{server-group-list}{\lhs{server-group} \opt{\lhs{server-group-list}}}
+
+\prd{server-entry}{\lhs{db-id} \lhs{server-spec} \lhs{shared-secret}}
+\prd{server-spec}{\lhs{machine-name} \lit{:} \lhs{port}}
+\prd{server-spec}{\lhs{machine-addr} \lit{:} \lhs{port}}
+
+\prd{server-group}{\lhs{group-id} \lit{\{} \lhs{search-list} \lit{\}}}
+\prd{search-list}{\lhs{db-id} \opt{\lhs{search-list}}}
+\prd{search-list}{\lhs{group-id} \opt{\lhs{search-list}}}
+\prd{search-list}{\lit{!} \opt{\lhs{search-list}}}
 
 \end{document}
