@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.47 2004/01/28 01:54:11 kirk Exp $
+ * $Id: dictfmt.c,v 1.48 2004/02/24 17:55:51 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -696,25 +696,32 @@ static void help( FILE *out_stream )
 
 static void set_utf8bit_mode (const char *loc)
 {
-   char *locale_copy;
-   locale_copy = strdup (loc);
-   strlwr_8bit (locale_copy);
+   const char *charset = NULL;
+   int ascii_mode;
 
-   utf8_mode =
-      NULL != strstr (locale_copy, "utf-8") ||
-      NULL != strstr (locale_copy, "utf8");
+   if (!setlocale(LC_COLLATE, loc) || !setlocale(LC_CTYPE, loc)){
+      fprintf (stderr, "invalid locale '%s'\n", locale);
+      exit (2);
+   }
+
+   charset = nl_langinfo (CODESET);
+
+   utf8_mode = !strcmp (charset, "UTF-8");
 
 #if !HAVE_UTF8
    if (utf8_mode){
       err_fatal (
 	 __FUNCTION__,
-	 "utf-8 support is disabled at compile time\n");
+	 "utf-8 support was disabled at compile time\n");
    }
 #endif
 
-   bit8_mode = !utf8_mode && (locale_copy [0] != 'c' || locale_copy [1] != 0);
+   ascii_mode = 
+      !strcmp (charset, "ANSI_X3.4-1968") ||
+      !strcmp (charset, "US-ASCII") ||
+      (locale [0] == 'C' && locale [1] == 0);
 
-   free (locale_copy);
+   bit8_mode = !ascii_mode && !utf8_mode;
 }
 
 static const char string_unknown [] = "unknown";

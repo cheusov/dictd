@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.103 2004/01/08 18:47:09 cheusov Exp $
+ * $Id: dictd.c,v 1.104 2004/02/24 17:55:51 cheusov Exp $
  * 
  */
 
@@ -896,7 +896,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.103 2004/01/08 18:47:09 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.104 2004/02/24 17:55:51 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1145,13 +1145,17 @@ static void sanity(const char *confFile)
 
 static void set_locale_and_flags (const char *loc)
 {
-   char *locale_copy;
-   locale_copy = strdup (loc);
-   strlwr_8bit (locale_copy);
+   const char *charset = NULL;
+   int ascii_mode;
 
-   utf8_mode =
-       strstr (locale_copy, "utf-8") ||
-       strstr (locale_copy, "utf8");
+   if (!setlocale(LC_COLLATE, loc) || !setlocale(LC_CTYPE, loc)){
+      fprintf (stderr, "invalid locale '%s'\n", locale);
+      exit (2);
+   }
+
+   charset = nl_langinfo (CODESET);
+
+   utf8_mode = !strcmp (charset, "UTF-8");
 
 #if !HAVE_UTF8
    if (utf8_mode){
@@ -1161,14 +1165,12 @@ static void set_locale_and_flags (const char *loc)
    }
 #endif
 
-   bit8_mode = !utf8_mode && (locale_copy [0] != 'c' || locale_copy [1] != 0);
+   ascii_mode = 
+      !strcmp (charset, "ANSI_X3.4-1968") ||
+      !strcmp (charset, "US-ASCII") ||
+      (locale [0] == 'C' && locale [1] == 0);
 
-   free (locale_copy);
-
-   if (!setlocale(LC_COLLATE, locale) || !setlocale(LC_CTYPE, locale)){
-      fprintf (stderr, "invalid locale '%s'\n", locale);
-      exit (2);
-   }
+   bit8_mode = !ascii_mode && !utf8_mode;
 }
 
 static void init (const char *fn)

@@ -19,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.16 2004/01/06 16:42:42 cheusov Exp $
+ * $Id: dictP.h,v 1.17 2004/02/24 17:55:51 cheusov Exp $
  * 
  */
 
@@ -119,6 +119,13 @@ typedef unsigned int wint_t;
 #include <stddef.h>
 #else
 typedef unsigned int wchar_t;
+#endif
+
+#if HAVE_LANGINFO_H
+#include <langinfo.h>
+#else
+const char * nl_langinfo (int ITEM);
+#define CODESET 1234
 #endif
 
 #if HAVE_MBSTATE_T
