@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.51 2002/08/12 16:27:33 cheusov Exp $
+# $Id: Makefile.in,v 1.52 2002/08/13 12:43:12 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -162,6 +162,7 @@ install.dictfmt: dictfmt
 	if test ! -d $(bindir); then $(INSTALL) -d 755 $(bindir); fi
 	if test ! -d $(man1_prefix); then $(INSTALL) -d 755 $(man1_prefix); fi
 	$(INSTALL_PROGRAM) dictfmt $(bindir)
+	$(INSTALL_PROGRAM) dictfmt_index2suffix $(bindir)
 	$(INSTALL_DATA) dictfmt.1 $(man1_prefix)/dictfmt.1
 
 install.dictd: dictd
@@ -186,7 +187,8 @@ uninstall.dictd:
 	rm -f $(sbindir)/dictd $(man8_prefix)/dictd.8
 
 uninstall.dictfmt:
-	rm -f $(bindir)/dictfmt $(man1_prefix)/dictfmt.1
+	rm -f $(bindir)/dictfmt $(man1_prefix)/dictfmt.1 \
+   $(bindir)/dictfmt_index2suffix
 
 .PHONY: uninstall
 
