@@ -1,6 +1,6 @@
 # Makefile.in -- Makefile for dict
 # Created: Wed Apr 24 14:14:09 1996 by faith@cs.unc.edu
-# Revised: Sun Sep 29 10:29:33 1996 by faith@cs.unc.edu
+# Revised: Wed Oct  9 16:10:40 1996 by faith@cs.unc.edu
 # Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.2 1996/09/30 03:51:48 faith Exp $
+# $Id: Makefile.in,v 1.3 1996/10/10 01:46:47 faith Exp $
 #
 
 ifneq (,)
@@ -52,7 +52,7 @@ XTRALDFLAGS=    @WLDFLAGS@ @XTRALDFLAGS@ -Llibmaa -Lzlib
 LDLIBS=		@LIBS@ -lmaa -lz
 
 HEADERS= 	./config.h @XTRAHEADERS@ dict.h
-EXES=	 	dictzip # jargdump wndump # dictzip
+EXES=	 	search dictzip # jargdump wndump # dictzip
 OBJS=           fmt.o
 
 all::

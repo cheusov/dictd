@@ -1,6 +1,6 @@
 /* dictzip.c -- 
  * Created: Tue Jul 16 12:45:41 1996 by r.faith@ieee.org
- * Revised: Sun Sep 29 23:47:55 1996 by faith@cs.unc.edu
+ * Revised: Wed Oct  9 16:15:35 1996 by faith@cs.unc.edu
  * Copyright 1996 Rickard E. Faith (r.faith@ieee.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,16 +17,39 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictzip.c,v 1.4 1996/09/30 03:51:49 faith Exp $
+ * $Id: dictzip.c,v 1.5 1996/10/10 01:46:48 faith Exp $
  * 
  */
 
 #include "dict.h"
 #include <sys/stat.h>
 
+int dict_data_filter( char *buffer, int *len, int maxLength,
+		      const char *filter )
+{
+   char *outBuffer = xmalloc( maxLength + 2 );
+   int  outLen;
+
+   if (!filter) return 0;
+   
+   outLen = pr_filter( filter, buffer, *len, outBuffer, maxLength + 1 );
+   if (outLen > maxLength )
+      err_fatal( __FUNCTION__,
+		 "Filter grew buffer from %d past limit of %d\n",
+		 *len, maxLength );
+   memcpy( buffer, outBuffer, outLen );
+   xfree( outBuffer );
+
+   PRINTF(DBG_UNZIP|DBG_ZIP,("Length was %d, now is %d\n",*len,outLen));
+
+   *len = outLen;
+   
+   return 0;
+}
+
 static int dict_read_header( FILE *str,
 			     const char *filename,
-			     dictHeader *header,
+			     dictData *header,
 			     int computeCRC )
 {
    int           id1, id2, si1, si2;
@@ -37,14 +60,15 @@ static int dict_read_header( FILE *str,
    int           c;
    struct stat   sb;
    unsigned long crc   = crc32( 0L, Z_NULL, 0 );
-   int           count = 0;
+   int           count;
+   unsigned long offset;
 
    
    rewind( str );
    header->str          = str;
    header->filename     = strdup( filename );
    
-   header->headerLength = GZ_XLEN;
+   header->headerLength = GZ_XLEN - 1;
    header->type         = DICT_UNKNOWN;
    
    id1                  = getc( str );
@@ -142,10 +166,10 @@ static int dict_read_header( FILE *str,
       header->headerLength += 2;
    }
 
-   if (ftell( str ) != header->headerLength)
+   if (ftell( str ) != header->headerLength + 1)
       err_internal( __FUNCTION__,
-		    "File position (%lu) != header length (%d)\n",
-		    ftell( str ), header->headerLength );
+		    "File position (%lu) != header length + 1 (%d)\n",
+		    ftell( str ), header->headerLength + 1 );
 
    fseek( str, -8, SEEK_END );
    header->crc     = getc( str ) <<  0;
@@ -158,15 +182,34 @@ static int dict_read_header( FILE *str,
    header->length |= getc( str ) << 24;
    header->compressedLength = ftell( str );
 
+				/* Compute offsets */
+   header->offsets = xmalloc( sizeof( header->offsets[0] )
+			      * header->chunkCount );
+   for (offset = header->headerLength + 1, i = 0;
+	i < header->chunkCount;
+	i++) {
+      header->offsets[i] = offset;
+      offset += header->chunks[i];
+   }
+   
    return 0;
 }
 
-dictHeader *dict_open( const char *filename, int computeCRC )
+dictData *dict_data_open( const char *filename, int computeCRC )
 {
-   dictHeader *h = xmalloc( sizeof( struct dictHeader ) );
-   FILE       *str;
+   dictData    *h = xmalloc( sizeof( struct dictData ) );
+   FILE        *str;
+   struct stat sb;
 
-   memset( h, 0, sizeof( struct dictHeader ) );
+   memset( h, 0, sizeof( struct dictData ) );
+   h->initialized = 0;
+   
+   if (stat( filename, &sb ) || !S_ISREG(sb.st_mode)) {
+      err_warning( __FUNCTION__,
+		   "%s is not a regular file -- ignoring\n", filename );
+      return h;
+   }
+   
    if (!(str = fopen( filename, "r" ))) {
       err_fatal_errno( __FUNCTION__,
 		       "Cannot open \"%s\" for read\n", filename );
@@ -175,19 +218,18 @@ dictHeader *dict_open( const char *filename, int computeCRC )
       err_fatal( __FUNCTION__,
 		 "\"%s\" not in text or dzip format\n", filename );
    }
-
-   h->initialized = 0;
    
    return h;
 }
 
-void dict_close( dictHeader *header )
+void dict_data_close( dictData *header )
 {
    if (header->str)          fclose( header->str );
    if (header->filename)     xfree( header->filename );
    if (header->origFilename) xfree( header->origFilename );
    if (header->comment)      xfree( header->comment );
    if (header->chunks)       xfree( header->chunks );
+   if (header->offsets)      xfree( header->offsets );
 
    if (header->initialized) {
       if (inflateEnd( &header->zStream ))
@@ -196,11 +238,11 @@ void dict_close( dictHeader *header )
 		       header->zStream.msg );
    }
 
-   memset( header, 0, sizeof( struct dictHeader ) );
+   memset( header, 0, sizeof( struct dictData ) );
    xfree( header );
 }
 
-void dict_print_header( FILE *str, dictHeader *header )
+void dict_data_print_header( FILE *str, dictData *header )
 {
    char        *date, *year;
    long        ratio, num, den;
@@ -208,7 +250,7 @@ void dict_print_header( FILE *str, dictHeader *header )
 
    if (first) {
       fprintf( str,
-	       "type  crc         date    time chunks  size     compr."
+	       "type   crc        date    time chunks  size     compr."
 	       "  uncompr. ratio name\n" );
       first = 0;
    }
@@ -223,6 +265,7 @@ void dict_print_header( FILE *str, dictHeader *header )
       fprintf( str, "          %9ld ", header->length );
       fprintf( str, "  0.0%% %s",
 	       header->origFilename ? header->origFilename : "" );
+      putc( '\n', str );
       break;
    case DICT_GZIP:
    case DICT_DZIP:
@@ -266,16 +309,16 @@ void dict_print_header( FILE *str, dictHeader *header )
       fprintf( str, "%2ld.%1ld%%", ratio / 10L, ratio % 10L);
       fprintf( str, " %s",
 	       header->origFilename ? header->origFilename : "" );
+      putc( '\n', str );
       break;
    case DICT_UNKNOWN:
    default:
-      fprintf( str, "?    " );
       break;
    }
-   putc( '\n', str );
 }
 
-char *dict_read( dictHeader *h, unsigned long start, unsigned long end )
+char *dict_data_read( dictData *h, unsigned long start, unsigned long end,
+		      const char *preFilter, const char *postFilter )
 {
    char          *buffer, *pt;
    unsigned long size = end - start;
@@ -284,7 +327,6 @@ char *dict_read( dictHeader *h, unsigned long start, unsigned long end )
    char          outBuffer[OUT_BUFFER_SIZE];
    int           firstChunk, lastChunk;
    int           firstOffset, lastOffset;
-   unsigned long offset;
    int           i;
 
    if (end < start)
@@ -321,56 +363,64 @@ char *dict_read( dictHeader *h, unsigned long start, unsigned long end )
 	    err_internal( __FUNCTION__,
 			  "Cannot initialize inflation engine: %s\n",
 			  h->zStream.msg );
-	 firstChunk  = start / h->chunkLength;
-	 firstOffset = start - firstChunk * h->chunkLength;
-	 lastChunk   = end / h->chunkLength;
-	 lastOffset  = end - lastChunk * h->chunkLength;
-	 PRINTF(DBG_UNZIP,
-		("start = %lu, end = %lu\n"
-		 "firstChunk = %d, firstOffset = %d,"
-		 " lastChunk = %d, lastOffset = %d\n",
-		 start, end, firstChunk, firstOffset, lastChunk, lastOffset ));
-	 for (offset = h->headerLength + 1, i = 0; i < firstChunk; i++)
-	    offset += h->chunks[i];
-	 for (pt = buffer, i = firstChunk; i <= lastChunk; i++) {
-	    fseek( h->str, offset, SEEK_SET );
-	    PRINTF(DBG_UNZIP,("Seek to 0x%lx\n", offset ));
-	    offset += h->chunks[i];
-	    if ((count = fread( outBuffer, 1, h->chunks[i], h->str ))
-		!= h->chunks[i] ) {
-	       err_fatal_errno( __FUNCTION__,
-				"Read %d of %u bytes from dzip file\n",
-				count, h->chunks[i] );
-	    }
-	    h->zStream.next_in   = outBuffer;
-	    h->zStream.avail_in  = h->chunks[i];
-	    h->zStream.next_out  = inBuffer;
-	    h->zStream.avail_out = IN_BUFFER_SIZE;
-	    if (inflate( &h->zStream,  Z_PARTIAL_FLUSH ) != Z_OK)
-	       err_fatal( __FUNCTION__, "inflate: %s\n", h->zStream.msg );
-	    if (h->zStream.avail_in)
-	       err_internal( __FUNCTION__,
-			     "inflate did not flush (%d pending, %d avail)\n",
-			     h->zStream.avail_in, h->zStream.avail_out );
-	    if (i == firstChunk) {
-	       if (i == lastChunk) {
-		  memcpy( pt, inBuffer + firstOffset, lastOffset-firstOffset);
-		  pt += lastOffset - firstOffset;
-	       } else {
-		  memcpy( pt, inBuffer + firstOffset,
-			   h->chunkLength - firstOffset );
-		  pt += h->chunkLength - firstOffset;
-	       }
-	    } else if (i == lastChunk) {
-	       memcpy( pt, inBuffer, lastOffset );
-	       pt += lastOffset;
-	    } else {
-	       memcpy( pt, inBuffer, h->chunkLength );
-	       pt += h->chunkLength;
-	    }
-	 }
-	 *pt = '\0';
       }
+      firstChunk  = start / h->chunkLength;
+      firstOffset = start - firstChunk * h->chunkLength;
+      lastChunk   = end / h->chunkLength;
+      lastOffset  = end - lastChunk * h->chunkLength;
+      PRINTF(DBG_UNZIP,
+	     ("start = %lu, end = %lu\n"
+	      "firstChunk = %d, firstOffset = %d,"
+	      " lastChunk = %d, lastOffset = %d\n",
+	      start, end, firstChunk, firstOffset, lastChunk, lastOffset ));
+      for (pt = buffer, i = firstChunk; i <= lastChunk; i++) {
+	 fseek( h->str, h->offsets[i], SEEK_SET );
+	 PRINTF(DBG_UNZIP,("Seek to 0x%lx\n", h->offsets[i] ));
+	 if ((count = fread( outBuffer, 1, h->chunks[i], h->str ))
+	     != h->chunks[i] ) {
+	    err_fatal_errno( __FUNCTION__,
+			     "Read %d of %u bytes from dzip file\n",
+			     count, h->chunks[i] );
+	 }
+	 dict_data_filter( outBuffer, &count, OUT_BUFFER_SIZE, preFilter );
+	 
+	 h->zStream.next_in   = outBuffer;
+	 h->zStream.avail_in  = h->chunks[i];
+	 h->zStream.next_out  = inBuffer;
+	 h->zStream.avail_out = IN_BUFFER_SIZE;
+	 if (inflate( &h->zStream,  Z_PARTIAL_FLUSH ) != Z_OK)
+	    err_fatal( __FUNCTION__, "inflate: %s\n", h->zStream.msg );
+	 if (h->zStream.avail_in)
+	    err_internal( __FUNCTION__,
+			  "inflate did not flush (%d pending, %d avail)\n",
+			  h->zStream.avail_in, h->zStream.avail_out );
+	 
+	 count = IN_BUFFER_SIZE - h->zStream.avail_out;
+	 dict_data_filter( inBuffer, &count, IN_BUFFER_SIZE, postFilter );
+	 
+	 if (i == firstChunk) {
+	    if (i == lastChunk) {
+	       memcpy( pt, inBuffer + firstOffset, lastOffset-firstOffset);
+	       pt += lastOffset - firstOffset;
+	    } else {
+	       if (count != h->chunkLength )
+		  err_internal( __FUNCTION__,
+				"Length = %d instead of %d\n",
+				count, h->chunkLength );
+	       memcpy( pt, inBuffer + firstOffset,
+		       h->chunkLength - firstOffset );
+	       pt += h->chunkLength - firstOffset;
+	    }
+	 } else if (i == lastChunk) {
+	    memcpy( pt, inBuffer, lastOffset );
+	    pt += lastOffset;
+	 } else {
+	    assert( count == h->chunkLength );
+	    memcpy( pt, inBuffer, h->chunkLength );
+	    pt += h->chunkLength;
+	 }
+      }
+      *pt = '\0';
       break;
    case DICT_UNKNOWN:
       err_fatal( __FUNCTION__, "Cannot read unknown file type\n" );
@@ -380,7 +430,8 @@ char *dict_read( dictHeader *h, unsigned long start, unsigned long end )
    return buffer;
 }
 
-int dict_zip( const char *inFilename, const char *outFilename )
+int dict_data_zip( const char *inFilename, const char *outFilename,
+		   const char *preFilter, const char *postFilter )
 {
    char          inBuffer[IN_BUFFER_SIZE];
    char          outBuffer[OUT_BUFFER_SIZE];
@@ -395,6 +446,7 @@ int dict_zip( const char *inFilename, const char *outFilename )
    int           headerLength;
    int           dataLength;
    int           extraLength;
+   int           chunkLength;
 #if HEADER_CRC
    int           headerCRC;
 #endif
@@ -438,11 +490,12 @@ int dict_zip( const char *inFilename, const char *outFilename )
 		    "Cannot initialize deflation engine: %s\n", zStream.msg );
 
    /* Write initial header information */
+   chunkLength = (preFilter ? PREFILTER_IN_BUFFER_SIZE : IN_BUFFER_SIZE );
    fstat( fileno( inStr ), &st );
-   chunks = st.st_size / IN_BUFFER_SIZE;
-   if (st.st_size % IN_BUFFER_SIZE) ++chunks;
-   PRINTF(DBG_VERBOSE,("%lu chunks * %lu per chunk = %lu (filesize = %lu)\n",
-			chunks, IN_BUFFER_SIZE, chunks * IN_BUFFER_SIZE,
+   chunks = st.st_size / chunkLength;
+   if (st.st_size % chunkLength) ++chunks;
+   PRINTF(DBG_VERBOSE,("%lu chunks * %u per chunk = %lu (filesize = %lu)\n",
+			chunks, chunkLength, chunks * chunkLength,
 			st.st_size ));
    dataLength   = chunks * 2;
    extraLength  = 10 + dataLength;
@@ -475,8 +528,8 @@ int dict_zip( const char *inFilename, const char *outFilename )
    header[GZ_SUBLEN+0]   = ((extraLength - 4) & 0x00ff) >> 0;
    header[GZ_VERSION+1]  = 0;
    header[GZ_VERSION+0]  = 1;
-   header[GZ_CHUNKLEN+1] = (IN_BUFFER_SIZE & 0xff00) >> 8;
-   header[GZ_CHUNKLEN+0] = (IN_BUFFER_SIZE & 0x00ff) >> 0;
+   header[GZ_CHUNKLEN+1] = (chunkLength & 0xff00) >> 8;
+   header[GZ_CHUNKLEN+0] = (chunkLength & 0x00ff) >> 0;
    header[GZ_CHUNKCNT+1] = (chunks & 0xff00) >> 8;
    header[GZ_CHUNKCNT+0] = (chunks & 0x00ff) >> 0;
    strcpy( &header[GZ_FEXTRA_START + extraLength], origFilename );
@@ -484,7 +537,9 @@ int dict_zip( const char *inFilename, const char *outFilename )
     
    /* Read, compress, write */
    while (!feof( inStr )) {
-      if ((count = fread( inBuffer, 1, IN_BUFFER_SIZE, inStr ))) {
+      if ((count = fread( inBuffer, 1, chunkLength, inStr ))) {
+	 dict_data_filter( inBuffer, &count, IN_BUFFER_SIZE, preFilter );
+	 
 	 inputCRC = crc32( inputCRC, inBuffer, count );
 	 zStream.next_in   = inBuffer;
 	 zStream.avail_in  = count;
@@ -494,6 +549,10 @@ int dict_zip( const char *inFilename, const char *outFilename )
 	    err_fatal( __FUNCTION__, "deflate: %s\n", zStream.msg );
 	 assert( zStream.avail_in == 0 );
 	 len = OUT_BUFFER_SIZE - zStream.avail_out;
+	 assert( len <= 0xffff );
+
+	 dict_data_filter( outBuffer, &len, OUT_BUFFER_SIZE, postFilter );
+	 
 	 assert( len <= 0xffff );
 	 header[GZ_RNDDATA + chunk*2 + 1] = (len & 0xff00) >>  8;
 	 header[GZ_RNDDATA + chunk*2 + 0] = (len & 0x00ff) >>  0;
@@ -574,7 +633,7 @@ static const char *id_string( const char *id )
 
 static void banner( void )
 {
-   const char *id = "$Id: dictzip.c,v 1.4 1996/09/30 03:51:49 faith Exp $";
+   const char *id = "$Id: dictzip.c,v 1.5 1996/10/10 01:46:48 faith Exp $";
    
    fprintf( stderr, "%s %s\n", err_program_name(), id_string( id ) );
    fprintf( stderr, "Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)\n" );
@@ -618,8 +677,12 @@ static void help( void )
       "-v --verbose         verbose mode",
       "-V --version         display version number",
       "-D --debug           select debug option",
-      "-s --start <offset>  starting offset for decompression",
-      "-e --end <offset>    ending offset for decompression",
+      "-s --start <offset>  starting offset for decompression (decimal)",
+      "-e --end <offset>    ending offset for decompression (decimal)",
+      "-S --Start <offset>  starting offset for decompression (base64)",
+      "-E --End <offset>    ending offset for decompression (base64)",
+      "-p --pre <filter>    pre-compression filter",
+      "-P --post <filter>   post-compression filter",
       0 };
    const char        **p = help_msg;
 
@@ -639,9 +702,11 @@ int main( int argc, char **argv )
    int           testFlag       = 0;
    char          buffer[BUFFERSIZE];
    char          *buf;
+   char          *pre           = NULL;
+   char          *post          = NULL;
    unsigned long start          = 0;
    unsigned long end            = 0;
-   dictHeader    *header;
+   dictData      *header;
    struct option longopts[] = {
       { "decompress",   0, 0, 'd' },
       { "force",        0, 0, 'f' },
@@ -656,6 +721,10 @@ int main( int argc, char **argv )
       { "debug",        1, 0, 'D' },
       { "start",        1, 0, 's' },
       { "end",          1, 0, 'e' },
+      { "Start",        1, 0, 'S' },
+      { "End",          1, 0, 'E' },
+      { "pre",          1, 0, 'p' },
+      { "post",         1, 0, 'P' },
       { 0,              0, 0,  0  }
    };
 
@@ -671,7 +740,8 @@ int main( int argc, char **argv )
 #endif
 
    while ((c = getopt_long( argc, argv,
-			    "cdfhklLe:s:tvVD:", longopts, NULL )) != EOF)
+			    "cdfhklLe:E:s:S:tvVD:p:P:",
+			    longopts, NULL )) != EOF)
       switch (c) {
       case 'd': ++decompressFlag;                                      break;
       case 'f': ++forceFlag;                                           break;
@@ -685,25 +755,30 @@ int main( int argc, char **argv )
       case 'D': dbg_set( optarg );                                     break;
       case 's': ++decompressFlag; start = strtoul( optarg, NULL, 10 ); break;
       case 'e': ++decompressFlag; end   = strtoul( optarg, NULL, 10 ); break;
+      case 'S': ++decompressFlag; start = b64_decode( optarg );        break;
+      case 'E': ++decompressFlag; end   = b64_decode( optarg );        break;
+      case 'p': pre = optarg;                                          break;
+      case 'P': post = optarg;                                         break;
       default:  
       case 'h': help(); exit( 1 );                                     break;
       }
 
    for (i = optind; i < argc; i++) {
       if (listFlag) {
-	 header = dict_open( argv[i], 1 );
-	 dict_print_header( stdout, header );
-	 dict_close( header );
+	 header = dict_data_open( argv[i], 1 );
+	 dict_data_print_header( stdout, header );
+	 dict_data_close( header );
       } else if (decompressFlag) {
-	 header = dict_open( argv[i], 0 );
-	 buf = dict_read( header, start, end );
+	 header = dict_data_open( argv[i], 0 );
+	 if (!end) end = header->length;
+	 buf = dict_data_read( header, start, end, pre, post );
 	 fwrite( buf, end-start, 1, stdout );
-	 putc( '\n', stdout );
+	 fflush( stdout );
 	 xfree( buf );
-	 dict_close( header );
+	 dict_data_close( header );
       } else {
 	 sprintf( buffer, "%s.dz", argv[i] );
-	 if (!dict_zip( argv[i], buffer )) {
+	 if (!dict_data_zip( argv[i], buffer, pre, post )) {
 	    if (!keepFlag && unlink( argv[i] ))
 		err_fatal_errno( __FUNCTION__, "Cannot unlink %s\n", argv[i] );
 	 } else {

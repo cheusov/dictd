@@ -1,6 +1,6 @@
 /* dict.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Sun Sep 29 23:23:59 1996 by faith@cs.unc.edu
+ * Revised: Wed Oct  9 19:38:09 1996 by faith@cs.unc.edu
  * Copyright 1994, 1995, 1996 Rickard E. Faith (faith@cs.unc.edu)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,6 +29,7 @@
 #define DBG_VERBOSE     (0<<30|1<< 0) /* Verbose                           */
 #define DBG_ZIP         (0<<30|1<< 1) /* Zip                               */
 #define DBG_UNZIP       (0<<30|1<< 2) /* Unzip                             */
+#define DBG_SEARCH      (0<<30|1<< 3) /* Search                            */
 
 
 #define HEADER_CRC 0		/* Conflicts with gzip 1.2.4               */
@@ -49,6 +50,8 @@
 #define OUT_BUFFER_SIZE 0xffffL
 
 #define IN_BUFFER_SIZE ((unsigned long)((double)(OUT_BUFFER_SIZE - 12) * 0.89))
+
+#define PREFILTER_IN_BUFFER_SIZE (IN_BUFFER_SIZE * 0.89)
 
 
 /* For gzip-compatible header, as defined in RFC 1952 */
@@ -117,7 +120,7 @@ extern void fmt_close( void );
 #define DICT_GZIP       2
 #define DICT_DZIP       3
 
-typedef struct dictHeader {
+typedef struct dictData {
    FILE          *str;
    int           type;
    char          *filename;
@@ -134,18 +137,60 @@ typedef struct dictHeader {
    int           chunkLength;
    int           chunkCount;
    int           *chunks;
+   unsigned long *offsets;	/* Sun-scan of chunks. */
    char          *origFilename;
    char          *comment;
    unsigned long crc;
    unsigned long length;
    unsigned long compressedLength;
-} dictHeader;
+} dictData;
 
-extern dictHeader *dict_open( const char *filename, int computeCRC );
-extern void       dict_close( dictHeader *header );
-extern void       dict_print_header( FILE *str, dictHeader *header );
-extern int        dict_zip( const char *inFilename, const char *outFilename );
-extern char       *dict_read( dictHeader *header,
-			      unsigned long start, unsigned long end );
+typedef struct dictIndex {
+   int           fd;
+   const char    *start;
+   const char    *end;
+   unsigned long size;
+} dictIndex;
+
+typedef struct dictDatabase {
+   const char *databaseName;
+   const char *dataFilename;
+   const char *indexFilename;
+   
+   dictData   *data;
+   dictIndex  *index;
+} dictDatabase;
+
+#define DICT_EXACT        1
+#define DICT_SUBSTRING    2
+#define DICT_REGEXPR      3
+#define DICT_SOUNDEX      4
+#define DICT_LEVENSHTEIN  5
+
+typedef struct dictWord {
+   const char    *word;
+   unsigned long start;
+   unsigned long end;
+   dictDatabase  *database;
+} dictWord;
+
+extern dictData *dict_data_open( const char *filename, int computeCRC );
+extern void     dict_data_close( dictData *data );
+extern void     dict_data_print_header( FILE *str, dictData *data );
+extern int      dict_data_zip( const char *inFilename, const char *outFilename,
+			       const char *preFilter, const char *postFilter );
+extern char     *dict_data_read( dictData *data,
+				 unsigned long start, unsigned long end,
+				 const char *preFilter,
+				 const char *postFilter );
+extern int      dict_data_filter( char *buffer, int *len, int maxLength,
+				  const char *filter );
+
+
+extern const char *dict_index_search( const char *word, dictIndex *idx );
+extern lst_List   dict_search_database( const char *word,
+					dictDatabase *database, int strategy );
+extern dictIndex  *dict_index_open( const char *filename );
+extern void       dict_index_close( dictIndex *i );
 
 #endif
