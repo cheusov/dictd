@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.10 1997/07/12 01:50:11 faith Exp $
+dnl $Id: configure.in,v 1.11 1997/09/01 01:14:44 faith Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -32,7 +32,7 @@ dnl     YCFLAGS is for yacc
 dnl     LCFLAGS is for lex
 
 AC_PREREQ(2.1)
-AC_REVISION($Revision: 1.10 $)
+AC_REVISION($Revision: 1.11 $)
 AC_INIT(dictd.c)
 AC_CONFIG_HEADER(config.h)
 
@@ -138,7 +138,8 @@ AC_PROG_YACC
 AC_PROG_RANLIB
 AC_CHECK_PROGS(NROFF,gnroff nroff)
 AC_CHECK_PROGS(TROFF,groff troff)
-AC_CHECK_PROGS(COLCRT,colcrt cat)
+AC_CHECK_PROGS(COL,col cat)
+AC_CHECK_PROGS(EXPAND,expand cat)
 
 echo .
 echo Checking for libraries

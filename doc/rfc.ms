@@ -2,7 +2,7 @@
 .\" Revised: Mon Aug 25 10:30:02 1997 by faith@acm.org
 .\" Distribution of this memo is unlimited.
 .\"
-.\" $Id: rfc.ms,v 1.19 1997/08/26 01:14:33 faith Exp $
+.\" $Id: rfc.ms,v 1.20 1997/09/01 01:14:56 faith Exp $
 .\" 
 .pl 10.0i
 .po 0
@@ -279,7 +279,7 @@ x2z - Connections
 x3z - Authentication
 x4z - Unspecified as yet
 x5z - DICT System (These replies indicate the status of the
-      receiver mail system vis-a-vis the requested transfer
+      receiver DICT system vis-a-vis the requested transfer
       or other DICT system action.)
 x8z - Nonstandard (private implementation) extensions
 .DE
@@ -402,7 +402,7 @@ The following capabilities are currently defined:
 .DS
 mime        The OPTION MIME command is supported
 auth        The AUTH command is supported
-kerberos\_v4 The SASL Kerberos version 4 mechanism is supported
+kerberos_v4 The SASL Kerberos version 4 mechanism is supported
 gssapi      The SASL GSSAPI [RFC2078] mechanism is supported
 skey        The SASL S/Key [RFC1760] mechanism is supported
 external    The SASL external mechanism is supported
@@ -1228,7 +1228,7 @@ S: 250 Command complete
 .DE
 
 .DS I 0
-C: DEFINE * shortcack
+C: DEFINE * shortcake
 
 S: 150 2 definitions found: list follows
 S: 151 "shortcake" wn "WordNet 1.5" : text follows
@@ -1447,7 +1447,7 @@ Interface, Version 2", RFC-2078, OpenVision Technologies, January,
 
 .XP
 [RFCXXXX] Myers, J., "Simple Authentication and Security Layer
-(SASL)", RFX-XXXX, work in progress.
+(SASL)", RFC-XXXX, work in progress.
 
 .XP
 [WEB1913] Webster's Revised Unabridged Dictionary (G & C. Merriam Co.,
@@ -1474,7 +1474,7 @@ and support.
 Thanks to Brian Kanto, Phil Lapsley, and Jon Postel for writing exemplary
 RFCs which were consulted during the preparation of this document.
 
-Thanks to Harald T. Alvestrand, who's comments helped improve this document.
+Thanks to Harald T. Alvestrand, whose comments helped improve this document.
 
 .HN 1 "Author's Addresses"
 

@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.4 1997/08/26 01:14:29 faith Exp $
+# $Id: Makefile.in,v 1.5 1997/09/01 01:14:54 faith Exp $
 # 
 
 
@@ -39,7 +39,8 @@ SHELL=		/bin/sh
 
 NROFF=          @NROFF@
 TROFF=          @TROFF@
-COLCRT=         @COLCRT@
+COL=            @COL@
+EXPAND=         @EXPAND@
 
 INSTALL=	@INSTALL@
 INSTALL_PROGRAM=@INSTALL_PROGRAM@
@@ -62,7 +63,7 @@ rfc.txt: rfc.ms
 		/\.\.\.\.\./ { if (p == 1) print }' > rfc.toc.new
 	@cmp -s rfc.toc.new rfc.toc || echo "WARNING: Contents Changed!"
 	@echo "Building document..."
-	$(NROFF) -ms rfc.ms | ./rfc.sh | $(COLCRT) - > rfc.txt
+	$(NROFF) -ms rfc.ms | ./rfc.sh | $(COL) -bf | $(EXPAND) > rfc.txt
 
 # This is pretty ugly
 rfc.ps: rfc.ms

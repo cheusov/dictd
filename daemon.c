@@ -1,6 +1,6 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@cs.unc.edu
- * Revised: Tue Jul  8 23:05:45 1997 by faith@acm.org
+ * Revised: Thu Aug 21 08:51:06 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.21 1997/07/09 04:00:54 faith Exp $
+ * $Id: daemon.c,v 1.22 1997/09/01 01:14:45 faith Exp $
  * 
  */
 
@@ -35,6 +35,7 @@ static int          daemonPort;
 static lst_Position databasePosition;
 static char         daemonStamp[256];
 static jmp_buf      env;
+static int          daemonMime;
 
 static void daemon_define( const char *cmdline, int argc, char **argv );
 static void daemon_match( const char *cmdline, int argc, char **argv );
@@ -43,6 +44,8 @@ static void daemon_show_strat( const char *cmdline, int argc, char **argv );
 static void daemon_show_info( const char *cmdline, int argc, char **argv );
 static void daemon_show_server( const char *cmdline, int argc, char **argv );
 static void daemon_show( const char *cmdline, int argc, char **argv );
+static void daemon_option_mime( const char *cmdline, int argc, char **argv );
+static void daemon_option( const char *cmdline, int argc, char **argv );
 static void daemon_client( const char *cmdline, int argc, char **argv );
 static void daemon_auth( const char *cmdline, int argc, char **argv );
 static void daemon_status( const char *cmdline, int argc, char **argv );
@@ -82,6 +85,8 @@ static struct {
    { 2, {"show", "info"},       daemon_show_info },
    { 2, {"show", "server"},     daemon_show_server },
    { 1, {"show"},               daemon_show },
+   { 2, {"option", "mime"},     daemon_option_mime },
+   { 1, {"option"},             daemon_option },
    { 1, {"client"},             daemon_client },
    { 1, {"auth"},               daemon_auth },
    { 1, {"status"},             daemon_status },
@@ -384,7 +389,7 @@ static void daemon_crlf( char *d, const char *s, int dot )
 	 *d++ = *s++;
       }
    }
-   if (dot) {
+   if (dot) {                   /* add final . */
       *d++ = '.';
       *d++ = '\r';
       *d++ = '\n';
@@ -410,6 +415,11 @@ static void daemon_printf( const char *format, ... )
    pt = alloca(2*len);
    daemon_crlf(pt, buf, 0);
    daemon_write(pt, strlen(pt));
+}
+
+static void daemon_mime( void )
+{
+   if (daemonMime) daemon_write( "\r\n", 2 );
 }
 
 static void daemon_text( const char *text )
@@ -471,6 +481,7 @@ static int dump_def( const void *datum )
                   dw->word,
 		  db->databaseName,
 		  db->databaseShort );
+   daemon_mime();
    daemon_text(buf);
    xfree( buf );
    return 0;
@@ -491,6 +502,7 @@ static int dump_match( const void *datum )
 
 static void daemon_dump_matches( lst_List list )
 {
+   daemon_mime();
    lst_iterate( list, dump_match );
    daemon_printf( ".\n" );
 }
@@ -506,7 +518,7 @@ static void daemon_banner( void )
 	    getpid(),
 	    t,
 	    net_hostname() );
-   daemon_printf( "%d %s %s %s\n",
+   daemon_printf( "%d %s %s <auth.mime> %s\n",
 		  CODE_HELLO,
                   net_hostname(),
 		  dict_get_banner(0),
@@ -664,6 +676,7 @@ static void daemon_show_db( const char *cmdline, int argc, char **argv )
       daemon_printf( "%d %d databases present\n",
 		     CODE_DATABASE_LIST, count );
       reset_databases();
+      daemon_mime();
       while ((db = next_database("*"))) {
 	 daemon_printf( "%s \"%s\"\n",
 			db->databaseName, db->databaseShort );
@@ -688,6 +701,7 @@ static void daemon_show_strat( const char *cmdline, int argc, char **argv )
    } else {
       daemon_printf( "%d %d databases present\n",
 		     CODE_STRATEGY_LIST, STRATEGIES );
+      daemon_mime();
       for (i = 0; i < STRATEGIES; i++) {
 	 daemon_printf( "%s \"%s\"\n",
 			strategyInfo[i].name, strategyInfo[i].description );
@@ -731,6 +745,7 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
 	 dict_destroy_list( list );
 	 daemon_printf( "%d information for %s\n",
 			CODE_DATABASE_INFO, argv[2] );
+	 daemon_mime();
 	 daemon_text(buf);
 	 daemon_ok( CODE_OK, "ok", NULL );
 	 return;
@@ -738,6 +753,7 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
 	 dict_destroy_list( list );
 	 daemon_printf( "%d information for %s\n",
 			CODE_DATABASE_INFO, argv[2] );
+	 daemon_mime();
 	 daemon_text( "No information available\n" );
 	 daemon_ok( CODE_OK, "ok", NULL );
 	 return;
@@ -755,6 +771,7 @@ static void daemon_show_server( const char *cmdline, int argc, char **argv )
    char buffer[1024];
    
    daemon_printf( "%d server information\n", CODE_SERVER_INFO );
+   daemon_mime();
    daemon_printf( "DICT Protocol Server: %s\n", dict_get_banner(0) );
    if (DictConfig->site && (str = fopen( DictConfig->site, "r" ))) {
       daemon_printf( "Site-specific information for %s:\n\n", net_hostname() );
@@ -766,6 +783,18 @@ static void daemon_show_server( const char *cmdline, int argc, char **argv )
 }
 
 static void daemon_show( const char *cmdline, int argc, char **argv )
+{
+   daemon_printf( "%d syntax error, illegal parameters\n",
+		  CODE_ILLEGAL_PARAM );
+}
+
+static void daemon_option_mime( const char *cmdline, int argc, char **argv )
+{
+   ++daemonMime;
+   daemon_ok( CODE_OK, "ok - using MIME headers", NULL );
+}
+
+static void daemon_option( const char *cmdline, int argc, char **argv )
 {
    daemon_printf( "%d syntax error, illegal parameters\n",
 		  CODE_ILLEGAL_PARAM );
@@ -828,6 +857,7 @@ static void daemon_status( const char *cmdline, int argc, char **argv )
 static void daemon_help( const char *cmdline, int argc, char **argv )
 {
    daemon_printf( "%d help text follows\n", CODE_HELP );
+   daemon_mime();
    daemon_text(
     "DEFINE database word         -- look up word in database\n"
     "MATCH database strategy word -- match word in database using strategy\n"
@@ -837,6 +867,7 @@ static void daemon_help( const char *cmdline, int argc, char **argv )
     "SHOW STRATEGIES              -- list available matching strategies\n"
     "SHOW INFO database           -- provide information about the database\n"
     "SHOW SERVER                  -- provide site-specific information\n"
+    "OPTION MIME                  -- use MIME headers\n"
     "CLIENT info                  -- identify client to server\n"
     "AUTH user string             -- provide authentication information\n"
     "STATUS                       -- display timing information\n"

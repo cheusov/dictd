@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Fri Jul 11 13:48:21 1997 by faith@acm.org
+ * Revised: Thu Aug 21 09:04:01 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.28 1997/07/12 01:50:18 faith Exp $
+ * $Id: dictd.c,v 1.29 1997/09/01 01:14:50 faith Exp $
  * 
  */
 
@@ -441,7 +441,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.28 1997/07/12 01:50:18 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.29 1997/09/01 01:14:50 faith Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -454,7 +454,7 @@ const char *dict_get_banner( int shortFlag )
    
    longBuffer = xmalloc(256);
    sprintf( longBuffer,
-	    "%s (version %s on %s %s)", err_program_name(), id_string( id ),
+	    "%s %s/rf on %s %s", err_program_name(), id_string( id ),
 	    uts.sysname,
 	    uts.release );
    

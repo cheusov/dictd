@@ -1,10 +1,10 @@
 /* dict.c -- 
  * Created: Fri Mar 28 19:16:29 1997 by faith@cs.unc.edu
- * Revised: Sat Jul 12 00:07:43 1997 by faith@acm.org
+ * Revised: Thu Aug 21 09:04:02 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dict.c,v 1.11 1997/07/12 04:13:54 faith Exp $
+ * $Id: dict.c,v 1.12 1997/09/01 01:14:48 faith Exp $
  * 
  */
 
@@ -54,6 +54,7 @@ lst_List      cmd_list;
 unsigned long client_defines;
 unsigned long client_bytes;
 unsigned long client_pipesize = PIPESIZE;
+char          *client_text    = NULL;
 
 struct def {
    lst_List   data;
@@ -171,7 +172,7 @@ static void client_print_matches( lst_List l, int html, int flag,
       a = arg_argify( e, 0 );
       if (arg_count(a) != 2)
 	 err_internal( __FUNCTION__,
-		       "MATCH command didn't return 2 args: %s\n", e );
+		       "MATCH command didn't return 2 args: \"%s\"\n", e );
       if ((db = str_find(arg_get(a,0))) != prev) {
 	 if (!first) printf( "\n" );
 	 first = 0;
@@ -209,7 +210,7 @@ static void client_print_listed( lst_List l, int html )
       a = arg_argify( e, 0 );
       if (arg_count(a) != 2)
 	 err_internal( __FUNCTION__,
-		       "SHOW command didn't return 2 args: %s\n", e );
+		       "SHOW command didn't return 2 args: \"%s\"\n", e );
       printf( "  %-10.10s %s\n", arg_get(a,0), arg_get(a,1) );
    }
    if (html) printf( "</PRE>\n" );
@@ -417,7 +418,12 @@ static void request( void )
 	 hex[32] = '\0';
 	 sprintf( b, "auth %s %s\n", cmd_reply.user, hex );
 	 break;
-      case CMD_CLIENT: sprintf( b, "client \"%s\"\n", c->client );    break;
+      case CMD_CLIENT:
+         if (client_text)
+            sprintf( b, "client \"%s\" %s\n", c->client, client_text );
+         else
+            sprintf( b, "client \"%s\"\n", c->client );
+         break;
       case CMD_INFO:   sprintf( b, "show info %s\n", c->database );   break;
       case CMD_SERVER: sprintf( b, "show server\n" );                 break;
       case CMD_DBS:    sprintf( b, "show db\n" );                     break;
@@ -459,8 +465,9 @@ end:				/* Ready to send buffer, but are we
 				   connected? */
    if (!cmd_reply.s) {
       c = lst_top(cmd_list);
-      if (c->command != CMD_CONNECT)
+      if (c->command != CMD_CONNECT) {
 	 err_internal( __FUNCTION__, "Not connected, but no CMD_CONNECT\n" );
+      }
       if ((cmd_reply.s = net_connect_tcp( c->host,
 					     c->service
 					     ? c->service
@@ -480,7 +487,7 @@ end:				/* Ready to send buffer, but are we
 			     c->service ? c->service : DICT_DEFAULT_SERVICE));
 	 if (lst_length(cmd_list) > 1) {
 	    c = lst_nth_get(cmd_list,2);
-	    if (((struct cmd *)lst_top(cmd_list))->command == CMD_CONNECT) {
+	    if (c->command == CMD_CONNECT) {
 				/* undo pipelining */
 	       cmd_reply.s = 0;
 	       if (!dbg_test(DBG_SERIAL)) {
@@ -754,7 +761,7 @@ static void process( int html )
 	       arg_List   a = arg_argify( line, 0 );
 	       if (arg_count(a) != 2)
 		  err_internal( __FUNCTION__,
-				"MATCH command didn't return 2 args: %s\n",
+				"MATCH command didn't return 2 args: \"%s\"\n",
 				line );
 	       prepend_command( make_command( CMD_DEFPRINT,
 					      str_find(arg_get(a,0)),
@@ -875,14 +882,14 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.11 1997/07/12 04:13:54 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.12 1997/09/01 01:14:48 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
    uname( &uts );
    buffer = xmalloc(256);
    sprintf( buffer,
-	    "%s (version %s on %s %s)", err_program_name(), id_string( id ),
+	    "%s %s/rf on %s %s", err_program_name(), id_string( id ),
 	    uts.sysname,
 	    uts.release );
    return buffer;
@@ -945,6 +952,7 @@ static void help( void )
       "   --debug <flag>       set debugging flag",
       "   --html               output HTML format",
       "   --pipesize <size>    specify buffer size for pipelining (256)",
+      "   --client <text>      additional text for client command",
       0 };
    const char        **p = help_msg;
 
@@ -999,6 +1007,7 @@ int main( int argc, char **argv )
       { "debug",      1, 0, 502 },
       { "html",       0, 0, 503 },
       { "pipesize",   1, 0, 504 },
+      { "client",     1, 0, 505 },
       { 0,            0, 0,  0  }
    };
 
@@ -1036,6 +1045,7 @@ int main( int argc, char **argv )
       case 'L': license(); exit(1);                   break;
       case 'v': dbg_set( "verbose" );                 break;
       case 'r': dbg_set( "raw" );                     break;
+      case 505: client_text = optarg;                 break;
       case 504: client_pipesize = atoi(optarg);       break;
       case 503: ++html;                               break;
       case 502: dbg_set( optarg );                    break;
