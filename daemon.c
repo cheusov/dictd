@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.39 2002/10/11 18:13:48 cheusov Exp $
+ * $Id: daemon.c,v 1.40 2002/10/14 06:47:55 cheusov Exp $
  * 
  */
 
@@ -91,14 +91,15 @@ static struct {
 #define COMMANDS (sizeof(commandInfo)/sizeof(commandInfo[0]))
 
 static dictStrategy strategyInfo[] = {
-   {"exact",     "Match words exactly",                        DICT_EXACT },
+   {"exact",     "Match headwords exactly",                    DICT_EXACT },
    {"prefix",    "Match prefixes",                             DICT_PREFIX },
-   {"substring", "Match substring occurring anywhere in word", DICT_SUBSTRING},
+   {"substring", "Match substring occurring anywhere in a headword", DICT_SUBSTRING},
    {"suffix",    "Match suffixes",                             DICT_SUFFIX},
    {"re",        "POSIX 1003.2 (modern) regular expressions",  DICT_RE },
    {"regexp",    "Old (basic) regular expressions",            DICT_REGEXP },
    {"soundex",   "Match using SOUNDEX algorithm",              DICT_SOUNDEX },
-   {"lev", "Match words within Levenshtein distance one", DICT_LEVENSHTEIN },
+   {"lev", "Match headwords within Levenshtein distance one",  DICT_LEVENSHTEIN },
+   {"word", "Match separate words within headwords",           DICT_WORD },
 };
 #define STRATEGIES (sizeof(strategyInfo)/sizeof(strategyInfo[0]))
 

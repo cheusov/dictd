@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.35 2002/09/27 16:57:44 cheusov Exp $
+ * $Id: index.c,v 1.36 2002/10/14 06:47:55 cheusov Exp $
  * 
  */
 
@@ -56,10 +56,13 @@ int mmap_mode = 0;
 int _dict_comparisons;
 static int isspacealnumtab[UCHAR_MAX + 1];
 static int isspacealnumtab_allchars[UCHAR_MAX + 1];
+static int isspacepuncttab [UCHAR_MAX + 1];
 static int char2indextab[UCHAR_MAX + 2];
 static int index2chartab[UCHAR_MAX + 2];
-static int chartab[UCHAR_MAX + 1];
-static int charcount;
+
+static int chartab [UCHAR_MAX + 1];
+static int charcount = 0;
+
 /* #define isspacealnum(x) (isspacealnumtab[(unsigned char)(x)]) */
 #define c2i(x) (char2indextab[(unsigned char)(x)])
 #define i2c(x) (index2chartab[(unsigned char)(x)])
@@ -157,14 +160,26 @@ static void dict_table_init(void)
       }else{
 	 isspacealnumtab [i] = 0;
       }
+
+      if (isspace(i) || ispunct(i)){
+	 isspacepuncttab [i] = 1;
+#if 0
+	 fprintf (stderr, "punct: %i\n", i);
+#endif
+      }else{
+	 isspacepuncttab [i] = 0;
+      }
+
       isspacealnumtab_allchars [i] = 1;
    }
+   isspacepuncttab['\t'] = isspacepuncttab['\n'] = 1; /* special */
    isspacealnumtab['\t'] = isspacealnumtab['\n'] = 0; /* special */
    isspacealnumtab_allchars['\t'] = isspacealnumtab_allchars['\n'] = 0; /* special */
 
+   charcount = 0;
    for (i = 0; i <= UCHAR_MAX; i++){
       if (islower (i) || (utf8_mode && i >= 0xC0))
-	 chartab[charcount++] = i;
+	 chartab [charcount++] = i;
    }
 
                                 /* Populate an array with length-1 strings */
@@ -739,16 +754,22 @@ static int dict_search_prefix( lst_List l,
    return count;
 }
 
+enum {
+   BMH_SUBSTRING,
+   BMH_SUFFIX,
+   BMH_WORD,
+};
+
 static int dict_search_brute( lst_List l,
 			      const unsigned char *word,
 			      const dictDatabase *database,
 			      dictIndex *dbindex,
-			      int suffix,
+			      int flag,
 			      int patlen )
 {
-   const unsigned char *start = dbindex->start;
-   const unsigned char *end   = dbindex->end;
-   const unsigned char *p, *pt;
+   const unsigned char *const start = dbindex->start;
+   const unsigned char *const end   = dbindex->end;
+   const unsigned char *p, *pt, *ptr;
    int        count = 0;
    dictWord   *datum;
    int        result;
@@ -767,7 +788,25 @@ static int dict_search_brute( lst_List l,
       if (tolower(*p) == *word) {
 	 result = compare( word, dbindex, p, end );
 	 if (result == -1 || result == 0) {
-	    if (suffix && result) continue;
+	    switch (flag){
+	    case BMH_SUBSTRING:
+	       break;
+	    case BMH_SUFFIX:
+	       if (result)
+		  continue;
+
+	       break;
+	    case BMH_WORD:
+	       ptr = p - patlen + 1;
+
+	       if (ptr > start && !isspacepuncttab [ptr [-1]])
+		  continue;
+	       if (p < end && !isspacepuncttab [p [1]])
+		  continue;
+
+	       break;
+	    }
+
 	    for (pt = p; pt >= start && *pt != '\n'; --pt)
 	       if (*pt == '\t') goto continue2;
 	    if (!previous || altcompare(previous, pt + 1, end)) {
@@ -800,15 +839,18 @@ static int dict_search_bmh( lst_List l,
 			    const unsigned char *word,
 			    const dictDatabase *database,
 			    dictIndex *dbindex,
-			    int suffix )
+			    int flag )
 {
-   const unsigned char *start = dbindex->start;
-   const unsigned char *end   = dbindex->end;
-   int        patlen = strlen( word );
+   const unsigned char *const start = dbindex->start;
+   const unsigned char *const end   = dbindex->end;
+   const int  patlen = strlen( word );
    int        skip[UCHAR_MAX + 1];
    int        i;
    int        j;
-   const unsigned char *p, *pt;
+#if 0
+   int k;
+#endif
+   const unsigned char *p, *pt, *ptr;
    int        count = 0;
    const unsigned char *f = NULL; /* Boolean flag, but has to be a pointer */
    dictWord   *datum;
@@ -816,7 +858,7 @@ static int dict_search_bmh( lst_List l,
    const unsigned char *previous = NULL;
 
    if (patlen < BMH_THRESHOLD)
-      return dict_search_brute( l, word, database, dbindex, suffix, patlen );
+      return dict_search_brute( l, word, database, dbindex, flag, patlen );
 
    for (i = 0; i <= UCHAR_MAX; i++) {
       if (dbindex -> isspacealnum[i])
@@ -843,9 +885,43 @@ static int dict_search_bmh( lst_List l,
 	 }
 	 if (tolower(*pt--) != *wpt--) break;
       }
-      
+
       if (j == -1) {
-	 if (suffix && p[1] != '\t') continue;
+	 ptr = p - patlen + 1;
+#if 0
+	 for (k = 0; k < p - ptr + 3; ++k){
+	    fprintf (stderr, "%c", ptr [k-1]);
+	 }
+	 for (k = 0; k < p - ptr + 3; ++k){
+	    fprintf (stderr, " %i", ptr [k-1]);
+	 }
+	 fprintf (stderr, "\n");
+	 fprintf (stderr, "zzz:%c\n", p [0]);
+#endif
+	 switch (flag){
+	 case BMH_SUBSTRING:
+	    break;
+	 case BMH_SUFFIX:
+	    if (p[1] != '\t')
+	       continue;
+
+	    break;
+	 case BMH_WORD:
+#if 0
+	    fprintf (stderr, "WOW %i!!!\n", ptr [-1]);
+	    fprintf (stderr, "WOW %i!!!\n", p [1]);
+
+	    fprintf (stderr, "WOW %i!!!\n", ptr > start && !isspacepuncttab [ptr [-1]]);
+	    fprintf (stderr, "WOW %i!!!\n", p < end && !isspacepuncttab [p [1]]);
+#endif
+	    if (ptr > start && !isspacepuncttab [ptr [-1]])
+	       continue;
+	    if (p < end && !isspacepuncttab [p [1]])
+	       continue;
+
+	    break;
+	 }
+
 	 for (; pt > start && *pt != '\n'; --pt)
 	    if (*pt == '\t') goto continue2;
 	 if (pt > start) ++pt;
@@ -877,7 +953,7 @@ static int dict_search_substring( lst_List l,
 				  const dictDatabase *database,
 				  dictIndex *dbindex)
 {
-   return dict_search_bmh( l, word, database, dbindex, 0 );
+   return dict_search_bmh( l, word, database, dbindex, BMH_SUBSTRING );
 }
 
 static int dict_search_suffix( lst_List l,
@@ -885,7 +961,15 @@ static int dict_search_suffix( lst_List l,
 			       const dictDatabase *database,
 			       dictIndex *dbindex)
 {
-   return dict_search_bmh( l, word, database, dbindex, 1 );
+   return dict_search_bmh( l, word, database, dbindex, BMH_SUFFIX );
+}
+
+static int dict_search_word( lst_List l,
+				  const char *word,
+				  const dictDatabase *database,
+				  dictIndex *dbindex)
+{
+   return dict_search_bmh( l, word, database, dbindex, BMH_WORD );
 }
 
 static int dict_search_regexpr( lst_List l,
@@ -1267,8 +1351,8 @@ static int dict_search_database_ (
    const dictDatabase *database,
    int strategy )
 {
-   char       *buf = NULL;
-   dictWord   *dw  = NULL;
+   char       *buf      = NULL;
+   dictWord   *dw       = NULL;
 
    buf = alloca( strlen( word ) + 1 );
 
@@ -1347,6 +1431,32 @@ static int dict_search_database_ (
 
    case DICT_LEVENSHTEIN:
       return dict_search_levenshtein( l, buf, database, database->index);
+
+   case DICT_WORD:
+      return dict_search_word( l, buf, database, database->index);
+/*
+      p = buf_word = xmalloc (2*(2 + punctcount) + 3*strlen (buf));
+      len = strlen (buf);
+
+      *p++ = '\\';
+      *p++ = 'W';
+
+      for (i = 0; i < len; ++i){
+	 *p++ = '[';
+	 *p++ = buf [i];
+	 *p++ = ']';
+      }
+
+      *p++ = '\\';
+      *p++ = 'W';
+      *p++ = '\0';
+
+      fprintf (stderr, "regex: '%s'/%i\n", buf_word, punctcount);
+
+      ret = dict_search_re (l, buf_word, database, database->index);
+      xfree (buf_word);
+      return ret;
+*/
 
    default:
       err_internal( __FUNCTION__, "Search strategy %d unknown\n", strategy );
