@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.2 2002/08/21 15:38:41 cheusov Exp $
+ * $Id: dictfmt.c,v 1.3 2002/08/22 15:37:08 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -226,8 +226,9 @@ static void fmt_newheadword( const char *word, int flag )
    char *      new_word      = NULL;
    int         len;
 
-   if ((utf8_mode || allchars_mode) && word){
+   if (word) {
       len = strlen (word);
+
       if (len > 0){
 	 new_word     = malloc (strlen (word) + 1);
 	 if (!new_word){
@@ -242,6 +243,13 @@ static void fmt_newheadword( const char *word, int flag )
 	    }
 	 }else{
 	    tolower_alnumspace_8bit (word, new_word);
+	    while (len > 0 && isspace (word [len - 1])){
+	       new_word [--len] = 0;
+	    }
+	 }
+
+	 while (len > 0 && isspace (word [len - 1])){
+	    new_word [--len] = 0;
 	 }
 
 	 word = new_word;
@@ -274,7 +282,7 @@ static void fmt_newheadword( const char *word, int flag )
    }
    ++fmt_hwcount;
 
-   if (utf8_mode && new_word){
+   if (new_word){
       free (new_word);
    }
 }
