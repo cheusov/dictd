@@ -1,7 +1,7 @@
 # Makefile -- Makefile for dict
 # Created: Fri Dec  2 10:47:28 1994 by faith@cs.unc.edu
-# Revised: Sun Dec  4 15:39:46 1994 by faith@cs.unc.edu
-# Copyright 1994 Rickard E. Faith (faith@cs.unc.edu)
+# Revised: Thu Aug 24 01:03:32 1995 by r.faith@ieee.org
+# Copyright 1994, 1995 Rickard E. Faith (faith@cs.unc.edu)
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -30,17 +30,23 @@ CC=         gcc
 CFLAGS=     -Wall -g -O
 LDFLAGS=
 INSTALL=    install
-BIN=        dict buildindex
+BIN=        dict buildindex compressdict
 
 all: $(BIN)
 
 # Makefile is stupid so that it will work with broken (e.g., non-GNU) makes
 
-dict: dict.c look.o engine.o output.o dict.h
-	$(CC) $(CFLAGS) $(LDFLAGS) dict.c look.o engine.o output.o -o $@
-
+dict: dict.c look.o engine.o output.o decode.o dict.h
+	$(CC) $(CFLAGS) $(LDFLAGS) \
+		dict.c look.o engine.o output.o decode.o -o $@
 look.o: look.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -c look.c -o $@
+
+decode.o: decode.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -c decode.c -o $@
+
+encode.o: encode.c
+	$(CC) $(CFLAGS) $(LDFLAGS) -c encode.c -o $@
 
 engine.o: engine.c dict.h
 	$(CC) $(CFLAGS) $(LDFLAGS) -c engine.c -o $@
@@ -51,13 +57,18 @@ output.o: output.c dict.h
 buildindex: buildindex.c
 	$(CC) $(CFLAGS) $(LDFLAGS) buildindex.c -o $@
 
+compressdict: compressdict.c decode.o encode.o dict.h
+	$(CC) $(CFLAGS) $(LDFLAGS) compressdict.c decode.o encode.o -o $@
+
 install: dict buildindex
 	$(INSTALL) -m 755 dict $(exec_prefix)
 	$(INSTALL) -m 755 buildindex $(exec_prefix)
+	$(INSTALL) -m 755 compressdict $(exec_prefix)
 	$(INSTALL) -m 644 dict.1 $(man1_prefix)
 	$(INSTALL) -m 644 buildindex.1 $(man1_prefix)
+	$(INSTALL) -m 644 compressdict.1 $(man1_prefix)
 
 clean:
 	-rm -f $(BIN) *.o *~ core
 
-veryclean: clean
+distclean veryclean: clean

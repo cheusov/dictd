@@ -1,6 +1,6 @@
 /* dict.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Sun Dec  4 15:29:45 1994 by faith@cs.unc.edu
+ * Revised: Thu Aug 24 03:23:49 1995 by r.faith@ieee.org
  * Copyright 1994 Rickard E. Faith (faith@cs.unc.edu)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -44,6 +44,8 @@ extern char *optarg;
 
 #define BUFFER_SIZE    10240
 
+#define MAXWORDS 144210		/* Do _not_ change this. */
+
 #define ACTION_FIRST       0
 #define ACTION_NAMED       1
 #define ACTION_ALL         2
@@ -62,16 +64,21 @@ extern char *optarg;
 #define STYLE_QUIET        4
 
 typedef struct {
-   char          *name;
-   char          *filename;
-   char          *index;
-   char          *description;
-   int           fd;
-   unsigned long size;
-   char          *front;
-   char          *back;
-   FILE          *str;
-   unsigned long used;
+   char          *name;		/* database name                     */
+   char          *filename;	/* path to database                  */
+   char          *index;	/* path to database index            */
+   char          *indexalt;	/* alternate path to database index  */
+   char          *listname;	/* path to compression dictionary    */
+   char          *description;	/* database description              */
+   char          **wordlist;	/* compression dictionary            */
+   char          *ascii[128];	/* compression dictionary            */
+   char          space;		/* special space char for compresion */
+   int           fd;		/* index file descriptor             */
+   unsigned long size;		/* index size                        */
+   char          *front;	/* mmap'd front of index             */
+   char          *back;		/* mmap'd end of index               */
+   FILE          *str;		/* database file pointer             */
+   unsigned long used;		/* lru timestamp for fd cache        */
 } Entry;
 
 extern int  Debug;
@@ -93,3 +100,8 @@ extern void print_entry( char *pos, Entry *entry, int style, FILE *str );
 extern void print_possibilities( char *target, char *folded, Entry *entry,
 				 int search, int style, FILE *str );
 extern int  exact( char *target, char *pos, char *back );
+extern int  read_list( int fd,
+		       char ***wordlist, char *ascii[128], char *space );
+extern char *decode_line( const char *line, char **wordlist,
+			  char *ascii[128], char space );
+

@@ -1,0 +1,172 @@
+/* decode.c -- 
+ * Created: Wed Aug 23 23:38:33 1995 by r.faith@ieee.org
+ * Revised: Thu Aug 24 02:15:33 1995 by r.faith@ieee.org
+ * Copyright 1995 Rickard E. Faith (r.faith@ieee.org)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2, or (at your option) any
+ * later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * $Id: decode.c.save,v 1.1 1996/09/23 15:33:25 faith Exp $
+ * 
+ */
+
+#include "dict.h"
+
+static char Buffer[BUFSIZ];
+
+/* 0x80..0xfd 0x01..0xff: 6 bits -> 64 * 253 -> 16192
+   0xfe..0xff 0x01..0xff 0x01..0xff: 1 bits -> 2 * 253 * 253 = 128018
+
+   for a total of 144210
+*/
+
+int decode( const char *c )
+{
+   int value;
+   int code[3];
+
+   code[0] = (unsigned char)*c++;
+   code[1] = (unsigned char)*c++;
+   code[2] = (unsigned char)*c;
+
+   if (code[1] == 255) code[1] = 0;
+   if (code[1] == 254) code[1] = '\n';
+   if (code[2] == 255) code[2] = 0;
+   if (code[2] == 254) code[2] = '\n';
+   
+   if (code[0] <= 0xfd) {
+      value = (((code[0] & 0x7c) >> 2) + 32 * (code[0] & 1)) * 253 + code[1];
+   } else {
+      value = 253 * 64
+	      + (code[0] & 0x01) * 253 * 253
+	      + code[1] * 253
+	      + code[2];
+   }
+   return value;
+}
+
+int read_list( FILE *str, char ***wlPt, char *ascii[128], char *space )
+{
+   int  count      = 0;
+   int  asciis     = 0;
+   int  ascii_val  = 0;
+   int  first      = 1;
+   char **wordlist = NULL;
+   int  expected;
+   int  adjust     = 0;
+
+   if (!fgets( Buffer, BUFSIZ, str )) {
+      fprintf( stderr, "Cannot read list\n" );
+      perror( "" );
+      exit( 1 );
+   }
+
+   expected = atoi( Buffer+1 );
+   if (!expected || expected > MAXWORDS) {
+      fprintf( stderr,
+	       "List has %d words -- %d is maximum number\n",
+	       expected, MAXWORDS );
+      exit( 1 );
+   }
+   
+   while (fgets( Buffer, BUFSIZ, str )) {
+      int len = strlen( Buffer );
+
+      if (Buffer[0] == '!' && first) {
+	 char *pt;
+	 char *number;
+
+	 for (number = pt = Buffer + 2; *pt; pt++) {
+	    if (*pt == ' ' || *pt == '\n') {
+	       *pt = '\0';
+	       if (first) {
+		  *space = atoi( number );
+		  first = 0;
+	       } else {
+		  ascii[ atoi( number ) ] = (void *)1; /* kludge */
+		  ++asciis;
+	       }
+	       number = pt + 1;
+	    }
+	 }
+	 if (Debug)
+	    fprintf( stderr, "Using %d single character codes\n", asciis );
+	 *wlPt = malloc( sizeof( char **) * (expected - asciis) );
+	 wordlist = *wlPt;
+	 first = 0;
+	 adjust = asciis;
+      } else {
+	 if (Buffer[len-1] == '\n') Buffer[len-1] = '\0';
+	 if (asciis) {
+	    while (ascii[ ascii_val ] != (void *)1) ++ascii_val;
+	    if (ascii_val > 128) {
+	       fprintf( stderr, "ascii_val = %d\n", ascii_val );
+	       exit( 1 );
+	    }
+	    if (Debug) fprintf( stderr, "%d gets %s\n", ascii_val, Buffer );
+	    ascii[ ascii_val ] = strdup( Buffer );
+#if 0
+	    hsh_insert( h, ascii[ ascii_val ], -ascii_val );
+#endif
+	    --asciis;
+	 } else {
+	    wordlist[count-adjust] = strdup( Buffer );
+#if 0
+	    hsh_insert( h, wordlist[count], count-adjust );
+#endif
+	 }
+	 ++count;
+      }
+   }
+   if (Debug) fprintf( stderr, "Using %d words for dictionary\n", count );
+   if (expected != count) {
+      fprintf( stderr, "Expected %d words, found %d\n",
+	       expected, count );
+      exit( 1 );
+   }
+   return count-adjust;
+}
+
+char *decode_line( const char *line, char **wordlist,
+		   char *ascii[128], char space )
+{
+   static char outBuf[BUFSIZ];
+   char        *out = outBuf;
+   const char  *pt;
+   char        *p;
+   
+   for (pt = line; *pt; pt++) {
+      if ((unsigned char)*pt >= 0x80) {
+	 if (*pt != space) {
+	    int value = decode( pt );
+
+	    for (p = wordlist[ value ]; *p;) *out++ = *p++;
+	       
+	    if ((unsigned char)*pt >= 0xfe) pt += 2;
+	    else                            pt += 1;
+	       
+	    if (pt[1] != '\n') *out++ = ' ';
+	 }
+      } else if (ascii[ (unsigned char)*pt ]) {
+	 for (p = ascii[ (unsigned char)*pt ]; *p;) *out++ = *p++;
+	 
+	 if (pt[1] != '\n') *out++ = ' ';
+      } else if (*pt != space)
+	 *out++ = *pt;
+   }
+   
+   *out = '\0';
+   
+   return outBuf;
+}

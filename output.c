@@ -1,7 +1,7 @@
 /* output.c -- Output routines for dict program
  * Created: Sun Dec  4 09:12:37 1994 by faith@cs.unc.edu
- * Revised: Sun Dec  4 21:20:50 1994 by faith@cs.unc.edu
- * Copyright 1994 Rickard E. Faith (faith@cs.unc.edu)
+ * Revised: Thu Aug 24 03:23:22 1995 by r.faith@ieee.org
+ * Copyright 1994, 1995 Rickard E. Faith (faith@cs.unc.edu)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,14 +24,22 @@
  */
 
 #include "dict.h"
+#include <fcntl.h>
 
 static void open_dict( Entry *entry )
 {
+   int fd;
+   
    if (!entry->str) {
       if (!(entry->str = fopen( entry->filename, "r" ))) {
 	 fprintf( stderr, "Cannot open \"%s\" for read\n", entry->filename );
 	 exit( 1 );
       }
+   }
+
+   if ((fd = open( entry->listname, O_RDONLY )) >= 0) {
+      read_list( fd, &entry->wordlist, entry->ascii, &entry->space );
+      close( fd );
    }
 }
 
@@ -60,18 +68,23 @@ void print_entry( char *pos, Entry *entry, int style, FILE *str )
    fseek( entry->str, offset, SEEK_SET );
 
    while (fgets( buffer, BUFFER_SIZE, entry->str )) {
-      char *pt = buffer;
+      char *decoded = decode_line( buffer, entry->wordlist,
+				   entry->ascii, entry->space );
+      char *pt      = decoded;
       
       if (!devils && *pt == stop) {
-	 if (!fgets( buffer, BUFFER_SIZE, entry->str ) || buffer[0] != '\t')
-	       break;
+	 if (!fgets( buffer, BUFFER_SIZE, entry->str )) break;
+	 decoded = decode_line( buffer, entry->wordlist,
+				entry->ascii, entry->space );
+	 if (decoded[0] != '\t')
+	    break;
 	 else
-	       fprintf( str, "\n" );
+	    fprintf( str, "\n" );
       }
       if (devils && prev == '\n' && isupper( *pt )) break;
       
       if (first) {
-	 char *p   = buffer;
+	 char *p   = decoded;
 
 	 if (isupper( *p )) {
 	    for (; *p; p++) {

@@ -1,7 +1,7 @@
 /* engine.c -- Engine for dict program
  * Created: Fri Dec  2 20:03:33 1994 by faith@cs.unc.edu
- * Revised: Sun Dec  4 15:19:24 1994 by faith@cs.unc.edu
- * Copyright 1994 Rickard E. Faith (faith@cs.unc.edu)
+ * Revised: Thu Aug 24 01:13:47 1995 by r.faith@ieee.org
+ * Copyright 1994, 1995 Rickard E. Faith (faith@cs.unc.edu)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -103,10 +103,19 @@ static void create_map( Entry *entry )
       
    if (entry->fd < 0) {
       if ((entry->fd = open( entry->index, O_RDONLY, 0 )) < 0) {
-	 fprintf( stderr,
-		  "Cannot open index \"%s\" for read\n",
-		  entry->index );
-	 exit( 1 );
+	 if (!entry->indexalt) {
+	    fprintf( stderr,
+		     "Cannot open index \"%s\" for read\n",
+		     entry->index );
+	    exit( 1 );
+	 }
+	 if ((entry->fd = open( entry->indexalt, O_RDONLY, 0 )) < 0 ) {
+	    fprintf( stderr,
+		     "Cannot open index \"%s\" or \"%s\" for read\n",
+		     entry->index, entry->indexalt );
+	    exit( 1 );
+
+	 }
       }
       
       if (fstat( entry->fd, &buf )) {
@@ -184,6 +193,8 @@ void list_entries( FILE *str )
 
 void add_entry( char *name, char *filename, char *index, char *description )
 {
+   int  i;
+   
    if (entries >= maxEntries) {
       if (Entries)
 	    Entries = realloc( Entries, sizeof( Entry ) * (maxEntries += 5) );
@@ -217,6 +228,10 @@ void add_entry( char *name, char *filename, char *index, char *description )
    Entries[entries].back        = NULL;
    Entries[entries].str         = NULL;
    Entries[entries].used        = 0;
+   Entries[entries].wordlist    = NULL;
+
+   for (i = 0; i < 128; i++)
+      Entries[entries].ascii[i] = NULL;
 
    if (!Entries[entries].filename) {
       fprintf( stderr, "Internal error: filename NULL\n" );
@@ -224,13 +239,18 @@ void add_entry( char *name, char *filename, char *index, char *description )
    }
 
    if (!Entries[entries].index) {
-      char *filename = Entries[entries].filename;
-      
-      Entries[entries].index = malloc( sizeof( char )
-				       * (strlen( filename ) + 7 ) );
+      Entries[entries].index = malloc( strlen( filename ) + 7 );
       strcpy( Entries[entries].index, filename );
       strcat( Entries[entries].index, ".index" );
    }
+   
+   Entries[entries].indexalt = malloc( strlen( filename ) + 5 );
+   strcpy( Entries[entries].indexalt, filename );
+   strcat( Entries[entries].indexalt, ".idx" );
+
+   Entries[entries].listname = malloc( strlen( filename ) + 4 );
+   strcpy( Entries[entries].listname, filename );
+   strcat( Entries[entries].listname, ".cd" );
 
    ++entries;
 }
@@ -239,6 +259,8 @@ void find( char *word, int action, int match, int search, int style,
 	   char *name, FILE *str )
 {
    int i;
+
+   if (Debug) fprintf( stderr, "find %s in %s\n", word, name );
    
    switch (action) {
    case ACTION_FIRST:

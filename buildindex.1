@@ -1,5 +1,5 @@
 .\" buildindex.1 -- 
-.\" Copyright 1994 Rik Faith (faith@cs.unc.edu)
+.\" Copyright 1994, 1995 Rik Faith (faith@cs.unc.edu)
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -19,7 +19,7 @@
 .\" operates on many different data types.  You are responsible for
 .\" obtaining any data upon which this program operates.
 .\" "
-.TH BUILDINDEX 1 "4 December 1994" "" ""
+.TH BUILDINDEX 1 "23 Aug 1995" "" ""
 .SH NAME
 buildindex \- build an index file for the dict program
 .SH SYNOPSIS
@@ -34,14 +34,14 @@ character.  The offset is in decimal.  The headword must not contain any
 tab characters.  Each line ends with a newline.
 .SH OPTIONS
 .TP
-.B -j
+.B \-j
 Assumes that the input file has the same format as the Jargon File.  That
 is, all headwords are bracketed by ':' characters, and each entry ends on
 the line prior to the next line that starts with a ':' character.
 .sp
 The Jargon File is available from prep.ai.mit.edu:/pub/gnu/jarg310.txt.gz
 .TP
-.B -d
+.B \-d
 Assumes that the input file has the same format as The Devil's Dictionary
 (by Amrose Bierce), as distributed by the Internet Wiretap.  That is, all
 headwords are in uppercase and end with a '.' or ',' character.  An entry
@@ -50,7 +50,7 @@ ends with a blank line prior to the beginning of the next entry.
 The Devil's Dictionary is available from
 wiretap.spies.com:/Library/Classic/devils.txt
 .TP
-.B -f
+.B \-f
 Assumes that the input file has the same format as the Free On-line
 Dictionary of Computing (FOLDOC) from Denis Howe.  That is, all headwords
 start in column one and have a newline before them.  All entries end with
@@ -58,11 +58,11 @@ the start of the next headword.
 .sp
 FOLDOC is available from wombat.doc.ic.ac.uk:/pub/Dictionary
 .TP
-.B -l
+.B \-l
 Assumes that headwords start in the first column and continue until some
 non-space punctuation is encountered.  Entries end with a blank line.
 .TP
-.B -r
+.B \-r
 Reformats a file with the format described for
 .BR \-l ,
 inserting newlines in between entries.  This is necessary for
@@ -77,10 +77,11 @@ and
 are for a latin dictionary that was posted to a newsgroup a long time ago.
 It does not appear to be available on the net at this time.
 .TP
-.B -D
+.B \-D
 Turns on debugging.  This options probably doesn't do much.
 .SH "SEE ALSO"
-.BR dict (1)
+.BR dict (1),
+.BR compressdict (1)
 .SH AUTHOR
 The
 .BR buildindex (1)
