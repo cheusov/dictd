@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.c,v 1.33 2003/02/02 16:34:26 hilliard Exp $
+ * $Id: dict.c,v 1.34 2003/04/09 14:51:36 hilliard Exp $
  * 
  */
 
@@ -252,7 +252,7 @@ static void client_print_listed( lst_List l )
    arg_List     a;
    int          colWidth = 10; /* minimum size of first column */
    int          colMax = 16; /* maximum size of unragged first column */
-   char         format[BUFFERSIZE];
+   char         format[32];
 
    if (!l) return;
    LST_ITERATE(l,p,e) {
@@ -461,6 +461,7 @@ static void request( void )
       
    LST_ITERATE(cmd_list,pos,c) {
       b[0] = '\0';
+      len = 0;
       PRINTF(DBG_PIPE,("* Looking at request %d\n",c->command));
       if (c->sent) {
 	 PRINTF(DBG_PIPE,("* Skipping\n"));
@@ -480,32 +481,39 @@ static void request( void )
 	 MD5Final(digest, &ctx );
 	 for (i = 0; i < 16; i++) sprintf( hex+2*i, "%02x", digest[i] );
 	 hex[32] = '\0';
-	 sprintf( b, "auth %s %s\n", cmd_reply.user, hex );
+	 len = snprintf( b, BUFFERSIZE, "auth %s %s\n", cmd_reply.user, hex );
 	 break;
       case CMD_CLIENT:
          if (client_text)
-            sprintf( b, "client \"%s: %s\"\n", c->client, client_text );
+            len = snprintf( b, BUFFERSIZE, "client \"%s: %s\"\n",
+                            c->client, client_text );
          else
             sprintf( b, "client \"%s\"\n", c->client );
          break;
-      case CMD_INFO:   sprintf( b, "show info %s\n", c->database );   break;
+      case CMD_INFO:   len = snprintf( b, BUFFERSIZE, "show info %s\n",
+                                       c->database );                 break;
       case CMD_SERVER: sprintf( b, "show server\n" );                 break;
       case CMD_DBS:    sprintf( b, "show db\n" );                     break;
       case CMD_STRATS: sprintf( b, "show strat\n" );                  break;
       case CMD_HELP:   sprintf( b, "help\n" );                        break;
       case CMD_MATCH:
 	 cmd_reply.word = c->word;
-	 sprintf( b,
-		  "match %s %s \"%s\"\n",
-		  c->database, c->strategy, c->word );                break;
+	 len = snprintf( b, BUFFERSIZE,
+			 "match %s %s \"%s\"\n",
+			 c->database, c->strategy, c->word );         break;
       case CMD_DEFINE:
 	 cmd_reply.word = c->word;
-	 sprintf( b, "define %s \"%s\"\n", c->database, c->word );    break;
+	 len = snprintf( b, BUFFERSIZE, "define %s \"%s\"\n",
+			 c->database, c->word );                      break;
       case CMD_SPELL:                                                 goto end;
       case CMD_WIND:                                                  goto end;
       case CMD_CLOSE:  sprintf( b, "quit\n" );                        break;
       default:
 	 err_internal( __FUNCTION__, "Unknown command %d\n", c->command );
+      }
+      if ( len < 0 || len >= BUFFERSIZE ) {
+         client_close_pager();
+         err_fatal( __FUNCTION__, "Buffer too small\n" );
       }
       len = strlen(b);
       if (total + len + 3 > client_pipesize) {
@@ -959,16 +967,15 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.33 2003/02/02 16:34:26 hilliard Exp $";
+   const char        *id = "$Id: dict.c,v 1.34 2003/04/09 14:51:36 hilliard Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
    uname( &uts );
    buffer = xmalloc(256);
-   sprintf( buffer,
-	    "%s %s/rf on %s %s", err_program_name(), id_string( id ),
-	    uts.sysname,
-	    uts.release );
+   snprintf( buffer, 256,
+	     "%s %s/rf on %s %s", err_program_name(), id_string( id ),
+	     uts.sysname, uts.release );
    return buffer;
 }
 
@@ -1149,9 +1156,12 @@ int main( int argc, char **argv )
       prs_file_nocpp( configFile );
    } else {
       char b[256];
+      int  len;
       char *env = getenv("HOME");
 
-      sprintf( b, "%s/%s", env ? env : "./", DICT_RC_NAME );
+      len = snprintf( b, 256, "%s/%s", env ? env : "./", DICT_RC_NAME );
+      if ( len < 0 || len >= 256 )
+         err_fatal( __FUNCTION__, "Buffer too small\n" );
       PRINTF(DBG_VERBOSE,("Trying %s...\n",b));
       if (!access(b, R_OK)) {
 	 prs_file_nocpp(b);
