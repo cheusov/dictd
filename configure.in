@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.38 2003/02/15 14:30:39 cheusov Exp $
+dnl $Id: configure.in,v 1.39 2003/02/20 19:29:20 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -36,7 +36,7 @@ define(VERSION, 1.9.4)
 
 
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.38 $)
+AC_REVISION($Revision: 1.39 $)
 
 AC_INIT(dict, VERSION, "dict-beta@dict.org")
 
@@ -94,6 +94,25 @@ AC_ARG_WITH(prof,
 if test "x${withval}" = xyes; then
     CFLAGS="$CFLAGS -p"
     LDFLAGS="$LDFLAGS -p"
+fi
+])
+
+AC_ARG_WITH(socks5,
+[  --with-nec-socks5       with NEC socks5 library],
+[
+if test "x${withval}" = xyes; then
+    CFLAGS="$CFLAGS -Dconnect=Rconnect \
+    -Dgetsockname=Rgetsockname -Dgetpeername=Rgetpeername \
+    -Dbind=Rbind -Daccept=Raccept \
+    -Dselect=Rselect -DRconnect=SOCKSconnect \
+    -DRgetsockname=SOCKSgetsockname -DRgetpeername=SOCKSgetpeername \
+    -DRbind=SOCKSbind -DRaccept=SOCKSaccept -DRlisten=SOCKSlisten \
+    -DRselect=SOCKSselect -Drecvfrom=SOCKSrecvfrom -Dsendto=SOCKSsendto \
+    -Drecv=SOCKSrecv -Dsend=SOCKSsend -Dread=SOCKSread -Dwrite=SOCKSwrite \
+    -Drresvport=SOCKSrresvport -Dshutdown=SOCKSshutdown -Dlisten=SOCKSlisten \
+    -Dclose=SOCKSclose -Ddup=SOCKSdup -Ddup2=SOCKSdup2 \
+    -Dgethostbyname=SOCKSgethostbyname"
+    REALLIBS="$REALLIBS -lsocks5"
 fi
 ])
 
