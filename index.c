@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.63 2003/04/07 13:24:13 cheusov Exp $
+ * $Id: index.c,v 1.64 2003/04/07 14:21:14 cheusov Exp $
  * 
  */
 
@@ -49,12 +49,13 @@
 extern int mmap_mode;
 
 #define FIND_NEXT(pt,end) while (pt < end && *pt++ != '\n');
-#define OPTSTART        1	/* Optimize search range for constant start */
 #define MAXWORDLEN    512
 #define BMH_THRESHOLD   3	/* When to start using Boyer-Moore-Hoorspool */
 
-int utf8_mode;     /* dictd uses UTF-8 dictionaries */
-int bit8_mode;     /* dictd uses 8-BIT dictionaries */
+int utf8_mode;          /* dictd uses UTF-8 dictionaries */
+int bit8_mode;          /* dictd uses 8-BIT dictionaries */
+int optStart_mode = 1;	/* Optimize search range for constant start */
+
 dictConfig *DictConfig;
 
 int _dict_comparisons;
@@ -524,9 +525,7 @@ static const char *dict_index_search( const char *word, dictIndex *idx )
 {
    const char    *start;
    const char    *end;
-#if OPTSTART
    int first, last;
-#endif
 
    assert (idx);
 
@@ -543,23 +542,24 @@ static const char *dict_index_search( const char *word, dictIndex *idx )
       2097035 comparisons, 2000 words
    */
 
-#if OPTSTART
-   first   = * (const unsigned char *) word;
-   last    = i2c(c2i(first)+1);
+   if (optStart_mode){
+      first   = * (const unsigned char *) word;
+      last    = i2c(c2i(first)+1);
 
-   if (dbg_test(DBG_SEARCH)) {
-      if (!utf8_mode || (last <= CHAR_MAX && first <= CHAR_MAX))
-	 printf("binary_search from %c to %c\n", first, last);
-      else
-	 printf("binary_search from %i to %i\n", first, last);
+      if (dbg_test(DBG_SEARCH)) {
+	 if (!utf8_mode || (last <= CHAR_MAX && first <= CHAR_MAX))
+	    printf("binary_search from %c to %c\n", first, last);
+	 else
+	    printf("binary_search from %i to %i\n", first, last);
+      }
+
+      end   = idx->optStart [last];
+      start = idx->optStart [first];
+   }else{
+      start = idx->start;
+      end   = idx->end;
    }
 
-   end   = idx->optStart [last];
-   start = idx->optStart [first];
-#else
-   start = idx->start;
-   end   = idx->end;
-#endif
    if (end < start) end = idx->end;
 
    start = binary_search( word, idx, start, end );
@@ -1029,14 +1029,17 @@ static int dict_search_regexpr( lst_List l,
 
    assert (dbindex);
 
-#if OPTSTART
-   if (*word == '^' && dbindex -> isspacealnum [(unsigned char) word[1]]) {
-      first = word[1];
-      end   = dbindex->optStart[i2c(c2i(first)+1)];
-      start = dbindex->optStart[first];
-      if (end < start) end = dbindex->end;
+   if (optStart_mode){
+      if (*word == '^' && dbindex -> isspacealnum [(unsigned char) word[1]]) {
+	 first = word[1];
+
+	 end   = dbindex->optStart[i2c(c2i(first)+1)];
+	 start = dbindex->optStart[first];
+
+	 if (end < start)
+	    end = dbindex->end;
+      }
    }
-#endif
 
    if ((err = regcomp(&re, word, REG_ICASE|REG_NOSUB|type))) {
       regerror(err, &re, erbuf, sizeof(erbuf));
@@ -1106,17 +1109,18 @@ static int dict_search_soundex( lst_List l,
 
    assert (dbindex);
 
-#if OPTSTART
-   pt  = dbindex->optStart[ c ];
-   end = dbindex->optStart[ i2c(c2i(c)+1) ];
-   if (end < pt) end = dbindex->end;
-#else
-   pt  = dbindex->start;
-   end = dbindex->end;
-#endif
+   if (optStart_mode){
+      pt  = dbindex->optStart[ c ];
+      end = dbindex->optStart[ i2c(c2i(c)+1) ];
+      if (end < pt)
+	 end = dbindex->end;
+   }else{
+      pt  = dbindex->start;
+      end = dbindex->end;
+   }
 
    strcpy( soundex, txt_soundex( word ) );
-   
+
    while (pt && pt < end) {
       for (i = 0, s = pt, d = buffer; i < MAXWORDLEN - 1; i++, ++s) {
 	 if (*s == '\t') break;
@@ -1555,10 +1559,8 @@ dictIndex *dict_index_open(
    static int  tabInit = 0;
    dictIndex   *i;
    dictDatabase db;
-#if OPTSTART
    int         j;
    char        buf[2];
-#endif
 
    if (!filename)
       return NULL;
@@ -1608,10 +1610,10 @@ dictIndex *dict_index_open(
    i->flag_allchars = flag_allchars;
    i->isspacealnum  = isspacealnumtab;
 
-#if OPTSTART
-   for (j = 0; j <= UCHAR_MAX; j++)
-      i->optStart[j] = i->start;
-#endif
+   if (optStart_mode){
+      for (j = 0; j <= UCHAR_MAX; j++)
+	 i->optStart[j] = i->start;
+   }
 
    if (init_flags){
       memset (&db, 0, sizeof (db));
@@ -1646,34 +1648,34 @@ dictIndex *dict_index_open(
       }
    }
 
-#if OPTSTART
-   buf[0] = ' ';
-   buf[1] = '\0';
-   i->optStart[ ' ' ] = binary_search_8bit( buf, i, i->start, i->end );
-
-   for (j = 0; j < charcount; j++) {
-      buf[0] = c(j);
+   if (optStart_mode){
+      buf[0] = ' ';
       buf[1] = '\0';
-      i->optStart[toupper(c(j))]
-	 = i->optStart[c(j)]
-	 = binary_search_8bit( buf, i, i->start, i->end );
-      if (dbg_test (DBG_SEARCH)){
-	 if (!utf8_mode || c(j) <= CHAR_MAX)
-	    printf ("optStart [%c] = %p\n", c(j), i->optStart[c(j)]);
-	 else
-	    printf ("optStart [%i] = %p\n", c(j), i->optStart[c(j)]);
+      i->optStart[ ' ' ] = binary_search_8bit( buf, i, i->start, i->end );
+
+      for (j = 0; j < charcount; j++) {
+	 buf[0] = c(j);
+	 buf[1] = '\0';
+	 i->optStart [toupper(c(j))]
+	    = i->optStart[c(j)]
+	    = binary_search_8bit( buf, i, i->start, i->end );
+	 if (dbg_test (DBG_SEARCH)){
+	    if (!utf8_mode || c(j) <= CHAR_MAX)
+	       printf ("optStart [%c] = %p\n", c(j), i->optStart[c(j)]);
+	    else
+	       printf ("optStart [%i] = %p\n", c(j), i->optStart[c(j)]);
+	 }
       }
-   }
 
-   for (j = '0'; j <= '9'; j++) {
-      buf[0] = j;
-      buf[1] = '\0';
-      i->optStart[j] = binary_search_8bit( buf, i, i->start, i->end );
-   }
+      for (j = '0'; j <= '9'; j++) {
+	 buf[0] = j;
+	 buf[1] = '\0';
+	 i->optStart[j] = binary_search_8bit( buf, i, i->start, i->end );
+      }
 
-   i->optStart[UCHAR_MAX]   = i->end;
-   i->optStart[UCHAR_MAX+1] = i->end;
-#endif
+      i->optStart[UCHAR_MAX]   = i->end;
+      i->optStart[UCHAR_MAX+1] = i->end;
+   }
 
    return i;
 }

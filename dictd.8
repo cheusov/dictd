@@ -141,7 +141,7 @@ file at compile time (DICT_DEFAULT_SERVICE).
 Communicate on standard input/output, suitable for use from inetd.
 Although, due to its rather large startup time, this daemon was not
 intended to run from inetd, with a fast processor it is feasible to do
-so.
+so. This option also implies \-\-fast-start.
 .TP
 .BI \-\-depth " length"
 Specify the queue length for
@@ -238,9 +238,6 @@ By default all search strategies are enabled.
 Adds strategy 'strat' with the description 'descr'.
 A new search strategy may be implemented with a help of plugins.
 .TP
-.B \-\-no-mmap
-do not use the mmap() function and read entire files into memory instead. 
-.TP
 .BI \-\-test " word \fR or "\-t " word"
 self test -- lookup word
 .TP
@@ -256,6 +253,16 @@ self test -- set dictionary to be searched. The default is '*'.
 .TP
 .BI \-\-test-match
 self test -- set search type to MATCH. The default is DEFINE.
+.TP
+.BI \-\-fast-start
+By default, dictd creates (in memory) additional index
+to make the search faster.
+This option disables this behaviour and makes startup faster.
+Use of this option make sense on CYGWIN, but normally you should not use it.
+.TP
+.B \-\-without-mmap
+do not use the mmap() function and read entire files into memory instead.
+Use this option, if you know exactly what you are doing.
 .TP
 
 .BI \-l " option\fR or " \-\-log " option"

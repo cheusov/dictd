@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.82 2003/04/07 13:34:58 cheusov Exp $
+ * $Id: dictd.c,v 1.83 2003/04/07 14:21:14 cheusov Exp $
  * 
  */
 
@@ -56,8 +56,8 @@ static char       *_dict_argvstart;
 static int        _dict_argvlen;
 
        int        _dict_forks;
-       int        inetd        = 0;
 const char        *locale      = "C";
+int                inetd       = 0;
 
 static const char *configFile  = DICT_CONFIG_PATH DICTD_CONFIG_NAME;
 
@@ -795,7 +795,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.82 2003/04/07 13:34:58 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.83 2003/04/07 14:21:14 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -879,10 +879,6 @@ static void help( void )
                                    <strategies> is a comma-separated list.",
 "   --add-strategy <strat>:<descr>  adds new strategy <strat>\n\
                                    with a description <descr>.",
-#ifdef HAVE_MMAP
-"   --no-mmap          do not use mmap() function and load files\n\
-                      into memory instead.",
-#endif
 "\n------------------ options for debugging ---------------------------",
 "-t --test <word>                lookup word",
 "   --test-file <file>",
@@ -894,6 +890,11 @@ static void help( void )
 "   --test-match                 show matched words but the definitions",
 "   --test-nooutput              produces no output",
 "   --test-idle                  does everything except search",
+"   --fast-start                 don't create additional index.",
+#ifdef HAVE_MMAP
+"   --without-mmap               do not use mmap() function and load files\n\
+                                into memory instead.",
+#endif
       0 };
    const char        **p = help_msg;
 
@@ -1148,7 +1149,6 @@ int main( int argc, char **argv, char **envp )
    int                delay        = DICT_DEFAULT_DELAY;
    int                depth        = DICT_QUEUE_DEPTH;
    int                useSyslog    = 0;
-   int                inetd        = 0;
    int                logOptions   = 0;
    int                forceStartup = 0;
    int                i;
@@ -1186,6 +1186,7 @@ int main( int argc, char **argv, char **envp )
       { "test-strategy",    1, 0, 507 },
 #ifdef HAVE_MMAP
       { "no-mmap",          0, 0, 508 },
+      { "without-mmap",     0, 0, 508 },
 #endif
       { "test-db",          1, 0, 509 },
       { "default-strategy", 1, 0, 511 },
@@ -1194,12 +1195,13 @@ int main( int argc, char **argv, char **envp )
       { "test-nooutput",    0, 0, 514 },
       { "test-idle",        0, 0, 515 },
       { "add-strategy",     1, 0, 516 },
+      { "fast-start",       0, 0, 517 },
       { 0,                  0, 0, 0  }
    };
 
    release_root_privileges();
 
-   init(argv[0]);
+   init (argv[0]);
 
    flg_register( LOG_SERVER,    "server" );
    flg_register( LOG_CONNECT,   "connect" );
@@ -1241,7 +1243,10 @@ int main( int argc, char **argv, char **envp )
       case 's': ++useSyslog;                              break;
       case 'm': _dict_markTime = 60*atoi(optarg);         break;
       case 'f': ++forceStartup;                           break;
-      case 'i': inetd = 1;                                break;
+      case 'i':
+	 inetd         = 1;
+	 optStart_mode = 0;
+	 break;
       case 'l':
 	 ++logOptions;
 	 flg_set( optarg );
@@ -1289,6 +1294,7 @@ int main( int argc, char **argv, char **envp )
 	 dict_add_strategy (new_strategy, new_strategy_descr);
 
 	 break;
+      case 517: optStart_mode = 0;                        break;
       case 'h':
       default:  help(); exit(0);                          break;
       }
