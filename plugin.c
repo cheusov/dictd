@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: plugin.c,v 1.5 2003/08/06 17:55:54 cheusov Exp $
+ * $Id: plugin.c,v 1.6 2003/08/08 12:15:28 cheusov Exp $
  * 
  */
 
@@ -67,6 +67,8 @@ int dict_search_plugin (
       &ret,
       extra_data, extra_data_size,
       &defs, &defs_sizes, &defs_count);
+
+   database -> plugin -> dictdb_free_called = 0;
 
    if (extra_result)
       *extra_result = ret;
@@ -565,8 +567,13 @@ static int call_dictdb_free1 (const void *datum)
    const dictWord     *dw = (dictWord *)datum;
    const dictDatabase *db = dw -> database;
 
-   if (db -> plugin)
-      db -> plugin -> dictdb_free (db -> plugin -> data);
+   if (db -> plugin){
+      if (!db -> plugin -> dictdb_free_called){
+	 db -> plugin -> dictdb_free (db -> plugin -> data);
+
+	 db -> plugin -> dictdb_free_called = 1;
+      }
+   }
 
    return 0;
 }

@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: defs.h,v 1.2 2003/04/10 18:52:32 cheusov Exp $
+ * $Id: defs.h,v 1.3 2003/08/08 12:15:28 cheusov Exp $
  */
 
 #ifndef _DEFS_H_
@@ -136,6 +136,8 @@ typedef struct dictData {
 } dictData;
 
 typedef struct dictPlugin {
+   void *      data;
+
 #ifdef USE_PLUGIN
    lt_dlhandle handle;
 
@@ -145,9 +147,9 @@ typedef struct dictPlugin {
    dictdb_free_type   dictdb_free;
    dictdb_error_type  dictdb_error;
    dictdb_close_type  dictdb_close;
-#endif
-   void *      data;
 
+   char dictdb_free_called; /* 1 after dictdb_free call */
+#endif
 } dictPlugin;
 
 typedef struct dictIndex {
