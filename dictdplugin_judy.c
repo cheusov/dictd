@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.3 2003/08/08 14:50:21 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.4 2003/08/08 15:12:12 cheusov Exp $
  * 
  */
 
@@ -25,6 +25,7 @@
 #include "dictdplugin.h"
 #include "data.h"
 #include "str.h"
+#include "include_regex.h"
 
 #include <maa.h>
 #include <string.h>
@@ -1057,27 +1058,60 @@ static int match_word (
    return 0;
 }
 
-static int match_re (
-   global_data *dict_data,
-   const char *word,
-
-   int *ret,
-   const char * const* *result,
-   const int **result_sizes,
-   int *results_count)
-{
-   return 0;
-}
-
 static int match_regexp (
    global_data *dict_data,
    const char *word,
 
+   int regex_flags,
+
    int *ret,
    const char * const* *result,
    const int **result_sizes,
    int *results_count)
 {
+   int      cnt = 0;
+   PPvoid_t value;
+   regex_t  re;
+   int      err;
+
+   char curr_word [BUFSIZE];
+
+   if ((err = regcomp (&re, word, REG_ICASE | REG_NOSUB | regex_flags))) {
+      regerror (err, &re, dict_data -> m_err_msg, sizeof (dict_data -> m_err_msg));
+      return 0;
+   }
+
+   curr_word [0] = 0;
+
+   JUDY_ITERATE_ALL (dict_data -> m_judy_array, value, curr_word){
+      if (regexec(&re, curr_word, 0, NULL, 0))
+	 continue;
+
+      ++cnt;
+
+      dict_data -> m_mres = (const char **)
+	 xrealloc (
+	    dict_data -> m_mres,
+	    cnt * sizeof (dict_data -> m_mres [0]));
+      dict_data -> m_mres [cnt - 1] =
+	 heap_strdup (dict_data -> m_heap, curr_word);
+
+      dict_data -> m_mres_sizes = (int *)
+	 xrealloc (
+	    dict_data -> m_mres_sizes,
+	    cnt * sizeof (dict_data -> m_mres_sizes [0]));
+      dict_data -> m_mres_sizes [cnt - 1] = -1;
+   }
+
+   dict_data -> m_mres_count = cnt;
+
+   *result       = dict_data -> m_mres;
+   *result_sizes = dict_data -> m_mres_sizes;
+
+   *results_count = cnt;
+
+   *ret = DICT_PLUGIN_RESULT_FOUND;
+
    return 0;
 }
 
@@ -1160,12 +1194,14 @@ int dictdb_search (
 	    dict_data, word_copy2,
 	    ret, result, result_sizes, results_count);
       }else if (search_strategy == dict_data -> m_strat_re){
-	 return match_re (
+	 return match_regexp (
 	    dict_data, word_copy2,
+	    REG_EXTENDED,
 	    ret, result, result_sizes, results_count);
       }else if (search_strategy == dict_data -> m_strat_regexp){
 	 return match_regexp (
 	    dict_data, word_copy2,
+	    0,
 	    ret, result, result_sizes, results_count);
       }else if (search_strategy == dict_data -> m_strat_soundex){
 	 return match_soundex (
