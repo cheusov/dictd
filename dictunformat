@@ -14,7 +14,7 @@ function usage (){
 dictunformat takes a dictionary index file\n\
  as the parameter and a dictionary database file\n\
  on stdin and outputs text which may be used\n\
- to create DICT database by \"dictfmt -c5\"\n\
+ to create DICT database by \"dictfmt -t\"\n\
 \n\
 usage: dictunformat [OPTIONS] <index_filename>\n\
   OPTIONS:\n\
