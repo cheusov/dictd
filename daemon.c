@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.75 2004/04/23 14:26:28 cheusov Exp $
+ * $Id: daemon.c,v 1.76 2004/05/15 16:51:46 cheusov Exp $
  * 
  */
 
@@ -1142,7 +1142,6 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
 			CODE_DATABASE_INFO, argv[2] );
 	 daemon_mime();
 	 daemon_text(db -> databaseInfo);
-	 daemon_text("\n");
 	 daemon_ok( CODE_OK, "ok", NULL );
 	 return;
       }
