@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.1 2002/08/12 16:27:33 cheusov Exp $
+ * $Id: dictfmt.c,v 1.2 2002/08/21 15:38:41 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -452,6 +452,7 @@ int main( int argc, char **argv )
    fmt_newheadword("00-database-short",1);
    fmt_string( "     " );
    fmt_string( sname );
+/*   fprintf (stderr, "%s\n", sname);*/
 
    fmt_newheadword("00-database-info",1);
    fmt_string("This file was converted from the original database on:" );
@@ -622,26 +623,10 @@ int main( int argc, char **argv )
 	    if (strlen(buffer))
 	       buffer[strlen(buffer)-1] = '\0'; /* remove newline */
 	    
-	    while (isspace(*buf)) buf++;
+	    while (isspace(*buf))
+	       buf++;
+
 	    if (*buf != '\0') {
-	       char *p;
-	       int l; /* flag: downcase the letter */
-	       
-	       header=1;
-	       
-	       /* Downcase `buf' sensibly */
-	       
-	       /* Leave first character in upper case, 
-		  but downcase the rest */
-	       p=buf; p++; l=1; 
-	       while (*p != '\0') {
-		  if (isspace(*p)) l=0;
-		  else {
-		     if (l) *p=tolower(*p); 
-		     l=1;
-		  }
-		  p++;
-	       }
 	       fmt_newheadword(buf,0);
 	    }
  	 }
