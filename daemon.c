@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.41 2002/10/14 07:01:31 cheusov Exp $
+ * $Id: daemon.c,v 1.42 2002/10/17 11:43:25 cheusov Exp $
  * 
  */
 
@@ -32,8 +32,7 @@
 #define inet_aton(a,b) (b)->s_addr = inet_addr(a)
 #endif
 
-int default_define_strategy = DICT_EXACT;
-int default_match_strategy  = DICT_DEFAULT_STRATEGY;
+int default_strategy  = DICT_DEFAULT_STRATEGY;
 
 static int          _dict_defines, _dict_matches;
 static int          daemonS;
@@ -113,18 +112,42 @@ const dictStrategy *get_strategies ()
    return strategyInfo;
 }
 
-int lookup_strategy( const char *strategy )
+static int lookup_strategy_index ( const char *strategy )
 {
    int i;
 
-   if (strategy[0] == '.' && strategy[1] == '\0')
-      return default_match_strategy;
-
    for (i = 0; i < STRATEGIES; i++) {
-      if (!strcasecmp(strategy, strategyInfo[i].name))
-         return strategyInfo[i].number;
+      if (
+	 !strcasecmp (strategy, strategyInfo[i].name) &&
+	 strategyInfo [i].number >= 0)
+      {
+         return i;
+      }
    }
+
    return -1;
+}
+
+int lookup_strategy( const char *strategy )
+{
+   int idx;
+   if (strategy[0] == '.' && strategy[1] == '\0')
+      return default_strategy;
+
+   idx = lookup_strategy_index (strategy);
+   if (-1 == idx)
+      return -1;
+   else
+      return strategyInfo [idx].number;
+}
+
+dictStrategy * lookup_strat( const char *strategy )
+{
+   int idx = lookup_strategy_index (strategy);
+   if (-1 == idx)
+      return NULL;
+   else
+      return strategyInfo + idx;
 }
 
 static void *(lookup_command)( int argc, char **argv )
@@ -714,7 +737,7 @@ static void daemon_define( const char *cmdline, int argc, char **argv )
 
    matches = dict_search_databases (
       list,
-      databaseName, word, default_define_strategy);
+      databaseName, word, DICT_EXACT);
 
    if (matches > 0) {
       int actual_matches = daemon_count_defs( list );
@@ -962,25 +985,34 @@ static void daemon_show_db( const char *cmdline, int argc, char **argv )
 static void daemon_show_strat( const char *cmdline, int argc, char **argv )
 {
    int i;
-   
+   int strategy_count;
+
    if (argc != 2) {
       daemon_printf( "%d syntax error, illegal parameters\n",
 		     CODE_ILLEGAL_PARAM );
       return;
    }
 
-   if (!STRATEGIES) {
-      daemon_printf( "%d no strategies available\n", CODE_NO_STRATEGIES );
-   } else {
-      daemon_printf( "%d %d databases present\n",
-		     CODE_STRATEGY_LIST, STRATEGIES );
-      daemon_mime();
-      for (i = 0; i < STRATEGIES; i++) {
+   strategy_count = 0;
+
+   for (i = 0; i < STRATEGIES; i++) {
+      if (strategyInfo[i].number >= 0){
+	 if (!strategy_count++){
+	    daemon_printf( "%d %d databases present\n",
+			   CODE_STRATEGY_LIST, STRATEGIES );
+	    daemon_mime();
+	 }
+
 	 daemon_printf( "%s \"%s\"\n",
 			strategyInfo[i].name, strategyInfo[i].description );
       }
+   }
+
+   if (strategy_count){
       daemon_printf( ".\n" );
       daemon_ok( CODE_OK, "ok", NULL );
+   }else{
+      daemon_printf( "%d no strategies available\n", CODE_NO_STRATEGIES );
    }
 }
 
