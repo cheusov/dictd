@@ -1,6 +1,6 @@
 /* index.c -- 
  * Created: Wed Oct  9 14:52:23 1996 by faith@dict.org
- * Revised: Fri Dec 22 06:18:51 2000 by faith@dict.org
+ * Revised: Sun Dec 31 16:16:11 2000 by faith@dict.org
  * Copyright 1996, 1997, 1998, 2000 Rickard E. Faith (faith@dict.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.20 2000/12/31 21:14:18 faith Exp $
+ * $Id: index.c,v 1.21 2000/12/31 21:16:40 faith Exp $
  * 
  */
 
@@ -210,7 +210,7 @@ static dictWord *dict_word_create( const char *entry, dictDatabase *database )
 
 				/* Apply quoting to word */
    dw->word     = xmalloc(strlen(buf) * 2 + 1);
-   for (s = buf, d = dw->word; *s;) {
+   for (s = buf, d = (char *)dw->word; *s;) {
        switch (*s) {
        case '"':
        case '\\':
