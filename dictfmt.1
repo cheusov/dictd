@@ -72,10 +72,10 @@ values will be shown as "unknown", which is undesirable for a publicly
 distributed database.
 
 The date of conversion (formatting) is given in the 00-database-info
-header.  All text in the input file prior to the first headword is
-appended to this header.  All text in the input file following a
-headword, up to the next headword, is copied unchanged to the .dict
-file.
+header.  All text in the input file prior to the first headword (as
+defined by the appropriate formatting option) is appended to this
+header.  All text in the input file following a headword, up to the
+next headword, is copied unchanged to the .dict file.
 
 .SH FORMATTING OPTIONS
 .TP
@@ -139,8 +139,9 @@ order to properly format other html databases.
 is formatted with the 
 .B headwords
 starting in column 0, with the definition indented at least one space
-(or tab character) on subsequent lines.  The third line starting in
-column 0 is taken as the first headword, and the first two lines
+(or tab character) on subsequent lines.  
+.B The third line starting in column 0 is taken as the first headword
+, and the first two lines
 starting in column 0 are treated as part of the -00-database-info
 header.  This option was written to format the F.O.L.D.O.C.
 .TP
@@ -152,13 +153,12 @@ is formatted with the
 starting in column 0, followed by a comma, with the definition
 continuing on the same line.  All text before the first single
 character line is included in 00-database-info header, and lines with
-only one character are omitted from the .dict file.  The first
-headword is on the line following the first single character line.
-.RS
-This option was written to format HITCHCOCK'S  BIBLE
-NAMES DICTIONARY.  The 
+only one character are omitted from the .dict file.  
+.B The first headword is on the line following the first single character line.
+The 
 .B headword 
-is indexed; the text of the file is not changed. 
+is indexed; the text of the file is not changed.  This option was
+written to format HITCHCOCK'S BIBLE NAMES DICTIONARY.
 .RE
 .TP
 .BI \-j 
@@ -167,15 +167,14 @@ FILE
 is formatted with 
 .B headwords 
 starting in col 0, enclosed in colons, followed by the definition.
-.RS
-This option was written to format the JARGON FILE.  The colons
-surrounding the 
+The colons surrounding the 
 .B headword
 are removed, and the
 .B headword
 is indexed.  Lines beginning with '*', '=', or '-' are also removed.
 All text before the first headword is included in the headers. 
-
+This option was written to format the JARGON FILE.  
+.RS
 .B NOTE:
 Some recent versions of the JARGON FILE had three blanks inserted
 before the first colon at each headword.  These must be removed before
@@ -192,7 +191,8 @@ optionally followed by a line containing `%d' in column 0.  The
 definition starts on the following line.  The first line beginning
 \'%h\' and any lines beginnning '%d' are stripped from the .dict
 file, and '%h ' is stripped from in front of the headword.  All
-text before the first headword is included in the headers.   
+text before the first headword is included in the headers.
+.B The second line beginning '%h' is taken as the first headword.  
 ..br
 This option was written to format Jay Kominek's elements database.  
 
