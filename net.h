@@ -17,14 +17,15 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: net.h,v 1.7 2000/12/22 14:15:25 faith Exp $
+ * $Id: net.h,v 1.8 2004/05/21 12:47:50 cheusov Exp $
  * 
  */
 
 
 extern const char *net_hostname( void );
 extern int        net_connect_tcp( const char *host, const char *service );
-extern int        net_open_tcp( const char *service, int queueLength );
+extern int        net_open_tcp (const char *address,
+				const char *service, int queueLength);
 extern void       net_detach( void );
 extern int        net_read( int s, char *buf, int maxlen );
 extern int        net_write( int s, const char *buf, int len );

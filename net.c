@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: net.c,v 1.24 2004/05/16 13:01:40 cheusov Exp $
+ * $Id: net.c,v 1.25 2004/05/21 12:47:50 cheusov Exp $
  * 
  */
 
@@ -87,7 +87,7 @@ int net_connect_tcp( const char *host, const char *service )
    
    if ((hostEntry = gethostbyname(host))) {
       ++hosts;
-   } else if ((ssin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE)
+   } else if ((ssin.sin_addr.s_addr = inet_addr(host)) == htonl(INADDR_NONE))
       return NET_NOHOST;
    
    if (hosts) {
@@ -114,7 +114,10 @@ int net_connect_tcp( const char *host, const char *service )
    return NET_NOCONNECT;
 }
 
-int net_open_tcp( const char *service, int queueLength )
+int net_open_tcp (
+   const char *address,
+   const char *service,
+   int queueLength)
 {
    struct servent     *serviceEntry;
    struct protoent    *protocolEntry;
@@ -124,7 +127,7 @@ int net_open_tcp( const char *service, int queueLength )
 
    memset( &ssin, 0, sizeof(ssin) );
    ssin.sin_family      = AF_INET;
-   ssin.sin_addr.s_addr = INADDR_ANY;
+   ssin.sin_addr.s_addr = address ? inet_addr(address) : htonl(INADDR_ANY);
 
    if ((serviceEntry = getservbyname(service, "tcp"))) {
       ssin.sin_port = serviceEntry->s_port;

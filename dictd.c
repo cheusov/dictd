@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.110 2004/05/16 13:01:40 cheusov Exp $
+ * $Id: dictd.c,v 1.111 2004/05/21 12:47:50 cheusov Exp $
  * 
  */
 
@@ -61,6 +61,7 @@ static int        _dict_argvlen;
        int        _dict_forks;
 const char        *locale       = "C";
 const char        *preprocessor = NULL;
+const char        *bind_to      = NULL;
 int                inetd        = 0;
 
 int                need_reload_config    = 0;
@@ -914,7 +915,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.110 2004/05/16 13:01:40 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.111 2004/05/21 12:47:50 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1001,6 +1002,7 @@ static void help( void )
                                    <strategies> is a comma-separated list.",
 "   --add-strategy <strat>:<descr>  adds new strategy <strat>\n\
                                    with a description <descr>.",
+"   --listen-to                     bind a socket to the specified address",
 "\n------------------ options for debugging ---------------------------",
 "-t --test <word>                lookup word",
 "   --test-file <file>",
@@ -1317,6 +1319,7 @@ int main( int argc, char **argv, char **envp )
       { "add-strategy",     1, 0, 516 },
       { "fast-start",       0, 0, 517 },
       { "pp",               1, 0, 518 },
+      { "listen-to",        1, 0, 519 },
       { 0,                  0, 0, 0  }
    };
 
@@ -1415,6 +1418,7 @@ int main( int argc, char **argv, char **envp )
 	 break;
       case 517: optStart_mode = 0;                        break;
       case 518: preprocessor = str_copy (optarg);         break;
+      case 519: bind_to      = str_copy (optarg);         break;
       case 'h':
       default:  help(); exit(0);                          break;
       }
@@ -1587,7 +1591,7 @@ int main( int argc, char **argv, char **envp )
       exit(0);
    }
 
-   masterSocket = net_open_tcp( service, depth );
+   masterSocket = net_open_tcp( bind_to, service, depth );
 
 
    for (;;) {

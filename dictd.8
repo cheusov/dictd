@@ -208,6 +208,13 @@ the
 .I defs.h
 file at compile time (DICT_DAEMON_LIMIT).
 .TP
+.BI \-\-listen\-to " address"
+Binds socket to the specified address.
+If you want to allow connections to dict server from localhost only,
+apply 
+.B \-\-listen\-to
+127.0.0.1
+.TP
 .BI \-\-locale " locale"
 Specifies the locale used for searching.  If no locale is specified, the
 "C" locale is used.  The locale used for the server should be the same
@@ -217,7 +224,8 @@ for both 8-bit and UTF-8 formats. If locale contains utf8 or utf-8
 substring, UTF-8 format is expected.
 Note that if your database is not in ASCII7 or UTF-8 format,
 then the dictd server will not be compliant to RFC 2229.
-.TP
+.RS
+.P
 .BI NOTE 
 If utf-8 or 8-bit dictionaries are included in the configuration file,
 and the appropriate --locale has not been specified,
@@ -226,6 +234,7 @@ will failt to start.  This implies that
 .B dictd 
 will not run with both utf-8 and 8-bit dictionaries in the
 configuration file.
+.RE
 .TP
 .B \-s
 Log using the
