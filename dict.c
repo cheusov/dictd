@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.c,v 1.44 2004/11/17 12:39:44 cheusov Exp $
+ * $Id: dict.c,v 1.45 2005/03/30 10:32:46 cheusov Exp $
  * 
  */
 
@@ -51,6 +51,7 @@ extern int         yy_flex_debug;
 #define CMD_SPELL    12
 #define CMD_WIND     13
 #define CMD_CLOSE    14
+#define CMD_OPTION_MIME 15
 
 struct cmd {
    int        command;
@@ -524,6 +525,8 @@ static struct cmd *make_command( int command, ... )
       break;
    case CMD_CLOSE:
       break;
+   case CMD_OPTION_MIME:
+      break;
    default:
       err_internal( __FUNCTION__, "Illegal command %d\n", command );
    }
@@ -618,6 +621,7 @@ static void request( void )
       case CMD_SPELL:                                                 goto end;
       case CMD_WIND:                                                  goto end;
       case CMD_CLOSE:  snprintf( b, BUFFERSIZE, "quit\n" );           break;
+      case CMD_OPTION_MIME: snprintf( b, BUFFERSIZE, "option mime\n" );    break;
       default:
 	 err_internal( __FUNCTION__, "Unknown command %d\n", c->command );
       }
@@ -789,6 +793,16 @@ static void process( void )
 	 expected = CODE_HELLO;
 	 while (((struct cmd *)lst_top(cmd_list))->command == CMD_CONNECT)
 	    lst_pop(cmd_list);
+	 break;
+      case CMD_OPTION_MIME:
+	 cmd_reply.retcode = client_read_status( cmd_reply.s,
+						 &message,
+						 NULL, NULL, NULL, NULL, NULL);
+	 if (cmd_reply.retcode != expected && dbg_test(DBG_VERBOSE))
+	    fprintf( dict_output, "Client command gave unexpected status code %d (%s)\n",
+		    cmd_reply.retcode, message ? message : "no message" );
+
+	 expected = cmd_reply.retcode;
 	 break;
       case CMD_CLIENT:
 	 cmd_reply.retcode = client_read_status( cmd_reply.s,
@@ -1106,7 +1120,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.44 2004/11/17 12:39:44 cheusov Exp $";
+   const char        *id = "$Id: dict.c,v 1.45 2005/03/30 10:32:46 cheusov Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -1178,6 +1192,7 @@ static void help( FILE *out_stream )
       "   --debug <flag>         set debugging flag",
       "   --pipesize <size>      specify buffer size for pipelining (256)",
       "   --client <text>        additional text for client command",
+      "-M --mime                 send OPTION MIME command if server supports it",
       0 };
    const char        **p = help_msg;
 
@@ -1206,7 +1221,8 @@ int main( int argc, char **argv )
 	  SERVER = 0x0020,
 	  DBS    = 0x0040,
 	  STRATS = 0x0080,
-	  HELP   = 0x0100
+	  HELP        = 0x0100,
+	  OPTION_MIME = 0x0200,
    }      function    = DEFINE;
    struct option      longopts[]  = {
       { "host",       1, 0, 'h' },
@@ -1233,6 +1249,7 @@ int main( int argc, char **argv )
       { "debug",      1, 0, 502 },
       { "pipesize",   1, 0, 504 },
       { "client",     1, 0, 505 },
+      { "mime",       1, 0, 'M' },
       { 0,            0, 0,  0  }
    };
 
@@ -1249,7 +1266,7 @@ int main( int argc, char **argv )
    dbg_register( DBG_URL,     "url" );
 
    while ((c = getopt_long( argc, argv,
-			    "h:p:d:i:Ims:DSHau:c:Ck:VLvrP:",
+			    "h:p:d:i:Ims:DSHau:c:Ck:VLvrP:M",
 			    longopts, NULL )) != EOF)
    {
       switch (c) {
@@ -1258,11 +1275,12 @@ int main( int argc, char **argv )
       case 'd': database = optarg;                     break;
       case 'i': database = optarg; function |= INFO;   break;
       case 'I':                    function |= SERVER; break;
-      case 'm':                    function = MATCH;   break;
+      case 'm': function &= ~DEFINE; function |= MATCH; break;
       case 's': strategy = optarg;                     break;
       case 'D':                    function |= DBS;    break;
       case 'S':                    function |= STRATS; break;
       case 'H':                    function |= HELP;   break;
+      case 'M':             function |= OPTION_MIME;   break;
       case 'c': configFile = optarg;                   break;
       case 'C': docorrect = 0;                         break;
       case 'a': doauth = 0;                            break;
@@ -1406,7 +1424,7 @@ int main( int argc, char **argv )
 	    break;
 	 }
       }
-      
+
       if (!key)      user = NULL;
       if (!database) database = DEF_DB;
       if (!strategy) strategy = DEF_STRAT;
@@ -1469,6 +1487,10 @@ int main( int argc, char **argv )
    }
    append_command( make_command( CMD_CLIENT, client_get_banner() ) );
    if (doauth) append_command( make_command( CMD_AUTH ) );
+   if (function & OPTION_MIME) {
+      append_command( make_command( CMD_OPTION_MIME ) );
+      append_command( make_command( CMD_PRINT, NULL ) );
+   }
    if (function & INFO) {
       append_command( make_command( CMD_INFO, database ) );
       append_command( make_command( CMD_PRINT, NULL ) );
