@@ -59,7 +59,7 @@ while test $# -ne 0; do
 	    DICTL_PAGER=$2
 	    shift;;
 	*)
-	    p=`echo $1 | charset2charset $DICTL_CHARSET $DICTL_SERVER_CHARSET`
+	    p=`echo "$1" | charset2charset $DICTL_CHARSET $DICTL_SERVER_CHARSET`
 	    params="$params '$p'"
 
 	    # ...to be comatible with dict
