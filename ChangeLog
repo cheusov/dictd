@@ -1,5 +1,15 @@
 2003-03-09  Aleksey Cheusov  <vle@gmx.net>
 
+  * dictd.c: nothing serious
+
+  * index.c, dictd.c:
+  function related to plugin are #ifdef'ed
+  added: additional sanity check for disabling database_plugin keyword
+      if dictd is compiled without plugin support
+
+  * ChangeLog:
+  ChangeLog is up-to-date
+
   * configure.in:
   version ==> 1.9.7
 
