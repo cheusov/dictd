@@ -1,3 +1,108 @@
+2003-02-15  Aleksey Cheusov  <vle@gmx.net>
+
+  * configure.in:
+  version ==> 1.9.4
+
+  * dictd.8:
+  fixed: misprint in the documentation
+
+2003-02-10  Aleksey Cheusov  <vle@gmx.net>
+
+  * configure.in:
+  AC_REPLACE_FUNCS(towlower) -> AC_CHECK_FUNCS
+
+  * dictfmt_virtual.1, index.c, dictd.h, dictd.c, config.h.in:
+  added: 'dictfmt' adds 00-database-8bit entry to the 8-bit dictionaries.
+         'dictd' uses this entry (and 00-database-utf8)
+         and fails if "C" locale is specified
+         and 8-bit or utf-8 dictionaries are encountered.
+
+         Using "C" locale for 8-bit and utf-8 dictionaries is one of
+         the most common error made by dictd users.
+
+  * dictfmt_virtual:
+  nothing serious
+
+  * dictfmt.c, dictunformat:
+  'dictfmt' fails if --locale="C" (the default) is specified and 8-bit
+      head word is encountered.
+
+2003-02-07  Aleksey Cheusov  <vle@gmx.net>
+
+  * dictfmt_index2word:
+  'dictfmt_index2word' failes if it is run with the locale "C" and
+      index file contains 8-bit head words.
+
+  * dictfmt_index2suffix:
+  'dictfmt_index2suffix' failes if it is run with the locale "C" and
+      index file contains 8-bit head words.
+
+  * dictfmt.c:
+  'dictfmt' run with "C" locale cannot build dictionary containing 8-bit words
+
+  * dictfmt_index2suffix, dictfmt_index2word:
+  fixed: problems with filenames containing spaces
+
+  * Makefile.in:
+  new man pages are installed/uninstalled
+
+  * configure.in, dictfmt_index2suffix.1, dictfmt_index2word.1, dictfmt_virtual.1, dictunformat.1:
+  documentation update
+
+  * Makefile.in:
+  fixed: bug in 'samples' target
+
+2003-02-06  Bob Hilliard  <hilliard@debian.org>
+
+  * dictunformat.1, dictfmt_index2word.1, dictfmt_virtual.1, dictfmt_index2suffix.1:
+  Really added dictfmt_virtual.1, dictunformat.1, dictfmt_index2word.1,
+  and dictfmt_index2suffix
+
+2003-02-02  Bob Hilliard  <hilliard@debian.org>
+
+  * dict.c, dictd.8:
+  Fixed dict.c to accept --serverinfo option, minor changes to dictd.8
+  Added dictfmt_index2suffix.1, dictfmt_index2word.1, dictfmt_virtual.1,
+  and dictunformat.1
+
+2003-01-21  Aleksey Cheusov  <vle@gmx.net>
+
+  * dictfmt_index2word:
+  awk script inside conforms to posix
+
+2003-01-19  Aleksey Cheusov  <vle@gmx.net>
+
+  * vsnprintf.c, snprintf.c, dictfmt.c, dictzip.c, dictd.c, daemon.c, configure.in, config.h.in:
+  'dictd', 'dictfmt' and 'dictzip' use snprintf and vsnprintf functions
+      instead of sprintf and vsprintf on platforms where they are available.
+
+  * dictd.c:
+  added: --test-nooutput and --test-idle debugging options to 'dictd'
+         They allow to test search speed:
+           time_of(dictd --test-nooutput) - time_of (dictd --test-idle)
+  fixed: bug with a debugging option --test-match
+         Actually it made a DEFINE search
+
+  * dictfmt_virtual, dictfmt.c, dictfmt_plugin:
+  added: --silent, --quiet, -q options to 'dictfmt'
+
+  * dictd.h, index.c:
+  This significantly speeds up plugin-based search
+
+  * ChangeLog:
+  ChangeLog conforms dictd-1.9.3
+
+  * index.c:
+  more informative error message
+
+  * dictdplugin_popen.cpp: *** empty log message ***
+
+  * dictfmt_plugin:
+  'dictfmt_plugin' doesn't add header and url to the .dict file
+
+  * dictd.c:
+  added: additional check for empty database list
+
 2003-01-17  Aleksey Cheusov  <vle@gmx.net>
 
   * configure.in:
