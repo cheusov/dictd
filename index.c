@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.30 2002/08/05 12:07:03 cheusov Exp $
+ * $Id: index.c,v 1.31 2002/08/05 12:09:52 cheusov Exp $
  * 
  */
 
@@ -1184,11 +1184,7 @@ int dict_search_database( lst_List l,
       return dict_search_prefix( l, buf, database, database->index );
 
    case DICT_SUBSTRING:
-      if (utf8_mode){
-	 return dict_search_re( l, buf, database, database->index );
-      }else{
-	 return dict_search_substring( l, buf, database, database->index );
-      }
+      return dict_search_substring( l, buf, database, database->index );
 
    case DICT_SUFFIX:
       if (database->index_suffix){
