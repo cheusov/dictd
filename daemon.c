@@ -1,6 +1,6 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@cs.unc.edu
- * Revised: Tue Jul  8 17:05:02 1997 by faith@acm.org
+ * Revised: Tue Jul  8 23:05:45 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.20 1997/07/08 21:20:58 faith Exp $
+ * $Id: daemon.c,v 1.21 1997/07/09 04:00:54 faith Exp $
  * 
  */
 

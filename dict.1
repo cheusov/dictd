@@ -1,6 +1,6 @@
 .\" dict.1 -- 
 .\" Created: Tue Jul  8 11:36:19 1997 by faith@acm.org
-.\" Revised: Tue Jul  8 16:15:46 1997 by faith@acm.org
+.\" Revised: Tue Jul  8 22:47:47 1997 by faith@acm.org
 .\" Copyright 1997 Rickard E. Faith (faith@acm.org)
 .\" 
 .\" Permission is granted to make and distribute verbatim copies of this
@@ -49,7 +49,9 @@ combinations can be specified in the configuration file.
 .TP
 .BI \-d " dbname\fR or " \-\-database " dbname"
 Specifies a specific database to search.  The default is to search all
-databases.
+databases (a "*" from the DICT protocol).  Note that a "!" in the DICT
+protocol means to search all of the databases until a match is found, and
+then stop searching.
 .TP
 .BR \-m " or " \-\-match
 Instead of printing a definition, perform a match using the specified
@@ -58,7 +60,7 @@ strategy.
 .BI \-s " strategy\fR or " \-\-strategy " strategy"
 Specify a matching strategy.  By default, the server default match strategy
 is used.  This is usually "exact" for definitions, and some form of
-spelling-correction strategy for matches.
+spelling-correction strategy for matches ("." from the DICT protocol).
 .TP
 .BR \-D " or " \-\-dbs
 Query the server and display a list of available databases.

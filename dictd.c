@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Mon Jul  7 15:57:09 1997 by faith@acm.org
+ * Revised: Tue Jul  8 22:49:46 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.25 1997/07/07 20:08:45 faith Exp $
+ * $Id: dictd.c,v 1.26 1997/07/09 04:00:59 faith Exp $
  * 
  */
 
@@ -441,7 +441,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.25 1997/07/07 20:08:45 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.26 1997/07/09 04:00:59 faith Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -486,7 +486,7 @@ static void license( void )
      "You should have received a copy of the GNU General Public License along",
      "with this program; if not, write to the Free Software Foundation, Inc.,",
      "675 Mass Ave, Cambridge, MA 02139, USA.",
-   };
+   0 };
    const char        **p = license_msg;
    
    banner();
@@ -606,10 +606,10 @@ int main( int argc, char **argv, char **envp )
       case 'v': dbg_set( "verbose" );                     break;
       case 'V': banner(); exit(1);                        break;
       case 'd': dbg_set( optarg );                        break;
-      case 'p': service = strdup(optarg);                 break;
-      case 'c': configFile = strdup(optarg);              break;
-      case 't': testWord = strdup(optarg);                break;
-      case 'L': logFile = strdup(optarg);                 break;
+      case 'p': service = str_copy(optarg);               break;
+      case 'c': configFile = str_copy(optarg);            break;
+      case 't': testWord = str_copy(optarg);              break;
+      case 'L': logFile = str_copy(optarg);               break;
       case 's': ++useSyslog;                              break;
       case 'm': _dict_markTime = 60*atoi(optarg);         break;
       case 'f': ++forceStartup;                           break;
@@ -619,7 +619,7 @@ int main( int argc, char **argv, char **envp )
 	 if (flg_test(LOG_MIN)) set_minimal();
 	 break;
       case 500: license(); exit(1);                       break;
-      case 501: testFile = strdup(optarg);                break;
+      case 501: testFile = str_copy(optarg);              break;
       case 502: delay = atoi(optarg);                     break;
       case 503: depth = atoi(optarg);                     break;
       case 504: _dict_daemon_limit = atoi(optarg);        break;

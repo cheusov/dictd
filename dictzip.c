@@ -1,6 +1,6 @@
 /* dictzip.c -- 
  * Created: Tue Jul 16 12:45:41 1996 by faith@acm.org
- * Revised: Sun Jun 22 21:02:22 1997 by faith@acm.org
+ * Revised: Tue Jul  8 22:49:46 1997 by faith@acm.org
  * Copyright 1996, 1997 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictzip.c,v 1.10 1997/06/23 11:05:27 faith Exp $
+ * $Id: dictzip.c,v 1.11 1997/07/09 04:01:01 faith Exp $
  * 
  */
 
@@ -310,7 +310,7 @@ static const char *id_string( const char *id )
 
 static void banner( void )
 {
-   const char *id = "$Id: dictzip.c,v 1.10 1997/06/23 11:05:27 faith Exp $";
+   const char *id = "$Id: dictzip.c,v 1.11 1997/07/09 04:01:01 faith Exp $";
    
    fprintf( stderr, "%s %s\n", err_program_name(), id_string( id ) );
    fprintf( stderr, "Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)\n" );
@@ -333,7 +333,7 @@ static void license( void )
      "You should have received a copy of the GNU General Public License along",
      "with this program; if not, write to the Free Software Foundation, Inc.,",
      "675 Mass Ave, Cambridge, MA 02139, USA.",
-   };
+   0 };
    const char        **p = license_msg;
    
    banner();

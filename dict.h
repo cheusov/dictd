@@ -1,6 +1,6 @@
 /* dict.h -- 
  * Created: Wed Apr 16 08:44:21 1997 by faith@cs.unc.edu
- * Revised: Tue Jul  8 14:26:25 1997 by faith@acm.org
+ * Revised: Tue Jul  8 20:16:13 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.h,v 1.9 1997/07/08 21:21:09 faith Exp $
+ * $Id: dict.h,v 1.10 1997/07/09 04:00:58 faith Exp $
  * 
  */
 
@@ -35,11 +35,11 @@
 
 #define DBG_VERBOSE     (0<<30|1<< 0) /* Verbose                           */
 #define DBG_RAW         (0<<30|1<< 1) /* Trace client/server interaction   */
-#define DBG_SCAN        (0<<30|1<< 1) /* Debug configuration file scanner  */
-#define DBG_PARSE       (0<<30|1<< 1) /* Debug configuration file parser   */
-#define DBG_PIPE        (0<<30|1<< 1) /* Debug pipelining                  */
-#define DBG_SERIAL      (0<<30|1<< 1) /* Disable pipelining                */
-#define DBG_TIME        (0<<30|1<< 1) /* Time transaction                  */
+#define DBG_SCAN        (0<<30|1<< 2) /* Debug configuration file scanner  */
+#define DBG_PARSE       (0<<30|1<< 3) /* Debug configuration file parser   */
+#define DBG_PIPE        (0<<30|1<< 4) /* Debug pipelining                  */
+#define DBG_SERIAL      (0<<30|1<< 5) /* Disable pipelining                */
+#define DBG_TIME        (0<<30|1<< 6) /* Time transaction                  */
 
 
 

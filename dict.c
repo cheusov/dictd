@@ -1,10 +1,10 @@
 /* dict.c -- 
  * Created: Fri Mar 28 19:16:29 1997 by faith@cs.unc.edu
- * Revised: Tue Jul  8 17:15:34 1997 by faith@acm.org
+ * Revised: Tue Jul  8 23:48:14 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dict.c,v 1.7 1997/07/08 21:21:06 faith Exp $
+ * $Id: dict.c,v 1.8 1997/07/09 04:00:57 faith Exp $
  * 
  */
 
@@ -16,21 +16,23 @@ extern int        yy_flex_debug;
 
 #define BUFFERSIZE  2048
 #define PIPESIZE     256
+#define DEF_STRAT    "."
 
-#define CMD_PRINT   0
-#define CMD_CONNECT 1
-#define CMD_CLIENT  2
-#define CMD_AUTH    3
-#define CMD_INFO    4
-#define CMD_SERVER  5
-#define CMD_DBS     6
-#define CMD_STRATS  7
-#define CMD_HELP    8
-#define CMD_MATCH   9
-#define CMD_DEFINE 10
-#define CMD_SPELL  11
-#define CMD_WIND   12
-#define CMD_CLOSE  13
+#define CMD_PRINT     0
+#define CMD_DEFPRINT  1
+#define CMD_CONNECT   2
+#define CMD_CLIENT    3
+#define CMD_AUTH      4
+#define CMD_INFO      5
+#define CMD_SERVER    6
+#define CMD_DBS       7
+#define CMD_STRATS    8
+#define CMD_HELP      9
+#define CMD_MATCH    10
+#define CMD_DEFINE   11
+#define CMD_SPELL    12
+#define CMD_WIND     13
+#define CMD_CLOSE    14
 
 struct cmd {
    int        command;
@@ -46,6 +48,14 @@ struct cmd {
 };
 
 lst_List cmd_list;
+int      client_defines = 0;
+
+struct def {
+   lst_List   data;
+   const char *word;
+   const char *db;
+   const char *dbname;
+};
 
 struct reply {
    int        s;
@@ -54,6 +64,10 @@ struct reply {
    const char *msgid;
    lst_List   data;
    int        retcode;
+   int        count;		/* definitions found */
+   int        matches;		/* matches found */
+   int        listed;		/* Databases or strategies listed */
+   struct def *defs;
 } cmd_reply;
 
 static void client_crlf( char *d, const char *s )
@@ -85,7 +99,7 @@ static lst_List client_read_text( int s )
    int      len;
 
    while ((len = net_read(s, line, BUFFERSIZE)) >= 0) {
-      PRINTF(DBG_RAW,("Text: %s\n",line));
+      PRINTF(DBG_RAW,("* Text: %s\n",line));
       if (line[0] == '.' && line[1] == '\0') break;
       if (len >= 2 && line[0] == '.' && line[1] == '.') 
 	 lst_append( l, xstrdup(line + 1) );
@@ -103,7 +117,63 @@ static void client_print_text( lst_List l )
 
    if (!l) return;
    LST_ITERATE(l,p,e) {
-      printf( "%s\n", e );
+      printf( "  %s\n", e );
+   }
+}
+
+static void client_print_matches( lst_List l )
+{
+   lst_Position p;
+   const char   *e;
+   arg_List     a;
+   const char   *prev = NULL;
+   const char   *db;
+   static int   first = 1;
+   int          pos = 0;
+   int          len;
+
+   if (!l) return;
+   LST_ITERATE(l,p,e) {
+      a = arg_argify( e, 0 );
+      if (arg_count(a) != 2)
+	 err_internal( __FUNCTION__,
+		       "MATCH command didn't return 2 args: %s\n", e );
+      if ((db = str_find(arg_get(a,0))) != prev) {
+	 if (!first) printf( "\n" );
+	 first = 0;
+	 printf( "From %s:", db );
+	 prev = db;
+	 pos = 6 + strlen(db);
+      }
+      len = strlen(arg_get(a,1));
+      if (pos + len + 2 > 70) {
+	 printf( "\n" );
+	 pos = 0;
+      }
+      if (strchr( arg_get(a,1),' ')) {
+	 printf( "  \"%s\"", arg_get(a,1) );
+	 pos += len + 4;
+      } else {
+	 printf( "  %s", arg_get(a,1) );
+	 pos += len + 2;
+      }
+   }
+   printf( "\n" );
+}
+
+static void client_print_listed( lst_List l )
+{
+   lst_Position p;
+   const char   *e;
+   arg_List     a;
+
+   if (!l) return;
+   LST_ITERATE(l,p,e) {
+      a = arg_argify( e, 0 );
+      if (arg_count(a) != 2)
+	 err_internal( __FUNCTION__,
+		       "SHOW command didn't return 2 args: %s\n", e );
+      printf( "  %-10.10s %s\n", arg_get(a,0), arg_get(a,1) );
    }
 }
 
@@ -119,19 +189,10 @@ static void client_free_text( lst_List l )
    lst_destroy(l);
 }
 
-static void client_copy_text( int s )
-{
-   lst_List l;
-
-   l = client_read_text( s );
-   client_print_text( l );
-   client_free_text( l );
-}
-   
-
 static int client_read_status( int s,
 			       const char **message,
 			       int *count,
+			       const char **word,
 			       const char **db,
 			       const char **dbname,
 			       const char **msgid )
@@ -145,14 +206,15 @@ static int client_read_status( int s,
 
    if (net_read( s, buf, BUFFERSIZE ) < 0)
       err_fatal_errno( __FUNCTION__, "Error reading from socket\n" );
-   PRINTF(DBG_RAW,("Read: %s\n",buf));
+   PRINTF(DBG_RAW,("* Read: %s\n",buf));
 
    if ((status = atoi(buf)) < 100) status = 600;
-   PRINTF(DBG_RAW,("Status = %d\n",status));
+   PRINTF(DBG_RAW,("* Status = %d\n",status));
 
-   if (message) *message = strchr( buf, ' ' ) + 1;
+   if (message && (p = strchr(buf, ' '))) *message = p + 1;
 
    if (count)  *count = 0;
+   if (word)   *word = NULL;
    if (db)     *db = NULL;
    if (dbname) *dbname = NULL;
    if (msgid)  *msgid = NULL;
@@ -160,7 +222,7 @@ static int client_read_status( int s,
    switch (status) {
    case CODE_HELLO:
       if ((p = strrchr(buf, '>')) && (p = strrchr(p,'<'))) {
-	 *msgid = xstrdup( p+1 );
+	 *msgid = str_copy( p+1 );
       }
       break;
    case CODE_DATABASE_LIST:
@@ -175,8 +237,9 @@ static int client_read_status( int s,
    case CODE_DEFINITION_FOLLOWS:
       cmdline = arg_argify(buf,0);
       arg_get_vector( cmdline, &argc, &argv );
-      if (argc > 1 && db)     *db     = str_find(argv[1]);
-      if (argc > 2 && dbname) *dbname = str_find(argv[2]);
+      if (argc > 1 && word)   *word   = str_find(argv[1]);
+      if (argc > 2 && db)     *db     = str_find(argv[2]);
+      if (argc > 3 && dbname) *dbname = str_find(argv[3]);
       arg_destroy(cmdline);
       break;
    default:
@@ -186,7 +249,7 @@ static int client_read_status( int s,
    return status;
 }
 
-static void push( int command, ... )
+static struct cmd *make_command( int command, ... )
 {
    va_list    ap;
    struct cmd *c = xmalloc( sizeof( struct cmd ) );
@@ -197,6 +260,10 @@ static void push( int command, ... )
    va_start( ap, command );
    switch (command) {
    case CMD_PRINT:
+      break;
+   case CMD_DEFPRINT:
+      c->database = va_arg( ap, const char *);
+      c->word     = va_arg( ap, const char *);
       break;
    case CMD_CONNECT:
       c->host     = va_arg( ap, const char *);
@@ -230,8 +297,13 @@ static void push( int command, ... )
       c->word     = va_arg( ap, const char *);
       break;
    case CMD_SPELL:
+      c->database = va_arg( ap, const char *);
+      c->word     = va_arg( ap, const char *);
       break;
    case CMD_WIND:
+      c->database = va_arg( ap, const char *);
+      c->strategy = va_arg( ap, const char *);
+      c->word     = va_arg( ap, const char *);
       break;
    case CMD_CLOSE:
       break;
@@ -240,12 +312,26 @@ static void push( int command, ... )
    }
    va_end( ap );
 
+   return c;
+}
+
+static void append_command( struct cmd *c )
+{
    if (!cmd_list) cmd_list = lst_create();
    lst_append( cmd_list, c );
 }
 
+
+static void prepend_command( struct cmd *c )
+{
+   if (!cmd_list) cmd_list = lst_create();
+   lst_push( cmd_list, c );
+}
+
+
 static void request( void )
 {
+   char              b[BUFFERSIZE];
    char              buffer[PIPESIZE];
    char              *p = buffer;
    lst_Position      pos;
@@ -255,12 +341,16 @@ static void request( void )
    struct MD5Context ctx;
    int               i;
    int               len;
+   int               total = 0;
 
    *p = '\0';
    LST_ITERATE(cmd_list,pos,c) {
+      b[0] = '\0';
+      PRINTF(DBG_PIPE,("* Looking at request %d\n",c->command));
       if (c->sent) return;	/* FIXME!  Keep sending deeper things? */
       switch( c->command) {
-      case CMD_PRINT:                                                 goto end;
+      case CMD_PRINT:                                                 break;
+      case CMD_DEFPRINT:                                              break;
       case CMD_CONNECT:                                               break;
       case CMD_AUTH:
 	 if (!c->key || !c->user) break;
@@ -270,36 +360,42 @@ static void request( void )
 	    MD5Final(digest, &ctx );
 	    for (i = 0; i < 16; i++) sprintf( hex+2*i, "%02x", digest[i] );
 	    hex[32] = '\0';
-	    sprintf( p, "auth %s %s\n", c->user, hex );
-	    break;
+	    sprintf( b, "auth %s %s\n", c->user, hex );
 	 }
-	 return;
-      case CMD_CLIENT: sprintf( p, "client \"%s\"\n", c->client );    break;
-      case CMD_INFO:   sprintf( p, "show info %s\n", c->database );   break;
-      case CMD_SERVER: sprintf( p, "show server\n" );                 break;
-      case CMD_DBS:    sprintf( p, "show db\n" );                     break;
-      case CMD_STRATS: sprintf( p, "show strat\n" );                  break;
-      case CMD_HELP:   sprintf( p, "help\n" );                        break;
+	 break;
+      case CMD_CLIENT: sprintf( b, "client \"%s\"\n", c->client );    break;
+      case CMD_INFO:   sprintf( b, "show info %s\n", c->database );   break;
+      case CMD_SERVER: sprintf( b, "show server\n" );                 break;
+      case CMD_DBS:    sprintf( b, "show db\n" );                     break;
+      case CMD_STRATS: sprintf( b, "show strat\n" );                  break;
+      case CMD_HELP:   sprintf( b, "help\n" );                        break;
       case CMD_MATCH:
-	 sprintf( p,
+	 sprintf( b,
 		  "match %s %s \"%s\"\n",
 		  c->database, c->strategy, c->word );                break;
       case CMD_DEFINE:
-	 sprintf( p, "define %s \"%s\"\n", c->database, c->word );    break;
+	 sprintf( b, "define %s \"%s\"\n", c->database, c->word );    break;
       case CMD_SPELL:                                                 goto end;
       case CMD_WIND:                                                  goto end;
-      case CMD_CLOSE:  sprintf( p, "quit\n" );                        break;
+      case CMD_CLOSE:  sprintf( b, "quit\n" );                        break;
       default:
 	 err_internal( __FUNCTION__, "Unknown command %d\n", c->command );
       }
+      len = strlen(b);
+      if (total + len + 3 > PIPESIZE) break;
+      strcpy( p, b );
+      p += len;
+      total += len;
       ++c->sent;
       if (dbg_test(DBG_SERIAL)) break; /* Don't pipeline. */
-      p += strlen(p);
    }
 
 end:				/* Ready to send buffer, but are we
 				   connected? */
    if (!cmd_reply.s) {
+      c = lst_top(cmd_list);
+      if (c->command != CMD_CONNECT)
+	 err_internal( __FUNCTION__, "Not connected, but no CMD_CONNECT\n" );
       if ((cmd_reply.s = net_connect_tcp( c->host, c->service )) < 0) {
 	 err_fatal( __FUNCTION__,
 		    "Can't connect to %s.%s\n", c->host, c->service );
@@ -310,12 +406,12 @@ end:				/* Ready to send buffer, but are we
    if ((len = strlen(buffer))) {
       char *pt;
       
-      PRINTF(DBG_RAW,("Sent/%d: %s",c->command,buffer));
+      PRINTF(DBG_RAW,("* Sent/%d: %s",c->command,buffer));
       pt = alloca(2*len);
       client_crlf(pt,buffer);
       net_write( cmd_reply.s, pt, strlen(pt) );
    } else {
-      PRINTF(DBG_RAW,("Send/%d\n",c->command)); 
+      PRINTF(DBG_RAW,("* Send/%d\n",c->command)); 
    }
 }
 
@@ -323,25 +419,68 @@ static void process( void )
 {
    struct cmd *c;
    int        expected;
-   const char *message;
+   const char *message = NULL;
+   int        i;
+   static int first = 1;
+   int        *listed;
    
    while ((c = lst_top( cmd_list ))) {
       request();		/* Send requests */
+      lst_pop( cmd_list );
       expected = CODE_OK;
       switch (c->command) {
       case CMD_PRINT:
 	 if (!cmd_reply.data) {
-	    printf( "Error %d\n", cmd_reply.retcode );
+	    printf( "Error, status %d\n", cmd_reply.retcode );
 	 } else {
-	    client_print_text( cmd_reply.data );
+	    if (cmd_reply.matches)     client_print_matches( cmd_reply.data );
+	    else if (cmd_reply.listed) client_print_listed( cmd_reply.data );
+	    else                       client_print_text( cmd_reply.data );
 	    client_free_text( cmd_reply.data );
 	    cmd_reply.data = NULL;
+	    cmd_reply.matches = 0;
 	 }
+	 expected = cmd_reply.retcode;
+	 break;
+      case CMD_DEFPRINT:
+	 if (cmd_reply.count) {
+	    for (i = 0; i < cmd_reply.count; i++) {
+	       if (!first) printf( "\n\n" );
+	       first = 0;
+	       if (cmd_reply.defs[i].dbname) {
+		  if (cmd_reply.defs[i].db)
+		     printf( "From %s (%s):\n\n",
+			     cmd_reply.defs[i].dbname, cmd_reply.defs[i].db );
+		  else 
+		     printf( "From %s:\n\n", cmd_reply.defs[i].dbname );
+	       } else if (cmd_reply.defs[i].db) {
+		  printf( "From %s:\n\n", cmd_reply.defs[i].db );
+	       } else
+		  printf( "From an unknown database:\n\n" );
+	       client_print_text( cmd_reply.defs[i].data );
+	       client_free_text( cmd_reply.defs[i].data );
+	       cmd_reply.defs[i].data = NULL;
+	    }
+	    xfree( cmd_reply.defs );
+	    cmd_reply.count = 0;
+	 } else if (cmd_reply.matches) {
+	    printf( "No definitions found in %s for \"%s\","
+		    " perhaps you mean:\n",
+		    c->database, c->word );
+	    client_print_matches( cmd_reply.data );
+	    client_free_text( cmd_reply.data );
+	    cmd_reply.data = NULL;
+	    cmd_reply.matches = 0;
+	 } else {
+	    printf( "No definitions found in %s for \"%s\"\n",
+		    c->database, c->word );
+	 }
+	 expected = cmd_reply.retcode;
 	 break;
       case CMD_CONNECT:
 	 cmd_reply.retcode = client_read_status( cmd_reply.s,
 						 &message,
-						 NULL, NULL, NULL,
+						 NULL, NULL, NULL, NULL,
 						 &cmd_reply.msgid );
 	 if (cmd_reply.retcode == CODE_ACCESS_DENIED) {
 	    err_fatal( __FUNCTION__,
@@ -355,13 +494,13 @@ static void process( void )
       case CMD_CLIENT:
 	 cmd_reply.retcode = client_read_status( cmd_reply.s,
 						 &message,
-						 NULL, NULL, NULL, NULL );
+						 NULL, NULL, NULL, NULL, NULL);
 	 break;
       case CMD_AUTH:
 	 if (!c->key || !c->user) break;
 	 cmd_reply.retcode = client_read_status( cmd_reply.s,
 						 &message,
-						 NULL, NULL, NULL, NULL );
+						 NULL, NULL, NULL, NULL, NULL);
 	 if (cmd_reply.retcode == CODE_AUTH_DENIED)
 	    err_warning( __FUNCTION__,
 			 "Authentication to %s.%s denied\n",
@@ -370,39 +509,158 @@ static void process( void )
 	 expected = CODE_AUTH_OK;
       case CMD_INFO:
 	 expected = CODE_DATABASE_INFO;
+	 listed = NULL;
 	 goto gettext;
       case CMD_SERVER:
 	 expected = CODE_SERVER_INFO;
+	 listed = NULL;
 	 goto gettext;
       case CMD_HELP:
 	 expected = CODE_HELP;
+	 listed = NULL;
 	 goto gettext;
       case CMD_DBS:
 	 expected = CODE_DATABASE_LIST;
+	 listed = &cmd_reply.listed;
 	 goto gettext;
       case CMD_STRATS:
 	 expected = CODE_STRATEGY_LIST;
+	 listed = &cmd_reply.listed;
 	 goto gettext;
    gettext:
 	 cmd_reply.retcode = client_read_status( cmd_reply.s,
 						 &message,
-						 NULL, NULL, NULL, NULL );
+						 listed,
+						 NULL, NULL, NULL, NULL);
 	 if (cmd_reply.retcode == expected) {
 	    cmd_reply.data = client_read_text( cmd_reply.s );
 	    cmd_reply.retcode = client_read_status( cmd_reply.s,
 						    &message,
-						    NULL, NULL, NULL, NULL );
+						    NULL,NULL,NULL,NULL,NULL);
 	    expected = CODE_OK;
 	 }
 	 break;
-      case CMD_MATCH:
       case CMD_DEFINE:
+	 cmd_reply.retcode = client_read_status( cmd_reply.s,
+						 &message,
+						 &cmd_reply.count,
+						 NULL, NULL, NULL, NULL );
+	 if (!client_defines) tim_start( "define" );
+	 switch (expected = cmd_reply.retcode) {
+	 case CODE_DEFINITIONS_FOUND:
+	    cmd_reply.defs = xmalloc(cmd_reply.count*sizeof(struct def));
+	    expected = CODE_DEFINITION_FOLLOWS;
+	    for (i = 0; i < cmd_reply.count; i++) {
+	       ++client_defines;
+	       cmd_reply.retcode
+		  = client_read_status( cmd_reply.s,
+					&message,
+					NULL,
+					&cmd_reply.defs[i].word,
+					&cmd_reply.defs[i].db,
+					&cmd_reply.defs[i].dbname,
+					NULL );
+	       if (cmd_reply.retcode != expected) goto error;
+	       cmd_reply.defs[i].data = client_read_text( cmd_reply.s );
+	    }
+	    expected = CODE_OK;
+	    cmd_reply.retcode = client_read_status( cmd_reply.s,
+						    &message,
+						    NULL,NULL,NULL,NULL,NULL );
+	    break;
+	 case CODE_NO_MATCH:
+	    PRINTF(DBG_VERBOSE,
+		   ("No match found for \"%s\" in %s\n",c->word,c->database));
+	    break;
+	 case CODE_INVALID_DB:
+	    printf( "%s is not a valid database, use -D for a list\n",
+		    c->database );
+	    break;
+	 case CODE_NO_DATABASES:
+	    printf( "There are no databases currently available\n" );
+	    break;
+	 default:
+	    expected = CODE_OK;
+	 }
+   error:
+	 break;
+      case CMD_MATCH:
+	 cmd_reply.retcode = client_read_status( cmd_reply.s,
+						 &message,
+						 &cmd_reply.matches,
+						 NULL, NULL, NULL, NULL );
+	 switch (expected = cmd_reply.retcode) {
+	 case CODE_MATCHES_FOUND:
+	    cmd_reply.data = client_read_text( cmd_reply.s );
+	    expected = CODE_OK;
+	    cmd_reply.retcode = client_read_status( cmd_reply.s,
+						    &message,
+						    NULL,NULL,NULL,NULL,NULL );
+	    break;
+	 case CODE_NO_MATCH:
+	    PRINTF(DBG_VERBOSE,
+		   ("No match found in %s for \"%s\" using %s\n",
+		    c->database,c->word,c->strategy));
+	    break;
+	 case CODE_INVALID_DB:
+	    printf( "%s is not a valid database, use -D for a list\n",
+		    c->database );
+	    break;
+	 case CODE_INVALID_STRATEGY:
+	    printf( "%s is not a valid search strategy, use -S for a list\n",
+		    c->strategy );
+	    break;
+	 case CODE_NO_DATABASES:
+	    printf( "There are no databases currently available\n" );
+	    break;
+	 case CODE_NO_STRATEGIES:
+	    printf( "There are no search strategies currently available\n" );
+	    break;
+	 default:
+	    expected = CODE_OK;
+	 }
+	 break;
       case CMD_SPELL:
+	 if (cmd_reply.retcode == CODE_NO_MATCH) {
+	    prepend_command( make_command( CMD_MATCH,
+					   c->database, DEF_STRAT, c->word ) );
+	 }
+	 expected = cmd_reply.retcode;
+	 break;
       case CMD_WIND:
+	 if (cmd_reply.matches) {
+	    if (!cmd_reply.data)
+	       err_internal( __FUNCTION__,
+			     "%d matches, but no list\n", cmd_reply.matches );
+	    for (i = cmd_reply.matches; i > 0; --i) {
+	       const char *line = lst_nth_get( cmd_reply.data, i );
+	       arg_List   a = arg_argify( line, 0 );
+	       if (arg_count(a) != 2)
+		  err_internal( __FUNCTION__,
+				"MATCH command didn't return 2 args: %s\n",
+				line );
+	       prepend_command( make_command( CMD_DEFPRINT,
+					      str_find(arg_get(a,0)),
+					      str_copy(arg_get(a,1)) ) );
+	       prepend_command( make_command( CMD_DEFINE,
+					      str_find(arg_get(a,0)),
+					      str_copy(arg_get(a,1)) ) );
+	       arg_destroy(a);
+	    }
+	    client_free_text( cmd_reply.data );
+	    cmd_reply.matches = 0;
+	 } else {
+	    printf( "No matches found in %s for \"%s\" using %s\n",
+		    c->database,
+		    c->word,
+		    c->strategy );
+	 }
+	 expected = cmd_reply.retcode;
+	 break;
       case CMD_CLOSE:
 	 cmd_reply.retcode = client_read_status( cmd_reply.s,
 						 &message,
-						 NULL, NULL, NULL, NULL );
+						 NULL, NULL, NULL, NULL, NULL);
 	 expected = CODE_GOODBYE;
 	 break;
       default:
@@ -412,15 +670,15 @@ static void process( void )
 	 err_fatal( __FUNCTION__,
 		    "Unexpected status code %d (%s), wanted %d\n",
 		    cmd_reply.retcode,
-		    message,
+		    message ? message : "no message",
 		    expected );
       }
-      lst_pop(cmd_list);
-      PRINTF(DBG_RAW,("Processed %d\n",c->command));
+      PRINTF(DBG_RAW,("* Processed %d\n",c->command));
       xfree(c);
    }
 }
 
+#if 0
 static void handler( int sig )
 {
    const char *name = NULL;
@@ -452,6 +710,7 @@ static void setsig( int sig, void (*f)(int) )
    sa.sa_flags = 0;
    sigaction(sig, &sa, NULL);
 }
+#endif
 
 static const char *id_string( const char *id )
 {
@@ -469,7 +728,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.7 1997/07/08 21:21:06 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.8 1997/07/09 04:00:57 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -506,7 +765,7 @@ static void license( void )
      "You should have received a copy of the GNU General Public License along",
      "with this program; if not, write to the Free Software Foundation, Inc.,",
      "675 Mass Ave, Cambridge, MA 02139, USA.",
-   };
+   0 };
    const char        **p = license_msg;
    
    banner();
@@ -516,13 +775,25 @@ static void license( void )
 static void help( void )
 {
    static const char *help_msg[] = {
-      "   --help            give this help",
-      "-L --license         display software license",
-      "-v --verbose         verbose mode",
-      "-V --version         display version number",
-      "-d --debug <option>  select debug option",
-      "-p --port <port>     port number",
-      "-h --host <host>     host",
+      "-h --host <server>      specify server",
+      "-p --port <service>     specify port",
+      "-d --database <dbname>  select a database to search",
+      "-m --match              match instead of define",
+      "-s --strategy           strategy for matching or defining",
+      "-D --dbs                show available databases",
+      "-S --strats             show available search strategies",
+      "-H --serverhelp         show server help",
+      "-i --info <dbname>      show information about a database",
+      "-I --serverinfo         show information about the server",
+      "-a --noauth             disable authentication",
+      "-u --user <username>    username for authentication",
+      "-k --key <key>          shared secret for authentication",
+      "-V --version            display version information",
+      "-L --license            display copyright and license information",
+      "   --help               display this help",
+      "-v --verbose            be verbose",
+      "-r --raw                trace raw transaction",
+      "   --debug <flag>       set debugging flag",
       0 };
    const char        **p = help_msg;
 
@@ -530,167 +801,13 @@ static void help( void )
    while (*p) fprintf( stderr, "%s\n", *p++ );
 }
 
-
-static void client_printf( int s, const char *format, ... )
-{
-   va_list ap;
-   char    buf[BUFFERSIZE];
-   char    *pt;
-   int     len;
-
-   va_start( ap, format );
-   vsprintf( buf, format, ap );
-   va_end( ap );
-   if ((len = strlen( buf )) >= BUFFERSIZE) {
-      err_fatal( __FUNCTION__, "Buffer overflow: %d\n", len );
-   }
-
-   pt = alloca(2*len);
-   client_crlf(pt, buf);
-   PRINTF(DBG_VERBOSE,("Sent: %s",pt));
-   net_write(s, pt, strlen(pt));
-}
-
-
-static void define( int s, const char *word, const char *database )
-{
-   client_printf( s, "define %s \"%s\"", database, word );
-}
-
-static void client( int s )
-{
-   client_printf( s, "client \"%s\"", client_get_banner() );
-}
-
-static int authenticate( int s )
-{
-   return 0;
-}
-
-static void quit( int s )
-{
-   client_printf( s, "quit" );
-}
-
-#if 0
-static void machine( int s,
-		     const char *word,
-		     const char *database,
-		     const char *strategy )
-{
-   int        code;
-   int        n;
-   char       buf[BUFFERSIZE];
-   int        count;
-   const char *db;
-   const char *dbname;
-   const char *dburl;
-   enum { INIT, DEF, POST, TERM, FIN } state;
-   
-   for (state = INIT; state != FIN;) {
-      
-      code = client_read_status(s, &count, &db, &dbname, &dburl);
-      
-      if (state == TERM && code != CODE_GOODBYE) {
-	 printf( "Server refuses clean termination, exiting\n" );
-	 state = FIN;
-	 continue;
-      }
-      
-      switch (code) {
-      case CODE_HELLO:   client(s);   break;
-      case CODE_GOODBYE: state = FIN; break;
-      case CODE_OK:
-	 switch (state) {
-	 case INIT: state = DEF; if (authenticate(s))  break; /* else fall */
-	 case DEF:  define(s, word, database);         break;
-	 case POST: state = TERM; quit(s);             break;
-	 default:                                      break;
-	 }
-	 break;
-      case CODE_INVALID_DB:
-	 printf( "%s is an invalid database\n", database );
-	 state = TERM;
-	 quit(s);
-	 break;
-      case CODE_NO_MATCH:
-	 printf( "No matches for %s\n", word );
-	 state = TERM;
-	 quit(s);
-	 break;
-      case CODE_DATABASE_LIST:
-	 break;
-      case CODE_STRATEGY_LIST:
-	 break;
-      case CODE_DATABASE_INFO:
-	 break;
-      case CODE_STATUS:
-	 break;
-      case CODE_HELP:
-	 break;
-      case CODE_AUTH_OK:
-	 break;
-      case CODE_DEFINITIONS_FOUND:
-	 break;
-      case CODE_DEFINITION_FOLLOWS:
-	 printf( "From %s:\n",
-		 dbname ? dbname : (db ? db : "unknown database") );
-	 client_copy_text( s );
-	 state = POST;
-	 break;
-      case CODE_MATCHES_FOUND:
-	 break;
-      case CODE_SYNTAX_ERROR:
-	 printf( "Syntax error, terminating connection\n" );
-	 state = TERM;
-	 quit(s);
-	 break;
-      case CODE_ILLEGAL_PARAM:
-	 printf( "Illegal parameter, terminating connection\n" );
-	 state = TERM;
-	 quit(s);
-	 break;
-      case CODE_COMMAND_NOT_IMPLEMENTED:
-	 printf( "Command not implemented, terminating connection\n" );
-	 state = TERM;
-	 quit(s);
-	 break;
-      case CODE_PARAM_NOT_IMPLEMENTED:
-	 printf( "Parameter not implemented, terminating connection\n" );
-	 state = TERM;
-	 quit(s);
-	 break;
-      case CODE_ACCESS_DENIED:
-	 break;
-      case CODE_AUTH_DENIED:
-	 break;
-      case CODE_INVALID_STRATEGY:
-	 break;
-      case CODE_NO_DATABASES:
-	 printf( "No databases available (authentication required?)\n" );
-	 break;
-      case CODE_NO_STRATEGIES:
-	 printf( "No search strategies available\n" );
-	 break;
-      default:
-	 while ((n = read(s, buf, BUFFERSIZE)) > 0) {
-	    buf[n] = '\0';
-	    fputs(buf,stdout);
-	 }
-	 printf( "Unknown response code %d\n", state );
-	 break;
-      }
-   }
-}
-#endif
-   
 int main( int argc, char **argv )
 {
    int                c;
    const char         *service   = "2628";
    const char         *host      = "localhost";
    const char         *database  = "*";
-   const char         *strategy  = "!";
+   const char         *strategy  = DEF_STRAT;
    int                doauth     = 1;
    const char         *user      = NULL;
    const char         *key       = NULL;
@@ -769,7 +886,6 @@ int main( int argc, char **argv )
    prs_file_nocpp( configFile );
    dict_config_print( NULL, DictConfig );
    dict_init_databases( DictConfig );
-#endif
 
    setsig(SIGHUP,  handler);
    setsig(SIGINT,  handler);
@@ -778,45 +894,79 @@ int main( int argc, char **argv )
    setsig(SIGTRAP, handler);
    setsig(SIGTERM, handler);
    setsig(SIGPIPE, handler);
+#endif
 
    fflush(stdout);
    fflush(stderr);
 
-   push( CMD_CONNECT, host, service );
-   push( CMD_CLIENT, client_get_banner() );
-   if (doauth) push( CMD_AUTH, user, key );
+   tim_start("total");
+
+   append_command( make_command( CMD_CONNECT, host, service ) );
+   append_command( make_command( CMD_CLIENT, client_get_banner() ) );
+   if (doauth) append_command( make_command( CMD_AUTH, user, key ) );
    switch (function) {
-   case INFO:   push( CMD_INFO, database ); push( CMD_PRINT ); break;
-   case SERVER: push( CMD_SERVER );         push( CMD_PRINT ); break;
-   case DBS:    push( CMD_DBS );            push( CMD_PRINT ); break;
-   case STRATS: push( CMD_STRATS );         push( CMD_PRINT ); break;
-   case HELP:   push( CMD_HELP );           push( CMD_PRINT ); break;
+   case INFO:
+      append_command( make_command( CMD_INFO, database ) );
+      append_command( make_command( CMD_PRINT ) );
+      break;
+   case SERVER:
+      append_command( make_command( CMD_SERVER ) );
+      append_command( make_command( CMD_PRINT ) );
+      break;
+   case DBS:
+      append_command( make_command( CMD_DBS ) );
+      append_command( make_command( CMD_PRINT ) );
+      break;
+   case STRATS:
+      append_command( make_command( CMD_STRATS ) );
+      append_command( make_command( CMD_PRINT ) );
+      break;
+   case HELP:
+      append_command( make_command( CMD_HELP ) );
+      append_command( make_command( CMD_PRINT ) );
+      break;
    case MATCH:
       for (i = optind; i < argc; i++) {
-	 push( CMD_MATCH, database, strategy, argv[i] );
-	 push( CMD_PRINT );
+	 append_command( make_command( CMD_MATCH,
+				       database, strategy, argv[i] ) );
+	 append_command( make_command( CMD_PRINT ) );
       }
       break;
    case DEFINE:
       for (i = optind; i < argc; i++) {
-	 if (!strcmp(strategy, "!")) {
-	    push( CMD_DEFINE, database, argv[i] );
-	    push( CMD_SPELL );
-	    push( CMD_PRINT );
+	 if (!strcmp(strategy, DEF_STRAT)) {
+	    append_command( make_command( CMD_DEFINE, database, argv[i] ) );
+	    append_command( make_command( CMD_SPELL, database, argv[i] ) );
+	    append_command( make_command( CMD_DEFPRINT, database, argv[i] ) );
 	 } else {
-	    push( CMD_MATCH, database, strategy, argv[i] );
-	    push( CMD_WIND );
+	    append_command( make_command( CMD_MATCH,
+					  database, strategy, argv[i] ) );
+	    append_command( make_command( CMD_WIND,
+					  database, strategy, argv[i] ) );
 	 }
       }
    }
-   push( CMD_CLOSE );
+   append_command( make_command( CMD_CLOSE ) );
    process();
-
-#if 0
-   s = net_connect_tcp( host, service );
-   word = argv[optind];
-   machine( s, word, database, "" );
-   close(s);
-#endif
+   
+   if (dbg_test(DBG_TIME)) {
+      tim_stop("total");
+      if (client_defines) {
+	 tim_stop("define");
+	 fprintf( stderr,
+		  "* %d definitions in %.2fr %.2fu %.2fs => %.1f d/sec\n",
+		  client_defines,
+		  tim_get_real( "define" ),
+		  tim_get_user( "define" ),
+		  tim_get_system( "define" ),
+		  client_defines / tim_get_real( "define" ) );
+      }
+      fprintf( stderr,
+	       "* total %.2fr %.2fu %.2fs\n",
+	       tim_get_real( "total" ),
+	       tim_get_user( "total" ),
+	       tim_get_system( "total" ) );
+   }
+   
    return 0;
 }
