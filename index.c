@@ -1,6 +1,6 @@
 /* index.c -- 
  * Created: Wed Oct  9 14:52:23 1996 by faith@cs.unc.edu
- * Revised: Mon Jun  2 23:47:46 1997 by faith@cs.unc.edu
+ * Revised: Fri Jun 20 17:23:45 1997 by faith@acm.org
  * Copyright 1996, 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.12 1997/06/11 01:54:38 faith Exp $
+ * $Id: index.c,v 1.13 1997/06/21 01:05:48 faith Exp $
  * 
  */
 
@@ -517,9 +517,12 @@ int dict_search_database( lst_List l,
       err_internal( __FUNCTION__, "List NULL\n" );
 		  
    for (pt = buf; *w; w++) {
-      if (*w != ' ' && !isalnum( *w )) continue;
-      if (isspace( *w )) *pt++ = ' ';
-      else               *pt++ = tolower(*w);
+      if (isspace( *w )) {
+         *pt++ = ' ';
+      } else {
+         if (!isalnum( *w )) continue;
+         *pt++ = tolower(*w);
+      }
    }
    *pt = '\0';
 

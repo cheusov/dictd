@@ -1,6 +1,6 @@
 .\" dictd.1 -- 
 .\" Created: Mon Mar 10 16:10:03 1997 by faith@cs.unc.edu
-.\" Revised: Mon Jun  9 09:27:10 1997 by faith@acm.org
+.\" Revised: Fri Jun 20 20:09:56 1997 by faith@acm.org
 .\" Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
 .\" 
 .\" Permission is granted to make and distribute verbatim copies of this
@@ -87,7 +87,7 @@ RFC.  The default is 600 seconds (10 minutes), but may be changed in the
 .I dictd.h
 file at compile time (DICT_DEFAULT_DELAY).
 .TP
-.B \-\-limit
+.B \-\-limit " children"
 Specifies the number of daemons that may be running simultaneously.  Each
 daemon services a single connection.  If the limit is exceeded, a
 (serialized) connection will be made by the server process, and a response
@@ -98,6 +98,41 @@ are denied useful connections. The default is 100, but may be changed in
 the
 .I dictd.h
 file at compile time (DICT_DAEMON_LIMIT).
+.TP
+.BI \-l " option"
+Specify a logging option.  Some of the more verbose options are used
+primarily for debugging the server code, and are not practical for normal
+use.
+.RS
+.TP
+.B connect
+Log all connections.
+.TP
+.B fork
+Log all children forks.  This is extrememly verbose.
+.TP
+.B commands
+Log all commands.  This is extrememly verbose.
+.TP
+.B found
+Log all words found in the databases.
+.TP
+.B notfound
+Log all words not found in the databases.
+.TP
+.B timestamp
+When logging to a file, use a full timestamp like that which syslog would
+produce.  Otherwise, no timestamp is made, making the files shorter (and
+more anonymous).
+.TP
+.B syslog
+Log using the
+.BR syslog (3)
+facility.
+.RE
+.TP
+.BI \-L " file"
+Specify the file for logging.
 .TP
 .BI \-d " option"
 Activate a debugging option.  There are several, all of which are only

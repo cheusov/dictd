@@ -1,6 +1,6 @@
 /* dictd.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Thu Jun  5 11:26:32 1997 by faith@acm.org
+ * Revised: Fri Jun 20 20:09:49 1997 by faith@acm.org
  * Copyright 1994, 1995, 1996, 1997 Rickard E. Faith (faith@acm.org)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -57,6 +57,15 @@
 
 
 #define BUFFERSIZE 10240
+
+#define LOG_SERVER      (0<<30|1<< 0) /* Log server information             */
+#define LOG_CONNECT     (0<<30|1<< 1) /* Log connection information         */
+#define LOG_FORK        (0<<30|1<< 2) /* Log fork/children information      */
+#define LOG_COMMANDS    (0<<30|1<< 3) /* Log commands                       */
+#define LOG_FOUND       (0<<30|1<< 4) /* Log words found                    */
+#define LOG_NOTFOUND    (0<<30|1<< 5) /* Log words not found                */
+#define LOG_TIMESTAMP   (0<<30|1<< 6) /* Log with timestamps                */
+#define LOG_SYSLOG      (0<<30|1<< 7) /* Log using syslog(3)                */
 
 #define DBG_VERBOSE     (0<<30|1<< 0) /* Verbose                            */
 #define DBG_ZIP         (0<<30|1<< 1) /* Zip                                */

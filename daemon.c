@@ -1,6 +1,6 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@cs.unc.edu
- * Revised: Tue May 27 16:54:29 1997 by faith@acm.org
+ * Revised: Fri Jun 20 20:09:54 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.17 1997/06/02 23:10:58 faith Exp $
+ * $Id: daemon.c,v 1.18 1997/06/21 01:05:39 faith Exp $
  * 
  */
 
@@ -192,7 +192,8 @@ static int daemon_check_list( const char *user, lst_List acl )
 	 *d = '\0';
 	 if ((err = regcomp(&re, regbuf, REG_ICASE|REG_NOSUB))) {
 	    regerror(err, &re, erbuf, sizeof(erbuf));
-	    log_info( "regcomp(%s): %s\n", regbuf, erbuf );
+	    if (flg_test(LOG_SERVER))
+               log_info( "regcomp(%s): %s\n", regbuf, erbuf );
 	    return DICT_DENY;	/* Err on the side of safety */
 	 }
 	 if (!regexec(&re, daemonHostname, 0, NULL, 0)
@@ -251,6 +252,16 @@ static void daemon_log( int type, const char *format, ... )
    char    *s, *d;
    int     c;
 
+   switch (type) {
+   case DICT_LOG_TERM:
+   case DICT_LOG_DEFINE:
+   case DICT_LOG_MATCH:
+   case DICT_LOG_NOMATCH:
+   case DICT_LOG_CLIENT:
+   case DICT_LOG_TRACE:
+   case DICT_LOG_COMMAND: if (!flg_test(LOG_COMMAND)) return;
+   }
+
    if (dbg_test(DBG_PORT))
       sprintf( buf, "%s:%d ", daemonHostname, daemonPort );
    else
@@ -264,7 +275,8 @@ static void daemon_log( int type, const char *format, ... )
    len = strlen( buf );
 
    if (len > 500) {
-      log_error( __FUNCTION__, "Buffer overflow (%d)\n", len );
+      if (flg_test(LOG_SERVER))
+         log_error( __FUNCTION__, "Buffer overflow (%d)\n", len );
       exit(0);
    }
 
