@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.85 2004/01/07 16:47:29 cheusov Exp $
+ * $Id: index.c,v 1.86 2004/01/07 17:09:38 cheusov Exp $
  * 
  */
 
@@ -1346,6 +1346,22 @@ static int dict_search_levenshtein_utf8_with_alphabet (
       d = copy_utf8_string (buf2 + (MB_CUR_MAX + 1) * i, d, 1);
       d = copy_utf8_string (buf2 + (MB_CUR_MAX + 1) * (i - 1), d, 1);
       d = copy_utf8_string (buf2 + (MB_CUR_MAX + 1) * (i + 1), d, len - i - 1);
+
+      CHECK;
+      PRINTF(DBG_LEV,("query: `%s`\n", buf));
+   }
+
+   /* Insertions at the end of word */
+   memcpy (buf, word, size + 1);
+   d = buf + size;
+   p = database -> alphabet;
+
+   while (*p){
+      char_len = mbrlen (p, MB_CUR_MAX, &ps);
+      memcpy (d, p, char_len);
+      d [char_len] = 0;
+
+      p += char_len;
 
       CHECK;
       PRINTF(DBG_LEV,("query: `%s`\n", buf));
