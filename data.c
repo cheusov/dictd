@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: data.c,v 1.19 2003/02/23 15:31:39 cheusov Exp $
+ * $Id: data.c,v 1.20 2003/03/04 12:31:38 cheusov Exp $
  * 
  */
 
@@ -245,10 +245,10 @@ dictData *dict_data_open( const char *filename, int computeCRC )
    
    if ((h->fd = open( filename, O_RDONLY )) < 0)
       err_fatal_errno( __FUNCTION__,
-		       "Cannot open index file \"%s\"\n", filename );
+		       "Cannot open data file \"%s\"\n", filename );
    if (fstat( h->fd, &sb ))
       err_fatal_errno( __FUNCTION__,
-		       "Cannot stat index file \"%s\"\n", filename );
+		       "Cannot stat data file \"%s\"\n", filename );
    h->size = sb.st_size;
 
    if (mmap_mode){
