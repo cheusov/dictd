@@ -4,7 +4,7 @@
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dict.c,v 1.12 1997/09/01 01:14:48 faith Exp $
+ * $Id: dict.c,v 1.13 1997/09/01 01:23:21 faith Exp $
  * 
  */
 
@@ -557,12 +557,7 @@ static void process( int html )
 	       if (html) printf( "<HR><H3>Source: " );
 	       else      printf( "\nFrom " );
 	       if (cmd_reply.defs[i].dbname) {
-		  if (cmd_reply.defs[i].db) {
-		     printf( "%s (%s)",
-			     cmd_reply.defs[i].dbname, cmd_reply.defs[i].db );
-		  } else {
-		     printf( "%s", cmd_reply.defs[i].dbname );
-		  }
+		  printf( "%s", cmd_reply.defs[i].dbname );
 	       } else if (cmd_reply.defs[i].db) {
 		  printf( "%s", cmd_reply.defs[i].db );
 	       } else {
@@ -882,7 +877,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.12 1997/09/01 01:14:48 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.13 1997/09/01 01:23:21 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;

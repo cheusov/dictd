@@ -1,0 +1,22 @@
+
+dictd:
+
+* Add portable snprintf implementation and robustify logging
+* Support "dict:" definition index feature
+* Add support for virtual databases
+* Add anagram search engine
+* Add search for edit distances greater than 1
+* Explore improved spell correction algorithms
+* Print a reasonable message if no config file is available
+* Add support for virtual databases
+* Add reverse DNS lookup
+* Add IP/mask notation for allow/deny
+
+dict:
+* Make match results line up in columns
+* Improve HTML support
+
+dictzip:
+* Correct error in computation of "chunk" size, so that chunk sizes can be
+  larger
+

@@ -1,6 +1,6 @@
 /* dictzip.c -- 
  * Created: Tue Jul 16 12:45:41 1996 by faith@acm.org
- * Revised: Fri Jul 11 09:59:09 1997 by faith@acm.org
+ * Revised: Sun Jul 20 21:00:20 1997 by faith@acm.org
  * Copyright 1996, 1997 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictzip.c,v 1.12 1997/07/11 14:07:15 faith Exp $
+ * $Id: dictzip.c,v 1.13 1997/09/01 01:23:25 faith Exp $
  * 
  */
 
@@ -130,10 +130,10 @@ int dict_data_zip( const char *inFilename, const char *outFilename,
    /* Open files */
    if (!(inStr = fopen( inFilename, "r" )))
       err_fatal_errno( __FUNCTION__,
-		       "Cannot open \"%s\" for read", inFilename );
+		       "Cannot open \"%s\" for read\n", inFilename );
    if (!(outStr = fopen( outFilename, "w" )))
       err_fatal_errno( __FUNCTION__,
-		       "Cannot open \"%s\"for write", outFilename );
+		       "Cannot open \"%s\"for write\n", outFilename );
 
    origFilename = xmalloc( strlen( inFilename ) + 1 );
    if ((pt = strrchr( inFilename, '/' )))
@@ -321,7 +321,7 @@ static const char *id_string( const char *id )
 
 static void banner( void )
 {
-   const char *id = "$Id: dictzip.c,v 1.12 1997/07/11 14:07:15 faith Exp $";
+   const char *id = "$Id: dictzip.c,v 1.13 1997/09/01 01:23:25 faith Exp $";
    
    fprintf( stderr, "%s %s\n", err_program_name(), id_string( id ) );
    fprintf( stderr,
