@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.6 2002/08/23 17:33:10 cheusov Exp $
+ * $Id: dictfmt.c,v 1.7 2002/09/18 14:56:47 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -535,7 +535,7 @@ int main( int argc, char **argv )
 	    if ((pt = strchr( buffer2, ','))) {
 	       *pt = '\0';
 	       fmt_newheadword(buffer2, 0);
-	       if (without_hw || hw_separator [0])
+	       if (without_hw)
 		  buf = NULL;
 	    }
 	 }
@@ -671,7 +671,7 @@ int main( int argc, char **argv )
 
 	    if (*buf != '\0') {
 	       fmt_newheadword(buf,0);
-	       if (without_hw || hw_separator [0])
+	       if (without_hw)
 		  buf = NULL;
 	    }
  	 }
