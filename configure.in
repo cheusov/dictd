@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.59 2003/10/11 17:16:01 cheusov Exp $
+dnl $Id: configure.in,v 1.60 2003/10/13 23:41:43 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -36,7 +36,7 @@ define(VERSION, 1.9.10)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.59 $)
+AC_REVISION($Revision: 1.60 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -309,7 +309,9 @@ if test "$local_regex" = 1; then
 fi
 
 AC_CHECK_LIB(socket,main,REALLIBS="$REALLIBS -lsocket")
-AC_CHECK_LIB(nsl,main,REALLIBS="$REALLIBS -lnsl")
+AC_CHECK_LIB(c,getservbyname,
+	,
+	[AC_CHECK_LIB(nsl,getservbyname,REALLIBS="$REALLIBS -lnsl")])
 
 if test "$local_dmalloc" = 0 -a "$needs_dmalloc" = 1; then
     AC_CHECK_LIB(dmalloc,main,
