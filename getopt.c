@@ -34,6 +34,12 @@ Cambridge, MA 02139, USA.  */
 #include <config.h>
 #endif
 
+#if  defined(__INTERIX) || defined(__OPENNT)
+#ifndef _ALL_SOURCE
+#define _ALL_SOURCE
+#endif /* _ALL_SOURCE */
+#endif /* __OPENNT */
+
 #include <stdio.h>
 
 struct option
