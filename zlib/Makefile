@@ -81,7 +81,7 @@ uninstall:
 	fi
 	cd $(prefix)/include; rm -f zlib.h zconf.h
 
-clean:
+clean distclean:
 	rm -f *.o *~ example minigzip libz.a libz.so* foo.gz
 
 zip:
