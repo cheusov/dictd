@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.70 2003/08/06 17:55:54 cheusov Exp $
+ * $Id: index.c,v 1.71 2003/08/08 12:29:19 cheusov Exp $
  * 
  */
 
@@ -1120,7 +1120,8 @@ static int dict_search_soundex( lst_List l,
    const char *end;
    int        count = 0;
    dictWord   *datum;
-   char       soundex[10];
+   char       soundex  [10];
+   char       soundex2 [5];
    char       buffer[MAXWORDLEN];
    char       *d;
    const unsigned char *s;
@@ -1140,7 +1141,7 @@ static int dict_search_soundex( lst_List l,
       end = dbindex->end;
    }
 
-   strcpy( soundex, txt_soundex( word ) );
+   txt_soundex2 (word, soundex);
 
    while (pt && pt < end) {
       for (i = 0, s = pt, d = buffer; i < MAXWORDLEN - 1; i++, ++s) {
@@ -1149,7 +1150,9 @@ static int dict_search_soundex( lst_List l,
 	 *d++ = *s;
       }
       *d = '\0';
-      if (!strcmp(soundex, txt_soundex(buffer))) {
+
+      txt_soundex2 (buffer, soundex2);
+      if (!strcmp (soundex, soundex2)) {
 	 if (!previous || altcompare(previous, pt, end)) {
 	    datum = dict_word_create( previous = pt, database, dbindex );
 	    lst_append( l, datum );
@@ -1468,7 +1471,7 @@ int dict_search_database_ (
       return dict_search_substring( l, buf, database, database->index );
 
    case DICT_SUFFIX:
-      return dict_search_suffix( l, word, database );
+      return dict_search_suffix( l, buf, database );
 
    case DICT_RE:
       return dict_search_re( l, word, database, database->index );
