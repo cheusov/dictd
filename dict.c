@@ -4,7 +4,7 @@
  * Copyright 1997, 1998, 1999, 2000 Rickard E. Faith (faith@dict.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dict.c,v 1.25 2000/12/27 22:29:47 hilliard Exp $
+ * $Id: dict.c,v 1.26 2001/01/01 13:52:20 hilliard Exp $
  * 
  */
 
@@ -141,7 +141,7 @@ static void client_open_pager( void )
 				/* use an empty string to avoid paging */
    if ((dict_pager || (dict_pager = getenv("PAGER")))
        && *dict_pager
-       && !strcmp(dict_pager, "-")) {
+       && strcmp(dict_pager, "-")) {
       PRINTF(DBG_VERBOSE,("Using \"%s\" as pager\n",dict_pager));
       pr_open( dict_pager, PR_CREATE_STDIN, &infd, NULL, NULL );
       dict_output = fdopen( infd, "w" );
@@ -940,7 +940,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.25 2000/12/27 22:29:47 hilliard Exp $";
+   const char        *id = "$Id: dict.c,v 1.26 2001/01/01 13:52:20 hilliard Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
