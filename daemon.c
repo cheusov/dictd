@@ -1,7 +1,7 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@cs.unc.edu
- * Revised: Sun Mar  1 07:01:58 1998 by faith@acm.org
- * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
+ * Revised: Wed Dec 22 08:09:58 1999 by faith@acm.org
+ * Copyright 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.28 1998/03/01 12:05:28 faith Exp $
+ * $Id: daemon.c,v 1.29 1999/12/22 13:22:10 faith Exp $
  * 
  */
 
@@ -556,10 +556,10 @@ static void daemon_banner( void )
 
    time(&t);
 
-   sprintf( daemonStamp, "<%d.%d.%ld@%s>", 
+   sprintf( daemonStamp, "<%d.%d.%lu@%s>", 
 	    _dict_forks,
 	    getpid(),
-	    t,
+	    (long unsigned)t,
 	    net_hostname() );
    daemon_printf( "%d %s %s <auth.mime> %s\n",
 		  CODE_HELLO,

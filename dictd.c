@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Wed Dec 22 06:10:40 1999 by faith@acm.org
+ * Revised: Wed Dec 22 08:12:45 1999 by faith@acm.org
  * Copyright 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.40 1999/12/22 11:49:56 faith Exp $
+ * $Id: dictd.c,v 1.41 1999/12/22 13:22:10 faith Exp $
  * 
  */
 
@@ -14,8 +14,12 @@
 #define MAXPROCTITLE 2048       /* Maximum amount of proc title we'll use. */
 #undef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
+#ifndef UID_NOBODY
 #define UID_NOBODY  65534
+#endif
+#ifndef GID_NOGROUP
 #define GID_NOGROUP 65534
+#endif
 
 extern int        yy_flex_debug;
 static int        _dict_daemon;
@@ -93,7 +97,7 @@ const char *dict_format_time( double t )
 
 static void reaper( int dummy )
 {
-#if defined(__sparc__) && defined(__svr4__)
+#if defined(__osf__) || (defined(__sparc__) && defined(__svr4__))
    int        status;
 #else
    union wait status;
@@ -378,7 +382,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.40 1999/12/22 11:49:56 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.41 1999/12/22 13:22:10 faith Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;

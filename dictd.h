@@ -1,7 +1,7 @@
 /* dictd.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Sun Jan 25 19:25:54 1998 by faith@acm.org
- * Copyright 1994, 1995, 1996, 1997, 1998 Rickard E. Faith (faith@acm.org)
+ * Revised: Wed Dec 22 08:16:37 1999 by faith@acm.org
+ * Copyright 1994, 1995, 1996, 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,6 +34,9 @@
 #include <netinet/in.h>
 #include <signal.h>
 #include <sys/utsname.h>
+#ifdef __osf__
+#define _XOPEN_SOURCE_EXTENDED
+#endif
 #include <sys/wait.h>
 
 
