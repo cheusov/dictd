@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: plugin.c,v 1.3 2003/08/01 11:57:10 cheusov Exp $
+ * $Id: plugin.c,v 1.4 2003/08/06 16:27:14 cheusov Exp $
  * 
  */
 
@@ -158,7 +158,9 @@ static char *dict_plugin_data (const dictDatabase *db, const dictWord *dw)
    return p;
 }
 
-static int plugin_initdata_set_data (
+/* set data fields from 00-database-plugin-data entry */
+/* return a number of inserted items */
+static int plugin_initdata_set_data_file (
    dictPluginData *data, int data_size,
    const dictDatabase *db)
 {
@@ -166,9 +168,6 @@ static int plugin_initdata_set_data (
    int ret = 0;
    lst_List list;
    dictWord *dw;
-
-   if (!db -> index)
-      return 0;
 
    if (data_size <= 0)
       err_fatal (__FUNCTION__, "invalid initial array size");
@@ -197,6 +196,39 @@ static int plugin_initdata_set_data (
    lst_destroy (list);
 
    return 1;
+}
+
+/* set data fields from db -> plugin_data */
+/* return a number of inserted items */
+static int plugin_initdata_set_data_array (
+   dictPluginData *data, int data_size,
+   const dictDatabase *db)
+{
+   if (data_size <= 0)
+      err_fatal (__FUNCTION__, "invalid initial array size");
+
+   if (db -> plugin_data){
+      data [0].id   = DICT_PLUGIN_INITDATA_DICT;
+      data [0].data = xstrdup (db -> plugin_data);
+      data [0].size = -1;
+
+      return 1;
+   }else{
+      return 0;
+   }
+}
+
+/* return a number of inserted items */
+static int plugin_initdata_set_data (
+   dictPluginData *data, int data_size,
+   const dictDatabase *db)
+{
+   if (db -> plugin_data)
+      return plugin_initdata_set_data_array (data, data_size, db);
+   else if (db -> index)
+      return plugin_initdata_set_data_file (data, data_size, db);
+   else
+      return 0;
 }
 
 static int plugin_initdata_set_dbnames (dictPluginData *data, int data_size)
@@ -457,54 +489,49 @@ int dict_plugin_init (dictDatabase *db)
 {
    int ret = 0;
    lst_List list;
-   const char *plugin_filename;
+   const char *plugin_filename = NULL;
    dictWord *dw;
 
    dictPluginData init_data [3000];
-   int init_data_size;
+   int init_data_size = 0;
 
-   init_data_size = plugin_initdata_set (
-      init_data, sizeof (init_data)/sizeof (init_data [0]),
-      db);
+   if (db -> pluginFilename){
+      plugin_filename = db -> pluginFilename;
+   }else if (db -> index){
 
-   if (db -> plugin_db){
-      init_data [init_data_size].id   = DICT_PLUGIN_INITDATA_DICT;
-      init_data [init_data_size].data = db -> plugin_data;
-      init_data [init_data_size].size = -1;
+      list = lst_create ();
 
-      db -> plugin = create_plugin (
-	 db -> pluginFilename,
-	 init_data, init_data_size + 1);
-   }else{
-      if (db -> index){
-	 list = lst_create ();
+      ret = dict_search_database_ (list, DICT_ENTRY_PLUGIN, db, DICT_EXACT);
+      switch (ret){
+      case 1: case 2:
+	 dw = (dictWord *) lst_pop (list);
 
-	 ret = dict_search_database_ (list, DICT_ENTRY_PLUGIN, db, DICT_EXACT);
-	 switch (ret){
-	 case 1: case 2:
-	    dw = (dictWord *) lst_pop (list);
+	 plugin_filename = dict_plugin_filename (db, dw);
 
-	    plugin_filename = dict_plugin_filename (db, dw);
+	 dict_destroy_datum (dw);
+	 if (2 == ret)
+	    dict_destroy_datum (lst_pop (list));
 
-	    dict_destroy_datum (dw);
-	    if (2 == ret)
-	       dict_destroy_datum (lst_pop (list));
-
-	    db -> plugin = create_plugin (
-	       plugin_filename, init_data, init_data_size);
-
-	    break;
-	 case 0:
-	    break;
-	 default:
-	    err_internal( __FUNCTION__, "Corrupted .index file'\n" );
-	 }
-
-	 lst_destroy (list);
+	 break;
+      case 0:
+	 break;
+      default:
+	 err_internal( __FUNCTION__, "Corrupted .index file'\n" );
       }
+
+      lst_destroy (list);
    }
 
-   plugin_init_data_free (init_data, init_data_size);
+   if (plugin_filename){
+      init_data_size = plugin_initdata_set (
+	 init_data, sizeof (init_data)/sizeof (init_data [0]),
+	 db);
+
+      db -> plugin = create_plugin (
+	 plugin_filename, init_data, init_data_size);
+
+      plugin_init_data_free (init_data, init_data_size);
+   }
 
    return 0;
 }
