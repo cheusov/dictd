@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.112 2004/05/30 12:46:06 cheusov Exp $
+ * $Id: dictd.c,v 1.113 2004/05/30 15:55:05 cheusov Exp $
  * 
  */
 
@@ -143,6 +143,17 @@ const char *dict_format_time( double t )
    return this;
 }
 
+static int waitpid__exit_status (int status)
+{
+   if (WIFEXITED(status)){
+      return WEXITSTATUS(status);
+   }else if (WIFSIGNALED(status)){
+      return 128 + WTERMSIG(status);
+   }else{
+      return -1;
+   }
+}
+
 static void reaper( int dummy )
 {
 #if 0
@@ -156,9 +167,10 @@ static void reaper( int dummy )
       ++_dict_reaps;
       
       if (flg_test(LOG_SERVER))
-         log_info( ":I: Reaped %d%s\n",
+         log_info( ":I: Reaped %d%s, exit status %i\n",
                    pid,
-                   _dict_daemon ? " IN CHILD": "" );
+                   _dict_daemon ? " IN CHILD": "",
+		   waitpid__exit_status (status));
    }
 }
 
@@ -915,7 +927,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.112 2004/05/30 12:46:06 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.113 2004/05/30 15:55:05 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1254,6 +1266,90 @@ static void dict_test (
    dict_destroy_list (l);
 }
 
+static void dict_test_word (const char *word, int strategy)
+{
+   dict_config_print( NULL, DictConfig );
+   dict_init_databases( DictConfig );
+
+   dict_make_dbs_available (DictConfig);
+
+   if (!idle_mode){
+      dict_test (word, strategy);
+
+      if (!nooutput_mode){
+	 fprintf( stderr, "%d comparisons\n", _dict_comparisons );
+      }
+   }
+
+   dict_close_databases (DictConfig);
+
+   destroy ();
+
+   exit( 0 );
+}
+
+static void dict_test_file (const char *filename, int strategy)
+{
+   FILE         *str;
+   char         buf[1024], *pt;
+   int          words = 0;
+   int                word_len;
+
+   if (!(str = fopen(filename,"r")))
+      err_fatal_errno( "Cannot open \"%s\" for read\n", filename );
+
+   dict_config_print( NULL, DictConfig );
+   dict_init_databases( DictConfig );
+   dict_make_dbs_available (DictConfig);
+
+   while (fgets(buf,1024,str)) {
+      word_len = strlen( buf );
+      if (word_len > 0){
+	 if ('\n' == buf [word_len - 1]){
+	    buf [word_len - 1] = '\0';
+	 }
+      }
+
+      if ((pt = strchr(buf, '\t')))
+	 *pt = '\0'; /* stop at tab */
+
+      if (buf[0]){
+	 ++words;
+
+	 if (!idle_mode){
+	    dict_test (buf, strategy);
+	 }
+      }
+
+      if (words && !(words % 1000)){
+	 if (!nooutput_mode){
+	    fprintf(
+	       stderr,
+	       "%d comparisons, %d words\n", _dict_comparisons, words );
+	 }
+      }
+   }
+
+   if (!nooutput_mode){
+      fprintf(
+	 stderr,
+	 "%d comparisons, %d words\n", _dict_comparisons, words );
+   }
+
+   fclose( str);
+
+   dict_close_databases (DictConfig);
+
+   destroy ();
+
+   exit(0);
+/* Comparisons:
+   P5/133
+   1878064 comparisons, 113955 words
+   39:18.72u 1.480s 55:20.27 71%
+*/
+}
+
 int main( int argc, char **argv, char **envp )
 {
    int                childSocket;
@@ -1261,7 +1357,6 @@ int main( int argc, char **argv, char **envp )
    struct sockaddr_in csin;
    int                c;
    time_t             startTime;
-   int                word_len;
    int                alen         = sizeof(csin);
    const char         *service     = DICT_DEFAULT_SERVICE;
    int                detach       = 1;
@@ -1476,86 +1571,13 @@ int main( int argc, char **argv, char **envp )
 
 
    if (testWord) {		/* stand-alone test mode */
-      dict_config_print( NULL, DictConfig );
-      dict_init_databases( DictConfig );
-
-      dict_make_dbs_available (DictConfig);
-
-      if (!idle_mode){
-	 dict_test (testWord, strategy);
-
-	 if (!nooutput_mode){
-	    fprintf( stderr, "%d comparisons\n", _dict_comparisons );
-	 }
-      }
-
-      dict_close_databases (DictConfig);
-
-      destroy ();
-
-      exit( 0 );
+      dict_test_word (testWord, strategy);
+      abort (); /* this should not happen */
    }
 
    if (testFile) {
-      FILE         *str;
-      char         buf[1024], *pt;
-      int          words = 0;
-
-      if (!(str = fopen(testFile,"r")))
-	 err_fatal_errno( "Cannot open \"%s\" for read\n", testFile );
-
-      dict_config_print( NULL, DictConfig );
-      dict_init_databases( DictConfig );
-      dict_make_dbs_available (DictConfig);
-
-      while (fgets(buf,1024,str)) {
-         word_len = strlen( buf );
-         if (word_len > 0){
-            if ('\n' == buf [word_len - 1]){
-               buf [word_len - 1] = '\0';
-            }
-         }
-
-         if ((pt = strchr(buf, '\t')))
-	    *pt = '\0'; /* stop at tab */
-
-         if (buf[0]){
-	    ++words;
-
-	    if (!idle_mode){
-	       dict_test (buf, strategy);
-	    }
-         }
-
-         if (words && !(words % 1000)){
-	    if (!nooutput_mode){
-	       fprintf(
-		  stderr,
-		  "%d comparisons, %d words\n", _dict_comparisons, words );
-	    }
-	 }
-      }
-
-      if (!nooutput_mode){
-	 fprintf(
-	    stderr,
-	    "%d comparisons, %d words\n", _dict_comparisons, words );
-      }
-
-      fclose( str);
-
-      dict_close_databases (DictConfig);
-
-      destroy ();
-
-      exit(0);
-      /* Comparisons:
-	 P5/133
-	 1878064 comparisons, 113955 words
-	 39:18.72u 1.480s 55:20.27 71%
-	 */
-
-	
+      dict_test_file (testFile, strategy);
+      abort (); /* this should not happen */
    }
 
    setsig(SIGCHLD, reaper, SA_RESTART);
