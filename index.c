@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.33 2002/09/16 12:48:39 cheusov Exp $
+ * $Id: index.c,v 1.34 2002/09/17 06:04:57 cheusov Exp $
  * 
  */
 
@@ -1250,7 +1250,7 @@ static int dict_search_database_ (
 	 dw = xmalloc (sizeof (dictWord));
 	 memset (dw, 0, sizeof (dictWord));
 	 dw -> database = database;
-	 dw -> def      = xstrdup (utf8_err_msg);
+	 dw -> def      = utf8_err_msg;
 	 dw -> def_size = -1;
 
 	 lst_append (l, dw);
