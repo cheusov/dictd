@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.60 2003/03/03 17:24:30 cheusov Exp $
+ * $Id: index.c,v 1.61 2003/03/09 17:06:16 cheusov Exp $
  * 
  */
 
@@ -1425,7 +1425,7 @@ static int dict_search_plugin (
 
    return 0;
 }
-#endif
+#endif /* USE_PLUGIN */
 
 static const char *utf8_err_msg = "\
 error: The request is not a valid UTF-8 string";
@@ -1529,6 +1529,7 @@ static int dict_search_database_ (
    }
 }
 
+#ifdef USE_PLUGIN
 /* reads data without headword 00-... */
 static char *dict_plugin_data (const dictDatabase *db, const dictWord *dw)
 {
@@ -1712,6 +1713,8 @@ static void plugin_init_data_free (
    }
 }
 
+#endif /* USE_PLUGIN */
+
 /*
   returns a number of matches ( >= 0 ) or
   negative value for invalid UTF-8 string
@@ -1726,7 +1729,9 @@ int dict_search (
    int *extra_data_size)
 {
    int count = 0;
+#ifdef USE_PLUGIN
    int res = 0;
+#endif
    dictWord *dw;
 
    assert (word);
@@ -1795,6 +1800,7 @@ int dict_search (
    return count;
 }
 
+#ifdef USE_PLUGIN
 /* Reads plugin's file name from .dict file */
 /* do not free() returned value*/
 static char *dict_plugin_filename (
@@ -1842,6 +1848,7 @@ static char *dict_plugin_filename (
 
    return filename;
 }
+#endif /* USE_PLUGIN */
 
 dictIndex *dict_index_open(
    const char *filename,

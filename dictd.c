@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.77 2003/03/03 17:44:36 cheusov Exp $
+ * $Id: dictd.c,v 1.78 2003/03/09 17:06:15 cheusov Exp $
  * 
  */
 
@@ -560,6 +560,7 @@ static int init_database( const void *datum )
    dictDatabase *db = (dictDatabase *)datum;
 
    PRINTF (DBG_INIT, (":I: Initializing '%s'\n", db->databaseName));
+
    PRINTF (DBG_INIT, (":I:   Opening indices\n"));
 
    db->index        = dict_index_open( db->indexFilename, 1, 0, 0 );
@@ -809,7 +810,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.77 2003/03/03 17:44:36 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.78 2003/03/09 17:06:15 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1025,6 +1026,13 @@ static void sanity(const char *confFile)
 	       e->databaseName);
 	    ++fail;
 	 }
+#ifndef USE_PLUGIN
+	 if (e -> plugin_db){
+	    log_info (
+	       ":E: plugin support was disabled in compile time\n");
+	    ++fail;
+	 }
+#endif
       }
    }
    if (fail) {
