@@ -1,7 +1,7 @@
 /* dictd.h -- Header file for dict program
- * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Wed Dec 22 08:16:37 1999 by faith@acm.org
- * Copyright 1994, 1995, 1996, 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
+ * Created: Fri Dec  2 20:01:18 1994 by faith@dict
+ * Revised: Wed Nov  8 05:57:21 2000 by faith@dict.org
+ * Copyright 1994-2000 Rickard E. Faith (faith@dict.org)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,7 +38,7 @@
 #define _XOPEN_SOURCE_EXTENDED
 #endif
 #include <sys/wait.h>
-
+#include <grp.h>
 
 				/* Configurable things */
 

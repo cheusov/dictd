@@ -1,10 +1,10 @@
 /* dictd.c -- 
- * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Wed Dec 22 08:12:45 1999 by faith@acm.org
- * Copyright 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
+ * Created: Fri Feb 21 20:09:09 1997 by faith@dict.org
+ * Revised: Wed Nov  8 05:57:21 2000 by faith@dict.org
+ * Copyright 1997-2000 Rickard E. Faith (faith@dict.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.41 1999/12/22 13:22:10 faith Exp $
+ * $Id: dictd.c,v 1.42 2000/11/08 11:00:45 faith Exp $
  * 
  */
 
@@ -60,7 +60,7 @@ void dict_setproctitle( const char *format, ... )
       err_fatal( __FUNCTION__, "buffer overflow (%d)\n", len );
    buf[ MIN(_dict_argvlen,MAXPROCTITLE) - 1 ] = '\0';
    strcpy( _dict_argvstart, buf );
-   memset( _dict_argvstart+len, ' ', _dict_argvlen-len );
+   memset( _dict_argvstart+len, 0, _dict_argvlen-len );
 }
 
 const char *dict_format_time( double t )
@@ -382,7 +382,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.41 1999/12/22 13:22:10 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.42 2000/11/08 11:00:45 faith Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -478,6 +478,7 @@ static void release_root_privileges( void )
 {
    if (geteuid() == 0) {
       setgid(GID_NOGROUP);
+      initgroups("nobody", GID_NOGROUP);
       setuid(UID_NOBODY);
    }
 }

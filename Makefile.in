@@ -1,6 +1,6 @@
 # Makefile.in -- Makefile for dict
 # Created: Wed Apr 24 14:14:09 1996 by faith@dict.org
-# Revised: Mon May 22 16:19:37 2000 by faith@dict.org
+# Revised: Wed Nov  8 05:58:18 2000 by faith@dict.org
 # Copyright 1996, 1997, 1998, 1999, 2000 Rickard E. Faith (faith@dict.org)
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,12 +17,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.41 2000/05/29 10:36:59 faith Exp $
+# $Id: Makefile.in,v 1.42 2000/11/08 11:00:45 faith Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
 # Numbers are for the original author(s) only.
-DICT_VERSION=1.5.1
+DICT_VERSION=1.5.2
 
 ifneq (,)
 This makefile requires GNU Make.
