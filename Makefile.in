@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.48 2002/08/05 11:16:52 cheusov Exp $
+# $Id: Makefile.in,v 1.49 2002/08/05 11:45:06 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -221,7 +221,7 @@ distclean: recursive-clean
 	done
 	-rm -f regex/regex.h
 	-rm -f config.h config.cache config.status stamp-h.in stamp-h
-	-rm -f Makefile
+	-rm -f Makefile doc/Makefile
 
 tags:
 	etags *.[ch]
