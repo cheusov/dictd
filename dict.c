@@ -1,10 +1,10 @@
 /* dict.c -- 
  * Created: Fri Mar 28 19:16:29 1997 by faith@cs.unc.edu
- * Revised: Tue Jul  8 23:48:14 1997 by faith@acm.org
+ * Revised: Fri Jul 11 09:53:41 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dict.c,v 1.8 1997/07/09 04:00:57 faith Exp $
+ * $Id: dict.c,v 1.9 1997/07/11 14:07:11 faith Exp $
  * 
  */
 
@@ -37,6 +37,7 @@ extern int        yy_flex_debug;
 struct cmd {
    int        command;
    int        sent;
+   int        flag;
    const char *host;
    const char *service;
    const char *database;
@@ -47,8 +48,10 @@ struct cmd {
    const char *key;
 };
 
-lst_List cmd_list;
-int      client_defines = 0;
+lst_List      cmd_list;
+unsigned long client_defines;
+unsigned long client_bytes;
+unsigned long client_pipesize = PIPESIZE;
 
 struct def {
    lst_List   data;
@@ -99,6 +102,7 @@ static lst_List client_read_text( int s )
    int      len;
 
    while ((len = net_read(s, line, BUFFERSIZE)) >= 0) {
+      client_bytes += len;
       PRINTF(DBG_RAW,("* Text: %s\n",line));
       if (line[0] == '.' && line[1] == '\0') break;
       if (len >= 2 && line[0] == '.' && line[1] == '.') 
@@ -110,18 +114,21 @@ static lst_List client_read_text( int s )
    return l;
 }
 
-static void client_print_text( lst_List l )
+static void client_print_text( lst_List l, int html )
 {
    lst_Position p;
    const char   *e;
 
    if (!l) return;
+   if (html) printf( "<PRE>\n" );
    LST_ITERATE(l,p,e) {
-      printf( "  %s\n", e );
+      if (html) printf( "%s\n", e );
+      else      printf( "  %s\n", e );
    }
+   if (html) printf( "</PRE>\n" );
 }
 
-static void client_print_matches( lst_List l )
+static void client_print_matches( lst_List l, int html, int flag )
 {
    lst_Position p;
    const char   *e;
@@ -131,8 +138,18 @@ static void client_print_matches( lst_List l )
    static int   first = 1;
    int          pos = 0;
    int          len;
+   int          count;
 
    if (!l) return;
+   count = lst_length(l);
+
+   if (flag) {
+      if (html) printf( "<H2>" );
+      printf( "%d match%s found", count, count == 1 ? "" : "es" );
+      if (html) printf( "</H2>\n" );
+      else      printf( "\n" );
+   }
+   
    LST_ITERATE(l,p,e) {
       a = arg_argify( e, 0 );
       if (arg_count(a) != 2)
@@ -141,12 +158,14 @@ static void client_print_matches( lst_List l )
       if ((db = str_find(arg_get(a,0))) != prev) {
 	 if (!first) printf( "\n" );
 	 first = 0;
-	 printf( "From %s:", db );
+	 if (html) printf( "<P><B>" );
+	 printf( "%s:", db );
+	 if (html) printf( "</B>" );
 	 prev = db;
 	 pos = 6 + strlen(db);
       }
       len = strlen(arg_get(a,1));
-      if (pos + len + 2 > 70) {
+      if (pos + len + 4 > 70) {
 	 printf( "\n" );
 	 pos = 0;
       }
@@ -161,13 +180,14 @@ static void client_print_matches( lst_List l )
    printf( "\n" );
 }
 
-static void client_print_listed( lst_List l )
+static void client_print_listed( lst_List l, int html )
 {
    lst_Position p;
    const char   *e;
    arg_List     a;
 
    if (!l) return;
+   if (html) printf( "<PRE>\n" );
    LST_ITERATE(l,p,e) {
       a = arg_argify( e, 0 );
       if (arg_count(a) != 2)
@@ -175,6 +195,7 @@ static void client_print_listed( lst_List l )
 		       "SHOW command didn't return 2 args: %s\n", e );
       printf( "  %-10.10s %s\n", arg_get(a,0), arg_get(a,1) );
    }
+   if (html) printf( "</PRE>\n" );
 }
 
 static void client_free_text( lst_List l )
@@ -203,9 +224,11 @@ static int client_read_status( int s,
    char        **argv;
    int         status;
    char        *p;
+   int         len;
 
-   if (net_read( s, buf, BUFFERSIZE ) < 0)
+   if ((len = net_read( s, buf, BUFFERSIZE )) < 0)
       err_fatal_errno( __FUNCTION__, "Error reading from socket\n" );
+   client_bytes += len;
    PRINTF(DBG_RAW,("* Read: %s\n",buf));
 
    if ((status = atoi(buf)) < 100) status = 600;
@@ -264,6 +287,7 @@ static struct cmd *make_command( int command, ... )
    case CMD_DEFPRINT:
       c->database = va_arg( ap, const char *);
       c->word     = va_arg( ap, const char *);
+      c->flag     = va_arg( ap, int );
       break;
    case CMD_CONNECT:
       c->host     = va_arg( ap, const char *);
@@ -332,7 +356,7 @@ static void prepend_command( struct cmd *c )
 static void request( void )
 {
    char              b[BUFFERSIZE];
-   char              buffer[PIPESIZE];
+   char              *buffer = alloca( client_pipesize );
    char              *p = buffer;
    lst_Position      pos;
    struct cmd        *c = NULL;
@@ -342,12 +366,17 @@ static void request( void )
    int               i;
    int               len;
    int               total = 0;
+   int               count = 0;
 
    *p = '\0';
    LST_ITERATE(cmd_list,pos,c) {
       b[0] = '\0';
       PRINTF(DBG_PIPE,("* Looking at request %d\n",c->command));
-      if (c->sent) return;	/* FIXME!  Keep sending deeper things? */
+      if (c->sent) {
+	 PRINTF(DBG_PIPE,("* Skipping\n"));
+	 return;	/* FIXME!  Keep sending deeper things? */
+      }
+      ++count;
       switch( c->command) {
       case CMD_PRINT:                                                 break;
       case CMD_DEFPRINT:                                              break;
@@ -382,7 +411,16 @@ static void request( void )
 	 err_internal( __FUNCTION__, "Unknown command %d\n", c->command );
       }
       len = strlen(b);
-      if (total + len + 3 > PIPESIZE) break;
+      if (total + len + 3 > client_pipesize) {
+	 if (count == 1 && p == buffer && total == 0) {
+				/* The buffer is too small, but we have to
+				   send something...  */
+	    PRINTF(DBG_PIPE,("* Reallocating buffer to %d bytes\n",len+1));
+	    p = buffer = alloca( len + 1 );
+	 } else {
+	    break;
+	 }
+      }
       strcpy( p, b );
       p += len;
       total += len;
@@ -405,23 +443,24 @@ end:				/* Ready to send buffer, but are we
    }
    if ((len = strlen(buffer))) {
       char *pt;
-      
+
+      PRINTF(DBG_PIPE,("* Sending %d commands (%d bytes)\n",count,len));
       PRINTF(DBG_RAW,("* Sent/%d: %s",c->command,buffer));
       pt = alloca(2*len);
       client_crlf(pt,buffer);
       net_write( cmd_reply.s, pt, strlen(pt) );
    } else {
+      PRINTF(DBG_PIPE,("* Sending nothing\n"));
       PRINTF(DBG_RAW,("* Send/%d\n",c->command)); 
    }
 }
 
-static void process( void )
+static void process( int html )
 {
    struct cmd *c;
    int        expected;
    const char *message = NULL;
    int        i;
-   static int first = 1;
    int        *listed;
    
    while ((c = lst_top( cmd_list ))) {
@@ -433,9 +472,12 @@ static void process( void )
 	 if (!cmd_reply.data) {
 	    printf( "Error, status %d\n", cmd_reply.retcode );
 	 } else {
-	    if (cmd_reply.matches)     client_print_matches( cmd_reply.data );
-	    else if (cmd_reply.listed) client_print_listed( cmd_reply.data );
-	    else                       client_print_text( cmd_reply.data );
+	    if (cmd_reply.matches)
+	       client_print_matches( cmd_reply.data, html, 1 );
+	    else if (cmd_reply.listed)
+	       client_print_listed( cmd_reply.data, html );
+	    else
+	       client_print_text( cmd_reply.data, html );
 	    client_free_text( cmd_reply.data );
 	    cmd_reply.data = NULL;
 	    cmd_reply.matches = 0;
@@ -444,36 +486,52 @@ static void process( void )
 	 break;
       case CMD_DEFPRINT:
 	 if (cmd_reply.count) {
+	    if (c->flag) {
+	       if (html) printf( "<H2>" );
+	       printf( "%d definition%s found",
+		       cmd_reply.count,
+		       cmd_reply.count == 1 ? "" : "s" );
+	       if (html) printf( "</H2>\n" );
+	       else      printf( "\n" );
+	    }
 	    for (i = 0; i < cmd_reply.count; i++) {
-	       if (!first) printf( "\n\n" );
-	       first = 0;
+	       if (html) printf( "<HR><H3>Source: " );
+	       else      printf( "\nFrom " );
 	       if (cmd_reply.defs[i].dbname) {
-		  if (cmd_reply.defs[i].db)
-		     printf( "From %s (%s):\n\n",
+		  if (cmd_reply.defs[i].db) {
+		     printf( "%s (%s)",
 			     cmd_reply.defs[i].dbname, cmd_reply.defs[i].db );
-		  else 
-		     printf( "From %s:\n\n", cmd_reply.defs[i].dbname );
+		  } else {
+		     printf( "%s", cmd_reply.defs[i].dbname );
+		  }
 	       } else if (cmd_reply.defs[i].db) {
-		  printf( "From %s:\n\n", cmd_reply.defs[i].db );
-	       } else
-		  printf( "From an unknown database:\n\n" );
-	       client_print_text( cmd_reply.defs[i].data );
+		  printf( "%s", cmd_reply.defs[i].db );
+	       } else {
+		  printf( "unknown" );
+	       }
+	       if (html) printf( "</H3>\n" );
+	       else      printf( ":\n\n" );
+	       client_print_text( cmd_reply.defs[i].data, html );
 	       client_free_text( cmd_reply.defs[i].data );
 	       cmd_reply.defs[i].data = NULL;
 	    }
 	    xfree( cmd_reply.defs );
 	    cmd_reply.count = 0;
 	 } else if (cmd_reply.matches) {
-	    printf( "No definitions found in %s for \"%s\","
-		    " perhaps you mean:\n",
-		    c->database, c->word );
-	    client_print_matches( cmd_reply.data );
+	    if (html) printf( "<H2>" );
+	    printf( "No definitions found for \"%s\","
+		    " perhaps you mean:",
+		    c->word );
+	    if (html) printf( "</H2>\n" );
+	    else      printf( "\n" );
+	    client_print_matches( cmd_reply.data, html, 0 );
 	    client_free_text( cmd_reply.data );
 	    cmd_reply.data = NULL;
 	    cmd_reply.matches = 0;
 	 } else {
-	    printf( "No definitions found in %s for \"%s\"\n",
-		    c->database, c->word );
+	    if (html) printf( "<H2>" );
+	    printf( "No definitions found for \"%s\"\n", c->word );
+	    if (html) printf( "</H2>\n" );
 	 }
 	 expected = cmd_reply.retcode;
 	 break;
@@ -641,19 +699,21 @@ static void process( void )
 				line );
 	       prepend_command( make_command( CMD_DEFPRINT,
 					      str_find(arg_get(a,0)),
-					      str_copy(arg_get(a,1)) ) );
+					      str_copy(arg_get(a,1)),
+					      0 ) );
 	       prepend_command( make_command( CMD_DEFINE,
 					      str_find(arg_get(a,0)),
-					      str_copy(arg_get(a,1)) ) );
+					      str_copy(arg_get(a,1)),
+					      0 ) );
 	       arg_destroy(a);
 	    }
 	    client_free_text( cmd_reply.data );
 	    cmd_reply.matches = 0;
 	 } else {
-	    printf( "No matches found in %s for \"%s\" using %s\n",
-		    c->database,
-		    c->word,
-		    c->strategy );
+	    if (html) printf( "<H2>" );
+	    printf( "No matches found for \"%s\"\n", c->word );
+	    if (html) printf( "</H2>\n" );
+	    else      printf( "\n" );
 	 }
 	 expected = cmd_reply.retcode;
 	 break;
@@ -715,20 +775,28 @@ static void setsig( int sig, void (*f)(int) )
 static const char *id_string( const char *id )
 {
    static char buffer[BUFFERSIZE];
-   arg_List a = arg_argify( id, 0 );
+   arg_List    a;
+   char        *pt, *dot;
 
-   if (arg_count(a) >= 2)
-      sprintf( buffer, "%s", arg_get( a, 2 ) );
-   else
-      buffer[0] = '\0';
+   sprintf( buffer, "%s", DICT_VERSION );
+   pt = buffer + strlen( buffer );
+
+   a = arg_argify( id, 0 );
+   if (arg_count(a) >= 2) {
+      if ((dot = strchr( arg_get(a, 2), '.' )))
+	 sprintf( pt, ".%s", dot+1 );
+      else
+	 sprintf( pt, ".%s", arg_get( a, 2 ) );
+   }
    arg_destroy( a );
+   
    return buffer;
 }
 
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.8 1997/07/09 04:00:57 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.9 1997/07/11 14:07:11 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -780,6 +848,7 @@ static void help( void )
       "-d --database <dbname>  select a database to search",
       "-m --match              match instead of define",
       "-s --strategy           strategy for matching or defining",
+      "-c --nocorrect          disable attempted spelling correction",
       "-D --dbs                show available databases",
       "-S --strats             show available search strategies",
       "-H --serverhelp         show server help",
@@ -794,6 +863,8 @@ static void help( void )
       "-v --verbose            be verbose",
       "-r --raw                trace raw transaction",
       "   --debug <flag>       set debugging flag",
+      "   --html               output HTML format",
+      "   --pipesize <size>    specify buffer size for pipelining (256)",
       0 };
    const char        **p = help_msg;
 
@@ -805,10 +876,12 @@ int main( int argc, char **argv )
 {
    int                c;
    const char         *service   = "2628";
-   const char         *host      = "localhost";
+   const char         *host      = "dict.org";
    const char         *database  = "*";
    const char         *strategy  = DEF_STRAT;
    int                doauth     = 1;
+   int                docorrect  = 1;
+   int                html       = 0;
    const char         *user      = NULL;
    const char         *key       = NULL;
    int                i;
@@ -827,6 +900,7 @@ int main( int argc, char **argv )
       { "server",     0, 0, 'I' },
       { "match",      0, 0, 'm' },
       { "strategy",   1, 0, 's' },
+      { "nocorrect",  0, 0, 'c' },
       { "dbs",        0, 0, 'D' },
       { "strats",     0, 0, 'S' },
       { "serverhelp", 0, 0, 'H' },
@@ -839,6 +913,8 @@ int main( int argc, char **argv )
       { "verbose",    0, 0, 'v' },
       { "raw",        0, 0, 'r' },
       { "debug",      1, 0, 502 },
+      { "html",       0, 0, 503 },
+      { "pipesize",   1, 0, 504 },
       { 0,            0, 0,  0  }
    };
 
@@ -853,7 +929,8 @@ int main( int argc, char **argv )
    dbg_register( DBG_TIME,    "time" );
 
    while ((c = getopt_long( argc, argv,
-			    "h:p:d:i:Ims:DSHak:VLvr", longopts, NULL )) != EOF)
+			    "h:p:d:i:Ims:DSHack:VLvr",
+			    longopts, NULL )) != EOF)
       switch (c) {
       case 'h': host = optarg;                        break;
       case 'p': service = optarg;                     break;
@@ -865,6 +942,7 @@ int main( int argc, char **argv )
       case 'D':                    function = DBS;    break;
       case 'S':                    function = STRATS; break;
       case 'H':                    function = HELP;   break;
+      case 'c': docorrect = 0;                        break;
       case 'a': doauth = 0;                           break;
       case 'u': user = optarg;                        break;
       case 'k': key = optarg;                         break;
@@ -872,11 +950,16 @@ int main( int argc, char **argv )
       case 'L': license(); exit(1);                   break;
       case 'v': dbg_set( "verbose" );                 break;
       case 'r': dbg_set( "raw" );                     break;
+      case 504: client_pipesize = atoi(optarg);       break;
+      case 503: ++html;                               break;
       case 502: dbg_set( optarg );                    break;
       case 501:					      
       default:  help(); exit(1);                      break;
       }
 
+   if (client_pipesize < 0)       client_pipesize = 0;
+   if (client_pipesize > 1000000) client_pipesize = 1000000;
+   
 #if 0
    if (dbg_test(DBG_PARSE))     prs_set_debug(1);
    if (dbg_test(DBG_SCAN))      yy_flex_debug = 1;
@@ -936,8 +1019,9 @@ int main( int argc, char **argv )
       for (i = optind; i < argc; i++) {
 	 if (!strcmp(strategy, DEF_STRAT)) {
 	    append_command( make_command( CMD_DEFINE, database, argv[i] ) );
-	    append_command( make_command( CMD_SPELL, database, argv[i] ) );
-	    append_command( make_command( CMD_DEFPRINT, database, argv[i] ) );
+	    if (docorrect)
+	       append_command( make_command( CMD_SPELL, database, argv[i] ) );
+	    append_command( make_command( CMD_DEFPRINT, database, argv[i],1));
 	 } else {
 	    append_command( make_command( CMD_MATCH,
 					  database, strategy, argv[i] ) );
@@ -947,14 +1031,16 @@ int main( int argc, char **argv )
       }
    }
    append_command( make_command( CMD_CLOSE ) );
-   process();
+   process(html);
    
    if (dbg_test(DBG_TIME)) {
+      printf( "\n" );
       tim_stop("total");
       if (client_defines) {
 	 tim_stop("define");
 	 fprintf( stderr,
-		  "* %d definitions in %.2fr %.2fu %.2fs => %.1f d/sec\n",
+		  "* %ld definitions in %.2fr %.2fu %.2fs"
+		  " => %.1f d/sec\n",
 		  client_defines,
 		  tim_get_real( "define" ),
 		  tim_get_user( "define" ),
@@ -962,10 +1048,12 @@ int main( int argc, char **argv )
 		  client_defines / tim_get_real( "define" ) );
       }
       fprintf( stderr,
-	       "* total %.2fr %.2fu %.2fs\n",
+	       "* %ld bytes total in %.2fr %.2fu %.2fs => %.0f bps\n",
+	       client_bytes,
 	       tim_get_real( "total" ),
 	       tim_get_user( "total" ),
-	       tim_get_system( "total" ) );
+	       tim_get_system( "total" ),
+	       client_bytes / tim_get_real( "total" ) );
    }
    
    return 0;

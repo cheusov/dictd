@@ -1,6 +1,6 @@
 /* dictd.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Sun Jun 22 13:26:39 1997 by faith@acm.org
+ * Revised: Fri Jul 11 09:53:42 1997 by faith@acm.org
  * Copyright 1994, 1995, 1996, 1997 Rickard E. Faith (faith@acm.org)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,8 +38,6 @@
 
 
 				/* Configurable things */
-
-#define DICTD_VERSION            "1.0" /* if you modify it, add a LETTER */
 
 #define DICT_DEFAULT_SERVICE     "2628"
 #define DICT_QUEUE_DEPTH         10

@@ -1,6 +1,6 @@
 # Makefile.in -- Makefile for dict
 # Created: Wed Apr 24 14:14:09 1996 by faith@cs.unc.edu
-# Revised: Sun Jun 22 13:27:13 1997 by faith@acm.org
+# Revised: Fri Jul 11 10:00:49 1997 by faith@acm.org
 # Copyright 1996, 1997 Rickard E. Faith (faith@acm.org)
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.14 1997/06/23 11:05:20 faith Exp $
+# $Id: Makefile.in,v 1.15 1997/07/11 14:07:09 faith Exp $
 #
 
 ifneq (,)
@@ -29,7 +29,7 @@ endif
 srcdir=		@srcdir@
 VPATH=		@srcdir@
 prefix=		@prefix@
-subdirs=        @allsubdirs@ regex
+subdirs=        @allsubdirs@ regex doc
 exec_prefix=	@exec_prefix@
 man1_prefix=	$(prefix)/man/man1
 pid=            @piddir@/dictd.pid
@@ -116,6 +116,37 @@ servparse.c: servparse.y
 
 servparse.o: servparse.c $(HEADERS)
 	$(CC) -c $(XTRACFLAGS) $(CFLAGS) -Wno-implicit $<
+
+.PHONY: ChangeLog
+ChangeLog:
+	@(echo "***** Making new ChangeLog..."; \
+	rm -f ChangeLog; \
+	AWK=gawk rcs2log -i 2 \
+		| sed 's,/[^ ]*/libmaa/,libmaa/,g' > ChangeLog;)
+
+
+dist: ChangeLog
+	@( CVSROOT=`cat CVS/Root`; LIBMAACVSROOT=`cat libmaa/CVS/Root`\
+	export CVSROOT; \
+	export LIBMAACVSROOT; \
+	VERSION=$(DICT_VERSION) ; \
+	export VERSION; \
+	echo "***** Copying ChangeLog for dictd-$${VERSION}..."; \
+	cp ChangeLog /tmp; \
+	echo "***** Exporting files for dictd-$${VERSION}..."; \
+	cd /tmp; \
+	rm -rf /tmp/dictd-$${VERSION}; \
+	cvs -d $LIBMAACVSROOT export -fNd dictd$${VERSION} -r HEAD dictd; \
+	cd dictd-$${VERSION}; \
+	echo "***** Exporting files for libmaa..."; \
+	cvs export -fNd libmaa -r HEAD libmaa; \
+	make -f Makefile.conf; \
+	mv ../ChangeLog .; \
+	cd ..; \
+	echo "***** Taring and zipping dictd-$${VERSION}.tar.gz..."; \
+	tar cvvf dictd-$${VERSION}.tar dictd-$${VERSION}; \
+	gzip -9f dictd-$${VERSION}.tar; \
+	echo "***** Done making /tmp/dictd-$${VERSION}.tar.gz")
 
 .PHONY: clean distclean tags
 clean:

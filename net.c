@@ -1,10 +1,23 @@
 /* net.c -- 
  * Created: Fri Feb 21 20:58:10 1997 by faith@cs.unc.edu
- * Revised: Tue Jul  8 23:50:17 1997 by faith@acm.org
+ * Revised: Fri Jul 11 09:59:10 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
- * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: net.c,v 1.13 1997/07/09 04:01:02 faith Exp $
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 1, or (at your option) any
+ * later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 675 Mass Ave, Cambridge, MA 02139, USA.
+ * 
+ * $Id: net.c,v 1.14 1997/07/11 14:07:16 faith Exp $
  * 
  */
 

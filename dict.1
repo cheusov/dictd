@@ -1,6 +1,6 @@
 .\" dict.1 -- 
 .\" Created: Tue Jul  8 11:36:19 1997 by faith@acm.org
-.\" Revised: Tue Jul  8 22:47:47 1997 by faith@acm.org
+.\" Revised: Fri Jul 11 09:53:42 1997 by faith@acm.org
 .\" Copyright 1997 Rickard E. Faith (faith@acm.org)
 .\" 
 .\" Permission is granted to make and distribute verbatim copies of this
@@ -62,6 +62,11 @@ Specify a matching strategy.  By default, the server default match strategy
 is used.  This is usually "exact" for definitions, and some form of
 spelling-correction strategy for matches ("." from the DICT protocol).
 .TP
+.BR \-c " or " \-\-nocorrect
+Usually, if a definition is requested and the word cannot be found,
+spelling correction is requested from the server, and a list of possible
+words are provided.  This option disables the generation of this list.
+.TP
 .BR \-D " or " \-\-dbs
 Query the server and display a list of available databases.
 .TP
@@ -99,8 +104,21 @@ Display help information.
 .TP
 .BR -v " or " \-\-verbose
 Be verbose.
+.TP
 .BR -r " or " \-\-raw
 Be very verbose: show the raw client/server interaction.
+.TP
+.B \-\-html
+Generate HTML tags in the output.
+.TP
+.B \-\-pipesize
+Specify the buffer size for pipelineing commands.  The default is 256,
+which should be sufficient for general tasks and be below the MTU for most
+transport media.  Larger values may provide faster or slower throughput,
+depending on MTU.  If the buffer is too small, requests will be
+serialized.  Values less than 0 and greater than one million are silently
+changed to something more reasonable.
+.TP
 .BI \-\-debug " flag"
 Set a debugging flag.  Valid flags are:
 .RS

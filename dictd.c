@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Tue Jul  8 22:49:46 1997 by faith@acm.org
+ * Revised: Fri Jul 11 09:53:40 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.26 1997/07/09 04:00:59 faith Exp $
+ * $Id: dictd.c,v 1.27 1997/07/11 14:07:13 faith Exp $
  * 
  */
 
@@ -422,7 +422,7 @@ static const char *id_string( const char *id )
    arg_List    a;
    char        *pt, *dot;
 
-   sprintf( buffer, "%s", DICTD_VERSION );
+   sprintf( buffer, "%s", DICT_VERSION );
    pt = buffer + strlen( buffer );
 
    a = arg_argify( id, 0 );
@@ -441,7 +441,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.26 1997/07/09 04:00:59 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.27 1997/07/11 14:07:13 faith Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;

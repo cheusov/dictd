@@ -1,6 +1,6 @@
 /* dictzip.c -- 
  * Created: Tue Jul 16 12:45:41 1996 by faith@acm.org
- * Revised: Tue Jul  8 22:49:46 1997 by faith@acm.org
+ * Revised: Fri Jul 11 09:59:09 1997 by faith@acm.org
  * Copyright 1996, 1997 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictzip.c,v 1.11 1997/07/09 04:01:01 faith Exp $
+ * $Id: dictzip.c,v 1.12 1997/07/11 14:07:15 faith Exp $
  * 
  */
 
@@ -301,19 +301,31 @@ int dict_data_zip( const char *inFilename, const char *outFilename,
 static const char *id_string( const char *id )
 {
    static char buffer[BUFFERSIZE];
-   arg_List a = arg_argify( id, 0 );
+   arg_List    a;
+   char        *pt, *dot;
 
-   sprintf( buffer, "%s (%s)", arg_get( a, 2 ), arg_get( a, 3 ) );
+   sprintf( buffer, "%s", DICT_VERSION );
+   pt = buffer + strlen( buffer );
+
+   a = arg_argify( id, 0 );
+   if (arg_count(a) >= 2) {
+      if ((dot = strchr( arg_get(a, 2), '.' )))
+	 sprintf( pt, ".%s", dot+1 );
+      else
+	 sprintf( pt, ".%s", arg_get( a, 2 ) );
+   }
    arg_destroy( a );
+   
    return buffer;
 }
 
 static void banner( void )
 {
-   const char *id = "$Id: dictzip.c,v 1.11 1997/07/09 04:01:01 faith Exp $";
+   const char *id = "$Id: dictzip.c,v 1.12 1997/07/11 14:07:15 faith Exp $";
    
    fprintf( stderr, "%s %s\n", err_program_name(), id_string( id ) );
-   fprintf( stderr, "Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)\n" );
+   fprintf( stderr,
+	    "Copyright 1996,1997 Rickard E. Faith (faith@cs.unc.edu)\n" );
 }
 
 static void license( void )
