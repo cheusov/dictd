@@ -55,4 +55,5 @@ _____\n\
 "
 
 	cat
-} | dictfmt -c5 "$@" 2>/dev/null 1>&2
+} |
+dictfmt --without-header --without-url -c5 "$@"
