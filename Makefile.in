@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.84 2003/08/10 15:50:28 cheusov Exp $
+# $Id: Makefile.in,v 1.85 2003/08/11 15:54:22 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -84,7 +84,7 @@ DICTD_LDFLAGS=    @DICTD_LDFLAGS@
 EXES=	 	dict dictd dictzip dictfmt
 
 ifdef USE_PLUGIN
-	PLUGINS=    dictdplugin_judy.so
+	PLUGINS=    dictdplugin_judy.so 
 	LIBRARIES=  libdictdplugin.a
 	INCLUDES=   dictdplugin.h
 all             :: plugins
@@ -164,7 +164,7 @@ $(PLUGINS) dictdplugin_popen.so dictdplugin_exit.so : libdictdplugin.a @LIBOBJS@
 lib%.a : %.o
 	$(AR) rc $@ $^
 
-dictdplugin_judy.so : data.o str.o
+dictdplugin_judy.so : data.o str.o heap.o
 
 dictdplugin_judy.so : dictdplugin_judy.o
 	$(CC) $^ $(ALLLDFLAGS) -lJudy -shared -o $@

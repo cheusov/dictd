@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.10 2003/08/10 15:50:28 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.11 2003/08/11 15:54:22 cheusov Exp $
  * 
  */
 
@@ -42,147 +42,30 @@
 #define BOOL char
 #endif
 
-/*********************** HEAP *****************************/
-
-#define HEAP_ARRAY_SIZE 100000
-#define HEAP_LIMIT      500
-#define HEAP_MAGIC      711755
-
-typedef struct heap_struct {
-   char *ptr;
-
-   char *last;
-
-   int magic_num;
-   int allocated_bytes;
-   int allocation_count;
-} heap_s;
-
-static int heap_create (void **heap)
-{
-   heap_s *h;
-   assert (heap);
-
-   *heap = xmalloc (sizeof (heap_s));
-   h = (heap_s *) *heap;
-
-   h -> ptr              = xmalloc (HEAP_ARRAY_SIZE);
-   h -> allocated_bytes  = 0;
-   h -> magic_num        = HEAP_MAGIC;
-   h -> allocation_count = 0;
-
-   return 0;
-}
-
-static const char *heap_error (int err_code)
-{
-   assert (err_code); /* error codes are not defined yet */
-   return NULL;
-}
-
-static void heap_destroy (void **heap)
-{
-   heap_s *h;
-
-   assert (heap);
-   h = (heap_s *) *heap;
-
-   assert (h -> magic_num == HEAP_MAGIC);
-
-   xfree (h -> ptr);
-   xfree (h);
-
-   str_destroy ();
-
-   *heap = NULL;
-}
-
-static void * heap_alloc (void *heap, size_t size)
-{
-   heap_s *h = (heap_s *) heap;
-//   fprintf (stderr, "heap_alloc\n");
-
-   if (size >= HEAP_LIMIT || h -> allocated_bytes + size > HEAP_ARRAY_SIZE){
-      return xmalloc (size);
-   }else{
-//      fprintf (stderr, "heap alloc\n");
-
-      h -> last = h -> ptr + h -> allocated_bytes;
-      h -> allocated_bytes  += size;
-      h -> allocation_count += 1;
-
-      return h -> last;
-   }
-}
-
-static char * heap_strdup (void *heap, const char *s)
-{
-   size_t len = strlen (s);
-   char *p = (char *) heap_alloc (heap, len + 1);
-   memcpy (p, s, len + 1);
-   return p;
-}
-
-static void heap_free (void *heap, void *p)
-{
-   heap_s *h = (heap_s *) heap;
-
-//   fprintf (stderr, "heap_free\n");
-
-   if (!p){
-//      fprintf (stderr, "heap_free(NULL)\n");
-      return;
-   }
-
-   if ((char *) p >= h -> ptr && (char *) p < h -> ptr + HEAP_ARRAY_SIZE){
-//      fprintf (stderr, "heap free\n");
-
-      h -> allocation_count -= 1;
-
-      if (!h -> allocation_count){
-//	 fprintf (stderr, "heap destroied\n");
-	 h -> allocated_bytes = 0;
-      }
-
-      h -> last = NULL;
-   }else{
-      xfree (p);
-   }
-}
-
-static void * heap_realloc (void *heap, void *p, size_t size)
-{
-   heap_s *h = (heap_s *) heap;
-   char *new_p;
-
-   if (!p)
-      return heap_alloc (heap, size);
-
-   if ((char *) p >= h -> ptr && (char *) p < h -> ptr + HEAP_ARRAY_SIZE){
-      assert (h -> last == p);
-
-      if (h -> allocated_bytes + size > HEAP_ARRAY_SIZE){
-	 new_p = xmalloc (size);
-	 memcpy (new_p, (char *) p, (h -> ptr + h -> allocated_bytes) - (char *) p);
-	 h -> allocated_bytes = (char *) p - h -> ptr;
-	 h -> last = NULL;
-
-	 return new_p;
-      }else{
-	 h -> allocated_bytes  = ((char *) p - h -> ptr) + size;
-	 return p;
-      }
-   }else{
-      return xrealloc (p, size);
-   }
-}
-
 /**********************************************************/
+#define USE_INTERNAL_HEAP /* this may potentially be useful */
+
+#ifdef USE_INTERNAL_HEAP
+
+#include "heap.h"
+
+#else
+
+#define heap_create(heap, opts) (0);
+#define heap_error(err_code) (NULL)
+#define heap_destroy(heap) (0)
+#define heap_alloc(heap, size) (xmalloc (size))
+#define heap_strdup(heap, s) (xstrdup (s))
+#define heap_free(heap, p) (p ? xfree (p), NULL : NULL)
+#define heap_realloc(heap, p, size) (realloc (p, size))
+
+#endif
 
 typedef struct global_data_s {
    char m_err_msg  [BUFSIZE];
 
    void *m_heap;
+   void *m_heap2;
 
 //   char * m_res;
 //   int m_res_size;
@@ -266,11 +149,65 @@ static void global_data_destroy (global_data *d)
 //   fprintf (stderr, "destroying...\n");
    JudySLFreeArray (&d -> m_judy_array, 0);
    heap_destroy (&d -> m_heap);
+   heap_destroy (&d -> m_heap2);
 
    dict_data_close (d -> m_data);
+   str_destroy ();
 
    if (d)
       xfree (d);
+}
+
+/********************************************************************/
+static int const static_minus1_array [] = {
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+};
+
+static const int *alloc_minus1_array (int count)
+{
+   int *p;
+
+   if (count <= sizeof (static_minus1_array) / sizeof (int)){
+      return static_minus1_array;
+   }else{
+      p = xmalloc (count * sizeof (int));
+      memset (p, -1, count * sizeof (int));
+      return p;
+   }
+}
+
+static void free_minus1_array (int *p)
+{
+   if (p != static_minus1_array && p){
+      xfree (p);
+   }
 }
 
 /********************************************************************/
@@ -672,7 +609,13 @@ int dictdb_open (
    global_data *dict_data = global_data_create ();
 //   fprintf (stderr, "err_msg_init='%s'\n", dict_data -> m_err_msg);
 
-   err = heap_create (&dict_data -> m_heap);
+   err = heap_create (&dict_data -> m_heap, NULL);
+   if (err){
+      plugin_error (dict_data, heap_error (err));
+      return 1;
+   }
+
+   err = heap_create (&dict_data -> m_heap2, NULL);
    if (err){
       plugin_error (dict_data, heap_error (err));
       return 1;
@@ -702,9 +645,7 @@ int dictdb_open (
 	    if (-1 == len)
 	       len = strlen (init_data [i].data);
 
-	    buf = xmalloc (len + 1);
-	    strcpy (buf, init_data [i].data);
-	    buf [len] = 0;
+	    buf = xstrdup(init_data [i].data);
 
 	    read_lines (buf, len, dict_data, process_line);
 //	    fprintf (stderr, "err='%s'\n", dict_data -> m_err_msg);
@@ -776,7 +717,7 @@ int dictdb_free (void * data)
 //   fprintf (stderr, "dictdb_free\n");
 
    if (dict_data){
-      heap_free (dict_data -> m_heap, dict_data -> m_mres_sizes);
+      free_minus1_array (dict_data -> m_mres_sizes);
       dict_data -> m_mres_sizes = NULL;
 
       for (i = 0; i < dict_data -> m_mres_count; ++i){
@@ -784,7 +725,7 @@ int dictdb_free (void * data)
       }
       dict_data -> m_mres_count = 0;
 
-      heap_free (dict_data -> m_heap, dict_data -> m_mres);
+      heap_free (dict_data -> m_heap2, dict_data -> m_mres);
       dict_data -> m_mres = NULL;
 
       dict_data -> m_err_msg [0] = 0;
@@ -819,14 +760,12 @@ static int match_exact (
    }
 
    dict_data -> m_mres = (const char **)
-      heap_alloc (dict_data -> m_heap, sizeof (dict_data -> m_mres [0]));
+      heap_alloc (dict_data -> m_heap2, sizeof (dict_data -> m_mres [0]));
 
-   dict_data -> m_mres_sizes = (int *)
-      heap_alloc (dict_data -> m_heap, sizeof (dict_data -> m_mres_sizes [0]));
+   dict_data -> m_mres_sizes = (int *) alloc_minus1_array (1);
 
    dict_data -> m_mres_count     = 1;
-   dict_data -> m_mres_sizes [0] = -1;
-   dict_data -> m_mres [0]       = xstrdup (word);
+   dict_data -> m_mres [0]       = heap_strdup (dict_data -> m_heap, word);
 
    *result       = dict_data -> m_mres;
    *result_sizes = dict_data -> m_mres_sizes;
@@ -861,19 +800,15 @@ static int match_substring (
       ++cnt;
 
       dict_data -> m_mres = (const char **)
-	 xrealloc (
+	 heap_realloc (
+	    dict_data -> m_heap2,
 	    dict_data -> m_mres,
 	    cnt * sizeof (dict_data -> m_mres [0]));
       dict_data -> m_mres [cnt - 1] =
 	 heap_strdup (dict_data -> m_heap, curr_word);
-
-      dict_data -> m_mres_sizes = (int *)
-	 xrealloc (
-	    dict_data -> m_mres_sizes,
-	    cnt * sizeof (dict_data -> m_mres_sizes [0]));
-      dict_data -> m_mres_sizes [cnt - 1] = -1;
    }
 
+   dict_data -> m_mres_sizes = (int *) alloc_minus1_array (cnt);
    dict_data -> m_mres_count = cnt;
 
    *result       = dict_data -> m_mres;
@@ -950,23 +885,19 @@ static int match_prefix (
       ++cnt;
 
       dict_data -> m_mres = (const char **)
-	 xrealloc (
+	 heap_realloc (
+	    dict_data -> m_heap2,
 	    dict_data -> m_mres,
 	    cnt * sizeof (dict_data -> m_mres [0]));
       dict_data -> m_mres [cnt - 1] =
 	 heap_strdup (dict_data -> m_heap, curr_word);
-
-      dict_data -> m_mres_sizes = (int *)
-	 xrealloc (
-	    dict_data -> m_mres_sizes,
-	    cnt * sizeof (dict_data -> m_mres_sizes [0]));
-      dict_data -> m_mres_sizes [cnt - 1] = -1;
 
       if (value == value_last){
 	 break;
       }
    }
 
+   dict_data -> m_mres_sizes = (int *) alloc_minus1_array (cnt);
    dict_data -> m_mres_count = cnt;
 
    *result       = dict_data -> m_mres;
@@ -1009,19 +940,15 @@ static int match_suffix (
       ++cnt;
 
       dict_data -> m_mres = (const char **)
-	 xrealloc (
+	 heap_realloc (
+	    dict_data -> m_heap2,
 	    dict_data -> m_mres,
 	    cnt * sizeof (dict_data -> m_mres [0]));
       dict_data -> m_mres [cnt - 1] =
 	 heap_strdup (dict_data -> m_heap, curr_word);
-
-      dict_data -> m_mres_sizes = (int *)
-	 xrealloc (
-	    dict_data -> m_mres_sizes,
-	    cnt * sizeof (dict_data -> m_mres_sizes [0]));
-      dict_data -> m_mres_sizes [cnt - 1] = -1;
    }
 
+   dict_data -> m_mres_sizes = (int *) alloc_minus1_array (cnt);
    dict_data -> m_mres_count = cnt;
 
    *result       = dict_data -> m_mres;
@@ -1064,19 +991,15 @@ static int match_soundex (
       ++cnt;
 
       dict_data -> m_mres = (const char **)
-	 xrealloc (
+	 heap_realloc (
+	    dict_data -> m_heap2,
 	    dict_data -> m_mres,
 	    cnt * sizeof (dict_data -> m_mres [0]));
       dict_data -> m_mres [cnt - 1] =
 	 heap_strdup (dict_data -> m_heap, curr_word);
-
-      dict_data -> m_mres_sizes = (int *)
-	 xrealloc (
-	    dict_data -> m_mres_sizes,
-	    cnt * sizeof (dict_data -> m_mres_sizes [0]));
-      dict_data -> m_mres_sizes [cnt - 1] = -1;
    }
 
+   dict_data -> m_mres_sizes = (int *) alloc_minus1_array (cnt);
    dict_data -> m_mres_count = cnt;
 
    *result       = dict_data -> m_mres;
@@ -1097,17 +1020,12 @@ static int match_soundex (
          ++cnt;                                               \
                                                               \
          dict_data -> m_mres = (const char **)                \
-            xrealloc (                                        \
+            heap_realloc (                                    \
+               dict_data -> m_heap2,                          \
                dict_data -> m_mres,                           \
                cnt * sizeof (dict_data -> m_mres [0]));       \
          dict_data -> m_mres [cnt - 1] =                      \
             heap_strdup (dict_data -> m_heap, buf);           \
-                                                              \
-         dict_data -> m_mres_sizes = (int *)                  \
-            xrealloc (                                        \
-               dict_data -> m_mres_sizes,                     \
-               cnt * sizeof (dict_data -> m_mres_sizes [0])); \
-               dict_data -> m_mres_sizes [cnt - 1] = -1;      \
       }                                                       \
    }
 
@@ -1200,6 +1118,7 @@ static int match_lev (
       }
    }
 
+   dict_data -> m_mres_sizes = (int *) alloc_minus1_array (cnt);
    dict_data -> m_mres_count = cnt;
 
    *result       = dict_data -> m_mres;
@@ -1245,19 +1164,15 @@ static int match_regexp (
       ++cnt;
 
       dict_data -> m_mres = (const char **)
-	 xrealloc (
+	 heap_realloc (
+	    dict_data -> m_heap2,
 	    dict_data -> m_mres,
 	    cnt * sizeof (dict_data -> m_mres [0]));
       dict_data -> m_mres [cnt - 1] =
 	 heap_strdup (dict_data -> m_heap, curr_word);
-
-      dict_data -> m_mres_sizes = (int *)
-	 xrealloc (
-	    dict_data -> m_mres_sizes,
-	    cnt * sizeof (dict_data -> m_mres_sizes [0]));
-      dict_data -> m_mres_sizes [cnt - 1] = -1;
    }
 
+   dict_data -> m_mres_sizes = (int *) alloc_minus1_array (cnt);
    dict_data -> m_mres_count = cnt;
 
    regfree (&re);
@@ -1328,11 +1243,13 @@ static int match_word (
       ret, result, result_sizes, results_count);
 }
 
+/*
 static int heap_get_allocation_count (void *heap)
 {
    heap_s *h = (heap_s *) heap;
    return h -> allocation_count;
 }
+*/
 
 int dictdb_search (
    void *data,
@@ -1374,7 +1291,7 @@ int dictdb_search (
    assert (!dict_data -> m_mres);
    assert (!dict_data -> m_mres_sizes);
    assert (!dict_data -> m_mres_count);
-   assert (!heap_get_allocation_count (dict_data -> m_heap));
+/*   assert (!heap_get_allocation_count (dict_data -> m_heap));*/
 
    strlcpy (word_copy2, word, sizeof (word_copy2));
 
@@ -1466,12 +1383,9 @@ int dictdb_search (
 
       dict_data -> m_mres =
 	 (const char **) heap_alloc (
-	    dict_data -> m_heap,
+	    dict_data -> m_heap2,
 	    cnt * sizeof (dict_data -> m_mres [0]));
-      dict_data -> m_mres_sizes =
-	 (int *) heap_alloc (
-	    dict_data -> m_heap,
-	    cnt * sizeof (dict_data -> m_mres_sizes [0]));
+      dict_data -> m_mres_sizes = (int *) alloc_minus1_array (cnt);
 
       dict_data -> m_mres_count = cnt;
 
@@ -1481,8 +1395,6 @@ int dictdb_search (
 	       dict_data -> m_data,
 	       (*offs_size) [0], (*offs_size) [1],
 	       NULL, NULL);
-
-	 dict_data -> m_mres_sizes [i] = -1;
       }
 
       *result        = dict_data -> m_mres;
