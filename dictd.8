@@ -55,8 +55,8 @@ be run from
 Databases are distributed separately from the server.
 .P
 .B dictd
-assumes that the index files are sorted alphabetically.  By default, only
-alphanumeric characters are used for search.  This default may be
+assumes that the index files are sorted alphabeticaly.  By default, only
+alphanumeric charactares are used for search.  This default may be
 overridden by a header in the data file.  The only such features
 implemented at this time are the headers "00-database-allchars" which
 tells
@@ -125,8 +125,7 @@ Be verbose.
 .TP
 .BI \-c " file\fR or "  \-\-config " file"
 Specify configuration file.  The default is
-.IR /etc/dictd.conf ,
-but may be changed in the
+.I /etc/dictd.conf, but may be changed in the
 .I defs.h
 file at compile time (DICTD_CONFIG_FILE).
 .TP
@@ -422,30 +421,37 @@ in
 .TP
 .B Introduction
 The configuration file defaults to
-.IR /etc/dictd.conf ,
+.I /etc/dictd.conf 
 but can be specified on the command line with the
 .B \-c
-option (see above).  The configuration file has four distinct sections.
-At this time, each section must appear in the specified order, although
-only the Database section is required.
+option (see above).
 .RS
 .P
-The file is divided up into different sections.  The Site Section should
-come first, followed by the Access Section, the Database Section, and
-the User Section.  Sections are optional, but they should be in the
-order listed here.
+The configuration file is read into memory at startup, and is not
+referenced again by
+.B dictd
+unless a signal 1 
+.B (SIGHUP)
+is received, which will cause 
+.B dictd 
+to reread the configuration file.
+.P
+The file is divided into sections.  The Site Section should come
+first, followed by the Access Section, the Database Section, and the
+User Section.  The Database Section is required; the others are
+optional, but they must be in the order listed here.
 .RE
 .TP
 .B Syntax
-The following keywords are valid in a configuration file: access, allow,
-deny, group, database, data, index, filter, prefilter, postfilter, name,
-include, user, authonly, site.  Keywords are case sensitive.  String
-arguments that contain spaces should be surrounded by double quotes.
-Without quoting, strings may contain alphanumeric characters and _, -,
- ., and *, but not spaces. Strings can
-be continued between lines. \\", \\\\, \\n, \\<NL> are treated as
-double quote, backslash, new line and no symbol respectively.
-Comments start with # and extend to the end of the line.
+The following keywords are valid in a configuration file: access,
+allow, deny, group, database, data, index, filter, prefilter,
+postfilter, name, include, user, authonly, site.  Keywords are case
+sensitive.  String arguments that contain spaces should be surrounded
+by double quotes.  Without quoting, strings may contain alphanumeric
+characters and _, -, ., and *, but not spaces.  Strings can be
+continued between lines.  \\", \\\\, \\n, \\<NL> are treated as double
+quote, backslash, new line and no symbol respectively.  Comments start
+with # and extend to the end of the line.
 .TP
 .B Site Section
 .RS
@@ -936,12 +942,6 @@ more information, and consult with your attorney to resolve these issues.
 The regular expression searches do not ignore non-whitespace,
 non-alphanumeric characters as do the other searches.  In practice, this
 isn't much of a problem.
-.P
-The databases are memory mapped and cannot be updated while the server is
-running.
-.P
-There is no way to get a running server to re-read the configuration file,
-so databases cannot be added or deleted on the fly.
 .SH "FILES"
 .I /etc/dictd.conf
 .br
