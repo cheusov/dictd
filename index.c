@@ -1,6 +1,6 @@
 /* index.c -- 
  * Created: Wed Oct  9 14:52:23 1996 by faith@cs.unc.edu
- * Revised: Mon Jun 23 07:01:57 1997 by faith@acm.org
+ * Revised: Mon Jun 23 07:52:50 1997 by faith@acm.org
  * Copyright 1996, 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.14 1997/06/23 11:05:31 faith Exp $
+ * $Id: index.c,v 1.15 1997/06/23 11:53:17 faith Exp $
  * 
  */
 
@@ -65,6 +65,8 @@ static int compare( const char *word, const char *start, const char *end )
    }
    
    ++_dict_comparisons;		/* counter for profiling */
+   
+				/* FIXME.  Optimize this inner loop. */
    while (*word && start < end && *start != '\t') {
       if (!isspacealnum(*start)) {
 	 ++start;
@@ -304,7 +306,8 @@ static int dict_search_brute( lst_List l,
          result = compare( word, p, end );
          if (result == -1 || result == 0) {
 	    if (suffix && result) continue;
-	    for (pt = p; pt >= start && *pt != '\n'; --pt);
+	    for (pt = p; pt >= start && *pt != '\n'; --pt)
+	       if (*pt == '\t') goto continue2;
             ++count;
             datum = dict_word_create( pt + 1, database );
 #if 0
@@ -317,6 +320,7 @@ static int dict_search_brute( lst_List l,
 	    --p;
          }
       }
+continue2:
    }
    
    return count;
@@ -353,23 +357,28 @@ static int dict_search_bmh( lst_List l,
    }
    for (i = 0; i < patlen-1; i++) skip[(unsigned char)word[i]] = patlen-i-1;
 
-#define STRICT_BMH
-#ifdef STRICT_BMH
    for (p = start+patlen-1; p < end; f ? (f=NULL) : (p += skip[tolower(*p)])) {
       while (*p == '\t') {
 	 FIND_NEXT(p,end);
 	 p += patlen-1;
+	 if (p > end) return count;
       }
       ++_dict_comparisons;		/* counter for profiling */
+      
+				/* FIXME.  Optimize this inner loop. */
       for (j = patlen - 1, pt = p, wpt = word + patlen - 1; j >= 0; j--) {
 	 if (pt < start) break;
- 	 while (pt >= start && !isspacealnum(*pt)) --pt;
+ 	 while (pt >= start && !isspacealnum(*pt)) {
+	    if (*pt == '\n' || *pt == '\t') goto continue2;
+	    --pt;
+	 }
 	 if (tolower(*pt--) != *wpt--) break;
       }
+      
       if (j == -1) {
 	 if (suffix && p[1] != '\t') continue;
-	 for (; pt > start && *pt != '\n' && *pt != '\t'; --pt);
-	 if (*pt == '\t') continue; /* Multilevel continue needed here */
+	 for (; pt > start && *pt != '\n'; --pt)
+	    if (*pt == '\t') goto continue2;
 	 if (pt > start) ++pt;
 	 ++count;
 	 datum = dict_word_create( pt, database );
@@ -382,40 +391,11 @@ static int dict_search_bmh( lst_List l,
 	 lst_append( l, datum );
 	 FIND_NEXT(p,end);
 	 f = p += patlen-1;	/* Set boolean flag to non-NULL value */
+	 if (p > end) return count;
       }
+continue2:
    }
-#else
-				/* Try to make it a bit more correct, in
-                                   terms of skipping non-whitespace,
-                                   non-alphanumeric characters.  This
-                                   causes the search to be in the forward
-                                   direction, whereas BMH uses the backward
-                                   direction.  What difference does this
-                                   make?  Check Cormen, et al.? */
-   for (p = start+patlen-1; p < end; f ? (f=NULL) : (p += skip[tolower(*p)])) {
-      while (*p == '\t') {
-	 FIND_NEXT(p,end);
-	 f = p += patlen-1;
-      }
-      pt = p-patlen+1;
-      j = compare( word, pt, end );
-      if (j == -1 || j == 0) {
-	 if (suffix && j) continue;
-	 for (; pt >= start && *pt != '\n'; --pt);
-	 ++count;
-	 datum = dict_word_create( pt + 1, database );
-#if 0
-	 fprintf( stderr, "Adding %d %s\n",
-		  compare( word, p, end ),
-		  datum->word);
-#endif
-	 lst_append( l, datum );
-	 FIND_NEXT(p,end);
-	 f = p += patlen-1;
-      }
-   }
-#endif
-   
+
    return count;
 }
 
