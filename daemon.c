@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.63 2003/04/07 13:34:55 cheusov Exp $
+ * $Id: daemon.c,v 1.64 2003/04/14 09:14:38 cheusov Exp $
  * 
  */
 
@@ -34,11 +34,12 @@
 #include <setjmp.h>
 
 static int          _dict_defines, _dict_matches;
-static int          daemonS_in, daemonS_out;
-static const char   *daemonHostname;
-static const char   *daemonIP;
-static int          daemonPort;
-static char         daemonStamp[256];
+static int          daemonS_in  = 0;
+static int          daemonS_out = 0;
+static const char   *daemonHostname  = NULL;
+static const char   *daemonIP        = NULL;
+static int          daemonPort       = -1;
+static char         daemonStamp[256] = "";
 static jmp_buf      env;
 static int          daemonMime;
 
@@ -403,9 +404,11 @@ void daemon_terminate( int sig, const char *name )
                   dict_format_time( tim_get_user( "t" ) ),
                   dict_format_time( tim_get_system( "t" ) ) );
    }
+
    log_close();
    longjmp(env,1);
    if (sig) exit(sig+128);
+
    exit(0);
 }
 
@@ -1415,7 +1418,10 @@ int dict_inetd(char ***argv0, int delay, int error )
    daemonIP   = "inetd";
 
    daemonHostname = daemonIP;
-   
+
+   daemonS_in        = 0;
+   daemonS_out       = 0;
+
    return _handleconn(delay, error);
 }
 
@@ -1425,7 +1431,7 @@ int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0, int delay,
    struct hostent *h;
 	
    if (setjmp(env)) return 0;
-   
+
    daemonPort = ntohs(csin->sin_port);
    daemonIP   = str_find( inet_ntoa(csin->sin_addr) );
    if ((h = gethostbyaddr((void *)&csin->sin_addr,
