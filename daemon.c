@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.81 2005/03/29 17:55:47 cheusov Exp $
+ * $Id: daemon.c,v 1.82 2005/04/01 11:21:23 cheusov Exp $
  * 
  */
 
@@ -584,7 +584,8 @@ static void daemon_dump_defs( lst_List list )
    lst_Position  p;
    char          *buf;
    dictWord      *dw;
-   const dictDatabase  *db;
+   const dictDatabase  *db         = NULL;
+   const dictDatabase  *db_visible = NULL;
    unsigned long previousStart = 0;
    unsigned long previousEnd   = 0;
    const char *  previousDef   = NULL;
@@ -608,15 +609,17 @@ static void daemon_dump_defs( lst_List list )
       buf = dict_data_obtain ( db, dw );
 
       if (dw -> database_visible){
-	 db = dw -> database_visible;
+	 db_visible = dw -> database_visible;
+      }else{
+	 db_visible = db;
       }
 
       daemon_printf (
 	  "%d \"%s\" %s \"%s\"\n",
 	  CODE_DEFINITION_FOLLOWS,
 	  dw->word,
-	  db->invisible ? "*" : db->databaseName,
-	  db->invisible ? ""  : db->databaseShort);
+	  db_visible -> invisible ? "*" : db_visible -> databaseName,
+	  db_visible -> invisible ? ""  : db_visible -> databaseShort);
 
       daemon_mime_definition (db);
 
