@@ -1,7 +1,6 @@
 
 The original files in this subdirectory were obtained from
-http://www.gzip.org/zlib/zlib-1.1.4.tar.bz2, a 147014 byte file, dated
-Mar 11 2002.
+http://www.gzip.org/zlib/zlib-1.1.3.tar.bz2 + "double-free()" patch.
 
 THE VERSION FOR USE WITH DICT MAY HAVE BEEN MODIFIED AND IS NOT
 NECESSARILY THE ORIGINAL VERSION DISTRIBUTED BY ZLIB.

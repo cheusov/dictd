@@ -1,5 +1,5 @@
 /* minigzip.c -- simulate gzip using the zlib compression library
- * Copyright (C) 1995-2002 Jean-loup Gailly.
+ * Copyright (C) 1995-1998 Jean-loup Gailly.
  * For conditions of distribution and use, see copyright notice in zlib.h 
  */
 
@@ -13,7 +13,7 @@
  * or in pipe mode.
  */
 
-/* @(#) $Id: minigzip.c,v 1.3 2002/08/02 19:43:15 faith Exp $ */
+/* @(#) $Id: minigzip.c,v 1.4 2002/08/22 08:00:46 cheusov Exp $ */
 
 #include <stdio.h>
 #include "zlib.h"
