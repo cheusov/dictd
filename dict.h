@@ -1,7 +1,7 @@
 /* dict.h -- 
- * Created: Wed Apr 16 08:44:21 1997 by faith@cs.unc.edu
- * Revised: Sun Jan 25 19:25:54 1998 by faith@acm.org
- * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
+ * Created: Wed Apr 16 08:44:21 1997 by faith@dict.org
+ * Revised: Fri Dec 22 06:06:33 2000 by faith@dict.org
+ * Copyright 1997, 1998, 2000 Rickard E. Faith (faith@dict.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.h,v 1.13 1998/02/16 02:25:16 faith Exp $
+ * $Id: dict.h,v 1.14 2000/12/22 14:15:25 faith Exp $
  * 
  */
 

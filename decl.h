@@ -1,7 +1,7 @@
 /* decl.h -- Declarations for non-ANSI hosts
- * Created: Sun Nov 19 14:04:27 1995 by faith@cs.unc.edu
- * Revised: Wed Dec 22 05:37:24 1999 by faith@acm.org
- * Copyright 1995, 1996, 1999 Rickard E. Faith (faith@acm.org)
+ * Created: Sun Nov 19 14:04:27 1995 by faith@dict.org
+ * Revised: Fri Dec 22 06:06:33 2000 by faith@dict.org
+ * Copyright 1995, 1996, 1999, 2000 Rickard E. Faith (faith@dict.org)
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Library General Public License as published
@@ -17,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: decl.h,v 1.6 1999/12/22 11:49:56 faith Exp $
+ * $Id: decl.h,v 1.7 2000/12/22 14:15:25 faith Exp $
  * 
  */
 

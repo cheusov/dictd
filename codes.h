@@ -1,10 +1,10 @@
 /* codes.h -- 
- * Created: Wed Apr 16 08:44:03 1997 by faith@cs.unc.edu
- * Revised: Tue May 27 12:59:16 1997 by faith@acm.org
- * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
+ * Created: Wed Apr 16 08:44:03 1997 by faith@dict.org
+ * Revised: Fri Dec 22 06:06:34 2000 by faith@dict.org
+ * Copyright 1997, 2000 Rickard E. Faith (faith@dict.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: codes.h,v 1.3 1997/05/27 20:28:32 faith Exp $
+ * $Id: codes.h,v 1.4 2000/12/22 14:15:25 faith Exp $
  * 
  */
 

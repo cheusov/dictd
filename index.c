@@ -1,7 +1,7 @@
 /* index.c -- 
- * Created: Wed Oct  9 14:52:23 1996 by faith@cs.unc.edu
- * Revised: Sun Jul  5 21:27:19 1998 by faith@acm.org
- * Copyright 1996, 1997, 1998 Rickard E. Faith (faith@acm.org)
+ * Created: Wed Oct  9 14:52:23 1996 by faith@dict.org
+ * Revised: Fri Dec 22 06:18:51 2000 by faith@dict.org
+ * Copyright 1996, 1997, 1998, 2000 Rickard E. Faith (faith@dict.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.18 1998/07/06 01:35:41 faith Exp $
+ * $Id: index.c,v 1.19 2000/12/22 14:15:25 faith Exp $
  * 
  */
 
@@ -180,6 +180,7 @@ static dictWord *dict_word_create( const char *entry, dictDatabase *database )
    int        offset    = 0;
    int        state     = 0;
    const char *pt       = entry;
+   char       *s, *d;
    
    for (;pt < database->index->end && *pt != '\n'; pt++, offset++) {
       if (*pt == '\t') {
@@ -203,10 +204,22 @@ static dictWord *dict_word_create( const char *entry, dictDatabase *database )
    strncpy( buf, entry, newline );
    buf[firstTab] = buf[secondTab] = buf[newline] = '\0';
 
-   dw->word     = xstrdup( buf );
    dw->start    = b64_decode( buf + firstTab + 1 );
    dw->end      = b64_decode( buf + secondTab + 1 );
    dw->database = database;
+
+				/* Apply quoting to word */
+   dw->word     = xmalloc(strlen(buf) * 2 + 1);
+   for (s = buf, d = dw->word; *s;) {
+       switch (*s) {
+       case '"':
+       case '\\':
+	   *d++ = '\\';
+       default:
+	   *d++ = *s++;
+       }
+   }
+   *d = '\0';
 
    return dw;
 }

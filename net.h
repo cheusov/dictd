@@ -1,7 +1,7 @@
 /* net.h -- 
- * Created: Sat Feb 22 00:39:54 1997 by faith@cs.unc.edu
- * Revised: Fri Jul 11 15:24:46 1997 by faith@acm.org
- * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
+ * Created: Sat Feb 22 00:39:54 1997 by faith@dict.org
+ * Revised: Fri Dec 22 06:06:58 2000 by faith@dict.org
+ * Copyright 1997, 2000 Rickard E. Faith (faith@dict.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: net.h,v 1.6 1997/07/12 01:50:24 faith Exp $
+ * $Id: net.h,v 1.7 2000/12/22 14:15:25 faith Exp $
  * 
  */
 

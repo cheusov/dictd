@@ -1,7 +1,7 @@
 /* data.c -- 
- * Created: Tue Jul 16 12:45:41 1996 by faith@acm.org
- * Revised: Sun Jul  5 21:30:55 1998 by faith@acm.org
- * Copyright 1996, 1997, 1998 Rickard E. Faith (faith@acm.org)
+ * Created: Tue Jul 16 12:45:41 1996 by faith@dict.org
+ * Revised: Fri Dec 22 06:04:44 2000 by faith@dict.org
+ * Copyright 1996, 1997, 1998, 2000 Rickard E. Faith (faith@dict.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: data.c,v 1.8 1998/07/06 01:35:40 faith Exp $
+ * $Id: data.c,v 1.9 2000/12/22 14:15:25 faith Exp $
  * 
  */
 

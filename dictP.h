@@ -1,7 +1,8 @@
+
 /* dictP.h -- 
- * Created: Fri Mar  7 10:54:05 1997 by faith@cs.unc.edu
- * Revised: Wed Dec 22 09:20:48 1999 by faith@acm.org
- * Copyright 1997, 1999 Rickard E. Faith (faith@acm.org)
+ * Created: Fri Mar  7 10:54:05 1997 by faith@dict.org
+ * Revised: Fri Dec 22 06:06:33 2000 by faith@dict.org
+ * Copyright 1997, 1999, 2000 Rickard E. Faith (faith@dict.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -18,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.4 1999/12/22 14:21:28 faith Exp $
+ * $Id: dictP.h,v 1.5 2000/12/22 14:15:25 faith Exp $
  * 
  */
 
