@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.56 2002/10/28 13:23:48 cheusov Exp $
+ * $Id: dictd.c,v 1.57 2002/12/02 14:36:14 cheusov Exp $
  * 
  */
 
@@ -239,8 +239,6 @@ static void handler_sighup (int sig)
 
    dict_close_databases (DictConfig);
 
-   DictConfig = xmalloc (sizeof (dictConfig));
-   memset (DictConfig, 0, sizeof (dictConfig));
    if (!access(configFile,R_OK))
       prs_file_nocpp (configFile);
    sanity (configFile);
@@ -664,7 +662,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.56 2002/10/28 13:23:48 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.57 2002/12/02 14:36:14 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1109,8 +1107,6 @@ int main( int argc, char **argv, char **envp )
    tim_start( "dictd" );
    alarm(_dict_markTime);
 
-   DictConfig = xmalloc (sizeof (dictConfig));
-   memset( DictConfig, 0, sizeof (dictConfig ) );
    if (!access(configFile,R_OK))
       prs_file_nocpp( configFile );
 
