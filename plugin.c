@@ -15,7 +15,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: plugin.c,v 1.12 2004/01/08 10:52:15 cheusov Exp $
+ * $Id: plugin.c,v 1.13 2004/01/08 17:35:56 cheusov Exp $
  * 
  */
 
@@ -485,6 +485,7 @@ static void dict_plugin_dlsym (dictPlugin *plugin)
 }
 
 static dictPlugin *create_plugin (
+   const char *datababsename,
    const char *plugin_filename,
    const dictPluginData *plugin_init_data,
    int plugin_init_data_size)
@@ -493,7 +494,10 @@ static dictPlugin *create_plugin (
    int ret;
    int version;
 
-   PRINTF(DBG_INIT, (":I:   Initializing plugin '%s'\n", plugin_filename));
+   PRINTF(
+      DBG_INIT, (
+	 ":I:   Initializing db/plugin '%s'/'%s'\n",
+	 datababsename ? datababsename : "(null)", plugin_filename));
 
    plugin = xmalloc (sizeof (dictPlugin));
    memset (plugin, 0, sizeof (dictPlugin));
@@ -521,7 +525,7 @@ int dict_plugin_init (dictDatabase *db)
    int ret = 0;
    lst_List list;
    const char *plugin_filename = NULL;
-   dictWord *dw;
+  dictWord *dw;
 
    dictPluginData init_data [3000];
    int init_data_size = 0;
@@ -556,6 +560,7 @@ int dict_plugin_init (dictDatabase *db)
 	 db);
 
       db -> plugin = create_plugin (
+	 db -> databaseName,
 	 plugin_filename, init_data, init_data_size);
 
       plugin_init_data_free (init_data, init_data_size);
