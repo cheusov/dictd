@@ -1,6 +1,6 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@cs.unc.edu
- * Revised: Tue May 27 16:18:03 1997 by faith@acm.org
+ * Revised: Tue May 27 16:54:29 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.16 1997/05/27 20:28:34 faith Exp $
+ * $Id: daemon.c,v 1.17 1997/06/02 23:10:58 faith Exp $
  * 
  */
 
@@ -626,6 +626,7 @@ static void daemon_show_db( const char *cmdline, int argc, char **argv )
 			db->databaseName, db->databaseShort );
       }
       daemon_printf( ".\n" );
+      daemon_ok( CODE_OK, "ok", NULL );
    }
 }
 
@@ -649,6 +650,7 @@ static void daemon_show_strat( const char *cmdline, int argc, char **argv )
 			strategyInfo[i].name, strategyInfo[i].description );
       }
       daemon_printf( ".\n" );
+      daemon_ok( CODE_OK, "ok", NULL );
    }
 }
 
@@ -716,7 +718,8 @@ static void daemon_show_server( const char *cmdline, int argc, char **argv )
       while ((fgets( buffer, 1000, str ))) daemon_printf( "%s", buffer );
       fclose( str );
    }
-   daemon_text("");
+   daemon_printf( ".\n" );
+   daemon_ok( CODE_OK, "ok", NULL );
 }
 
 static void daemon_show( const char *cmdline, int argc, char **argv )
@@ -793,12 +796,14 @@ static void daemon_help( const char *cmdline, int argc, char **argv )
     "SHOW STRAT           -- list available matching strategies\n"
     "SHOW STRATEGIES      -- list available matching strategies\n"
     "SHOW INFO database   -- provide information about the database\n"
+    "SHOW SERVER          -- provide site-specific information\n"
     "CLIENT info          -- identify client to server\n"
     "AUTH user string     -- provide authentication information\n"
     "STATUS               -- display timing information\n"
     "HELP                 -- display this help information\n"
     "QUIT                 -- terminate connection\n"
    );
+   daemon_ok( CODE_OK, "ok", NULL );
 }
 
 static void daemon_quit( const char *cmdline, int argc, char **argv )

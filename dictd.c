@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Tue May 27 15:52:49 1997 by faith@acm.org
+ * Revised: Tue May 27 16:56:52 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.19 1997/05/27 20:28:36 faith Exp $
+ * $Id: dictd.c,v 1.20 1997/06/02 23:11:00 faith Exp $
  * 
  */
 
@@ -354,7 +354,7 @@ static const char *id_string( const char *id )
 const char *dict_get_banner( void )
 {
    static char    *buffer= NULL;
-   const char     *id = "$Id: dictd.c,v 1.19 1997/05/27 20:28:36 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.20 1997/06/02 23:11:00 faith Exp $";
    struct utsname uts;
    
    if (buffer) return buffer;
@@ -614,6 +614,7 @@ int main( int argc, char **argv )
 	    if (!start_daemon()) { /* child */
 	       dict_daemon(childSocket,&csin,&argv,delay,0);
 	       close(childSocket);
+	       exit(0);
 	    } else {		   /* parent */
 	       close(childSocket);
 	    }
