@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.101 2004/01/05 12:25:10 cheusov Exp $
+ * $Id: dictd.c,v 1.102 2004/01/07 14:13:00 cheusov Exp $
  * 
  */
 
@@ -896,7 +896,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.101 2004/01/05 12:25:10 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.102 2004/01/07 14:13:00 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1143,7 +1143,7 @@ static void sanity(const char *confFile)
    }
 }
 
-static void set_utf8bit_mode (const char *loc)
+static void set_locale_and_flags (const char *loc)
 {
    char *locale_copy;
    locale_copy = strdup (loc);
@@ -1157,13 +1157,18 @@ static void set_utf8bit_mode (const char *loc)
    if (utf8_mode){
       err_fatal (
 	 __FUNCTION__,
-	 "utf-8 support is disabled at compile time\n");
+	 "utf-8 support was disabled at compile time\n");
    }
 #endif
 
    bit8_mode = !utf8_mode && (locale_copy [0] != 'c' || locale_copy [1] != 0);
 
    free (locale_copy);
+
+   if (!setlocale(LC_COLLATE, locale) || !setlocale(LC_CTYPE, locale)){
+      fprintf (stderr, "invalid locale '%s'\n", locale);
+      exit (2);
+   }
 }
 
 static void init (const char *fn)
@@ -1424,12 +1429,7 @@ int main( int argc, char **argv, char **envp )
    if (flg_test(LOG_TIMESTAMP)) log_option( LOG_OPTION_FULL );
    else                         log_option( LOG_OPTION_NO_FULL );
 
-   set_utf8bit_mode (locale);
-
-   if (!setlocale(LC_ALL, locale)){
-      fprintf (stderr, "invalid locale '%s'\n", locale);
-      exit (2);
-   }
+   set_locale_and_flags (locale);
 
    time(&startTime);
    tim_start( "dictd" );
