@@ -1,6 +1,6 @@
 # Makefile.in -- Makefile for dict
 # Created: Wed Apr 24 14:14:09 1996 by faith@cs.unc.edu
-# Revised: Fri Jul 11 21:56:53 1997 by faith@acm.org
+# Revised: Fri Jul 11 22:35:36 1997 by faith@acm.org
 # Copyright 1996, 1997 Rickard E. Faith (faith@acm.org)
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,12 +17,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.18 1997/07/12 02:05:47 faith Exp $
+# $Id: Makefile.in,v 1.19 1997/07/12 03:39:25 faith Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
 # Numbers are for the original author(s) only.
-DICT_VERSION=1.0a
+DICT_VERSION=1.0b
 
 ifneq (,)
 This makefile requires GNU Make.
@@ -72,7 +72,7 @@ CLIOBJS=        net.o clientscan.o clientparse.o md5.o
 TMPS=           servscan.c servparse.c servparse.h \
 		clientscan.c clientparse.c clientparse.h
 
-all::
+all $(EXES)::
 	@for subdir in $(subdirs); do \
 		echo making in $$subdir; \
 	 	if [ "$$subdir" = "zlib" ]; then \
@@ -101,13 +101,13 @@ $(SRCHOBJS):  $(HEADERS)
 $(NETOBJS):  $(HEADERS)
 $(CLIOBJS):  $(HEADERS)
 
-dict:   dict.c $(HEADERS) $(CLIOBJS)
+dict:: dict.c $(HEADERS) $(CLIOBJS)
 	$(CC) $(ALLFLAGS) -o $@ $< $(CLIOBJS) $(LDLIBS)
 
-dictd:  dictd.c $(HEADERS) $(NETOBJS) $(SRCHOBJS)
+dictd:: dictd.c $(HEADERS) $(NETOBJS) $(SRCHOBJS)
 	$(CC) $(ALLFLAGS) -o $@ $< $(NETOBJS) $(SRCHOBJS) $(ZIPOBJS) $(LDLIBS)
 
-dictzip: dictzip.c $(HEADERS) $(SRCHOBJS)
+dictzip:: dictzip.c $(HEADERS) $(SRCHOBJS)
 	$(CC) $(ALLFLAGS) -o $@ $< $(SRCHOBJS) $(LDLIBS)
 
 servscan.c: servscan.l

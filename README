@@ -1,0 +1,32 @@
+Fri Jul 11 22:31:00 1997, faith@cs.unc.edu
+
+This is ALPHA code.  This version is:
+    ftp://ftp.cs.unc.edu/pub/users/faith/dict/dictd-1.0b.tar.gz
+but if something doesn't work, look for a later version.
+
+Right now, there are few databases available for ftp, so the emphasis is on
+testing the client.
+
+The client defaults to looking at localhost and dict.org on port 2628.
+Bret's server is on dict.miranda.org on port 2628.
+
+This same request works fine on proteus.cs.unc.edu
+
+
+The following
+
+untar
+./configure
+make dict
+make install.dict
+
+should put dict in /usr/bin and dict.1 in /usr/man/man1
+
+Then see the man page or use dict --help
+
+
+NOTE: THIS CODE IS ALPHA.  It may dump core, it may print weird stuff.  If
+it does, debug it or send a report to faith@cs.unc.edu.  But look for a new
+version first.  If you can't handle alpha code, then WAIT until a more
+robust release.
+

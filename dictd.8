@@ -1,6 +1,6 @@
-.\" dictd.1 -- 
+.\" dictd.8 -- 
 .\" Created: Mon Mar 10 16:10:03 1997 by faith@cs.unc.edu
-.\" Revised: Fri Jul 11 14:18:26 1997 by faith@acm.org
+.\" Revised: Fri Jul 11 23:29:51 1997 by faith@acm.org
 .\" Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
 .\" 
 .\" Permission is granted to make and distribute verbatim copies of this
@@ -602,9 +602,15 @@ for applications which are incompatible with the GPL -- please see the
 copyright notices and license information that come with the libraries for
 more information, and consult with your attorney to resolve these issues.
 .SH "BUGS"
-The substring, suffix, and regular expression searches do not ignore
-non-whitespace, non-alphanumeric characters as do the other searches.  In
-practice, this isn't much of a problem.
+The regular expression searches do not ignore non-whitespace,
+non-alphanumeric characters as do the other searches.  In practice, this
+isn't much of a problem.
+.P
+The databases are memory mapped and cannot be updated while the server is
+running.
+.P
+There is no way to get a running server to re-read the configuration file,
+so databases cannot be added or deleted on the fly.
 .SH "FILES"
 .I /etc/dictd.conf
 .br
