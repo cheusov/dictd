@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.64 2003/02/07 13:37:19 cheusov Exp $
+# $Id: Makefile.in,v 1.65 2003/02/07 18:53:17 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -207,32 +207,51 @@ clientparse.o: clientparse.c $(HEADERS)
         install.libs install.includes
 
 install.dict: dict
-	if test ! -d $(DESTDIR)$(bindir); then $(INSTALL) -d 755 $(DESTDIR)$(bindir); fi; \
-	if test ! -d $(DESTDIR)$(man1_prefix); then $(INSTALL) -d 755 $(DESTDIR)$(man1_prefix); fi; \
+	if test ! -d $(DESTDIR)$(bindir); then \
+        $(INSTALL) -d 755 $(DESTDIR)$(bindir); \
+    fi; \
+	if test ! -d $(DESTDIR)$(man1_prefix); then \
+        $(INSTALL) -d 755 $(DESTDIR)$(man1_prefix); \
+    fi; \
 	$(INSTALL_PROGRAM) dict $(DESTDIR)$(bindir); \
 	$(INSTALL_DATA) dict.1 $(DESTDIR)$(man1_prefix)/dict.1
 
 install.dictzip: dictzip
-	if test ! -d $(DESTDIR)$(bindir); then $(INSTALL) -d 755 $(DESTDIR)$(bindir); fi; \
-	if test ! -d $(DESTDIR)$(man1_prefix); then $(INSTALL) -d 755 $(DESTDIR)$(man1_prefix); fi; \
+	if test ! -d $(DESTDIR)$(bindir); then \
+        $(INSTALL) -d 755 $(DESTDIR)$(bindir); \
+    fi; \
+	if test ! -d $(DESTDIR)$(man1_prefix); then \
+        $(INSTALL) -d 755 $(DESTDIR)$(man1_prefix); \
+    fi; \
 	$(INSTALL_PROGRAM) dictzip $(DESTDIR)$(bindir); \
 	$(INSTALL_DATA) dictzip.1 $(DESTDIR)$(man1_prefix)/dictzip.1
 
 install.dictfmt: dictfmt dictfmt_index2word dictfmt_index2suffix dictfmt_plugin
-	if test ! -d $(DESTDIR)$(bindir); then $(INSTALL) -d 755 $(DESTDIR)$(bindir); fi; \
-	if test ! -d $(DESTDIR)$(man1_prefix); then $(INSTALL) -d 755 $(DESTDIR)$(man1_prefix); fi; \
+	if test ! -d $(DESTDIR)$(bindir); then \
+        $(INSTALL) -d 755 $(DESTDIR)$(bindir); \
+    fi; \
+	if test ! -d $(DESTDIR)$(man1_prefix); then \
+        $(INSTALL) -d 755 $(DESTDIR)$(man1_prefix); \
+    fi; \
 	$(INSTALL_PROGRAM) dictfmt $(DESTDIR)$(bindir); \
 	$(INSTALL_SCRIPT) dictfmt_index2suffix $(DESTDIR)$(bindir); \
 	$(INSTALL_SCRIPT) dictfmt_index2word $(DESTDIR)$(bindir); \
 	$(INSTALL_SCRIPT) dictfmt_virtual $(DESTDIR)$(bindir); \
 	$(INSTALL_SCRIPT) dictunformat $(DESTDIR)$(bindir); \
-	$(INSTALL_DATA) dictfmt.1 $(DESTDIR)$(man1_prefix)/dictfmt.1; \
+	$(INSTALL_DATA) dictfmt.1 $(DESTDIR)$(man1_prefix); \
+	$(INSTALL_DATA) dictfmt_index2word.1 $(DESTDIR)$(man1_prefix); \
+	$(INSTALL_DATA) dictfmt_index2suffix.1 $(DESTDIR)$(man1_prefix); \
+	$(INSTALL_DATA) dictunformat.1 $(DESTDIR)$(man1_prefix); \
 	test _$(USE_PLUGIN) = _1 && \
 	    $(INSTALL_SCRIPT) dictfmt_plugin $(DESTDIR)$(bindir) || true
 
 install.dictd: dictd
-	if test ! -d $(DESTDIR)$(sbindir); then $(INSTALL) -d 755 $(DESTDIR)$(sbindir); fi; \
-	if test ! -d $(DESTDIR)$(man8_prefix); then $(INSTALL) -d 755 $(DESTDIR)$(man8_prefix); fi; \
+	if test ! -d $(DESTDIR)$(sbindir); then \
+        $(INSTALL) -d 755 $(DESTDIR)$(sbindir); \
+    fi; \
+	if test ! -d $(DESTDIR)$(man8_prefix); then \
+        $(INSTALL) -d 755 $(DESTDIR)$(man8_prefix); \
+    fi; \
 	$(INSTALL_PROGRAM) dictd $(DESTDIR)$(sbindir); \
 	$(INSTALL_DATA) dictd.8 $(DESTDIR)$(man8_prefix)/dictd.8
 
@@ -274,6 +293,9 @@ uninstall.dictd:
 
 uninstall.dictfmt:
 	rm -f $(DESTDIR)$(bindir)/dictfmt $(DESTDIR)$(man1_prefix)/dictfmt.1 \
+    $(DESTDIR)$(man1_prefix)/dictfmt_index2word.1 \
+    $(DESTDIR)$(man1_prefix)/dictfmt_index2suffix.1 \
+    $(DESTDIR)$(man1_prefix)/dictunformat.1 \
 	$(DESTDIR)$(bindir)/dictfmt_index2suffix \
 	$(DESTDIR)$(bindir)/dictfmt_index2word \
 	$(DESTDIR)$(bindir)/dictfmt_virtual \
