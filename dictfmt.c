@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.35 2003/12/30 14:05:50 cheusov Exp $
+ * $Id: dictfmt.c,v 1.36 2003/12/30 16:08:13 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -48,7 +48,7 @@
 #endif
 
 #define FMT_MAXPOS  200
-#define FMT_INDENT  5
+#define FMT_INDENT  0
 
 #define JARGON    1
 #define FOLDOC    2
@@ -506,6 +506,12 @@ static void fmt_newheadword( const char *word )
    fflush(stdout);
    end = ftell(str);
 
+   if (word && !without_hw){
+      fprintf (stderr, "headword: %s\n", word);
+      fmt_string (word);
+      fmt_newline();
+   }
+
    if (fmt_str && *prev) {
       p = prev;
       do {
@@ -529,7 +535,6 @@ static void fmt_newheadword( const char *word )
    }
 
    if (word) {
-      fmt_newline ();
       strlcpy(prev, word, sizeof (prev));
 
       start = end;
@@ -664,6 +669,7 @@ static void fmt_headword_for_url (void)
    fmt_newheadword("00-database-url");
    fmt_string( "     " );
    fmt_string( url );
+   fmt_newline ();
 
    ignore_hw_url = 1;
 }
@@ -703,6 +709,7 @@ static void fmt_headword_for_shortname (void)
    fmt_newline ();
    fmt_string( "     " );
    fmt_string( sname );
+   fmt_newline ();
 
    ignore_hw_shortname = 1;
 }
@@ -740,7 +747,6 @@ static void fmt_headword_for_info (void)
 	 " this changed version under the same conditions and restriction"
 	 " that apply to the original version." );
       fmt_newline();
-      fmt_indent += 3;
       fmt_newline();
    }
 }
@@ -852,7 +858,10 @@ int main( int argc, char **argv )
       case 'f': type = FOLDOC; fmt_maxpos=79; break;
       case 'e': type = EASTON;             break;
       case 'p': type = PERIODIC;           break;
-      case 'h': type = HITCHCOCK;          break;
+      case 'h':
+	 type = HITCHCOCK;
+	 without_hw = 1;
+	 break;
       case 'v': type = VERA; fmt_maxpos=75;break;
       case 'D': ++Debug;                   break;
       case 'u': url = optarg;              break;
@@ -944,8 +953,14 @@ int main( int argc, char **argv )
 	    if ((pt = strchr( buffer2, ','))) {
 	       *pt = '\0';
 	       fmt_newheadword(buffer2);
-	       if (without_hw)
-		  buf = NULL;
+	       *pt = ',';
+
+//	       fprintf (stderr, "HW=`%s`\n", buffer2);
+//	       if (*pt == '\n')
+//		  ++pt;
+//	       fprintf (stderr, "DEF=`%s`\n", pt);
+
+//	       buf = pt;
 	    }
 	 }
 	 break;
@@ -998,8 +1013,7 @@ int main( int argc, char **argv )
 	       if ((pt = strstr( buffer+3, " - </B>" ))) {
 		  *pt = '\0';
 		  fmt_newheadword(buffer+3);
-		  fmt_indent += 3;
-		  memmove( buf, buffer+3, strlen(buffer+3)+1 );
+		  continue;
 	       } else {
 		  fprintf( stderr, "No end: %s\n", buffer );
 
@@ -1025,8 +1039,7 @@ int main( int argc, char **argv )
 	       
 	       *pt = '\0';
 	       fmt_newheadword (buffer+1);
-	       memmove( buf, buffer+1, strlen(buffer+1));
-	       memmove( pt-1, s, strlen(s)+1 ); /* move \0 also */
+	       memmove( buf, s, strlen(s)+1 ); /* move \0 also */
 	    }
 	    break;
 	 case '*':
@@ -1120,9 +1133,9 @@ int main( int argc, char **argv )
 	    buf = trim_left (buf);
 
 	    if (*buf != '\0') {
+	       fmt_indent = 0;
 	       fmt_newheadword (buf);
-	       if (without_hw)
-		  buf = NULL;
+	       continue;
 	    }
  	 }
  	 break;
@@ -1135,7 +1148,7 @@ int main( int argc, char **argv )
 	 fmt_string(buf);
 	 fmt_indent = 0;
 	 fmt_newline();
-	 fmt_indent = FMT_INDENT;
+//	 fmt_indent = FMT_INDENT;
       }
    skip:;
    }
