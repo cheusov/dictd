@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.75 2003/07/07 12:24:16 cheusov Exp $
+# $Id: Makefile.in,v 1.76 2003/07/07 13:03:43 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -143,7 +143,7 @@ ALLLDFLAGS=$(XTRALDFLAGS) $(LDFLAGS) $(LDLIBS)
 %.o: %.c
 	$(CC) -c $(ALLCFLAGS) $(CFLAGS) $(SCFLAGS) $<
 %: %.o
-	$(CC) $(ALLLDFLAGS) -o $@ $^ $(OBJS)
+	$(CC) -o $@ $^ $(OBJS) $(ALLLDFLAGS)
 
 $(SRCHOBJS):  $(HEADERS)
 $(NETOBJS):  $(HEADERS)
