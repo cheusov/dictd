@@ -424,9 +424,10 @@ deny, group, database, data, index, filter, prefilter, postfilter, name,
 include, user, authonly, site.  Keywords are case sensitive.  String
 arguments that contain spaces should be surrounded by double quotes.
 Without quoting, strings may contain alphanumeric characters and _, -,
-., and *, but not spaces.  Strings must be on a single line and cannot
-be continued between lines.  Comments start with # and extend to the end
-of the line.
+ ., and *, but not spaces. Strings can
+be continued between lines. \\", \\\\, \\n, \\<NL> are treated as
+double quote, backslash, new line and no symbol respectively.
+Comments start with # and extend to the end of the line.
 .TP
 .B Site Section
 .RS

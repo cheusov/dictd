@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servscan.l,v 1.19 2003/02/23 13:03:12 cheusov Exp $
+ * $Id: servscan.l,v 1.20 2003/03/02 13:42:38 cheusov Exp $
  * 
  */
 
@@ -36,12 +36,48 @@ src_Type orig_source = NULL;
    yylval.token.src = src_get( yyleng );  \
    return val;                            \
 } while (0)
+
+/*
+  \n    --> new line character
+  \\    --> backslash
+  \<NL> --> no symbol
+  \"    --> double quote symbol
+*/
+static int escape_string (char *s, int len)
+{
+   int ret = 0;
+   int i   = 0;
+
+   for (i=0; i < len; ++i){
+      if (s [i] != '\\'){
+	 s [ret++] = s [i];
+      }else if (s [i+1] == '\\'){
+	 s [ret++] = '\\';
+
+	 ++i;
+      }else if (s [i+1] == 'n'){
+	 s [ret++] = '\n';
+
+	 ++i;
+      }else if (s [i+1] == '"'){
+	 s [ret++] = '"';
+
+	 ++i;
+      }else if (s [i+1] != '\n'){
+	 s [ret++] = s [++i];
+      }else{
+	 ++i;
+      }
+   }
+
+   return ret;
+}
+
 %}
 %s OTHER
 comment                     #.*
 word                        ([[:alnum:]_/\-\.\*][[:alnum:]_/\-\.\*]*)
-string                      \"(([^\"\n])|\"\"|\\\n)*\"
-badstring                   \"(([^\"\n])|\"\")*
+string                      \"(([^\"\n])|\"\"|\\\n|\\\")*\"
 NL                          \n
 WS                          [[:blank:]]+
 %%
@@ -77,9 +113,12 @@ plugin                      RETURN(T_PLUGIN);
 {word}                      { yylval.token.string = str_findn(yytext, yyleng);
                               RETURN(T_STRING);
                             }
-{string}                    { yylval.token.string
-				 = str_findn(yytext+1, yyleng-2);
-                              RETURN(T_STRING);
+{string}                    {
+				yylval.token.string =
+					str_findn (
+						yytext+1,
+						escape_string (yytext+1, yyleng-2));
+				RETURN(T_STRING);
                             }
 {NL}                        BEGIN(INITIAL);
 {WS}                        src_advance( yyleng );
