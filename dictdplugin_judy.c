@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.14 2003/08/31 17:31:47 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.15 2003/09/01 15:11:58 cheusov Exp $
  * 
  */
 
@@ -138,6 +138,11 @@ int dictdb_search (
    int *results_count);
 
 /**********************************************************/
+
+static void plugin_error (global_data *dict_data, const char *err_msg)
+{
+   strlcpy (dict_data -> m_err_msg, err_msg, BUFSIZE);
+}
 
 static global_data * global_data_create (void)
 {
@@ -328,6 +333,28 @@ static int process_line (char *s, void *data)
 	 sizeof (dict_data -> m_conf_data_fn),
 	 dict_data -> m_default_db_dir,
 	 value);
+   }else if (!strcmp(s, "disable_strat")){
+      if (!strcmp (value, "exact")){
+	 dict_data -> m_strat_exact = -1;
+      }else if (!strcmp (value, "prefix")){
+	 dict_data -> m_strat_prefix = -1;
+      }else if (!strcmp (value, "substring")){
+	 dict_data -> m_strat_substring = -1;
+      }else if (!strcmp (value, "suffix")){
+	 dict_data -> m_strat_suffix = -1;
+      }else if (!strcmp (value, "re")){
+	 dict_data -> m_strat_re = -1;
+      }else if (!strcmp (value, "regexp")){
+	 dict_data -> m_strat_regexp = -1;
+      }else if (!strcmp (value, "soundex")){
+	 dict_data -> m_strat_soundex = -1;
+      }else if (!strcmp (value, "lev")){
+	 dict_data -> m_strat_lev = -1;
+      }else if (!strcmp (value, "word")){
+	 dict_data -> m_strat_word = -1;
+      }else{
+	 plugin_error (dict_data, "invalid strategy");
+      }
    }
 
    return 0;
@@ -401,11 +428,6 @@ static void read_lines (
 	 buf [i] = 0;
       }
    }
-}
-
-static void plugin_error (global_data *dict_data, const char *err_msg)
-{
-   strlcpy (dict_data -> m_err_msg, err_msg, BUFSIZE);
 }
 
 static BOOL split_index (
@@ -772,7 +794,6 @@ int dictdb_open (
    }
 
 //   debug_print (dict_data);
-
    return 0;
 }
 
