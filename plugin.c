@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: plugin.c,v 1.2 2003/04/10 18:52:32 cheusov Exp $
+ * $Id: plugin.c,v 1.3 2003/08/01 11:57:10 cheusov Exp $
  * 
  */
 
@@ -438,7 +438,7 @@ static dictPlugin *create_plugin (
    PRINTF(DBG_INIT, (":I:     opening plugin\n"));
    plugin -> handle = lt_dlopen (plugin_filename);
    if (!plugin -> handle){
-      PRINTF(DBG_INIT, (":I:     faild\n"));
+      PRINTF(DBG_INIT, (":I:     faild: %s\n", dlerror ()));
       exit (1);
    }
 
