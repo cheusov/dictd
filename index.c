@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.56 2003/02/23 15:31:39 cheusov Exp $
+ * $Id: index.c,v 1.57 2003/02/28 15:07:24 cheusov Exp $
  * 
  */
 
@@ -1341,7 +1341,7 @@ static int dict_search_plugin (
    assert (database -> plugin);
 
    PRINTF (DBG_SEARCH, (":S:     searching\n"));
-   sigaction (SIGCHLD, NULL, NULL);
+
    failed = database -> plugin -> dictdb_search (
       database -> plugin -> data,
       word, -1,
