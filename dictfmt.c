@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.28 2003/09/30 15:51:21 cheusov Exp $
+ * $Id: dictfmt.c,v 1.29 2003/09/30 17:58:44 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -379,7 +379,7 @@ static int contain_nonascii_symbol (const char *word)
    return 0;
 }
 
-static void fmt_newheadword( const char *word, int flag )
+static void fmt_newheadword( const char *word )
 {
    static char prev[1024] = "";
    static int  start = 0;
@@ -447,7 +447,10 @@ static void fmt_newheadword( const char *word, int flag )
       p = prev;
       do {
 	 sep = NULL;
-	 if (hw_separator [0] && !flag){
+	 if (hw_separator [0] &&
+	     strncmp (prev, "00-database", 11) &&
+	     strncmp (prev, "00database", 10))
+	 {
 	    sep = strstr (p, hw_separator);
 	    if (sep)
 	       *sep = 0;
@@ -466,11 +469,6 @@ static void fmt_newheadword( const char *word, int flag )
       strlcpy(prev, word, sizeof (prev));
 
       start = end;
-      if (flag) {
-	 fmt_string(word);
-	 fmt_indent += FMT_INDENT;
-	 fmt_newline();
-      }
    }
 
    if (!quiet_mode){
@@ -484,7 +482,7 @@ static void fmt_newheadword( const char *word, int flag )
 
 static void fmt_closeindex( void )
 {
-   fmt_newheadword(NULL,0);
+   fmt_newheadword (NULL);
    if (fmt_str){
       pclose( fmt_str );
    }
@@ -596,7 +594,7 @@ static const char *sname = string_unknown;
 
 static void fmt_headword_for_url (void)
 {
-   fmt_newheadword("00-database-url",1);
+   fmt_newheadword("00-database-url");
    fmt_string( "     " );
    fmt_string( url );
 
@@ -605,7 +603,7 @@ static void fmt_headword_for_url (void)
 
 static void fmt_headword_for_shortname (void)
 {
-   fmt_newheadword("00-database-short",1);
+   fmt_newheadword("00-database-short");
    fmt_string( "     " );
    fmt_string( sname );
 
@@ -617,7 +615,7 @@ static void fmt_headword_for_info (void)
    time_t     t;
    char       buffer[BSIZE];
 
-   fmt_newheadword("00-database-info",1);
+   fmt_newheadword("00-database-info");
 
    if (!without_time){
       fmt_string("This file was converted from the original database on:" );
@@ -653,7 +651,7 @@ static void fmt_headword_for_info (void)
 static void fmt_headword_for_utf8 (void)
 {
    if (utf8_mode){
-      fmt_newheadword("00-database-utf8",1);
+      fmt_newheadword("00-database-utf8");
       fmt_newline();
    }
 }
@@ -661,7 +659,7 @@ static void fmt_headword_for_utf8 (void)
 static void fmt_headword_for_8bit (void)
 {
    if (bit8_mode){
-      fmt_newheadword("00-database-8bit",1);
+      fmt_newheadword("00-database-8bit");
       fmt_newline();
    }
 }
@@ -669,7 +667,7 @@ static void fmt_headword_for_8bit (void)
 static void fmt_headword_for_allchars (void)
 {
    if (allchars_mode){
-      fmt_newheadword("00-database-allchars",1);
+      fmt_newheadword("00-database-allchars");
       fmt_newline();
    }
 }
@@ -829,7 +827,7 @@ int main( int argc, char **argv )
 	    strcpy( buffer2, buffer );
 	    if ((pt = strchr( buffer2, ','))) {
 	       *pt = '\0';
-	       fmt_newheadword(buffer2, 0);
+	       fmt_newheadword(buffer2);
 	       if (without_hw)
 		  buf = NULL;
 	    }
@@ -881,7 +879,7 @@ int main( int argc, char **argv )
 	    case 'B':
 	       if ((pt = strstr( buffer+3, " - </B>" ))) {
 		  *pt = '\0';
-		  fmt_newheadword(buffer+3, 0);
+		  fmt_newheadword(buffer+3);
 		  fmt_indent += 3;
 		  memmove( buf, buffer+3, strlen(buffer+3)+1 );
 	       } else {
@@ -906,7 +904,7 @@ int main( int argc, char **argv )
 	       if (*s == ':') ++s;
 	       
 	       *pt = '\0';
-	       fmt_newheadword(buffer+1, 0);
+	       fmt_newheadword (buffer+1);
 	       memmove( buf, buffer+1, strlen(buffer+1));
 	       memmove( pt-1, s, strlen(s)+1 ); /* move \0 also */
 	    }
@@ -928,7 +926,7 @@ int main( int argc, char **argv )
 		  header = 1;
 		  continue;
 	       } else {
-		  fmt_newheadword(buffer+3,1);
+		  fmt_newheadword(buffer+3);
 		  continue;
 	       }
 	    } else if (buffer[1] == 'd') {
@@ -941,7 +939,7 @@ int main( int argc, char **argv )
           switch (*buffer) {
           case '@':
               if (header && !strncmp(buffer, "@item ", 6)) {
-                  fmt_newheadword(buffer+6,8);
+		 fmt_newheadword(buffer+6);
               }
               continue;
           }
@@ -980,7 +978,7 @@ int main( int argc, char **argv )
 	       continue;
 	 }else{
 	    if (*buffer && *buffer != ' ' && *buffer != '\t') {
-	       fmt_newheadword(buffer,1);
+	       fmt_newheadword(buffer);
 	       continue;
 	    }
 	 }
@@ -1002,7 +1000,7 @@ int main( int argc, char **argv )
 	    buf = trim_left (buf);
 
 	    if (*buf != '\0') {
-	       fmt_newheadword(buf,0);
+	       fmt_newheadword (buf);
 	       if (without_hw)
 		  buf = NULL;
 	    }

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.91 2003/08/27 16:05:22 cheusov Exp $
+ * $Id: dictd.c,v 1.92 2003/09/30 17:58:44 cheusov Exp $
  * 
  */
 
@@ -434,10 +434,12 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
 
    buf = pt = dict_data_obtain( db, dw );
 
-   while (*pt != '\n')
-      ++pt;
+   if (!strncmp (pt, "00database", 10) || !strncmp (pt, "00-database", 11)){
+      while (*pt != '\n')
+	 ++pt;
 
-   ++pt;
+      ++pt;
+   }
 
    while (*pt == ' ' || *pt == '\t')
       ++pt;
@@ -818,7 +820,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.91 2003/08/27 16:05:22 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.92 2003/09/30 17:58:44 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
