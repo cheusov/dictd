@@ -1,10 +1,10 @@
 /* net.c -- 
  * Created: Fri Feb 21 20:58:10 1997 by faith@cs.unc.edu
- * Revised: Thu Apr 17 11:31:43 1997 by faith@cs.unc.edu
+ * Revised: Tue Jul  8 16:15:47 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: net.c,v 1.11 1997/04/30 12:03:53 faith Exp $
+ * $Id: net.c,v 1.12 1997/07/08 21:21:14 faith Exp $
  * 
  */
 
@@ -65,8 +65,7 @@ int net_connect_tcp( const char *host, const char *service )
 		       ntohs(ssin.sin_port) );
 
    if (connect(s, (struct sockaddr *)&ssin, sizeof(ssin)) < 0)
-      err_fatal_errno( __FUNCTION__,
-		       "Can't connect to %s.%s\n", host, service );
+      return -1;
 
    return s;
 }

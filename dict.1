@@ -1,0 +1,133 @@
+.\" dict.1 -- 
+.\" Created: Tue Jul  8 11:36:19 1997 by faith@acm.org
+.\" Revised: Tue Jul  8 16:15:46 1997 by faith@acm.org
+.\" Copyright 1997 Rickard E. Faith (faith@acm.org)
+.\" 
+.\" Permission is granted to make and distribute verbatim copies of this
+.\" manual provided the copyright notice and this permission notice are
+.\" preserved on all copies.
+.\" 
+.\" Permission is granted to copy and distribute modified versions of this
+.\" manual under the conditions for verbatim copying, provided that the
+.\" entire resulting derived work is distributed under the terms of a
+.\" permission notice identical to this one
+.\" 
+.\" Since the Linux kernel and libraries are constantly changing, this
+.\" manual page may be incorrect or out-of-date.  The author(s) assume no
+.\" responsibility for errors or omissions, or for damages resulting from
+.\" the use of the information contained herein.  The author(s) may not
+.\" have taken the same level of care in the production of this manual,
+.\" which is licensed free of charge, as they might when working
+.\" professionally.
+.\" 
+.\" Formatted or processed versions of this manual, if unaccompanied by
+.\" the source, must acknowledge the copyright and authors of this work.
+.\" 
+.TH DICT 1 " 8 Jul 1997" "" "Linux Programmer's Manual"
+.SH NAME
+dict \- DICT Protocol Client
+.SH SYNOPSIS
+.BI dict " word"
+.br
+.BI dict " [options] [word]"
+.SH DESCRIPTION
+.B dict
+is a client for the Dictionary Server Protocol (DICT), a TCP transaction
+based query/response protocol that provides access to dictionary
+definitions from a set of natural language dictionary databases.
+.SH OPTIONS
+.TP
+.BI \-h " server\fR or " \-\-host " server"
+Specifies the hostname for the DICT server.  Server/port combinations can
+be specified in the configuration file.  If no servers are specified the
+default behavior is to first try localhost, and then to try dict.org.
+.TP
+.BI \-p " service\fR or " \-\-port " service"
+Specifies the port (e.g., 2628) or service (e.g., dict) for connections.
+The default is 2628, as specified in the DICT Protocol RFC.  Server/port
+combinations can be specified in the configuration file.
+.TP
+.BI \-d " dbname\fR or " \-\-database " dbname"
+Specifies a specific database to search.  The default is to search all
+databases.
+.TP
+.BR \-m " or " \-\-match
+Instead of printing a definition, perform a match using the specified
+strategy.
+.TP
+.BI \-s " strategy\fR or " \-\-strategy " strategy"
+Specify a matching strategy.  By default, the server default match strategy
+is used.  This is usually "exact" for definitions, and some form of
+spelling-correction strategy for matches.
+.TP
+.BR \-D " or " \-\-dbs
+Query the server and display a list of available databases.
+.TP
+.BR \-S " or " \-\-strats
+Query the server and display a list of available search strategies.
+.TP
+.BR \-H " or " \-\-serverhelp
+Query the server and display the help information that it provides.
+.TP
+.BI \-i " dbname\fR or " \-\-info " dbname"
+Request information on the specified database (usually the server will
+provide origination, descriptive, or other information about the database
+or its contents).
+.TP
+.BR \-I " or " \-\-serverinfo
+Query the server and display information about the server.
+.TP
+.BR \-a " or " \-\-noauth
+Disable authentication (i.e., don't send an AUTH command).
+.TP
+.BI \-u " user\fR or " \-\-user " user"
+Specifies the username for authentication.
+.TP
+.BI \-k " key\fR or " \-\-key " key"
+Specifies the shared secret for authentication.
+.TP
+.BR \-V " or " \-\-version
+Display version information.
+.TP
+.BR \-L " or " \-\-license
+Display copyright and license information.
+.TP
+.B \-\-help
+Display help information.
+.TP
+.BR -v " or " \-\-verbose
+Be verbose.
+.BR -r " or " \-\-raw
+Be very verbose: show the raw client/server interaction.
+.BI \-\-debug " flag"
+Set a debugging flag.  Valid flags are:
+.RS
+.TP
+.B verbose
+The same as
+.BR \-v " or " \-\-verbose .
+.TP
+.B raw
+The same as
+.BR \-r " or " \-\-raw .
+.TP
+.B scan
+Debug the scanner for the configuration file.
+.TP
+.B parse
+Debug the parser for the configuration file.
+.TP
+.B pipe
+Debug TCP pipelining support (see the DICT RFC and RFC1854).
+.TP
+.B serial
+Disable pipelining support.
+.TP
+.B time
+Perform transaction timing.
+.TP
+.RE
+.TP
+.SH FILES
+.SH "SEE ALSO"
+.BR dictd (1)

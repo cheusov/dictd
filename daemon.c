@@ -1,6 +1,6 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@cs.unc.edu
- * Revised: Sun Jun 22 21:02:22 1997 by faith@acm.org
+ * Revised: Tue Jul  8 17:05:02 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.19 1997/06/23 11:05:23 faith Exp $
+ * $Id: daemon.c,v 1.20 1997/07/08 21:20:58 faith Exp $
  * 
  */
 
@@ -271,7 +271,7 @@ static void daemon_log( int type, const char *format, ... )
    case DICT_LOG_NOMATCH:
       if (!flg_test(LOG_NOTFOUND)) return; marker = 'N'; break;
    case DICT_LOG_COMMAND:
-      if (!flg_test(LOG_COMMAND))  return; marker = 'C'; break;
+      if (!flg_test(LOG_COMMAND))  return; marker = 'T'; break;
    }
 
    if (dbg_test(DBG_PORT))
@@ -754,7 +754,7 @@ static void daemon_show_server( const char *cmdline, int argc, char **argv )
    FILE *str;
    char buffer[1024];
    
-   daemon_printf( "%d server information\n", CODE_DATABASE_INFO );
+   daemon_printf( "%d server information\n", CODE_SERVER_INFO );
    daemon_printf( "DICT Protocol Server: %s\n", dict_get_banner(0) );
    if (DictConfig->site && (str = fopen( DictConfig->site, "r" ))) {
       daemon_printf( "Site-specific information for %s:\n\n", net_hostname() );

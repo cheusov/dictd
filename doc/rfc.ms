@@ -1,8 +1,8 @@
 .\"
-.\" Revised: Mon Jul  7 14:50:09 1997 by faith@acm.org
+.\" Revised: Tue Jul  8 12:30:50 1997 by faith@acm.org
 .\" Distribution of this memo is unlimited.
 .\"
-.\" $Id: rfc.ms,v 1.14 1997/07/07 20:08:51 faith Exp $
+.\" $Id: rfc.ms,v 1.15 1997/07/08 21:21:27 faith Exp $
 .\" 
 .pl 10.0i
 .po 0
@@ -11,7 +11,7 @@
 .nr LL 7.2i
 .nr LT 7.2i
 .ds LF Faith, Martin
-.ds DA 27 June 1997
+.ds DA 1 July 1997
 .ds RF FORMFEED[Page %]
 .ds CF
 .ds LH RFC Unassigned
