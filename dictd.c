@@ -4,7 +4,7 @@
  * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.30 1998/01/04 15:42:15 faith Exp $
+ * $Id: dictd.c,v 1.31 1998/01/16 03:30:22 faith Exp $
  * 
  */
 
@@ -116,7 +116,11 @@ const char *dict_format_time( double t )
 
 static void reaper( int dummy )
 {
+#if defined(__sparc__) && defined(__svr4__)
+   int        status;
+#else
    union wait status;
+#endif
    pid_t      pid;
    int        flag = 0;
 
@@ -441,7 +445,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.30 1998/01/04 15:42:15 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.31 1998/01/16 03:30:22 faith Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;

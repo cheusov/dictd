@@ -17,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: decl.h,v 1.3 1997/03/12 01:14:13 faith Exp $
+ * $Id: decl.h,v 1.4 1998/01/16 03:30:22 faith Exp $
  * 
  */
 
@@ -36,7 +36,13 @@ extern long   random( void );
 extern int    srandom( unsigned );
 extern char   *index( const char *, int c );
 
-#if !defined(__svr4__)
+#if defined(__svr4__)
+				/* Just Solaris */
+extern int    gethostname(char *name, int namelen);
+extern int    getdtablesize(void);
+extern pid_t  wait3(int *statusp, int options, struct rusage *rusage);
+#include <termios.h>
+#else
 				/* Old braindamage for SunOS only */
 extern char   *memset( void *, int, int );
 extern char   *strchr( const char *, int );
