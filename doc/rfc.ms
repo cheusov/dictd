@@ -31,9 +31,11 @@ Status of this Memo
 This document has not yet been submitted or accepted as an official
 RFC.
 
-This memo provides information for the Internet community.  This memo
-does not specify an Internet standard of any kind.  Distribution of
-this memo is unlimited.
+This document specifies an Internet standards track protocol for the
+Internet community, and requests discussion and suggestions for
+improvements.  Please refer to the current edition of the "Internet
+Official Protocol Standards" (STD 1) for the standardization state and
+status of this protocol.  Distribution of this memo is unlimited.
 
 .ti 0
 Abstract
@@ -46,24 +48,22 @@ definitions from a natural language dictionary database.
 1. Introduction
 
 For many years, the Internet community has relied on the "webster" protocol
-for access to natural language definitions.  The "webster" protocol
-supports access to a single dictionary and (optionally) to a single
-thesaurus.  In recent years, the number of publically available webster
-servers on the Internet has dramatically decreased.
+for access to natural language definitions.  The webster protocol supports
+access to a single dictionary and (optionally) to a single thesaurus.  In
+recent years, the number of publically available webster servers on the
+Internet has dramatically decreased.
 
-Fortunately, several freely-distributable dictionaries and lexicons
-have recently become available on the Internet.  However, these
-freely-distributable databases are not accessible via a uniform
-interface, and are not accessible from a single site.  They are often
-small and incomplete individually, but would collectively provide an
-interesting and useful database for providing definitions of English
-words.  Examples include the Jargon file [The on-line hacker Jargon
-File, version 4.0.0, 24 JUL 1996], the WordNet database
-[http://www.cogsci.princeton.edu/~wn/], and MICRA's version of the
+Fortunately, several freely-distributable dictionaries and lexicons have
+recently become available on the Internet.  However, these
+freely-distributable databases are not accessible via a uniform interface,
+and are not accessible from a single site.  They are often small and
+incomplete individually, but would collectively provide an interesting and
+useful database of English words.  Examples include the Jargon file [The
+on-line hacker Jargon File, version 4.0.0, 24 JUL 1996], the WordNet
+database [http://www.cogsci.princeton.edu/~wn/], MICRA's version of the
 1913 Webster's Revised Unabridged Dictionary
-[http://humanities.uchicago.edu/forms_unrest/webster.form.html], and
-the Free Online Dictionary of Computing
-[http://wombat.doc.ic.ac.uk/foldoc/].
+[http://humanities.uchicago.edu/forms_unrest/webster.form.html], and the
+Free Online Dictionary of Computing [http://wombat.doc.ic.ac.uk/foldoc/].
 
 The webster protocol is not suitable for providing access to a large number
 of separate dictionary databases, and extensions to the current webster
@@ -119,6 +119,7 @@ set.  More specifically, using the grammar conventions from [RFC822]:
      word        =  atom / qstring / string
      qstring     =  <"> *(qtextd/quoted-pair) <">
                  /  <'> *(qtexts/quoted-pair) <'>
+                 /  qstring *(qstring)
      string      =  *(qtextd/quoted-pair)
      qtextd      =  <any CHAR except <">, "\\", CTLs>
      qtexts      =  <any CHAR except <'>, "\\", CTLs>
@@ -149,24 +150,25 @@ CRLF.  There is no provision for the continuation of command lines.
 .ti 0
 2.4. Responses
 
-Responses are of three kinds, textual and status.
+Responses are of two kinds, textual and status.
 
 .ti 0
 2.4.1. Text Responses
 
-Text is sent only after a numeric status response line has been sent that
-indicates that text will follow.  Text is sent as a series of successive
+Before text is sent a numeric status response line will be sent indicating
+text will follow.
+ Text is sent as a series of successive
 lines of textual matter, each terminated with a CRLF.  A single line
 containing only a period (decimal code 46, ".") is sent to indicate the end
 of the text (i.e., the server will send a CRLF at the end of the last line
 of text, a period, and another CRLF).
 
-If the text contained a period as the first character of the text line in
-the original, that first period is doubled.  Therefore, the client must
-examine the first character of each line received.  Those that begin with
-two periods must have those two periods collapsed into one period.  Those
-that contain only a single period followed by a CRLF indicate the end of
-the text response.
+If a line of original text contained a period as the first character of the
+line, that first period is doubled by the dict server.  Therefore, the
+client must examine the first character of each line received.  Those that
+begin with two periods must have those two periods collapsed into one
+period.  Those that contain only a single period followed by a CRLF
+indicate the end of the text response.
 
 The intention is that text messages are appropriate for display on the
 user's terminal.
@@ -174,8 +176,8 @@ user's terminal.
 .ti 0
 2.4.2. Status Responses
 
-These indicate the server's response to the last command received from the
-client.
+Status responses indicate the server's response to the last command
+received from the client.
 
 Status response lines begin with a 3 digit numeric code which is sufficient
 to distinguish all responses.  Some of these may herald the subsequent
@@ -225,6 +227,9 @@ leading zeros.  All string parameters are surrounded by double quotes
 If a double quote appears in the string, it is preceeded by a backslash
 (decimal code 92, "\\").
 
+[We need to make the above really clear or more flexible, so that quotes
+aren't needed for db names or urls.]
+
 Response codes not specified in this standard may be used for any
 installation-specific additional commands also not specified.  These should
 be chosen to fit the pattern of x8z specified above.  The use of
@@ -240,6 +245,8 @@ are possible:
    501 Syntax error, illegal parameters
    502 Command not implemented
    503 Command parameter not implemented
+   420 Server temporarily unavailable
+   421 Server shutting down at operator request
 .fi
 
 
@@ -250,8 +257,8 @@ Below, each DICT command and appropriate responses are detailed.  Each
 command is shown in upper case for clarity, but the DICT server is
 case-insensitive.
 
-Every command described in this section must be implemented by all DICT
-servers.
+Except for the AUTH command, every command described in this section must
+be implemented by all DICT servers.
 
 .ti 0
 3.1. Initial Connection
@@ -292,6 +299,18 @@ Transient failure responses are also possible:
    421 Server shutting down at operator request
 .fi
 
+For example, response code 420 should be used if the server cannot
+currently fork a server process (or cannot currently obtain other resources
+required to proceed with a usable connection), but expects to be able to
+fork or obtain these resources in the near future.
+
+Response code 421 should be used when the server has been shut down at
+operator request, or when conditions indicate that the ability to service
+more requests in the near future will be impossible.  This may be used to
+allow a graceful operator-mediated temporary shutdown of a server, or to
+indicate that a well known server has been permanently removed from service
+(in which case, the text message might provide more information).
+
 .ti 0
 3.2. The DEFINE Command
 
@@ -302,12 +321,17 @@ DEFINE word
 .ti 0
 3.2.1. Description
 
-This command will look up the specified word in the specified
-database.  If the database name is specified with a star (decimal code
-42, "*"), then all of the databases will be search in the same order
-as that printed by the "SHOW DB" command.  This is the default
-behavior if a database is not specified.  ("DEFINE word" is equivalent
-to "DEFINE * word".)
+This command will look up the specified word in the specified database.  If
+the database name is specified with a star (decimal code 42, "*"), then all
+of the databases will be searched until a match is found.  In this case,
+the databases will be searched in the same order as that printed by the
+"SHOW DB" command.  This is the default behavior if a database is not
+specified.  ("DEFINE word" is equivalent to "DEFINE * word".)
+
+[NOTE TO REVIEWERS: For *, should all definitions from all databases be
+returned (as from match)?  The * form is generally useful as a convenience
+feature to be used for direct human interaction with the database (e.g.,
+via a telnet client), and should not be used by DICT-aware clients]
 
 If the word was not found, then status code 552 is sent.
 
@@ -327,6 +351,10 @@ From name:
 .in 3
 before the definition is printed.  This provides source information for the
 user.
+
+[NOTE TO REVIEWERS: Should a fourth parameter provide the ability to send a
+URL refering to the dictionary?  Should the first two parameters be
+reversed?]
 
 The textual body of each definition is terminated with a CRLF period CRLF
 sequence.
@@ -351,13 +379,13 @@ Response codes 250 and 251 require special parameters as part of their
 text.  The client can use these parameters to display information on
 the user's terminal.
 
-For code 250, parameter 1 must indicate the number of definitions
+For code 250, the first parameter must indicate the number of definitions
 retrieved.
 
-For code 251, parameter 1 must be the word retrieved.  Parameter 2
-must be the short database name (the first name as shown by "SHOW DB")
-for the database from which the definition has been retrieved.
-Parameter 3 must be the short database description (the second name
+For code 251, the first parameter must be the word retrieved.  The second
+parameter must be the short database name (the first name as shown by "SHOW
+DB") for the database from which the definition has been retrieved.  The
+third parameter must be the short database description (the second name
 shown by "SHOW DB").
 
 
@@ -520,7 +548,7 @@ These response codes require no special parameters.
 .ti 0
 3.5. The CLIENT Command
 
-CLIENT 
+CLIENT client-info
 
 .ti 0
 3.5.1. Description
@@ -549,14 +577,14 @@ AUTH username authentication-string
 
 The client can authenticate itself to the server using a username and
 password.  The authentication-string will be computed as in the APOP
-protocol discussed in [RFC1939].  Briefly, the authentication-string
-is the MD5 checksum of the concatenation of the msgid (obtained from
-the response to the CLIENT command) and the ``shared secret'' (or
-password) that is stored in the server and client configuration files.
-Since the user does not have to type this shared secret when accessing
-the server, the shared secret can be an arbitrarily long passphrase.
-Because of the computational ease of computing the MD5 checksum, the
-shared secret should be significantly longer than a usual password.
+protocol discussed in [RFC1939].  Briefly, the authentication-string is the
+MD5 checksum of the concatenation of the msgid (obtained from the initial
+banner) and the "shared secret" that is stored in the server and client
+configuration files.  Since the user does not have to type this shared
+secret when accessing the server, the shared secret can be an arbitrarily
+long passphrase.  Because of the computational ease of computing the MD5
+checksum, the shared secret should be significantly longer than a usual
+password.
 
 Authentication may make more dictionary databases available for the current
 session.  For example, there may be some publicly distributable databases
