@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.64 2003/10/31 16:28:20 cheusov Exp $
+dnl $Id: configure.in,v 1.65 2003/10/31 17:16:15 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -36,7 +36,7 @@ define(VERSION, 1.9.10)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.64 $)
+AC_REVISION($Revision: 1.65 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -216,10 +216,10 @@ if test "x${enableval}" != xno; then
         AC_CHECK_LIB(dl, dlopen,
             [LIBS="$LIBS -ldl"; USE_PLUGIN=2],
             AC_CHECK_LIB(ltdl,lt_dlopen,
-                [LIBS="$LIBS -lltdl"; USE_PLUGIN=1],
-                [AC_MSG_ERROR(
-                    [Install ltdl library and appropriate header files
-                           or run ./configure --disable-plugin])])))
+                [LIBS="$LIBS -lltdl"; USE_PLUGIN=1])))
+#                [AC_MSG_ERROR(
+#                    [Install ltdl library and appropriate header files
+#                           or run ./configure --disable-plugin])])))
 fi
 
 AC_ARG_ENABLE([dictorg],[  --enable-dictorg        use predefined dict servers])
@@ -350,21 +350,21 @@ AC_HEADER_TIME
 if test "x${USE_PLUGIN}" = "x2"; then
    # We use native dlopen
 
-   AC_CHECK_HEADERS(dlfcn.h,
-		[AC_DEFINE(HAVE_DLFCN_H, 1,
-			[Define if you have the <dlfcn.h> header file.])],
-			[AC_MSG_ERROR([Install dl library and appropriate header files
-                           or run ./configure --disable-plugin])])
+   AC_CHECK_HEADERS(dlfcn.h, , [USE_PLUGIN=])
+#		[AC_DEFINE(HAVE_DLFCN_H, 1,
+#			[Define if you have the <dlfcn.h> header file.])],
+#			[AC_MSG_ERROR([Install dl library and appropriate header files
+#                           or run ./configure --disable-plugin])])
 fi
 
 if test "x${USE_PLUGIN}" = "x1"; then
    # We use libltdl
 
-   AC_CHECK_HEADERS(ltdl.h,
-		[AC_DEFINE(HAVE_LTDL_H, 1,
-			[Define if you have the <ltdl.h> header file.])],
-			[AC_MSG_ERROR([Install ltdl library and appropriate header files
-                           or run ./configure --disable-plugin])])
+   AC_CHECK_HEADERS(ltdl.h, , [USE_PLUGIN=])
+#		[AC_DEFINE(HAVE_LTDL_H, 1,
+#			[Define if you have the <ltdl.h> header file.])],
+#			[AC_MSG_ERROR([Install ltdl library and appropriate header files
+#                           or run ./configure --disable-plugin])])
 fi
 
 AC_CHECK_HEADERS(unistd.h strings.h limits.h)
@@ -444,7 +444,53 @@ AC_CONFIG_FILES([colorit], [chmod +x colorit])
 
 AC_OUTPUT
 
+echo -en '\n\n'
+
+# MAA
+echo -n "maa:             "
+if test "_$local_libmaa" = "_0"; then
+  echo system
+else
+  echo local
+fi
+
+# ZLIB
+echo -n "zlib:            "
+if test "_$local_zlib" = "_0"; then
+  echo system
+else
+  echo local
+fi
+
+# REGEX
+echo -n "regex:           "
+if test "_$local_regex" = "_0"; then
+  echo system
+else
+  echo local
+fi
+
+# PLUGIN SUPPORT
+echo -n "plugin support:  "
+if test "_$USE_PLUGIN" = "_"; then
+  echo disabled
+else
+  case "$USE_PLUGIN" in
+    1) echo libltdl;;
+    2) echo native
+  esac
+
+  echo -n " judy:           "
+  if test "$_JUDYLIB" = "_"; then
+    echo "enabled"
+  else
+    echo "disabled"
+  fi
+fi
+
+echo -en '\n\n'
+
 date > stamp-h.in
 date > stamp-h
-echo .
-echo Done
+#echo .
+#echo Done
