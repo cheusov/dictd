@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.89 2004/03/22 17:17:06 cheusov Exp $
+ * $Id: index.c,v 1.90 2004/10/08 08:14:39 cheusov Exp $
  * 
  */
 
@@ -60,11 +60,12 @@ int optStart_mode = 1;	/* Optimize search range for constant start */
 dictConfig *DictConfig;
 
 int _dict_comparisons;
-static int isspacealnumtab[UCHAR_MAX + 1];
+static int isspacealnumtab [UCHAR_MAX + 1];
 static int isspacealnumtab_allchars[UCHAR_MAX + 1];
 static int isspacepuncttab [UCHAR_MAX + 1];
-static int char2indextab[UCHAR_MAX + 2];
-static int index2chartab[UCHAR_MAX + 2];
+static int char2indextab   [UCHAR_MAX + 2];
+static int index2chartab   [UCHAR_MAX + 2];
+static int tolowertab      [UCHAR_MAX + 1];
 
 char global_alphabet_8bit [UCHAR_MAX + 2];
 char global_alphabet_ascii [UCHAR_MAX + 2];
@@ -141,9 +142,16 @@ static void dict_table_init(void)
 	 isspacealnumtab [i] = 0;
       }
 
+      tolowertab [i] = tolower (i);
+      if (i >= 0x80){
+	 if (utf8_mode || (!utf8_mode && !bit8_mode)){
+	    /* utf-8 or ASCII mode */
+	    tolowertab [i] = i;
+	 }
+      }
+
       if (isspace(i) || ispunct(i)){
 	 isspacepuncttab [i] = 1;
-
       }else{
 	 isspacepuncttab [i] = 0;
       }
@@ -276,15 +284,15 @@ static int compare_alnumspace(
       if (isspace( (unsigned char) *start ))
 	 c2 = ' ';
       else
-	 c2 = tolower(* (unsigned char *) start);
+	 c2 = tolowertab [* (unsigned char *) start];
 
       if (isspace( (unsigned char) *word ))
 	 c1 = ' ';
       else
-	 c1 = tolower(* (unsigned char *) word);
+	 c1 = tolowertab [* (unsigned char *) word];
 #else
-      c2 = tolower(* (unsigned char *) start);
-      c1 = tolower(* (unsigned char *) word);
+      c2 = tolowertab [* (unsigned char *) start];
+      c1 = tolowertab [* (unsigned char *) word];
 #endif
       if (c1 != c2) {
 	 if (utf8_mode){
@@ -746,7 +754,7 @@ static int dict_search_brute( lst_List l,
 	 ++p;
 	 while (p < end && !dbindex -> isspacealnum[*p]) ++p;
       }
-      if (tolower(*p) == *word) {
+      if (tolowertab [*p] == *word) {
 	 result = compare( word, dbindex, p, end );
 	 if (result == -1 || result == 0) {
 	    switch (flag){
@@ -830,7 +838,7 @@ static int dict_search_bmh( lst_List l,
    for (i = 0; i < patlen-1; i++)
       skip[(unsigned char)word[i]] = patlen-i-1;
 
-   for (p = start+patlen-1; p < end; f ? (f=NULL) : (p += skip[tolower(*p)])) {
+   for (p = start+patlen-1; p < end; f ? (f=NULL) : (p += skip [tolowertab [*p]])) {
       while (*p == '\t') {
 	 FIND_NEXT(p,end);
 	 p += patlen-1;
@@ -851,7 +859,7 @@ static int dict_search_bmh( lst_List l,
 	    --pt;
 	 }
 
-	 if (tolower(*pt--) != *wpt--)
+	 if (tolowertab [*pt--] != *wpt--)
 	    break;
       }
 
