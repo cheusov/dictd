@@ -1,6 +1,6 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@cs.unc.edu
- * Revised: Sun Jan 18 09:23:15 1998 by faith@acm.org
+ * Revised: Sun Jan 18 23:04:20 1998 by faith@acm.org
  * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.23 1998/01/19 03:37:15 faith Exp $
+ * $Id: daemon.c,v 1.24 1998/01/19 04:05:06 faith Exp $
  * 
  */
 
@@ -255,8 +255,8 @@ static int daemon_check_auth( const char *user )
 static void daemon_log( int type, const char *format, ... )
 {
    va_list ap;
-   char    buf[512];
-   char    buf2[3*512];
+   char    buf[8*1024];
+   char    *buf2;
    int     len;
    char    *s, *d;
    int     c;
@@ -293,10 +293,13 @@ static void daemon_log( int type, const char *format, ... )
    va_end( ap );
    len = strlen( buf );
 
-   if (len > 500) {
+   if (len > 2048) {
       log_info( ":E: buffer overflow (%d)\n", len );
-      exit(0);
+      buf[2048] = '\0';
+      len = strlen(buf);
    }
+
+   buf2 = alloca( 3*(len+3) );
 
    for (s = buf, d = buf2; *s; s++) {
       c = (unsigned char)*s;
@@ -312,7 +315,7 @@ static void daemon_log( int type, const char *format, ... )
    *d = '\0';
    log_info( "%s", buf2 );
 
-   if (d != buf2) d[-1] = '\0';	/* kill newliney */
+   if (d != buf2) d[-1] = '\0';	/* kill newline */
    dict_setproctitle( "dictd %s", buf2 );
 }
 
