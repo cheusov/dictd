@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.41 2004/01/06 10:40:12 cheusov Exp $
+ * $Id: dictfmt.c,v 1.42 2004/01/06 11:52:19 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -117,7 +117,7 @@ static int mbswidth_ (const char *s)
       default:
 	 width = wcwidth (wchar);
 	 if (-1 == width)
-	    return -1;
+	    width = 1; /* we also count non-printable characters */
 
 	 ret += width;
       }
@@ -199,7 +199,8 @@ static void fmt_wrap_and_print (const char *s)
    if (utf8_mode){
       len = mbswidth_ (s);
       if (len == (size_t) -1)
-	 err_fatal (__FUNCTION__, "invalid utf-8 string '%s'\n", s);
+	 err_fatal (__FUNCTION__, "'%s' is not a valid utf-8 string\n", s);
+/*	 err_fatal (__FUNCTION__, "'%s' is not a valid utf-8 string or contains non-printable symbols\n", s);*/
    }else{
       len = strlen (s);
    }
@@ -763,7 +764,10 @@ static void fmt_headword_for_info (void)
       fmt_string("This file was converted from the original database on:" );
       fmt_newline();
       time(&t);
+
       snprintf( buffer, sizeof (buffer), "          %25.25s", ctime(&t) );
+      buffer [strlen (buffer) - 1] = 0; /* for removing \n */
+
       fmt_string( buffer );
       fmt_newline();
       fmt_newline();
