@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.54 2002/10/17 11:43:25 cheusov Exp $
+ * $Id: dictd.c,v 1.55 2002/10/28 11:20:21 cheusov Exp $
  * 
  */
 
@@ -55,6 +55,7 @@ static int        _dict_argvlen;
 
        int        _dict_forks;
 
+static const char *configFile  = DICT_CONFIG_PATH DICTD_CONFIG_NAME;
 
 void dict_initsetproctitle( int argc, char **argv, char **envp )
 {
@@ -158,21 +159,51 @@ static int start_daemon( void )
    return pid;
 }
 
+static const char * signal2name (int sig)
+{
+   static char name [50];
+
+   switch (sig) {
+   case SIGHUP:
+      return "SIGHUP";
+   case SIGINT:
+      return "SIGINT";
+   case SIGQUIT:
+      return "SIGQUIT";
+   case SIGILL:
+      return "SIGILL";
+   case SIGTRAP:
+      return "SIGTRAP";
+   case SIGTERM:
+      return "SIGTERM";
+   case SIGPIPE:
+      return "SIGPIPE";
+   case SIGALRM:
+      return "SIGALRM";
+   default:
+      sprintf (name, "Signal %d", sig);
+      return name;
+   }
+}
+
+static void log_sig_info (int sig)
+{
+   log_info (
+      ":I: %s: c/f = %d/%d; %sr %su %ss\n",
+      signal2name (sig),
+      _dict_comparisons,
+      _dict_forks,
+      dict_format_time (tim_get_real ("dictd")),
+      dict_format_time (tim_get_user ("dictd")),
+      dict_format_time (tim_get_system ("dictd")));
+}
+
 static void handler( int sig )
 {
    const char *name = NULL;
    time_t     t;
 
-   switch (sig) {
-   case SIGHUP:  name = "SIGHUP";  break;
-   case SIGINT:  name = "SIGINT";  break;
-   case SIGQUIT: name = "SIGQUIT"; break;
-   case SIGILL:  name = "SIGILL";  break;
-   case SIGTRAP: name = "SIGTRAP"; break;
-   case SIGTERM: name = "SIGTERM"; break;
-   case SIGPIPE: name = "SIGPIPE"; break;
-   case SIGALRM: name = "SIGALRM"; break;
-   }
+   name = signal2name (sig);
 
    if (_dict_daemon) {
       daemon_terminate( sig, name );
@@ -190,26 +221,34 @@ static void handler( int sig )
 	 alarm(_dict_markTime);
 	 return;
       }
-      if (name) {
-	 log_info( ":I: %s: c/f = %d/%d; %sr %su %ss\n",
-		   name,
-		   _dict_comparisons,
-		   _dict_forks,
-		   dict_format_time( tim_get_real( "dictd" ) ),
-		   dict_format_time( tim_get_user( "dictd" ) ),
-		   dict_format_time( tim_get_system( "dictd" ) ) );
-      } else {
-	 log_info( ":I: Signal %d: c/f = %d/%d; %sr %su %ss\n",
-		   sig,
-		   _dict_comparisons,
-		   _dict_forks,
-		   dict_format_time( tim_get_real( "dictd" ) ),
-		   dict_format_time( tim_get_user( "dictd" ) ),
-		   dict_format_time( tim_get_system( "dictd" ) ) );
-      }
+
+      log_sig_info (sig);
    }
    if (!dbg_test(DBG_NOFORK) || sig != SIGALRM)
       exit(sig+128);
+}
+
+static void dict_close_databases (dictConfig *c);
+static void sanity (const char *confFile);
+static void dict_init_databases (dictConfig *c);
+static void dict_config_print (FILE *stream, dictConfig *c);
+
+static void handler_sighup (int sig)
+{
+   log_sig_info (sig);
+
+   dict_close_databases (DictConfig);
+
+   DictConfig = xmalloc (sizeof (dictConfig));
+   memset (DictConfig, 0, sizeof (dictConfig));
+   if (!access(configFile,R_OK))
+      prs_file_nocpp (configFile);
+   sanity (configFile);
+
+   if (dbg_test (DBG_VERBOSE))
+      dict_config_print( NULL, DictConfig );
+
+   dict_init_databases (DictConfig);
 }
 
 static void setsig( int sig, void (*f)(int), int sa_flags )
@@ -545,7 +584,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.54 2002/10/17 11:43:25 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.55 2002/10/28 11:20:21 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -664,6 +703,7 @@ static void release_root_privileges( void )
 {
    if (geteuid() == 0) {
       struct passwd *pwd;
+
       if ((pwd = getpwnam("dictd"))) {
          setgid(pwd->pw_gid);
          initgroups("dictd",pwd->pw_gid);
@@ -683,19 +723,19 @@ static void release_root_privileges( void )
 /* Perform sanity checks that are often problems for people trying to
  * get dictd running.  Do this early, before we detach from the
  * console. */
-static void sanity(const char *configFile)
+static void sanity(const char *confFile)
 {
    int           fail = 0;
    struct passwd *pw = NULL;
    struct group  *gr = NULL;
 
-   if (access(configFile,R_OK)) {
-      log_info(":E: %s is not readable (config file)\n", configFile);
+   if (access(confFile,R_OK)) {
+      log_info(":E: %s is not readable (config file)\n", confFile);
       ++fail;
    }
    if (!DictConfig->dbl) {
       log_info(":E: no databases have been defined\n");
-      log_info(":E: check %s or use -c\n", configFile);
+      log_info(":E: check %s or use -c\n", confFile);
       ++fail;
    }
    if (DictConfig->dbl) {
@@ -832,7 +872,6 @@ int main( int argc, char **argv, char **envp )
    int                word_len;
    int                alen         = sizeof(csin);
    const char         *service     = DICT_DEFAULT_SERVICE;
-   const char         *configFile  = DICT_CONFIG_PATH DICTD_CONFIG_NAME;
    int                detach       = 1;
    const char         *testWord    = NULL;
    const char         *testFile    = NULL;
@@ -990,8 +1029,8 @@ int main( int argc, char **argv, char **envp )
    tim_start( "dictd" );
    alarm(_dict_markTime);
 
-   DictConfig = xmalloc (sizeof (struct dictConfig));
-   memset( DictConfig, 0, sizeof( struct dictConfig ) );
+   DictConfig = xmalloc (sizeof (dictConfig));
+   memset( DictConfig, 0, sizeof (dictConfig ) );
    if (!access(configFile,R_OK))
       prs_file_nocpp( configFile );
 
@@ -1007,6 +1046,7 @@ int main( int argc, char **argv, char **envp )
    if (testWord) {		/* stand-alone test mode */
       dict_config_print( NULL, DictConfig );
       dict_init_databases( DictConfig );
+
       dict_make_dbs_available (DictConfig);
 
       dict_test (testWord, strategy);
@@ -1072,7 +1112,7 @@ int main( int argc, char **argv, char **envp )
    }
 
    setsig(SIGCHLD, reaper, SA_RESTART);
-   setsig(SIGHUP,  handler, 0);
+   setsig(SIGHUP,  handler_sighup, 0);
    if (!dbg_test(DBG_NOFORK))
       setsig(SIGINT,  handler, 0);
    setsig(SIGQUIT, handler, 0);
@@ -1102,7 +1142,6 @@ int main( int argc, char **argv, char **envp )
    if (dbg_test(DBG_VERBOSE)) dict_config_print( NULL, DictConfig );
    dict_init_databases( DictConfig );
 
-   
    dict_initsetproctitle(argc, argv, envp);
 
    for (;;) {

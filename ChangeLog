@@ -1,3 +1,48 @@
+2002-10-18  Bob Hilliard  <hilliard@debian.org>
+
+  * dictfmt.1, dictfmt.c, dictd.8:
+  Updated dictd.8 to include options added in 1.8.0.
+  Updated dictfmt.c to correct previous errors and omissions and include
+  options added in 1.8.0.
+  Patched dictfmt.c to correct help message for -c5 and to fix the bug
+  that caused the last headword read in to be duplicated in the index.
+
+2002-10-17  Aleksey Cheusov  <vle@gmx.net>
+
+  * daemon.c, dictd.c, dictd.h:
+  removed: --define-strategy option for 'dictd'
+  renamed: --match-strategy ==> --default-strategy
+  added:   --disable-strategy option for 'dictd'
+
+2002-10-16  Aleksey Cheusov  <vle@gmx.net>
+
+  * dictfmt.c:
+  fixed: typo
+
+2002-10-14  Aleksey Cheusov  <vle@gmx.net>
+
+  * index.c: *** empty log message ***
+
+  * servparse.y, servscan.l, index.c, dictfmt_index2suffix, dictfmt_index2word, dictd.h, dictd.c, daemon.c, Makefile.in:
+  fixed: missing dependancy in Makefile.in
+  added: fast implementation (binary search) of the WORD strategy search.
+         This requires additional index file created by dictfmt_index2word
+  added: --test-match option to dictd executable
+  fixed: problems with suffix strategy using additional index file
+
+  * daemon.c, dictdplugin.h, index.c:
+  ADDED: new search strategy 'word'
+  fixed: uninitialized variable charcount from index.c:dict_table_init
+
+2002-10-11  Aleksey Cheusov  <vle@gmx.net>
+
+  * daemon.c, dictd.c, ChangeLog:
+  added:   --match-strategy argument to dictd.
+           It sets the default strategy for 'match' queries
+  added:   --define-strategy argument to dictd.
+           It sets the default strategy for 'define' queries
+  update ChangeLog
+
 2002-09-27  Aleksey Cheusov  <vle@gmx.net>
 
   * libmaa/config.h.in, libmaa/configure.in, libmaa/error.c, ChangeLog, config.h.in, configure.in, daemon.c, data.c, dictd.c, dictd.h, dictdplugin.c, dictdplugin_exit.c, dictdplugin.h, dictP.h, index.c, Makefile.in:
