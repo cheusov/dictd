@@ -1,0 +1,133 @@
+Please read the file README in this directory for additional important
+information on The DICT Development Group, this software, mailing lists, etc.
+
+INSTALLATION
+============
+
+1.  Configure the source code and Makefiles:
+
+        ./configure
+
+    NOTE: the configure script accepts the common --prefix flag for
+    installing the software in an installer-defined location.  For example,
+    you can do something like:
+
+        ./configure --prefix=/opt/gnu
+
+2.  Compile the client and server software:
+
+        make 
+
+    NOTE: If you want to build only the client software, use 'make dict'
+    instead of 'make'
+
+3.  Install the client, server, and manual pages:
+
+        make install
+
+    NOTE: If you only built the client software in step 2, use
+    'make install.dict' instead of 'make install'
+
+4.  Install any databases you would like dict/dictd to utilize.  The
+    database(s) should be installed in a location that the 'dictd'
+    server process has access to.  The preformatted dictd-usable databases
+    you need can be found at any of the following locations:
+
+        ftp://ftp.dict.org/pub/dict/pre/               [most up to date]
+        ftp://ftp.cs.unc.edu/pub/users/faith/dict/pre/ [mirror]
+
+    a)  Make a directory to contain the dictionary database(s).  We'll
+        use '/opt/public/dict-dbs' for this EXAMPLE.
+
+    b)  For the sake of this document and to get you up and running, let's
+        say you're only interested in the Webster 1913 dictionary database.
+        In that case, get the latest 'dict-web1913...' file from one of the
+        locations above.
+
+    c)  Unpackage the 'dict-web1913...' file and put the resulting files
+        (see below) into /opt/public/dict-dbs (our EXAMPLE area...).
+
+           web1913.dict.dz   The 'dictzip' format database
+           web1913.index     The index of the database
+
+5.  To setup a proper server, you will need to configure a dictd.conf
+    file.  Please see the man page dictd.8 and the example .conf files
+    included with the source code for an explanation of the syntax needed
+    and other important details.  By default, dictd will try to find this
+    file as '/etc/dictd.conf', however if you start 'dictd' with the
+    '-c /your/path/to/your/conf/file/mydictd.conf', it will use that
+    file as the configuration file instead.
+
+    For our example, with our web1913 database in /opt/public/dict-dbs,
+    a MINIMAL dictd.conf file would be:
+
+        database web1913 { data "/opt/public/dict-dbs/web1913.dict.dz"
+                          index "/opt/public/dict-dbs/web1913.index" }
+
+6.  If you're installing this software for "intranet" use, you will want to
+    setup a 'dict.conf' file which the client software (dict) uses to
+    locate servers and such.  The syntax of the dict.conf file is not
+    documented anywhere that I can find, however if you have your 'dictd'
+    server running on the host named dict.company.com, then you should put
+    the following line in your dict.conf file so that users of the 'dict'
+    client do not have to specify '-h dict.company.com' each time they
+    want to query dictd:
+
+        server dict.company.com
+
+7.  That's it really.  Now piece everything together, run your dictd and
+    point it at your config file, and try running dict!
+
+ADVANCED
+========
+
+1.  As of dictd-1.4.9, specifying --prefix=/usr/local to the configure
+    script will NOT build binaries that look for config files (dictd.conf
+    and dict.conf) in /usr/local/etc.  This is a known bug.  To get around
+    this and to build binaries that look in a specific place you want
+    (/usr/local/etc for example), edit Makefile.in and change the line
+    reading:
+
+        conf=    @etcdir@/
+
+    to read:
+
+        # NOTE THE TRAILING SLASH!
+        conf=    /my/config/files/are/here/
+
+    So to build binaries that look for config files in /usr/local/etc :
+
+        # NOTE THE TRAILING SLASH!
+        conf=    /usr/local/etc/
+
+    Then run proceed with the installation steps above in INSTALLATION.
+
+GENERAL EXTRA INSTALL HELP
+==========================
+
+If the above information all isn't very clear, here's a view of good
+distributed environment's setup:
+
+    /usr/local/sbin/dictd         # Accessible from all hosts on our net
+    /usr/local/bin/dict           # Accessible from all hosts on our net
+    /usr/local/etc/dictd.conf     # Accessible from all hosts on our net
+    /usr/local/etc/dict.conf      # Accessible from all hosts on our net
+    /usr/local/lib/dict-dbs       # Accessible from all hosts on our net
+
+    /usr/local/etc/dictd.conf contains 2 lines:
+
+        database web1913 { data "/opt/public/dict-dbs/web1913.dict.dz"
+                          index "/opt/public/dict-dbs/web1913.index" }
+
+    /usr/local/etc/dict.conf contains 1 line:
+
+        server dict
+
+This setup allows ANY host on the network to quickly and easily become
+the dictd server.  All you have to do is setup a 'host alias' for the
+name 'dict' to point at whatever host you want to be the dictd server
+and then start dictd on that host.
+ 
+NOTE:  I had to install the dictd.conf and dict.conf in that location
+       BY HAND.  This is not done automatically for you.
+
