@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.18 2003/05/23 18:33:00 cheusov Exp $
+ * $Id: dictfmt.c,v 1.19 2003/06/10 13:36:17 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -308,7 +308,11 @@ static void fmt_newheadword( const char *word, int flag )
    char *      sep   = NULL;
    char *      p;
 
-   if (word && !strcmp (word, "00-database-url")){
+   if (
+      word &&
+      (!strcmp (word, "00-database-url") ||
+       !strcmp (word, "00databaseurl")))
+   {
       if (ignore_hw_url){
 	 fmt_ignore_headword = 1;
 	 return;
@@ -318,7 +322,11 @@ static void fmt_newheadword( const char *word, int flag )
       ignore_hw_url = 1;
    }
 
-   if (word && !strcmp (word, "00-database-short")){
+   if (
+      word &&
+      (!strcmp (word, "00-database-short") ||
+       !strcmp (word, "00databaseshort")))
+   {
       if (ignore_hw_shortname){
 	 fmt_ignore_headword = 1;
 	 return;
@@ -328,7 +336,11 @@ static void fmt_newheadword( const char *word, int flag )
       ignore_hw_shortname = 1;
    }
 
-   if (word && !strcmp (word, "00-database-info")){
+   if (
+      word &&
+      (!strcmp (word, "00-database-info") ||
+       !strcmp (word, "00databaseinfo")))
+   {
       if (ignore_hw_info){
 	 fmt_ignore_headword = 1;
 	 return;
@@ -349,6 +361,7 @@ static void fmt_newheadword( const char *word, int flag )
 
    fmt_indent = 0;
    if (*prev) fmt_newline();
+
    fflush(stdout);
    end = ftell(str);
 
