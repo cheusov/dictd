@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.108 2004/03/24 09:17:45 cheusov Exp $
+ * $Id: dictd.c,v 1.109 2004/04/05 17:44:10 cheusov Exp $
  * 
  */
 
@@ -63,7 +63,10 @@ const char        *locale       = "C";
 const char        *preprocessor = NULL;
 int                inetd        = 0;
 
-int                need_reload_config = 0;
+int                need_reload_config    = 0;
+
+int                need_unload_databases = 0;
+int                databases_unloaded    = 0;
 
 static const char *configFile  = DICT_CONFIG_PATH DICTD_CONFIG_NAME;
 
@@ -218,6 +221,12 @@ static void log_sig_info (int sig)
       dict_format_time (tim_get_system ("dictd")));
 }
 
+static void unload_databases (void)
+{
+   dict_close_databases (DictConfig);
+   DictConfig = NULL;
+}
+
 static void reload_config (void)
 {
    dict_close_databases (DictConfig);
@@ -318,6 +327,12 @@ static void handler_sighup (int sig)
 {
    log_sig_info (sig);
    need_reload_config = 1;
+}
+
+static void handler_sigusr1 (int sig)
+{
+   log_sig_info (sig);
+   need_unload_databases = 1;
 }
 
 static void setsig( int sig, void (*f)(int), int sa_flags )
@@ -824,6 +839,9 @@ static void dict_close_databases (dictConfig *c)
    dictDatabase *db;
    dictAccess   *acl;
 
+   if (!c)
+      return;
+
    if (c -> dbl){
       while (lst_length (c -> dbl) > 0){
 	 db = (dictDatabase *) lst_pop (c -> dbl);
@@ -896,7 +914,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.108 2004/03/24 09:17:45 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.109 2004/04/05 17:44:10 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1541,7 +1559,8 @@ int main( int argc, char **argv, char **envp )
    }
 
    setsig(SIGCHLD, reaper, SA_RESTART);
-   setsig(SIGHUP,  handler_sighup, 0);
+   setsig(SIGHUP,   handler_sighup, 0);
+   setsig(SIGUSR1,  handler_sigusr1, 0);
    if (!dbg_test(DBG_NOFORK))
       setsig(SIGINT,  handler, 0);
    setsig(SIGQUIT, handler, 0);
@@ -1597,6 +1616,13 @@ int main( int argc, char **argv, char **envp )
 	    if (need_reload_config){
 	       reload_config ();
 	       need_reload_config = 0;
+	       databases_unloaded = 0;
+	    }
+
+	    if (need_unload_databases){
+	       unload_databases ();
+	       need_unload_databases = 0;
+	       databases_unloaded = 1;
 	    }
 	    continue;
 	 }
@@ -1620,8 +1646,12 @@ int main( int argc, char **argv, char **envp )
       } else {
 	 if (_dict_forks - _dict_reaps < _dict_daemon_limit) {
 	    if (!start_daemon()) { /* child */
+	       int databases_loaded = (DictConfig != NULL);
+
 	       alarm(0);
-	       dict_daemon(childSocket,&csin,&argv,delay,0);
+	       dict_daemon (
+		  childSocket, &csin, &argv, delay,
+		  databases_loaded ? 0 : 2);
 	       exit(0);
 	    } else {		   /* parent */
 	       close(childSocket);

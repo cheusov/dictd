@@ -930,6 +930,34 @@ file using, for example,
 will destroy the random access characteristics of the file.  Always
 compress data files using
 .BR dictzip (1).)
+
+.SH "SIGNALS"
+.P
+.B SIGHUP
+causes dictd to reread configuration file and reinitialize databases.
+.P
+.B SIGUSR1
+causes dictd to unload databases. Then
+.I dictd
+returns 420 status (instead of 220). To load databases again, send
+.B SIGHUP
+signal. Because database files are
+.I mmap'ed(2)
+, it is impossible
+to update them while
+.I dictd
+is running.
+So, if you need to update database files and reread configuration file,
+first, send
+.B SIGUSR1
+signal
+to
+.I dictd
+to unload databases,
+update files, and then send
+.B SUGHUP
+signal to load them again.
+
 .SH "ACKNOWLEDGEMENTS"
 Special thanks to Jean-loup Gailly and Mark Adler for writing the
 .B zlib
