@@ -37,7 +37,7 @@ Version 1.9.13, by Aleksey Cheusov, 24 Mar 2004 11:32:53 +0200
 
     NOTE! Unless libdbi library is not found on your system
     or you configure dictd with --disable-plugin option,
-    'dictd' is linked with libdbi to resolv DBI driver's symbols.
+    'dictd' is linked with libdbi to resolve DBI driver's symbols.
     This should be fixed.
 
     NOTE! Connection to SQL database is made
