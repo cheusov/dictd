@@ -1,7 +1,7 @@
 /* net.c -- 
  * Created: Fri Feb 21 20:58:10 1997 by faith@cs.unc.edu
- * Revised: Sun Jan 18 00:54:26 1998 by faith@acm.org
- * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
+ * Revised: Wed Dec 22 07:11:54 1999 by faith@acm.org
+ * Copyright 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: net.c,v 1.18 1998/01/19 03:37:23 faith Exp $
+ * $Id: net.c,v 1.19 1999/12/22 12:14:47 faith Exp $
  * 
  */
 
@@ -72,11 +72,6 @@ int net_connect_tcp( const char *host, const char *service )
    memset( &ssin, 0, sizeof(ssin) );
    ssin.sin_family = AF_INET;
 
-   if ((hostEntry = gethostbyname(host))) {
-      ++hosts;
-   } else if ((ssin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE)
-      return NET_NOHOST;
-   
    if ((serviceEntry = getservbyname(service, "tcp"))) {
       ssin.sin_port = serviceEntry->s_port;
    } else if (!(ssin.sin_port = htons(atoi(service))))
@@ -84,6 +79,11 @@ int net_connect_tcp( const char *host, const char *service )
 
    if (!(protocolEntry = getprotobyname("tcp")))
       return NET_NOPROTOCOL;
+   
+   if ((hostEntry = gethostbyname(host))) {
+      ++hosts;
+   } else if ((ssin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE)
+      return NET_NOHOST;
    
    if (hosts) {
       for (current = hostEntry->h_addr_list; *current; current++) {
@@ -164,7 +164,7 @@ void net_detach( void )
    
    for (i=getdtablesize()-1; i >= 0; --i) close(i); /* close everything */
    
-#if !defined(__hpux__) 
+#if !defined(__hpux__) && !defined(__CYGWIN__)
    if ((fd = open("/dev/tty", O_RDWR)) >= 0) {
 				/* detach from controlling tty */
       ioctl(fd, TIOCNOTTY, 0);
