@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.102 2004/01/07 14:13:00 cheusov Exp $
+ * $Id: dictd.c,v 1.103 2004/01/08 18:47:09 cheusov Exp $
  * 
  */
 
@@ -896,7 +896,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.102 2004/01/07 14:13:00 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.103 2004/01/08 18:47:09 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1217,12 +1217,16 @@ static void dict_test (
 
    count = dict_search_databases (l, NULL, database_arg, word, strategy, &db_found);
 
-   if (!nooutput_mode){
-      if (count != 0){
-	 dict_dump_defs (l);
-      }else{
-	 fprintf (stderr, "No definitions found for \"%s\"\n", word);
+   if (db_found){
+      if (!nooutput_mode){
+	 if (count > 0){
+	    dict_dump_defs (l);
+	 }else{
+	    fprintf (stderr, "No definitions found for \"%s\"\n", word);
+	 }
       }
+   }else{
+      fprintf (stderr, "%s is not a valid database\n", database_arg);
    }
 
 #ifdef USE_PLUGIN
