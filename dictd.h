@@ -1,6 +1,6 @@
 /* dictd.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Wed May 21 22:26:28 1997 by faith@acm.org
+ * Revised: Tue May 27 16:12:58 1997 by faith@acm.org
  * Copyright 1994, 1995, 1996, 1997 Rickard E. Faith (faith@acm.org)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -39,6 +39,8 @@
 
 				/* Configurable things */
 
+#define DICTD_VERSION            "1.0" /* if you modify it, add a LETTER */
+
 #define DICT_DEFAULT_SERVICE     "2628"
 #define DICT_QUEUE_DEPTH         10
 #define DICT_DEFAULT_DELAY       600 /* 10 minute timeout */
@@ -49,6 +51,7 @@
 #define DICT_SHORT_ENTRY_NAME    "00-database-short"
 #define DICT_LONG_ENTRY_NAME     "00-database-long"
 #define DICT_INFO_ENTRY_NAME     "00-database-info"
+#define DICT_DEFAULT_STRATEGY    DICT_LEVENSHTEIN
 
 				/* End of configurable things */
 
@@ -73,6 +76,13 @@
 #define DICT_DZIP       3
 
 #define DICT_CACHE_SIZE 5
+
+#define DICT_LOG_TERM    0
+#define DICT_LOG_DEFINE  1
+#define DICT_LOG_MATCH   2
+#define DICT_LOG_NOMATCH 3
+#define DICT_LOG_CLIENT  4
+#define DICT_LOG_TRACE   5
 
 typedef struct dictCache {
    int           chunk;
@@ -150,6 +160,7 @@ typedef struct dictConfig {
    lst_List      acl;		/* type dictAccess */
    lst_List      dbl;		/* type dictDatabase */
    hsh_HashTable usl;		/* username/shared-secret list */
+   const char    *site;
 } dictConfig;
 
 #define DICT_EXACT        1
@@ -187,7 +198,8 @@ extern int      dict_data_filter( char *buffer, int *len, int maxLength,
 
 
 extern const char *dict_index_search( const char *word, dictIndex *idx );
-extern lst_List   dict_search_database( const char *word,
+extern int        dict_search_database( lst_List l,
+					const char *word,
 					dictDatabase *database, int strategy );
 extern dictIndex  *dict_index_open( const char *filename );
 extern void       dict_index_close( dictIndex *i );

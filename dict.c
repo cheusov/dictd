@@ -1,10 +1,10 @@
 /* dict.c -- 
  * Created: Fri Mar 28 19:16:29 1997 by faith@cs.unc.edu
- * Revised: Thu May  1 00:11:50 1997 by faith@cs.unc.edu
+ * Revised: Tue May 27 13:02:14 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dict.c,v 1.5 1997/05/02 14:49:28 faith Exp $
+ * $Id: dict.c,v 1.6 1997/05/27 20:28:35 faith Exp $
  * 
  */
 
@@ -63,7 +63,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.5 1997/05/02 14:49:28 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.6 1997/05/27 20:28:35 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -312,12 +312,6 @@ static void machine( int s,
       switch (code) {
       case CODE_HELLO:   client(s);   break;
       case CODE_GOODBYE: state = FIN; break;
-#if CODE_DEFINITIONS_FINISHED != CODE_OK
-      case CODE_DEFINITIONS_FINISHED:
-#endif
-#if CODE_MATCHES_FINISHED != CODE_OK
-      case CODE_MATCHES_FINISHED:
-#endif
       case CODE_OK:
 	 switch (state) {
 	 case INIT: state = DEF; if (authenticate(s))  break; /* else fall */

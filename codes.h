@@ -1,50 +1,50 @@
 /* codes.h -- 
  * Created: Wed Apr 16 08:44:03 1997 by faith@cs.unc.edu
- * Revised: Thu May  1 00:01:14 1997 by faith@cs.unc.edu
+ * Revised: Tue May 27 12:59:16 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: codes.h,v 1.2 1997/05/02 14:49:25 faith Exp $
+ * $Id: codes.h,v 1.3 1997/05/27 20:28:32 faith Exp $
  * 
  */
 
 #ifndef _CODES_H_
 #define _CODES_H_
 
-#define CODE_DATABASE_LIST           110
-#define CODE_STRATEGY_LIST           111
-#define CODE_DATABASE_INFO           112
-#define CODE_HELP                    113
-#define CODE_SERVER_INFO             114
-#define CODE_STATUS                  210
+#define CODE_DATABASE_LIST           110 /* n databases present */
+#define CODE_STRATEGY_LIST           111 /* n strategies available */
+#define CODE_DATABASE_INFO           112 /* database information follows */
+#define CODE_HELP                    113 /* help text follows */
+#define CODE_SERVER_INFO             114 /* server information follows */
 
-#define CODE_HELLO                   220
-#define CODE_GOODBYE                 221
+#define CODE_DEFINITIONS_FOUND       150 /* n definitions */
+#define CODE_DEFINITION_FOLLOWS      151 /* word database name */
+#define CODE_MATCHES_FOUND           152 /* n matches */
 
-#define CODE_AUTH_OK                 230
+#define CODE_STATUS                  210 /* (status information here) */
 
-#define CODE_DEFINITIONS_FOUND       150
-#define CODE_DEFINITION_FOLLOWS      151
-#define CODE_MATCHES_FOUND           152
-#define CODE_DEFINITIONS_FINISHED    250
-#define CODE_MATCHES_FINISHED        250
-#define CODE_OK                      250
+#define CODE_HELLO                   220 /* text msg-id */
+#define CODE_GOODBYE                 221 /* Closing Connection */
 
-#define CODE_TEMPORARILY_UNAVAILABLE 420
-#define CODE_SHUTTING_DOWN           421
+#define CODE_AUTH_OK                 230 /* Authentication Successful */
 
-#define CODE_SYNTAX_ERROR            500
-#define CODE_ILLEGAL_PARAM           501
-#define CODE_COMMAND_NOT_IMPLEMENTED 502
-#define CODE_PARAM_NOT_IMPLEMENTED   503
+#define CODE_OK                      250 /* ok */
 
-#define CODE_ACCESS_DENIED           530
-#define CODE_AUTH_DENIED             531
+#define CODE_TEMPORARILY_UNAVAILABLE 420 /* server unavailable */
+#define CODE_SHUTTING_DOWN           421 /* server shutting down */
 
-#define CODE_INVALID_DB              550
-#define CODE_INVALID_STRATEGY        551
-#define CODE_NO_MATCH                552
-#define CODE_NO_DATABASES            554
-#define CODE_NO_STRATEGIES           555
+#define CODE_SYNTAX_ERROR            500 /* syntax, command not recognized */
+#define CODE_ILLEGAL_PARAM           501 /* syntax, illegal parameters */
+#define CODE_COMMAND_NOT_IMPLEMENTED 502 /* command not implemented */
+#define CODE_PARAM_NOT_IMPLEMENTED   503 /* parameter not implemented */
+
+#define CODE_ACCESS_DENIED           530 /* access denied */
+#define CODE_AUTH_DENIED             531 /* authentication denied */
+
+#define CODE_INVALID_DB              550 /* invalid database */
+#define CODE_INVALID_STRATEGY        551 /* invalid strategy */
+#define CODE_NO_MATCH                552 /* no match */
+#define CODE_NO_DATABASES            554 /* no databases */
+#define CODE_NO_STRATEGIES           555 /* no strategies */
 
 #endif

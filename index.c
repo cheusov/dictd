@@ -1,6 +1,6 @@
 /* index.c -- 
  * Created: Wed Oct  9 14:52:23 1996 by faith@cs.unc.edu
- * Revised: Wed Apr  2 20:40:16 1997 by faith@cs.unc.edu
+ * Revised: Tue May 27 15:41:16 1997 by faith@acm.org
  * Copyright 1996, 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.10 1997/04/03 02:17:44 faith Exp $
+ * $Id: index.c,v 1.11 1997/05/27 20:28:39 faith Exp $
  * 
  */
 
@@ -233,11 +233,11 @@ void dict_destroy_list( lst_List list )
    lst_destroy( list );
 }
 
-static lst_List dict_search_exact( const char *word,
-				   dictDatabase *database )
+static int dict_search_exact( lst_List l,
+			      const char *word,
+			      dictDatabase *database )
 {
    const char *pt   = dict_index_search( word, database->index );
-   lst_List   l     = lst_create();
    int        count = 0;
    dictWord   *datum;
 
@@ -250,18 +250,14 @@ static lst_List dict_search_exact( const char *word,
       FIND_NEXT( pt, database->index->end );
    }
    
-   if (!count) {
-      lst_destroy( l );
-      l = NULL;
-   }
-   return l;
+   return count;
 }
 
-static lst_List dict_search_prefix( const char *word,
-				    dictDatabase *database )
+static int dict_search_prefix( lst_List l,
+			       const char *word,
+			       dictDatabase *database )
 {
    const char *pt   = dict_index_search( word, database->index );
-   lst_List   l     = lst_create();
    int        count = 0;
    dictWord   *datum;
 
@@ -274,19 +270,15 @@ static lst_List dict_search_prefix( const char *word,
       FIND_NEXT( pt, database->index->end );
    }
 
-   if (!count) {
-      lst_destroy( l );
-      l = NULL;
-   }
-   return l;
+   return count;
 }
 
-static lst_List dict_search_substring( const char *word,
-				       dictDatabase *database )
+static int dict_search_substring( lst_List l,
+				  const char *word,
+				  dictDatabase *database )
 {
    const char *pt   = database->index->start;
    const char *end;
-   lst_List   l     = lst_create();
    int        count = 0;
    dictWord   *datum;
    const char *p;
@@ -312,20 +304,16 @@ static lst_List dict_search_substring( const char *word,
       FIND_NEXT( pt, end );
    }
 
-   if (!count) {
-      lst_destroy( l );
-      l = NULL;
-   }
-   return l;
+   return count;
 }
 
-static lst_List dict_search_regexpr( const char *word,
-				     dictDatabase *database )
+static int dict_search_regexpr( lst_List l,
+				const char *word,
+				dictDatabase *database )
 {
    const char    *pt;
    const char    *start;
    const char    *end;
-   lst_List      l;
    int           count = 0;
    dictWord      *datum;
    const char    *p;
@@ -350,7 +338,7 @@ static lst_List dict_search_regexpr( const char *word,
    if ((err = regcomp(&re, word, REG_ICASE|REG_NOSUB))) {
       regerror(err, &re, erbuf, sizeof(erbuf));
       log_info( "regcomp(%s): %s\n", word, erbuf );
-      return NULL;
+      return 0;
    }
 
    l = lst_create();
@@ -374,19 +362,16 @@ static lst_List dict_search_regexpr( const char *word,
    }
 
    regfree(&re);
-   if (!count) {
-      lst_destroy( l );
-      l = NULL;
-   }
-   return l;
+   
+   return count;
 }
 
-static lst_List dict_search_soundex( const char *word,
-				     dictDatabase *database )
+static int dict_search_soundex( lst_List l,
+				const char *word,
+				dictDatabase *database )
 {
    const char *pt;
    const char *end;
-   lst_List   l     = lst_create();
    int        count = 0;
    dictWord   *datum;
    char       soundex[10];
@@ -421,11 +406,8 @@ static lst_List dict_search_soundex( const char *word,
       }
       FIND_NEXT(pt,end);
    }
-   if (!count) {
-      lst_destroy( l );
-      l = NULL;
-   }
-   return l;
+
+   return count;
 }
 
 /* I was unable to locate V. I. Levenshtein, "Binary codes capable of
@@ -444,14 +426,14 @@ static lst_List dict_search_soundex( const char *word,
 
 */
 
-static lst_List dict_search_levenshtein( const char *word,
-					 dictDatabase *database )
+static int dict_search_levenshtein( lst_List l,
+				    const char *word,
+				    dictDatabase *database )
 {
    int        len   = strlen(word);
    char       *buf  = alloca(len+2);
    char       *p    = buf;
    int        count = 0;
-   lst_List   l     = lst_create();
    set_Set    s     = set_create(NULL,NULL);
    int        i, j, k;
    const char *pt;
@@ -519,20 +501,21 @@ static lst_List dict_search_levenshtein( const char *word,
 
    fprintf( stderr, "Got %d\n" ,count );
    set_destroy(s);
-   if (!count) {
-      lst_destroy( l );
-      l = NULL;
-   }
-   return l;
+   
+   return count;
 }
 
-lst_List dict_search_database( const char *word,
-			       dictDatabase *database,
-			       int strategy )
+int dict_search_database( lst_List l,
+			  const char *word,
+			  dictDatabase *database,
+			  int strategy )
 {
    char       *buf = alloca( strlen( word ) + 1 );
    char       *pt;
    const char *w   = word;
+
+   if (!l)
+      err_internal( __FUNCTION__, "List NULL\n" );
 		  
    for (pt = buf; *w; w++) {
       if (*w != ' ' && !isalnum( *w )) continue;
@@ -545,12 +528,12 @@ lst_List dict_search_database( const char *word,
       database->index = dict_index_open( database->indexFilename );
 
    switch (strategy) {
-   case DICT_EXACT:       return dict_search_exact( buf, database );
-   case DICT_PREFIX:      return dict_search_prefix( buf, database );
-   case DICT_SUBSTRING:   return dict_search_substring( buf, database );
-   case DICT_REGEXP:      return dict_search_regexpr( word, database );
-   case DICT_SOUNDEX:     return dict_search_soundex( buf, database );
-   case DICT_LEVENSHTEIN: return dict_search_levenshtein( buf, database);
+   case DICT_EXACT:       return dict_search_exact( l, buf, database );
+   case DICT_PREFIX:      return dict_search_prefix( l, buf, database );
+   case DICT_SUBSTRING:   return dict_search_substring( l, buf, database );
+   case DICT_REGEXP:      return dict_search_regexpr( l, word, database );
+   case DICT_SOUNDEX:     return dict_search_soundex( l, buf, database );
+   case DICT_LEVENSHTEIN: return dict_search_levenshtein( l, buf, database);
    default:
       err_internal( __FUNCTION__, "Search strategy %d unknown\n", strategy );
    }

@@ -1,8 +1,8 @@
 .\"
-.\" Revised: Tue May 27 07:52:06 1997 by faith@acm.org
+.\" Revised: Tue May 27 14:13:08 1997 by faith@acm.org
 .\" Distribution of this memo is unlimited.
 .\"
-.\" $Id: rfc.ms,v 1.9 1997/05/27 13:07:16 faith Exp $
+.\" $Id: rfc.ms,v 1.10 1997/05/27 20:28:46 faith Exp $
 .\" 
 .pl 10.0i
 .po 0
@@ -712,7 +712,7 @@ Responses
 
 .DS
 550 Invalid database, use "SHOW DB" for list of databases
-112 text follows
+112 database information follows
 .DE
 
 These response codes require no special parameters.
@@ -742,7 +742,7 @@ Responses
 .RS
 
 .DS
-114 text follows
+114 server information follows
 .DE
 
 This response code requires no special parameters.
@@ -753,7 +753,7 @@ This response code requires no special parameters.
 The CLIENT Command
 .RS
 
-CLIENT client-info
+CLIENT text
 
 .RE
 .NH 3
@@ -999,9 +999,9 @@ Summary of Response Codes
 .DS
 110 n databases present - text follows
 111 n strategies available - text follows
-112 text follows
+112 database information follows
 113 help text follows
-114 text follows
+114 server information follows
 150 n definitions retrieved - definitions follow
 151 word database name - text follows
 152 n matches found - text follows

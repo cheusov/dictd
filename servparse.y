@@ -1,6 +1,6 @@
 /* servparse.y -- Parser for dictd server configuration file
  * Created: Fri Feb 28 08:31:38 1997 by faith@cs.unc.edu
- * Revised: Wed May 21 22:27:34 1997 by faith@acm.org
+ * Revised: Tue May 27 16:16:54 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.6 1997/05/22 02:40:32 faith Exp $
+ * $Id: servparse.y,v 1.7 1997/05/27 20:28:40 faith Exp $
  * 
  */
 
@@ -47,9 +47,10 @@ static dictDatabase *db;
 
 %token <token> '{' '}' T_ACCESS T_ALLOW T_DENY T_GROUP T_DATABASE T_DATA
 %token <token> T_INDEX T_FILTER T_PREFILTER T_POSTFILTER T_NAME
-%token <token> T_USER T_AUTHONLY
+%token <token> T_USER T_AUTHONLY T_SITE
 
 %token <token>  T_STRING
+%type  <token>  Site
 %type  <access> AccessSpec
 %type  <db>     Database
 %type  <list>   DatabaseList Access AccessSpecList
@@ -81,6 +82,35 @@ Program : DatabaseList
 	    DictConfig->dbl = $2;
 	    DictConfig->usl = $3;
 	  }
+        | Site DatabaseList
+          { DictConfig = xmalloc(sizeof(struct dictConfig));
+	    memset( DictConfig, 0, sizeof(struct dictConfig) );
+	    DictConfig->site = $1.string;
+	    DictConfig->dbl  = $2;
+	  }
+        | Site Access DatabaseList
+          { DictConfig = xmalloc(sizeof(struct dictConfig));
+	    memset( DictConfig, 0, sizeof(struct dictConfig) );
+	    DictConfig->site = $1.string;
+	    DictConfig->acl  = $2;
+	    DictConfig->dbl  = $3;
+	  }
+        | Site DatabaseList UserList
+          { DictConfig = xmalloc(sizeof(struct dictConfig));
+	    memset( DictConfig, 0, sizeof(struct dictConfig) );
+	    DictConfig->site = $1.string;
+	    DictConfig->dbl  = $2;
+	    DictConfig->usl  = $3;
+	  }
+        | Site Access DatabaseList UserList
+          { DictConfig = xmalloc(sizeof(struct dictConfig));
+	    memset( DictConfig, 0, sizeof(struct dictConfig) );
+	    DictConfig->site = $1.string;
+	    DictConfig->acl  = $2;
+	    DictConfig->dbl  = $3;
+	    DictConfig->usl  = $4;
+	  }
+        ;
 
 
 Access : T_ACCESS '{' AccessSpecList '}' { $$ = $3; }
@@ -93,6 +123,8 @@ DatabaseList : Database { $$ = lst_create(); lst_append($$, $1); }
 AccessSpecList : AccessSpec { $$ = lst_create(); lst_append($$, $1); }
                | AccessSpecList AccessSpec { lst_append($1, $2); $$ = $1; }
                ;
+
+Site : T_SITE T_STRING { $$ = $2; }
 
 UserList : T_USER T_STRING T_STRING
            { $$ = hsh_create(NULL,NULL);

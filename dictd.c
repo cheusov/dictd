@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Wed May 21 22:34:35 1997 by faith@acm.org
+ * Revised: Tue May 27 15:52:49 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.18 1997/05/22 02:40:30 faith Exp $
+ * $Id: dictd.c,v 1.19 1997/05/27 20:28:36 faith Exp $
  * 
  */
 
@@ -270,11 +270,13 @@ static void dict_config_print( FILE *stream, dictConfig *c )
 static const char *get_entry_info( dictDatabase *db, const char *entryName )
 {
    dictWord *dw;
-   lst_List list;
+   lst_List list = lst_create();
    char     *pt;
    
-   list = dict_search_database( entryName, db, DICT_EXACT );
-   if (!list) return NULL;
+   if (!dict_search_database( list, entryName, db, DICT_EXACT )) {
+      lst_destroy( list );
+      return NULL;
+   }
       
    dw = lst_nth_get( list, 1 );
 				/* Don't ever free this */
@@ -283,6 +285,7 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
    pt += strlen(entryName) + 1;
    while (*pt == ' ' || *pt == '\t') ++pt;
    pt[ strlen(pt) - 1 ] = '\0';
+   dict_destroy_list( list );
    return pt;
 }
 
@@ -330,21 +333,29 @@ static void dict_dump_defs( lst_List list, dictDatabase *db )
 static const char *id_string( const char *id )
 {
    static char buffer[BUFFERSIZE];
-   arg_List a = arg_argify( id, 0 );
+   arg_List    a;
+   char        *pt, *dot;
 
-   if (arg_count(a) >= 2)
-      sprintf( buffer, "%s", arg_get( a, 2 ) );
-   else
-      buffer[0] = '\0';
+   sprintf( buffer, "%s", DICTD_VERSION );
+   pt = buffer + strlen( buffer );
+
+   a = arg_argify( id, 0 );
+   if (arg_count(a) >= 2) {
+      if ((dot = strchr( arg_get(a, 2), '.' )))
+	 sprintf( pt, ".%s", dot+1 );
+      else
+	 sprintf( pt, ".%s", arg_get( a, 2 ) );
+   }
    arg_destroy( a );
+   
    return buffer;
 }
 
 const char *dict_get_banner( void )
 {
-   static char       *buffer= NULL;
-   const char        *id = "$Id: dictd.c,v 1.18 1997/05/22 02:40:30 faith Exp $";
-   struct utsname    uts;
+   static char    *buffer= NULL;
+   const char     *id = "$Id: dictd.c,v 1.19 1997/05/27 20:28:36 faith Exp $";
+   struct utsname uts;
    
    if (buffer) return buffer;
    uname( &uts );
@@ -499,10 +510,12 @@ int main( int argc, char **argv )
    dict_init_databases( DictConfig );
 
    if (testWord) {		/* stand-alone test mode */
-      lst_List list = dict_search_database( testWord,
-					    lst_nth_get( DictConfig->dbl, 1 ),
-					    DICT_EXACT );
-      if (list) {
+      lst_List list = lst_create();
+
+      if (dict_search_database( list,
+				testWord,
+				lst_nth_get( DictConfig->dbl, 1 ),
+				DICT_EXACT )) {
 	 if (dbg_test(DBG_VERBOSE)) dict_dump_list( list );
 	 dict_dump_defs( list, lst_nth_get( DictConfig->dbl, 1 ) );
 	 dict_destroy_list( list );
@@ -522,15 +535,15 @@ int main( int argc, char **argv )
       if (!(str = fopen(testFile,"r")))
 	 err_fatal_errno( "Cannot open \"%s\" for read\n", testFile );
       while (fgets(buf,1024,str)) {
-	 lst_List list = dict_search_database( buf, db, DICT_EXACT );
+	 lst_List list = lst_create();
 	 ++words;
-	 if (list) {
+	 if (dict_search_database( list, buf, db, DICT_EXACT )) {
 	    if (dbg_test(DBG_VERBOSE)) dict_dump_list( list );
 	    dict_dump_defs( list, db );
-	    dict_destroy_list( list );
 	 } else {
 	    fprintf( stderr, "*************** No match for \"%s\"\n", buf );
 	 }
+	 dict_destroy_list( list );
 	 if (words && !(words % 1000))
 	    fprintf( stderr,
 		     "%d comparisons, %d words\n", _dict_comparisons, words );

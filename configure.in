@@ -1,8 +1,8 @@
 dnl Process this file with autoconf to produce a configure script for dict.
 dnl
 dnl Created: Wed Apr 24 14:11:05 1996 by faith@cs.unc.edu
-dnl Revised: Thu May  1 23:18:20 1997 by faith@cs.unc.edu
-dnl Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)
+dnl Revised: Tue May 27 12:07:25 1997 by faith@acm.org
+dnl Copyright 1996, 1997 Rickard E. Faith (faith@acm.org)
 dnl
 dnl This program is free software; you can redistribute it and/or modify it
 dnl under the terms of the GNU General Public License as published by the
@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.7 1997/05/02 14:49:26 faith Exp $
+dnl $Id: configure.in,v 1.8 1997/05/27 20:28:33 faith Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -32,7 +32,7 @@ dnl     YCFLAGS is for yacc
 dnl     LCFLAGS is for lex
 
 AC_PREREQ(2.1)
-AC_REVISION($Revision: 1.7 $)
+AC_REVISION($Revision: 1.8 $)
 AC_INIT(dictd.c)
 AC_CONFIG_HEADER(config.h)
 
@@ -67,6 +67,10 @@ dnl did include: -Winline
 sparc-sun-sunos*)
     WCFLAGS="$WCFLAGS -pipe";;
 esac
+
+AC_ARG_WITH(cflags,
+[  --with-cflags=FLAGS     use FLAGS for CFLAGS],
+CFLAGS="$withval")
 
 AC_ARG_WITH(prof,
 [  --with-prof             with prof profiling],
@@ -120,12 +124,15 @@ AC_PROG_INSTALL
 AC_PROG_LEX
 AC_PROG_YACC
 AC_PROG_RANLIB
+AC_CHECK_PROGS(NROFF,gnroff nroff)
+AC_CHECK_PROGS(TROFF,groff troff)
+AC_CHECK_PROGS(COLCRT,colcrt cat)
 
 echo .
 echo Checking for libraries
 
 if test "$local_libmaa" = 0; then
-    AC_CHECK_LIB(libmaa,maa_init,REALLIBS="$REALLIBS -lmaa",local_libmaa=1)
+    AC_CHECK_LIB(maa,maa_init,REALLIBS="$REALLIBS -lmaa",local_libmaa=1)
 fi
 
 if test "$local_libmaa" = 1; then
@@ -135,8 +142,9 @@ if test "$local_libmaa" = 1; then
         XTRACFLAGS="$XTRACFLAGS -Ilibmaa"
         subdirs="$subdirs libmaa"
         allsubdirs="$allsubdirs libmaa"
-        AC_MSG_RESULT(libmaa)
+        AC_MSG_RESULT(yes)
     else
+        AC_MSG_RESULT(no)
         AC_MSG_ERROR(Libmaa not found, cannot continue)
     fi
 fi
@@ -151,8 +159,9 @@ if test "$local_zlib" = 1; then
         REALLIBS="$REALLIBS -Lzlib -lz"
         XTRACFLAGS="$XTRACFLAGS -Izlib"
         allsubdirs="$allsubdirs zlib"
-        AC_MSG_RESULT(zlib)
+        AC_MSG_RESULT(yes)
     else
+        AC_MSG_RESULT(no)
         AC_MSG_ERROR(Zlib not found, cannot continue)
     fi
 fi
@@ -172,7 +181,7 @@ if test "$local_dmalloc" = 1; then
         XTRAHEADERS="$XTRAHEADERS dmalloc/dmalloc.h"
         allsubdirs="$allsubdirs dmalloc"
         subdirs="$subdirs dmalloc"
-        AC_MSG_RESULT(dmalloc)
+        AC_MSG_RESULT(yes)
     else
         AC_MSG_RESULT(no)
     fi
@@ -212,7 +221,7 @@ AC_SUBST(XTRACFLAGS)
 AC_SUBST(XTRALDFLAGS)
 AC_SUBST(XTRAHEADERS)
 AC_SUBST(allsubdirs)
-AC_OUTPUT(Makefile)
+AC_OUTPUT(Makefile doc/Makefile)
 
 date > stamp-h.in
 date > stamp-h
