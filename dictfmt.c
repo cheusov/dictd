@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.21 2003/06/10 15:25:56 cheusov Exp $
+ * $Id: dictfmt.c,v 1.22 2003/06/23 18:40:59 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -156,7 +156,7 @@ static void fmt_string( const char *s )
       if (utf8_mode){
 	 len = mbstowcs (NULL, p, 0);
 	 if (len == (size_t) -1)
-	    err_fatal (__FUNCTION__, "invalid utf-8 string\n");
+	    err_fatal (__FUNCTION__, "invalid utf-8 string '%s'\n", s);
       }else{
 	 len = strlen (p);
       }
@@ -244,6 +244,142 @@ static void tolower_alnumspace_8bit (const char *src, char *dest)
    *dest = 0;
 }
 
+#ifdef HAVE_UTF8
+/*
+  makes anagram of the 8-bit string 's'
+  if length == -1 then str is 0-terminated string
+*/
+static void stranagram_8bit (char *s, int length)
+{
+   char* i = s;
+   char* j;
+   char v;
+
+   assert (s);
+
+   if (length == -1)
+      length = strlen (s);
+
+   j = s + length - 1;
+
+   while (i < j){
+      v = *i;
+      *i = *j;
+      *j = v;
+
+      ++i;
+      --j;
+   }
+}
+
+/*
+  makes anagram of the utf-8 string 's'
+  Returns non-zero if success, 0 otherwise
+*/
+static int stranagram_utf8 (char *s)
+{
+   size_t len;
+   char   *p;
+
+   mbstate_t ps;
+
+   assert (s);
+
+   memset (&ps,  0, sizeof (ps));
+
+   for (p = s; *p; ){
+      len = mbrlen (p, MB_CUR_MAX, &ps);
+      if ((int) len < 0)
+	 return 0; /* not a UTF-8 string */
+
+      if (len > 1)
+	 stranagram_8bit (p, len);
+
+      p += len;
+   }
+
+   stranagram_8bit (s, -1);
+   return 1;
+}
+
+#endif
+
+/*
+  Remove spaces at the end of the string
+ */
+static char *trim_right (char *s)
+{
+   wchar_t mbc;
+   int len;
+
+   if (!utf8_mode){
+      len = strlen (s);
+
+      while (len > 0 && isspace ((unsigned char) s [len - 1])){
+	 s [--len] = 0;
+      }
+
+      return s;
+   }else{
+#ifdef HAVE_UTF8
+      if (!stranagram_utf8 (s))
+	 abort ();
+
+      do {
+	 len = mbtowc (&mbc, s, MB_CUR_MAX);
+	 assert (len >= 0);
+
+	 if (len == 0 || !iswspace (mbc))
+	    break;
+
+	 s += len;
+      }while (1);
+
+      if (!stranagram_utf8 (s))
+	 abort ();
+
+#else
+      abort();
+#endif
+
+      return s;
+   }
+}
+
+/*
+  Remove spaces at the beginning of the string
+ */
+static char *trim_left (char *s)
+{
+   wchar_t mbc;
+   int len;
+
+   if (!utf8_mode){
+      while (isspace(*s)){
+	 ++s;
+      }
+
+      return s;
+   }else{
+#ifdef HAVE_UTF8
+      do {
+	 len = mbtowc (&mbc, s, MB_CUR_MAX);
+	 assert (len >= 0);
+
+	 if (len == 0 || !iswspace (mbc))
+	    break;
+
+	 s += len;
+      }while (1);
+
+#else
+      abort();
+#endif
+
+      return s;
+   }
+}
+
 static void write_hw_to_index (const char *word, int start, int end)
 {
    int len = 0;
@@ -274,11 +410,9 @@ static void write_hw_to_index (const char *word, int start, int end)
       tolower_alnumspace_8bit (word, new_word);
 #endif
 
-      while (len > 0 && isspace ((unsigned char) word [len - 1])){
-	 new_word [--len] = 0;
-      }
+      word = trim_right (new_word);
 
-      fprintf( fmt_str, "%s\t%s\t", new_word, b64_encode(start) );
+      fprintf( fmt_str, "%s\t%s\t", word, b64_encode(start) );
       fprintf( fmt_str, "%s\n", b64_encode(end-start) );
 
       free (new_word);
@@ -891,9 +1025,8 @@ int main( int argc, char **argv )
 	    fgets(buf = buffer,BSIZE-1,stdin);
 	    if (strlen(buffer))
 	       buffer[strlen(buffer)-1] = '\0'; /* remove newline */
-	    
-	    while (isspace(*buf))
-	       buf++;
+
+	    buf = trim_left (buf);
 
 	    if (*buf != '\0') {
 	       fmt_newheadword(buf,0);
