@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.14 2003/01/19 17:26:46 cheusov Exp $
+ * $Id: dictfmt.c,v 1.15 2003/02/07 18:58:55 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -81,6 +81,8 @@ static int  fmt_pos;
 static int  fmt_pending;
 static int  fmt_hwcount;
 static int  fmt_maxpos = FMT_MAXPOS;
+
+static const char *locale         = "C";
 
 static void fmt_openindex( const char *filename )
 {
@@ -259,6 +261,18 @@ static void write_hw_to_index (const char *word, int start, int end)
    }
 }
 
+static int contain_nonascii_symbol (const char *word)
+{
+   while (*word){
+      if (!isascii ((unsigned char) *word))
+	 return 1;
+
+      ++word;
+   }
+
+   return 0;
+}
+
 static void fmt_newheadword( const char *word, int flag )
 {
    static char prev[1024] = "";
@@ -266,6 +280,13 @@ static void fmt_newheadword( const char *word, int flag )
    static int  end;
    char *      sep   = NULL;
    char *      p;
+
+   if (locale [0] == 'C' && locale [1] == 0){
+      if (contain_nonascii_symbol (word)){
+	 fprintf (stderr, "8-bit head word is encountered while \"C\" locale is used\n");
+	 exit (1);
+      }
+   }
 
    fmt_indent = 0;
    if (*prev) fmt_newline();
@@ -403,10 +424,10 @@ static char *strlwr_8bit (char *s)
    return s;
 }
 
-static void set_utf8_mode (const char *locale)
+static void set_utf8_mode (const char *loc)
 {
    char *locale_copy;
-   locale_copy = strdup (locale);
+   locale_copy = strdup (loc);
    strlwr_8bit (locale_copy);
 
    utf8_mode =
@@ -431,7 +452,6 @@ int main( int argc, char **argv )
    char       *pt;
    char       *s, *d;
    unsigned char *buf;
-   const char *locale      = "C";
 
    struct option      longopts[]  = {
       { "help",       0, 0, 501 },
