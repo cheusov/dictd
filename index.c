@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.51 2003/01/19 14:29:33 cheusov Exp $
+ * $Id: index.c,v 1.52 2003/02/10 19:24:28 cheusov Exp $
  * 
  */
 
@@ -45,6 +45,7 @@ extern int mmap_mode;
 #define BMH_THRESHOLD   3	/* When to start using Boyer-Moore-Hoorspool */
 
 int utf8_mode;     /* dictd uses UTF-8 dictionaries */
+int bit8_mode;     /* dictd uses 8-BIT dictionaries */
 dictConfig *DictConfig;
 
 int _dict_comparisons;
@@ -1873,6 +1874,7 @@ dictIndex *dict_index_open(
 
    i->end = i->start + i->size;
 
+   i->flag_8bit     = 0;
    i->flag_utf8     = flag_utf8;
    i->flag_allchars = flag_allchars;
    i->isspacealnum  = isspacealnumtab;
@@ -1895,12 +1897,26 @@ dictIndex *dict_index_open(
 	 0 != dict_search_database_ (NULL, DICT_FLAG_ALLCHARS, &db, DICT_EXACT);
       PRINTF(DBG_INIT, (":I:     \"%s\": flag_allchars=%i\n", filename, i->flag_allchars));
 
+      /* utf8 flag */
       if (!i -> flag_allchars)
 	 i -> isspacealnum = isspacealnumtab;
 
       i->flag_utf8 =
 	 0 != dict_search_database_ (NULL, DICT_FLAG_UTF8, &db, DICT_EXACT);
       PRINTF(DBG_INIT, (":I:     \"%s\": flag_utf8=%i\n", filename, i->flag_utf8));
+      if (i->flag_utf8 && !utf8_mode){
+	 fprintf (stderr, "\"C\" locale can not be used for utf-8 dictionaries\n");
+	 exit (1);
+      }
+
+      /* 8bit flag */
+      i->flag_8bit =
+	 0 != dict_search_database_ (NULL, DICT_FLAG_8BIT, &db, DICT_EXACT);
+      PRINTF(DBG_INIT, (":I:     \"%s\": flag_8bit=%i\n", filename, i->flag_8bit));
+      if (i->flag_8bit && !bit8_mode){
+	 fprintf (stderr, "\"C\" locale can not be used for 8-bit dictionaries\n");
+	 exit (1);
+      }
    }
 
 #if OPTSTART

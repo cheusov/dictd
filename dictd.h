@@ -63,6 +63,7 @@
 #define DICT_INFO_ENTRY_NAME     DICT_ENTRY_PREFIX"-info"
 
 #define DICT_FLAG_UTF8           DICT_ENTRY_PREFIX"-utf8"
+#define DICT_FLAG_8BIT           DICT_ENTRY_PREFIX"-8bit"
 #define DICT_FLAG_ALLCHARS       DICT_ENTRY_PREFIX"-allchars"
 #define DICT_FLAG_VIRTUAL        DICT_ENTRY_PREFIX"-virtual"
 
@@ -183,7 +184,8 @@ typedef struct dictIndex {
    const char    *optStart[UCHAR_MAX+2]; /* Optimized starting points */
    unsigned long headwords;	 /* computed number of headwords */
 
-   int    flag_utf8;         /* not zero if it has 00-database-ut8 entry*/
+   int    flag_utf8;         /* not zero if it has 00-database-utf8 entry*/
+   int    flag_8bit;         /* not zero if it has 00-database-8bit entry*/
    int    flag_allchars;     /* not zero if it has 00-database-allchars entry*/
 
    dictPlugin    *plugin;

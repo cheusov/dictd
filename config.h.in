@@ -47,6 +47,12 @@
 /* Define if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
+/* Define if you have the `iswalnum' function. */
+#undef HAVE_ISWALNUM
+
+/* Define if you have the `iswspace' function. */
+#undef HAVE_ISWSPACE
+
 /* Define if you have the <limits.h> header file. */
 #undef HAVE_LIMITS_H
 
@@ -152,6 +158,9 @@
 
 /* Define if you have the <sys/wait.h> header file. */
 #undef HAVE_SYS_WAIT_H
+
+/* Define if you have the `towlower' function. */
+#undef HAVE_TOWLOWER
 
 /* Define if you have the `uname' function. */
 #undef HAVE_UNAME

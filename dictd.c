@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.65 2003/01/19 17:26:45 cheusov Exp $
+ * $Id: dictd.c,v 1.66 2003/02/10 19:24:25 cheusov Exp $
  * 
  */
 
@@ -52,6 +52,7 @@ extern int        yy_flex_debug;
 extern int        default_strategy;
 
 extern int        utf8_mode;
+extern int        bit8_mode;
 extern int        mmap_mode;
 
 static int        _dict_daemon;
@@ -553,12 +554,14 @@ static int init_database( const void *datum )
 
    if (db->index_suffix){
       PRINTF (DBG_INIT, (":I:     .indexsuffix <ok>\n"));
+      db->index_suffix->flag_8bit     = db->index->flag_8bit;
       db->index_suffix->flag_utf8     = db->index->flag_utf8;
       db->index_suffix->flag_allchars = db->index->flag_allchars;
    }
    if (db->index_word){
       PRINTF (DBG_INIT, (":I:     .indexword <ok>\n"));
       db->index_word->flag_utf8     = db->index->flag_utf8;
+      db->index_word->flag_8bit     = db->index->flag_8bit;
       db->index_word->flag_allchars = db->index->flag_allchars;
    }
 
@@ -744,7 +747,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.65 2003/01/19 17:26:45 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.66 2003/02/10 19:24:25 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -946,15 +949,17 @@ static char *strlwr_8bit (char *str)
    return str;
 }
 
-static void set_utf8_mode (const char *locale)
+static void set_utf8bit_mode (const char *loc)
 {
    char *locale_copy;
-   locale_copy = strdup (locale);
+   locale_copy = strdup (loc);
    strlwr_8bit (locale_copy);
 
    utf8_mode =
        strstr (locale_copy, "utf-8") ||
        strstr (locale_copy, "utf8");
+
+   bit8_mode = !utf8_mode && (locale_copy [0] != 'c' || locale_copy [1] != 0);
 
    free (locale_copy);
 }
@@ -1209,7 +1214,8 @@ int main( int argc, char **argv, char **envp )
    if (flg_test(LOG_TIMESTAMP)) log_option( LOG_OPTION_FULL );
    else                         log_option( LOG_OPTION_NO_FULL );
 
-   set_utf8_mode (locale);
+   set_utf8bit_mode (locale);
+
    if (!setlocale(LC_ALL, locale)){
       fprintf (stderr, "invalid locale '%s'\n", locale);
       exit (2);
