@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.66 2003/03/03 17:24:25 cheusov Exp $
+# $Id: Makefile.in,v 1.67 2003/03/03 18:58:55 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -340,20 +340,18 @@ ChangeLog:
 	> ChangeLog;)
 
 
-dist: ChangeLog
+dist:
 	@( CVSROOT=`cat CVS/Root`; \
 	export CVSROOT; \
 	VERSION=$(DICT_VERSION) ; \
-	export VERSION; \
-	echo "***** Copying ChangeLog for dictd-$${VERSION}..."; \
-	cp ChangeLog /tmp; \
+	VERSION_CVS=`echo $${VERSION} | tr . -`; \
+	export VERSION VERSION_CVS; \
 	echo "***** Exporting files for dictd-$${VERSION}..."; \
 	cd /tmp; \
 	rm -rf /tmp/dictd-$${VERSION}; \
-	cvs export -fd dictd-$${VERSION} -r HEAD dictd1; \
+	cvs export -fd dictd-$${VERSION} -r dictd-$${VERSION_CVS} dictd1; \
 	cd dictd-$${VERSION}; \
 	make -f Makefile.conf; \
-	mv ../ChangeLog .; \
 	chmod -R a+rX,g-w .; \
 	cd ..; \
 	echo "***** Taring and zipping dictd-$${VERSION}.tar.gz..."; \
