@@ -10,7 +10,6 @@ export LC_ALL
 
 case $# in
     2)
-	echo $1 | mail -s shilo cheusov
 	if test "_$1" = "_exact"; then
 	    echo "$2"
 	else if test "_$1" = "_substring"; then
