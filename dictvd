@@ -1,0 +1,960 @@
+#!/bin/sh
+
+LC_ALL=C
+export LC_ALL
+
+#
+# GNU awk 3.1 or later is required
+#
+
+gawk '
+BEGIN {
+   default_strategy = "exact"
+   version = "0.0.1"
+   name    = "dictvd"
+
+   config_file = "/etc/" name ".conf"
+   default_client_info = name "-" version " DICT server"
+}
+
+######################################################################
+# processing command line options
+
+function show_version (){
+    print name " revision " version
+    print "Copyright 2003 by Aleksey Cheusov <vle@gmx.net>"
+}
+
+function show_help (){
+   printf "%s", "\
+Usage: dictvd [OPTIONS] [files...]\n\
+   --help                     display this screen\n\
+   --version                  display version number\n\
+-c --config <file>            configuration file\n\
+   --default-strategy <strat> default strategy (.) for MATCH queries,\n\
+                              the default is '"'"'exact'"'"'.\n\
+"
+}
+
+function exit_on_error (){
+   print "Use --help for help " > "/dev/stderr"
+   exit 1
+}
+
+BEGIN {
+   for (i=1; i <= ARGC; ++i){
+      if (ARGV [i] == "--help"){
+	 show_help()
+	 exit 0
+      }
+      if (ARGV [i] == "--version"){
+	 show_version()
+	 exit 0
+      }
+      if (ARGV [i] == "-c" || ARGV [i] == "--config"){
+	 ARGV [i] = ""
+
+	 config_file = ARGV [i+1]
+	 if (config_file == ""){
+	    exit_on_error()
+	 }
+
+	 ARGV [++i] = ""
+      }
+      if (ARGV [i] == "--default-strategy"){
+	 ARGV [i] = ""
+
+	 default_strategy = ARGV [i+1]
+	 if (default_strategy == ""){
+	    exit_on_error()
+	 }
+
+	 ARGV [++i] = ""
+      }
+      if (ARGV [i] == "--"){
+	 ARGV [i] = ""
+	 break
+      }
+      if (ARGV [i] ~ /^-/){
+	 print "Unknown option " ARGV [i] > "/dev/stderr"
+	 exit_on_error()
+      }
+   }
+}
+
+######################################################################
+
+BEGIN {
+   errno = 0
+   opened_section = ""
+
+   strats_count = 0
+   db_count     = 0
+   host_count   = 0
+
+   def_count = 0
+   matches_count = 0
+}
+
+################################
+## reading configuration file ##
+
+function process_sect_strategies_1 (){
+   if (NF != 2){
+      # we need exactly `strategies {`
+      errno = 1
+      return
+   }
+
+   if ($NF != "{"){
+      # we need exactly `strategies {`
+      errno = 2
+      return
+   }
+
+   ok = 1
+
+   opened_section = "strategies"
+}
+
+function process_sect_strategies_2 (){
+   if (NF == 1){
+      # missing strategy description
+      # we need `<strat> <strat_description>` or
+      #         `<strat> "<strat_description>"`
+      errno = 3
+      return
+   }
+
+   if ($1 in strat2index){
+      # this strategy is already defined
+      errno = 4
+      return
+   }
+
+   index2strat [strats_count] = $1
+   strat2index [$1] = strats_count
+
+   $1 = ""
+   gsub(/  +/, " ")
+   sub(/^ ?\"?/, "")
+   sub(/\"? ?$/, "")
+   index2strat_descr [strats_count] = $0
+
+   ++strats_count
+
+   ok = 1
+}
+
+function process_sect_servers_1 (){
+   if (NF != 2){
+      # we need exactly `servers {`
+      errno = 9
+      return
+   }
+
+   if ($NF != "{"){
+      # we need exactly `servers {`
+      errno = 10
+      return
+   }
+
+   ok = 1
+
+   opened_section = "servers"
+}
+
+function process_sect_servers_2 (             arr, count){
+   if (NF != 2){
+      # we need `<host> <strat1>,<strat2>,...,<stratN>`
+      errno = 11
+      return
+   }
+
+   count=split($2, arr, ",")
+   for (i=1; i <= count; ++i){
+      if (! (arr[i] in strat2index)){
+	 # undefined strategy
+	 errno = 12
+	 return
+      }
+
+      host_strat [$1, arr[i]] = ""
+   }
+
+   index2host [host_count] = $1
+   host2index [$1] = host_count
+
+   ++host_count
+
+   ok = 1
+}
+
+function process_sect_database_1(){
+   if (NF < 4){
+      # we need `database <dbname> <dbdescr>|"<dbdescr>" {`
+      errno = 5
+      return
+   }
+
+   if ($NF != "{"){
+      errno = 6
+      return
+   }
+
+   opened_section = "database"
+
+   index2db [db_count] = $2
+   db2index [$2] = db_count
+
+   $1 = $2 = $NF = ""
+   gsub(/  +/, " ")
+   sub(/^ ?\"?/, "")
+   sub(/\"? ?$/, "")
+   index2db_descr [db_count] = $0
+
+   ++db_count
+
+   ok = 1
+}
+
+function process_sect_database_2(){
+   if (NF != 3){
+      # we need `<host> <port> <dbname>`
+      errno = 7
+      return
+   }
+
+   if ($1 in db2index){
+      # database is already defined
+      errno = 8
+      return
+   }
+
+   index2hosts [db_count-1] = index2hosts [db_count-1] " " $1
+   index2ports [db_count-1] = index2ports [db_count-1] " " $2
+   index2dbs   [db_count-1] = index2dbs   [db_count-1] " " $3
+
+   sub(/^ /, "", index2hosts [db_count-1])
+   sub(/^ /, "", index2ports [db_count-1])
+   sub(/^ /, "", index2dbs   [db_count-1])
+
+   ok = 1
+}
+
+function read_config_file (conf_filename,          ret){
+   while (0 < (ret = getline < conf_filename)){
+      sub(/#.*$/, "", $0)
+
+      ok = ""
+
+      if (NF == 0){
+	 ok = 1
+      }else{
+	 if (!opened_section){
+	    if ($1 == "strategies"){
+	       process_sect_strategies_1()
+	    }else if ($1 == "servers"){
+	       process_sect_servers_1()
+	    }else if ($1 == "database"){
+	       process_sect_database_1()
+	    }
+	 }else if (NF == 1 && $1 == "}"){
+	    opened_section = ""
+	    ok = 1
+	 }else if (opened_section == "strategies"){
+	    process_sect_strategies_2()
+	 }else if (opened_section == "servers"){
+	    process_sect_servers_2()
+	 }else if (opened_section == "database"){
+	    process_sect_database_2()
+	 }
+      }
+
+      if (errno){
+	 return
+      }
+
+      if (ok == ""){
+	 # pizdets vsem
+	 errno = 30
+	 return
+      }
+   }
+
+   if (ret < 0){
+      print "Cannot read from file '"'"'" conf_filename "'"'"'"
+      exit 2
+   }
+}
+
+function debug_output (){
+   #
+   for (i=0; i < strats_count; ++i){
+      print "strat: "       i " > " index2strat [i]
+      print "strat_descr: " i " > " index2strat_descr [i]
+   }
+   printf "\n"
+
+   for (strat in strat2index){
+      print "index: " strat " > " strat2index [strat]
+   }
+   printf "\n"
+
+   #
+   for (i=0; i < db_count; ++i){
+      print "index2db "       i " > " index2db [i]
+      print "index2db_descr " i " > " index2db_descr [i]
+      print "index2hosts "    i " > " index2hosts [i]
+      print "index2ports "    i " > " index2ports [i]
+      print "index2dbs "      i " > " index2dbs [i]
+   }
+   printf "\n"
+
+   for (db in db2index){
+      print "db2index " db " > " db2index [db]
+   }
+   print "db_count=" db_count
+   printf "\n"
+
+   #
+   for (i=0; i < host_count; ++i){
+      print "index2host "       i " > " index2host [i]
+   }
+   printf "\n"
+   for (host in host2index){
+      print "host2index " host " > " host2index [host]
+   }
+   printf "\n"
+
+#   define1("localhost", 2628, "*", "apple")
+#   define2("*", "apple")
+#   print_definitions("apple")
+   match1("localhost", "2628", "wn", "suffix", "tion", "DB1")
+   print_matches()
+   exit 0
+}
+
+BEGIN {
+   read_config_file(config_file)
+
+   if (errno){
+      print "err line: " $0
+      exit errno
+   }
+
+#   debug_output()
+}
+
+##########
+## init ##
+
+BEGIN {
+   host   = "myhost" # ENVIRON["HOSTNAME"]
+   pid    = PROCINFO["pid"]
+   myself = name "-" version
+
+   ORS="\r\n"
+
+   printf "220 %s <%s.%s@%s>\r\n", myself, pid, systime(), host
+   fflush()
+}
+
+{
+   $0 = tolower($0)
+   sub(/\r$/, "")
+}
+
+##################
+
+function send_client_command (pipe){
+   if (pipe in client_command_sent){
+      return
+   }
+
+   client_command_sent [pipe] = ""
+
+   print "client " default_client_info |& pipe
+   fflush(pipe)
+
+   pipe |& getline
+   if ($1 != 250){
+      print "420 Strange response from" host ":" port " : " $0
+      fflush()
+
+      close_pipe(pipe)
+      next
+   }
+}
+
+##################
+## QUIT command ##
+
+$1 == "quit" {
+   print "221 bye"
+   fflush()
+   exit
+}
+
+#########################
+## SHOW SERVER command ##
+
+function do_show_server (){
+   print " eto moya informatsiya"
+   print " i to tozhe moya informatsiya"
+}
+
+$1 == "show" && $2 == "server" {
+   print "114 server information"
+   do_show_server()
+   print "."
+   print "250 ok"
+   fflush()
+
+   next
+}
+
+########################
+## SHOW STRAT command ##
+
+$1 == "show" && ($2 == "strat" || $2 == "strategies") {
+   print "111 " strats_count " strategies"
+   for (i=0; i < strats_count; ++i){
+      print " " index2strat [i] " \"" index2strat_descr [i] "\""
+   }
+   print "."
+   print "250 ok"
+   fflush()
+
+   next
+}
+
+#####################
+## SHOW DB command ##
+
+$1 == "show" && ($2 == "db" || $2 == "databases") {
+   print "110 " db_count " databases"
+   for (i=0; i < db_count; ++i){
+      print " " index2db [i] " \"" index2db_descr [i] "\""
+   }
+   print "."
+   print "250 ok"
+   fflush()
+
+   next
+}
+
+####################
+## STATUS command ##
+
+$1 == "status" {
+   print "210 online ;-)"
+   fflush()
+
+   next
+}
+
+##################
+## HELP command ##
+
+function do_help (){
+   print "\
+DEFINE database word         -- look up word in database\n\
+MATCH database strategy word -- match word in database using strategy\n\
+SHOW DB                      -- list all accessible databases\n\
+SHOW DATABASES               -- list all accessible databases\n\
+SHOW STRAT                   -- list available matching strategies\n\
+SHOW STRATEGIES              -- list available matching strategies\n\
+SHOW INFO database           -- provide information about the database\n\
+SHOW SERVER                  -- provide site-specific information\n\
+OPTION MIME                  -- use MIME headers\n\
+STATUS                       -- display timing information\n\
+HELP                         -- display this help information\n\
+QUIT                         -- terminate connection"
+
+#CLIENT info                  -- identify client to server\n\
+#AUTH user string             -- provide authentication information\n\
+}
+
+$1 == "help" {
+   print "113 help"
+   do_help()
+   print "."
+   print "250 ok"
+   fflush()
+
+   next
+}
+
+####################
+## DEFINE command ##
+
+function close_pipe (pipe){
+   print "quit" |& pipe
+   fflush(pipe)
+   close(pipe)
+}
+
+# sets `definitions` global variable
+function define1 (\
+   host, port, db, word, db_up,\
+\
+   pipe, def, i, count)\
+{
+   pipe = "/inet/tcp/0/" host "/" port
+   pipe |& getline
+   sub(/\r$/, "")
+
+   if ($1 == 530){
+      print "530 Access denied to " host ":" port
+      fflush()
+      close_pipe(pipe)
+      next
+   }else if ($1 == 420 || $1 == 421){
+      # server is temporarily unavailable
+      close_pipe(pipe)
+      return
+   }else if ($1 != 220){
+      print "420 Strange response from" host ":" port " : " $0
+      fflush()
+      close_pipe(pipe)
+      next
+   }
+
+   send_client_command(pipe)
+
+   print "define " db " \"" word "\"" |& pipe
+   fflush(pipe)
+
+   pipe |& getline
+   sub(/\r$/, "")
+
+   if ($1 == 550){
+      print "550 Invalid database \"" db "\" for " host ":" port
+      fflush()
+      close_pipe(pipe)
+      next
+   }else if ($1 == 552){
+      close_pipe(pipe)
+      return
+   }else if ($1 == 150){
+      count = $2
+      for (i=1; i <= count; ++i){
+	 pipe |& getline
+	 sub(/\r$/, "")
+
+	 if ($1 == 151){
+	    def = ""
+	    while ((pipe |& getline) > 0){
+	       sub(/\r$/, "")
+
+	       if ($0 == ".")
+		  break
+
+	       def = def ORS $0
+	    }
+
+	    sub("^" ORS, "", def) # remove leading ORS
+
+	    definitions    [def_count] = def
+	    definitions_db [def_count] = db_up
+	    ++def_count
+	 }else{
+	    print "502 Strange response from " host ":" port
+	    fflush()
+	    close_pipe(pipe)
+	    next
+	 }
+      }
+
+      pipe |& getline
+      sub(/\r$/, "")
+
+      if ($1 != 250){
+	 print "502 Strange response from " host ":" port
+	 fflush()
+	 close_pipe(pipe)
+	 next
+      }
+
+      close_pipe(pipe)
+   }
+}
+
+function define2 (\
+   db, word,\
+\
+   idx, hosts, ports, dbs, count)\
+{
+   if (db == "*" || db == "!"){
+      for (idx=0; idx < db_count; ++idx){
+	 define2(index2db [idx], word)
+
+	 if (db == "!" && def_count > 0)
+	    break
+      }
+   }else{
+      if (db in db2index){
+	 idx = db2index [db]
+
+	 count = split(index2hosts [idx], hosts)
+	 split(index2ports [idx], ports)
+	 split(index2dbs   [idx], dbs)
+
+	 for (idx = 1; idx <= count; ++idx){
+#	    if (hosts [idx] == "")
+#	       continue
+
+	    define1(hosts [idx], ports [idx], dbs [idx], word, db)
+	 }
+      }else{
+	 print "550 Invalid database, use \"SHOW DB\" for list of databases"
+	 fflush()
+	 next
+      }
+   }
+}
+
+function print_definitions (\
+   word,\
+   db, i)\
+{
+   if (def_count == 0){
+      print "552 no definitions found"
+   }else{
+      print "150 " def_count " definitions"
+      for (i=0; i < def_count; ++i){
+	 db = definitions_db [i]
+
+	 print "151 \"" word "\" " db " \"" index2db_descr [db2index [db]] "\""
+	 print definitions [i]
+#	 print " " definitions [i]
+	 print "."
+      }
+
+      print "250 ok"
+   }
+
+   fflush()
+}
+
+function define3 (\
+   db, word,\
+   \
+   host, port, pipe, i)\
+{
+   i = db2index [db]
+   host = index2hosts [i]
+   port = index2ports [i]
+
+   pipe = "/inet/tcp/0/" host "/" port
+   pipe |& getline
+   sub(/\r$/, "")
+
+   if ($1 == 530){
+      print "530 Access denied to " host ":" port
+      fflush()
+      close_pipe(pipe)
+      next
+   }else if ($1 == 420 || $1 == 421){
+      # server is temporarily unavailable
+      close_pipe(pipe)
+      return
+   }else if ($1 != 220){
+      print "420 Strange response from" host ":" port " : " $0
+      fflush()
+      close_pipe(pipe)
+      next
+   }
+
+   send_client_command(pipe)
+
+   print "define " db " \"" word "\"" |& pipe
+   fflush(pipe)
+
+   pipe |& getline
+   sub(/\r$/, "")
+
+   if ($1 == 550){
+      print "550 Invalid database \"" db "\" for " host ":" port
+      fflush()
+      close_pipe(pipe)
+      next
+   }else if ($1 == 552){
+      print $0
+      fflush()
+      close_pipe(pipe)
+      return
+   }else if ($1 == 150){
+      print $0
+      fflush()
+
+      count = $2
+      for (i=1; i <= count; ++i){
+	 pipe |& getline
+	 sub(/\r$/, "")
+
+	 print $0
+#	 fflush()
+
+	 if ($1 == 151){
+	    while ((pipe |& getline) > 0){
+	       sub(/\r$/, "")
+
+	       print $0
+#	       fflush()
+
+	       if ($0 == ".")
+		  break
+	    }
+	 }else{
+	    print "502 Strange response from " host ":" port
+	    fflush()
+	    close_pipe(pipe)
+	    next
+	 }
+      }
+
+      pipe |& getline
+      sub(/\r$/, "")
+
+      print $0
+      fflush()
+
+      if ($1 != 250){
+	 print "502 Strange response from " host ":" port
+	 fflush()
+	 close_pipe(pipe)
+	 next
+      }
+
+      close_pipe(pipe)
+   }
+}
+
+function do_define (db, word){
+   def_count = 0
+   delete definitions
+
+   if (\
+	db != "*" &&
+	db != "!" &&
+	db in db2index && !match(index2hosts [db2index [db]], / /))\
+   {
+      define3(db, word)
+   }else{
+      define2(db, word)
+      print_definitions()
+   }
+}
+
+$1 == "define" {
+   if (NF < 3){
+      printf "501 Syntax error, illegal parameters"
+   }else{
+      db = $2
+      sub(/^\"/, "", db)
+      sub(/\"$/, "", db)
+
+      $1 = $2 = ""
+      word = substr($0, 3)
+      sub(/^\"/, "", word)
+      sub(/\"$/, "", word)
+
+      delete definitions
+      delete definitions_db
+      def_count = 0
+
+      do_define(db, word)
+   }
+
+   next
+}
+
+###################
+## MATCH command ##
+
+function print_matches (              i){
+   if (matches_count == 0){
+      print "552 no matches found"
+   }else{
+      print "152 " matches_count " matches"
+      for (i=0; i < matches_count; ++i){
+	 db = matches_db [i]
+	 print " " db, "\"" matches [i] "\""
+      }
+      print "."
+      print "250 ok"
+   }
+
+   fflush()
+}
+
+function match1 (\
+   host, port, db, strat, word, db_up,\
+   pipe, count, i)\
+{
+   pipe = "/inet/tcp/0/" host "/" port
+   pipe |& getline
+   sub(/\r$/, "")
+
+   if ($1 == 530){
+      print "530 Access denied to " host ":" port
+      fflush()
+      close_pipe(pipe)
+      next
+   }else if ($1 == 420 || $1 == 421){
+      # server is temporarily unavailable
+      close_pipe(pipe)
+      return
+   }else if ($1 != 220){
+      print "420 Host" host ":" port " is down " $0
+      fflush()
+      close_pipe(pipe)
+      next
+   }
+
+   send_client_command(pipe)
+
+   print "match " db " " strat " \"" word "\"" |& pipe
+   fflush(pipe)
+
+   pipe |& getline
+   sub(/\r$/, "")
+
+   if ($1 == 550){
+      print "550 Invalid database \"" db "\" for " host ":" port
+      fflush()
+      close_pipe(pipe)
+      next
+   }else if ($1 == 551){
+      print "551 Invalid strategy \"" strat "\" for " host ":" port
+      fflush()
+      close_pipe(pipe)
+      next
+   }else if ($1 == 552){
+      close_pipe(pipe)
+      return
+   }else if ($1 == 152){
+      count = $2
+      for (i=1; i <= count; ++i){
+	 pipe |& getline
+	 sub(/\r$/, "")
+
+	 matches_db [matches_count] = db_up
+
+	 $1 = ""
+	 sub(/^ \"?/, "")
+	 sub(/\"$/, "")
+	 matches    [matches_count] = $0
+#	 print $0
+
+	 ++matches_count
+      }
+
+      pipe |& getline
+      sub(/\r$/, "")
+
+      if ($1 != "."){
+	 print "502 Strange response from " host ":" port " : `" $0 "`"
+	 fflush()
+	 close_pipe(pipe)
+	 next
+      }
+
+      pipe |& getline
+      sub(/\r$/, "")
+
+      if ($1 != "250"){
+	 print "502 Strange response from " host ":" port " : `" $0 "`"
+	 fflush()
+	 close_pipe(pipe)
+	 next
+      }
+
+      close_pipe(pipe)
+   }
+}
+
+function match2 (\
+   db, strat, word,\
+   idx, count, hosts, ports, dbs)\
+{
+   if (db == "*" || db == "!"){
+      for (idx=0; idx < db_count; ++idx){
+	 match2(index2db [idx], strat, word)
+
+	 if (db == "!" && matches_count > 0)
+	    break
+      }
+   }else{
+      idx = db2index [db]
+      if (idx == ""){
+	 print "550 Invalid database, use \"SHOW DB\" for list of databases"
+	 fflush()
+	 next
+      }else{
+	 count = split(index2hosts [idx], hosts)
+	 split(index2ports [idx], ports)
+	 split(index2dbs   [idx], dbs)
+
+	 for (idx = 1; idx <= count; ++idx){
+	    if (hosts [idx] == "")
+	       continue
+
+	    if (strat == "."){
+	       strat = default_strategy
+	    }
+
+	    if ((hosts [idx] SUBSEP strat) in host_strat){
+	       match1(hosts [idx], ports [idx], dbs [idx], strat, word, db)
+	    }
+	 }
+      }
+   }
+}
+
+function do_match (db, strat, word){
+   matches_count = 0
+   delete matches
+
+   match2(db, strat, word)
+   print_matches()
+}
+
+$1 == "match" {
+   if (NF < 4){
+      printf "501 Syntax error, illegal parameters"
+   }else{
+      db = $2
+
+      strat = $3
+
+      $1 = $2 = $3 = ""
+      word = substr($0, 4)
+      sub(/^\"/, "", word)
+      sub(/\"$/, "", word)
+
+      do_match(db, strat, word)
+   }
+
+   next
+}
+
+####################
+## CLIENT command ##
+
+$1 == "client" {
+   #actually does nothing
+   print "250 ok"
+   fflush()
+   next
+}
+
+#####################
+## unknown command ##
+
+{
+   print "500 unknown command"
+   fflush()
+}' "$@"
