@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.95 2003/12/18 22:36:23 cheusov Exp $
+# $Id: Makefile.in,v 1.96 2003/12/24 19:44:00 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -386,11 +386,14 @@ dist:
 	VERSION=$(DICT_VERSION) ; \
 	VERSION_CVS=`echo $${VERSION} | tr . -`; \
 	export VERSION VERSION_CVS; \
+	make ChangeLog; \
+	cp ChangeLog /tmp/dictd.ChangeLog.$${VERSION}; \
 	echo "***** Exporting files for dictd-$${VERSION}..."; \
 	cd /tmp; \
 	rm -rf /tmp/dictd-$${VERSION}; \
 	cvs export -fd dictd-$${VERSION} -r dictd-$${VERSION_CVS} dictd1; \
 	cd dictd-$${VERSION}; \
+	mv /tmp/dictd.ChangeLog.$${VERSION} ChangeLog; \
 	make -f Makefile.conf; \
 	rm -rf autom4te.cache libmaa/autom4te.cache \
 	chmod -R a+rX,g-w .; \
