@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.7 2002/09/18 14:56:47 cheusov Exp $
+ * $Id: dictfmt.c,v 1.8 2002/10/16 06:25:51 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -460,7 +460,7 @@ int main( int argc, char **argv )
       setenv("LC_ALL", locale, 1); /* this is for 'sort' subprocess */
 
    if (!setlocale(LC_ALL, locale)){
-	   fprintf (stderr, "ivalid locale '%s'\n", locale);
+	   fprintf (stderr, "invalid locale '%s'\n", locale);
 	   exit (2);
    }
 
