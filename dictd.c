@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.70 2003/02/23 13:03:12 cheusov Exp $
+ * $Id: dictd.c,v 1.71 2003/02/23 14:23:09 cheusov Exp $
  * 
  */
 
@@ -547,7 +547,7 @@ static int init_plugin( const void *datum )
 {
 #ifdef USE_PLUGIN
    dictDatabase *db = (dictDatabase *)datum;
-   dict_plugin_open (db->index, db);
+   dict_plugin_open (db);
 #endif
 
    return 0;
@@ -588,17 +588,22 @@ static int init_database( const void *datum )
    PRINTF (DBG_INIT, (":I:   Opening data\n"));
    db->data         = dict_data_open( db->dataFilename, 0 );
 
+   PRINTF(DBG_INIT,
+	  (":I: '%s' initialized\n", db->databaseName));
+
+   return 0;
+}
+
+static int init_database_short (const void *datum)
+{
+   dictDatabase *db = (dictDatabase *)datum;
+
    if (!db->databaseShort)
       db->databaseShort = get_entry_info( db, DICT_SHORT_ENTRY_NAME );
    else if (*db->databaseShort == '@')
       db->databaseShort = get_entry_info( db, db->databaseShort + 1 );
    if (!db->databaseShort)
       db->databaseShort = xstrdup (db->databaseName);
-
-   PRINTF(DBG_INIT,
-	  (":I: %s \"%s\" initialized\n",db->databaseName,db->databaseShort));
-
-   db -> virtual_db_list = NULL;
 
    return 0;
 }
@@ -702,9 +707,10 @@ static void dict_init_databases( dictConfig *c )
    make_dictexit_invisible (c);
 
    lst_iterate( c->dbl, init_database );
-   lst_iterate( c->dbl, log_database_info );
-   lst_iterate( c->dbl, init_virtual_db_list );
    lst_iterate( c->dbl, init_plugin );
+   lst_iterate( c->dbl, init_virtual_db_list );
+   lst_iterate( c->dbl, init_database_short );
+   lst_iterate( c->dbl, log_database_info );
 }
 
 static void dict_close_databases (dictConfig *c)
@@ -793,7 +799,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.70 2003/02/23 13:03:12 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.71 2003/02/23 14:23:09 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.54 2003/02/23 14:10:57 cheusov Exp $
+ * $Id: index.c,v 1.55 2003/02/23 14:23:09 cheusov Exp $
  * 
  */
 
@@ -1756,10 +1756,12 @@ int dict_search (
       }
 #endif
 
-      strategy &= ~DICT_MATCH_MASK;
+      if (database -> index){
+	 strategy &= ~DICT_MATCH_MASK;
 
-      PRINTF (DBG_SEARCH, (":S:   database search\n"));
-      count = dict_search_database_ (l, word, database, strategy);
+	 PRINTF (DBG_SEARCH, (":S:   database search\n"));
+	 count = dict_search_database_ (l, word, database, strategy);
+      }
    }
 
    if (extra_result){
