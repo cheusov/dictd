@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.76 2003/07/07 13:03:43 cheusov Exp $
+# $Id: Makefile.in,v 1.77 2003/07/10 14:42:05 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -75,6 +75,11 @@ LDFLAGS=        @LDFLAGS@
 XTRACFLAGS=     @WCFLAGS@ @XTRACFLAGS@ @DEFS@ @CPPFLAGS@ -I.
 XTRALDFLAGS=    @WLDFLAGS@ @XTRALDFLAGS@
 LDLIBS=		    @LIBOBJS@ @LIBS@
+
+DICTFMT_LDFLAGS=  @DICTFMT_LDFLAGS@
+DICTZIP_LDFLAGS=  @DICTZIP_LDFLAGS@
+DICT_LDFLAGS=     @DICT_LDFLAGS@
+DICTD_LDFLAGS=    @DICTD_LDFLAGS@
 
 EXES=	 	dict dictd dictzip dictfmt
 
@@ -173,12 +178,16 @@ man_popen.dict : dictdplugin-config dictfmt_plugin dictfmt
       'Example man dict based on example POPEN plugin' man_popen
 
 dict :: dict.o $(CLIOBJS) @LIBOBJS@ parse.o
+	$(CC) -o $@ $^ $(OBJS) $(ALLLDFLAGS) $(DICT_LDFLAGS)
 
 dictd :: dictd.o $(NETOBJS) $(SRCHOBJS) @LIBOBJS@ parse.o
+	$(CC) -o $@ $^ $(OBJS) $(ALLLDFLAGS) $(DICTD_LDFLAGS)
 
 dictzip :: dictzip.o data.o @LIBOBJS@
+	$(CC) -o $@ $^ $(OBJS) $(ALLLDFLAGS) $(DICTZIP_LDFLAGS)
 
 dictfmt :: dictfmt.o @LIBOBJS@
+	$(CC) -o $@ $^ $(OBJS) $(ALLLDFLAGS) $(DICTFMT_LDFLAGS)
 
 servscan.c: servscan.l
 	$(LEX) $(LFLAGS) -o$@ $<
