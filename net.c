@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: net.c,v 1.16 1998/01/04 15:42:16 faith Exp $
+ * $Id: net.c,v 1.17 1998/01/16 03:51:55 faith Exp $
  * 
  */
 
@@ -154,11 +154,13 @@ void net_detach( void )
    
    for (i=getdtablesize()-1; i >= 0; --i) close(i); /* close everything */
    
+#if !defined(__hpux__) 
    if ((fd = open("/dev/tty", O_RDWR)) >= 0) {
 				/* detach from controlling tty */
       ioctl(fd, TIOCNOTTY, 0);
       close(fd);
    }
+#endif
    
    chdir("/");		/* cd to safe directory */
    
