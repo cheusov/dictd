@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictzip.c,v 1.18 2002/08/02 19:43:14 faith Exp $
+ * $Id: dictzip.c,v 1.19 2002/09/12 13:08:06 cheusov Exp $
  * 
  */
 
@@ -311,7 +311,7 @@ static const char *id_string( const char *id )
 
 static void banner( void )
 {
-   const char *id = "$Id: dictzip.c,v 1.18 2002/08/02 19:43:14 faith Exp $";
+   const char *id = "$Id: dictzip.c,v 1.19 2002/09/12 13:08:06 cheusov Exp $";
    
    fprintf( stderr, "%s %s\n", err_program_name(), id_string( id ) );
    fprintf( stderr,
@@ -474,13 +474,13 @@ int main( int argc, char **argv )
 	       len = header->chunkLength;
 	       for (j = 0; j < size; j += len) {
 		  if (j + len >= size) len = size - j;
-		  buf = dict_data_read( header, j, len, pre, post );
+		  buf = dict_data_read_ ( header, j, len, pre, post );
 		  fwrite( buf, len, 1, stdout );
 		  fflush( stdout );
 		  xfree( buf );
 	       }
 	    } else {
-	       buf = dict_data_read( header, start, size, pre, post );
+	       buf = dict_data_read_ ( header, start, size, pre, post );
 	       fwrite( buf, size, 1, stdout );
 	       fflush( stdout );
 	       xfree( buf );
@@ -501,7 +501,7 @@ int main( int argc, char **argv )
 	    len = header->chunkLength;
 	    for (j = 0; j < size; j += len) {
 	       if (j + len >= size) len = size - j;
-	       buf = dict_data_read( header, j, len, pre, post );
+	       buf = dict_data_read_ ( header, j, len, pre, post );
 	       fwrite( buf, len, 1, str );
 	       fflush( str );
 	       xfree( buf );

@@ -1,0 +1,55 @@
+#!/bin/sh
+
+usage (){
+	cat <<EOF
+This program is intended to create DICTD database files
+necessary for integrating plugin into DICTD.
+It creates two special entries:
+00-database-plugin
+  Its "definition" is a filename for plugin (possibly .so)
+  You should specify the filename as a parameter (see below)
+00-database-plugin-data
+  Its "definition" is a data passed to plugin during
+  initialisation.
+  They are passed from stdin.
+Take a note that -c5 input format is used. You cannot specify
+another one.
+usage: dictfmt_plugin [OPTIONS] <path_to_plugin> [DICTFMT_OPTIONS]
+OPTIONS:
+    --help displays this help
+DICTFMT_OPTIONS:
+    all they are from dictfmt
+EOF
+}
+
+while test $# -ne 0; do
+	case $1 in
+		--help)
+			usage
+			exit 0;;
+		-*)
+			echo "invalid argument '$1'" 1>&2
+			echo "run '$0 --help' for help" 1>&2
+			exit 1;;
+		*)
+			break;;
+	esac
+	shift
+done
+
+filename=$1
+shift
+
+{
+	echo -en "\
+_____\n\
+\n\
+00-database-plugin\n\
+	$filename\n\
+_____\n\
+\n\
+00-database-plugin-data\n\
+"
+
+	cat
+} | dictfmt -c5 "$@"

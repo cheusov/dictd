@@ -1,3 +1,6 @@
+#ifndef _UTF8_UCS4_H_
+#define _UTF8_UCS4_H_
+
 #include <wctype.h>
 
 #undef __BEGIN_DECLS 
@@ -20,7 +23,7 @@ __BEGIN_DECLS
    Returns pointer to the next character if success or
       NULL otherwise
 */
-const char * utf8_to_ucs4 (const char *ptr, wint_t *result);
+extern const char * utf8_to_ucs4 (const char *ptr, wint_t *result);
 
 /*
    Converts one character from ucs4 to utf8
@@ -28,43 +31,45 @@ const char * utf8_to_ucs4 (const char *ptr, wint_t *result);
    'result' - utf8 result (contain at most 7 'char's)
    Returns 1 if success, or 0 otherwise
 */
-int ucs4_to_utf8 (wint_t ucs4, char *result);
+extern int ucs4_to_utf8 (wint_t ucs4, char *result);
 
 /*
   Converts utf8 string to lower case.
   Returns 'str' if success, or NULL otherwise
 */
-char *strlwr_utf8 (char *str);
+extern char *strlwr_utf8 (char *str);
 
 /*
   Converts utf8 string to upper case.
   Returns 'str' if success, or NULL otherwise
 */
-char *strupr_utf8 (char *str);
+extern char *strupr_utf8 (char *str);
 
 /*
   Converts 8bit string to lower case.
   Returns 'str'.
 */
-char *strlwr_8bit (char *str);
+extern char *strlwr_8bit (char *str);
 
 /*
   Converts 8bit string to upper case.
   Returns 'str'.
 */
-char *strupr_8bit (char *str);
+extern char *strupr_8bit (char *str);
 
 /*
   The  strlen_utf8() function calculates the length of the UTF-8 string,
   not including the terminating `\0' character.
   Returns (size_t) -1, if failed.
 */
-size_t strlen_utf8 (const char *str);
+extern size_t strlen_utf8 (const char *str);
 
 /*
   The  charlen_utf8() function calculates the length of the UTF-8 character
   Returns (size_t) -1, if failed.
 */
-size_t charlen_utf8 (const char *str);
+extern size_t charlen_utf8 (const char *str);
 
 __END_DECLS
+
+#endif // _UTF8_UCS4_H_

@@ -121,7 +121,7 @@ char *strupr_8bit (char *str)
 
 typedef int (* xxx_type) (int);
 
-static char *strxxx_utf8 (char *str, int (* xxx) (int))
+static char *strxxx_utf8 (char *str, wint_t (* xxx) (wint_t))
 {
     char   *p, *p_next;
     wint_t ucs4_char;

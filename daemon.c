@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.35 2002/08/05 11:16:52 cheusov Exp $
+ * $Id: daemon.c,v 1.36 2002/09/12 13:08:06 cheusov Exp $
  * 
  */
 
@@ -26,6 +26,7 @@
 #include <setjmp.h>
 #include "md5.h"
 #include "regex.h"
+#include "plugin.h"
 
 #ifndef HAVE_INET_ATON
 #define inet_aton(a,b) (b)->s_addr = inet_addr(a)
@@ -605,12 +606,22 @@ static int daemon_count_defs( lst_List list )
    dictWord      *dw;
    unsigned long previousStart = 0;
    unsigned long previousEnd   = 0;
+   const char   *previousDef   = NULL;
    int           count         = 0;
 
    LST_ITERATE(list,p,dw) {
-      if (previousStart == dw->start && previousEnd == dw->end) continue;
+      if (
+	 previousStart == dw->start &&
+	 previousEnd   == dw->end &&
+	 previousDef   == dw->def)
+      {
+	 continue;
+      }
+
       previousStart = dw->start;
       previousEnd   = dw->end;
+      previousDef   = dw->def;
+
       ++count;
    }
    return count;
@@ -624,15 +635,24 @@ static void daemon_dump_defs( lst_List list )
    dictDatabase  *db;
    unsigned long previousStart = 0;
    unsigned long previousEnd   = 0;
+   const char *  previousDef   = NULL;
 
    LST_ITERATE(list,p,dw) {
       db = dw->database;
 
-      if (previousStart == dw->start && previousEnd == dw->end) continue;
+      if (
+	 previousStart == dw->start &&
+	 previousEnd   == dw->end &&
+	 previousDef   == dw->def) 
+      {
+	 continue;
+      }
+
       previousStart = dw->start;
       previousEnd   = dw->end;
-      buf = dict_data_read( db->data, dw->start, dw->end,
-			    db->prefilter, db->postfilter );
+      previousDef   = dw->def;
+
+      buf = dict_data_obtain ( db, dw );
 
       daemon_printf( "%d \"%s\" %s \"%s\"\n",
 		     CODE_DEFINITION_FOLLOWS,
@@ -652,12 +672,14 @@ static int daemon_count_matches( lst_List list )
    const char   *prevword = NULL;
    dictDatabase *prevdb   = NULL;
    int          count     = 0;
-   
+
    LST_ITERATE(list,p,dw) {
       if (prevdb == dw->database && prevword && !strcmp(prevword,dw->word))
 	  continue;
+
       prevword = dw->word;
       prevdb   = dw->database;
+
       ++count;
    }
    return count;
@@ -669,13 +691,15 @@ static void daemon_dump_matches( lst_List list )
    dictWord     *dw;
    const char   *prevword = NULL;
    dictDatabase *prevdb   = NULL;
-   
+
    daemon_mime();
    LST_ITERATE(list,p,dw) {
       if (prevdb == dw->database && prevword && !strcmp(prevword,dw->word))
 	  continue;
+
       prevword = dw->word;
       prevdb   = dw->database;
+
       daemon_printf( "%s \"%s\"\n", dw->database->databaseName, dw->word );
    }
    daemon_printf( ".\n" );
@@ -730,7 +754,7 @@ static void daemon_define( const char *cmdline, int argc, char **argv )
    reset_databases();
    while ((db = next_database(databaseName))) {
       none = 0;
-      matches += dict_search_database( list, word, db, DICT_EXACT );
+      matches += dict_search ( list, word, db, DICT_EXACT );
       if (matches > 0 && *databaseName != '*')               break; 
       else if (*databaseName == '*' || *databaseName == '!') continue;
       goto nomatch;
@@ -805,7 +829,9 @@ static void daemon_match( const char *cmdline, int argc, char **argv )
    reset_databases();
    while ((db = next_database(databaseName))) {
       none = 0;
-      matches += dict_search_database( list, word, db, strategyNumber );
+      matches += dict_search (
+	 list, word, db, strategyNumber | DICT_MATCH_MASK);
+
       if (matches > 0 && *databaseName != '*')               break;
       else if (*databaseName == '*' || *databaseName == '!') continue;
       goto nomatch;
@@ -912,15 +938,17 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
    list = lst_create();
    reset_databases();
    while ((db = next_database( argv[2] ))) {
-      if (dict_search_database( list,
-				db->databaseInfoPointer ?
-				db->databaseInfoPointer :
-				DICT_INFO_ENTRY_NAME,
-				db,
-				DICT_EXACT )) {
+      if (dict_search (
+	 list,
+	 db->databaseInfoPointer ?
+	 db->databaseInfoPointer :
+	 DICT_INFO_ENTRY_NAME,
+	 db,
+	 DICT_EXACT ))
+      {
 	 dw = lst_nth_get( list, 1 );
-	 buf = dict_data_read( db->data, dw->start, dw->end,
-			       db->prefilter, db->postfilter );
+	 buf = dict_data_obtain( db, dw );
+
 	 dict_destroy_list( list );
 	 daemon_printf( "%d information for %s\n",
 			CODE_DATABASE_INFO, argv[2] );
