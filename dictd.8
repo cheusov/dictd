@@ -451,6 +451,14 @@ This section is required.  The string specifies the name of the database
 .B NOTE:
 If the files specified in the database specification do not exist on the
 system, dictd may silently fail.
+.TP
+.BI database_exit
+Excludes following databases from the '*' database.
+By default '*' means all databases available.
+Look at 'example_virtual.conf' file for example configuration.
+.B NOTE:
+If you use 'virtual' dictionaries, you should use this directive,
+otherwise you will search the same dictionary twice.
 .RE
 .TP
 .B User Section

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: data.c,v 1.15 2002/12/03 19:56:30 cheusov Exp $
+ * $Id: data.c,v 1.16 2002/12/04 19:12:46 cheusov Exp $
  * 
  */
 
@@ -221,9 +221,14 @@ static int dict_read_header( const char *filename,
 
 dictData *dict_data_open( const char *filename, int computeCRC )
 {
-   dictData    *h = xmalloc( sizeof( struct dictData ) );
+   dictData    *h = NULL;
    struct stat sb;
    int         j;
+
+   if (!filename)
+      return NULL;
+
+   h = xmalloc( sizeof( struct dictData ) );
 
    memset( h, 0, sizeof( struct dictData ) );
    h->initialized = 0;

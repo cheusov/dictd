@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.59 2002/12/03 14:35:22 cheusov Exp $
+ * $Id: dictd.c,v 1.60 2002/12/04 19:12:47 cheusov Exp $
  * 
  */
 
@@ -446,6 +446,9 @@ static int init_virtual_db_list (const void *datum)
    int len, i;
    lst_Position db_pos;
 
+   if (!db -> index)
+      return 0;
+
    list = lst_create();
    ret = dict_search (
       list, DICT_FLAG_VIRTUAL, db, DICT_EXACT,
@@ -527,12 +530,14 @@ static int init_database( const void *datum )
    db->index        = dict_index_open( db->indexFilename, 1, 0, 0 );
    PRINTF (DBG_INIT, (":I:     .index <ok>\n"));
 
-   db->index_suffix = dict_index_open(
-       db->indexsuffixFilename,
-       0, db->index->flag_utf8, db->index->flag_allchars);
-   db->index_word = dict_index_open(
-       db->indexwordFilename,
-       0, db->index->flag_utf8, db->index->flag_allchars);
+   if (db->index){
+      db->index_suffix = dict_index_open(
+	 db->indexsuffixFilename,
+	 0, db->index->flag_utf8, db->index->flag_allchars);
+      db->index_word = dict_index_open(
+	 db->indexwordFilename,
+	 0, db->index->flag_utf8, db->index->flag_allchars);
+   }
 
    if (db->index_suffix){
       PRINTF (DBG_INIT, (":I:     .indexsuffix <ok>\n"));
@@ -604,13 +609,15 @@ static int log_database_info( const void *datum )
    const char    *pt;
    unsigned long headwords = 0;
 
-   for (pt = db->index->start; pt < db->index->end; pt++)
-      if (*pt == '\n') ++headwords;
-   db->index->headwords = headwords;
-   
-   log_info( ":I: %-12.12s %12lu %12lu %12lu %12lu\n",
-	     db->databaseName, headwords,
-	     db->index->size, db->data->size, db->data->length );
+   if (db->index){
+      for (pt = db->index->start; pt < db->index->end; pt++)
+	 if (*pt == '\n') ++headwords;
+      db->index->headwords = headwords;
+
+      log_info( ":I: %-12.12s %12lu %12lu %12lu %12lu\n",
+		db->databaseName, headwords,
+		db->index->size, db->data->size, db->data->length );
+   }
 
    return 0;
 }
@@ -721,7 +728,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.59 2002/12/03 14:35:22 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.60 2002/12/04 19:12:47 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -879,12 +886,12 @@ static void sanity(const char *confFile)
       lst_Position p;
       dictDatabase *e;
       LST_ITERATE(DictConfig->dbl, p, e) {
-           if (access(e->indexFilename, R_OK)) {
+           if (e->indexFilename && access(e->indexFilename, R_OK)) {
               log_info(":E: %s is not readable (index file)\n",
                        e->indexFilename);
               ++fail;
            }
-           if (access(e->dataFilename, R_OK)) {
+           if (e->dataFilename && access(e->dataFilename, R_OK)) {
               log_info(":E: %s is not readable (data file)\n",
                        e->dataFilename);
               ++fail;

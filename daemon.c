@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.45 2002/12/03 19:56:30 cheusov Exp $
+ * $Id: daemon.c,v 1.46 2002/12/04 19:12:46 cheusov Exp $
  * 
  */
 
@@ -923,6 +923,10 @@ int dict_search_databases (
    lst_append (preprocessed_words, xstrdup(word));
 
    while ((db = next_database (&databasePosition, databaseName))) {
+      if (!db -> index)
+	 /* actually dictionary_exit */
+	 break;
+
       result = DICT_PLUGIN_RESULT_NOTFOUND;
 
       mc = 0;
@@ -1152,23 +1156,48 @@ static void daemon_show_server( const char *cmdline, int argc, char **argv )
       daemon_printf( "\nDatabase      Headwords         Index"
 		     "          Data  Uncompressed\n" );
       while ((db = next_database (&databasePosition, "*"))) {
-	 daemon_printf( "%-12.12s %10lu %10lu %cB %10lu %cB %10lu %cB\n",
-			db->databaseName,
-			db->index->headwords,
-			
-			db->index->size/1024 > 10240 ?
-			db->index->size/1024/1024 : db->index->size/1024,
-			db->index->size/1024 > 10240 ? 'M' : 'k',
+	 int headwords       = db->index ? db->index->headwords : 0;
 
-			db->data->size/1024 > 10240 ?
-			db->data->size/1024/1024 : db->data->size/1024,
-			db->data->size/1024 > 10240 ? 'M' : 'k',
+	 int index_size      = 0;
+	 char index_size_uom = 'k';
 
-			db->data->length/1024 > 10240 ?
-			db->data->length/1024/1024 : db->data->length/1024,
-			db->data->length/1024 > 10240 ? 'M' : 'k' );
+	 int data_size       = 0;
+	 char data_size_uom  = 'k';
+	 int data_length     = 0;
+	 char data_length_uom= 'k';
+
+	 if (db->index){
+	    index_size = db->index->size/1024 > 10240 ?
+	       db->index->size/1024/1024 : db->index->size/1024;
+	    index_size_uom = db->index->size/1024 > 10240 ? 'M' : 'k';
+	 }
+
+	 if (db->data){
+	    data_size = db->data->size/1024 > 10240 ?
+	       db->data->size/1024/1024 : db->data->size/1024;
+	    data_size_uom = db->data->size/1024 > 10240 ? 'M' : 'k';
+
+	    data_length = db->data->length/1024 > 10240 ?
+	       db->data->length/1024/1024 : db->data->length/1024;
+	    data_length_uom = db->data->length/1024 > 10240 ? 'M' : 'k';
+	 }
+
+	 daemon_printf(
+	    "%-12.12s %10lu %10lu %cB %10lu %cB %10lu %cB\n",
+	    db->databaseName,
+	    headwords,
+
+	    index_size,
+	    index_size_uom,
+
+	    data_size,
+	    data_size_uom,
+
+	    data_size,
+	    data_size_uom);
       }
    }
+
    if (DictConfig->site && (str = fopen( DictConfig->site, "r" ))) {
       daemon_printf( "\nSite-specific information for %s:\n\n",
 		     net_hostname() );

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servscan.l,v 1.14 2002/10/14 07:01:41 cheusov Exp $
+ * $Id: servscan.l,v 1.15 2002/12/04 19:12:47 cheusov Exp $
  * 
  */
 
@@ -55,6 +55,7 @@ allow                       RETURN(T_ALLOW);
 deny                        RETURN(T_DENY);
 group                       RETURN(T_GROUP);
 database                    RETURN(T_DATABASE);
+database_exit               RETURN(T_DATABASE_EXIT);
 data                        RETURN(T_DATA);
 index                       RETURN(T_INDEX);
 index_suffix                RETURN(T_INDEX_SUFFIX);

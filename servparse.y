@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.11 2002/11/25 15:50:59 cheusov Exp $
+ * $Id: servparse.y,v 1.12 2002/12/04 19:12:47 cheusov Exp $
  * 
  */
 
@@ -48,7 +48,7 @@ static dictDatabase *db;
 %token <token> '{' '}' T_ACCESS T_ALLOW T_DENY T_GROUP T_DATABASE T_DATA
 %token <token> T_INDEX T_INDEX_SUFFIX T_INDEX_WORD
 %token <token> T_FILTER T_PREFILTER T_POSTFILTER T_NAME
-%token <token> T_USER T_AUTHONLY T_SITE
+%token <token> T_USER T_AUTHONLY T_SITE T_DATABASE_EXIT
 
 %token <token>  T_STRING
 %type  <token>  Site
@@ -173,6 +173,15 @@ Database : T_DATABASE T_STRING
 	      db->databaseName = $2.string;
 	   }
            '{' SpecList '}' { $$ = db; }
+           |
+	   T_DATABASE_EXIT
+	   {
+	      db = xmalloc(sizeof(struct dictDatabase));
+	      memset( db, 0, sizeof(struct dictDatabase));
+	      db -> databaseName  = strdup("--exit--");
+	      db -> databaseShort = strdup("Actually this is EXIT command but the dictionary");
+	      $$ = db;
+	   }
          ;
 
 SpecList : Spec
