@@ -60,6 +60,15 @@ set
 .B DICTL_USE_KONWERT
 to non-empty string.
 
+If /usr/bin/konwert doesn't exist on the system, and neither
+.B DICTL_USE_ICONV
+or
+.B DICTL_USE_KONWERT
+is set, 
+.B dictl 
+will use 
+.I iconv.
+
 Because
 .I recode, iconv
 and 

@@ -26,6 +26,11 @@ if test -z "$DICTL_PAGER"; then
     fi
 fi
 
+if test -z "$DICTL_USE_ICONV" && test -z "$DICTL_USE_KONWERT" && ! test -f /usr/
+bin/recode; then
+    DICTL_USE_ICONV=1
+fi
+
 charset2charset (){
     if test "$DICTL_USE_ICONV"; then
 	iconv -f $1 -t $2
