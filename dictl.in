@@ -11,7 +11,7 @@ fi
 
 if test -z "$DICTL_CHARSET"; then
     if which locale >/dev/null 2>&1; then
-	DICTL_CHARSET=`locale | sed -n '/^LC_CTYPE=/ { s/"\|^.*\.//g; p; }'`;
+	DICTL_CHARSET=`locale -k LC_CTYPE | sed -n 's/charmap="\(.*\)"/\1/p'`;
     else
 	DICTL_CHARSET=C
     fi
