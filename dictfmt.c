@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.43 2004/01/06 19:10:12 cheusov Exp $
+ * $Id: dictfmt.c,v 1.44 2004/01/07 18:01:50 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -487,8 +487,6 @@ static void fmt_newheadword( const char *word )
    char *      sep   = NULL;
    char *      p;
 
-   update_alphabet (word);
-
    if (
       word &&
       (!strcmp (word, "00-database-url") ||
@@ -531,6 +529,8 @@ static void fmt_newheadword( const char *word )
       ignore_hw_info = 1;
    }
 
+   update_alphabet (word);
+
    fmt_ignore_headword = 0;
 
    if (locale [0] == 'C' && locale [1] == 0){
@@ -548,7 +548,8 @@ static void fmt_newheadword( const char *word )
    if (
       word &&
       !without_hw &&
-      (strncmp (word, "00-database", 11) || strncmp (word, "00database", 10)))
+      strncmp (word, "00-database", 11) &&
+      strncmp (word, "00database", 10))
    {
       fmt_string (word);
       fmt_newline();
