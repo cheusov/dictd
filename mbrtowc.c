@@ -28,7 +28,8 @@ static const char * utf8_to_ucs4 (
    ch = (unsigned char) *ptr++;
 
    if ((ch & 0x80) == 0x00){
-      *result = ch;
+      if (result)
+	 *result = ch;
    }else{
       if ((ch & 0xE0) == 0xC0){
 	 octet_count = 2;
@@ -62,7 +63,8 @@ static const char * utf8_to_ucs4 (
 	 ret |= ((ch & 0x3F) << bits_count);
       }
 
-      *result = ret;
+      if (result)
+	 *result = ret;
    }
 
    return ptr;
