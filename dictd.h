@@ -1,6 +1,6 @@
 /* dict.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Mon Mar 10 14:13:20 1997 by faith@cs.unc.edu
+ * Revised: Mon Mar 10 21:51:13 1997 by faith@cs.unc.edu
  * Copyright 1994, 1995, 1996 Rickard E. Faith (faith@cs.unc.edu)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -54,6 +54,7 @@
 #define DBG_INIT        (0<<30|1<< 6) /* Database initialization           */
 #define DBG_PORT        (0<<30|1<< 7) /* Log port number for connections   */
 #define DBG_LEV         (0<<30|1<< 8) /* Levenshtein matching              */
+#define DBG_NOFORK      (0<<30|1<< 9) /* Don't fork (single threaded)      */
 
 #define DICT_UNKNOWN    0
 #define DICT_TEXT       1

@@ -1,6 +1,6 @@
 # Makefile.in -- Makefile for dict
 # Created: Wed Apr 24 14:14:09 1996 by faith@cs.unc.edu
-# Revised: Mon Mar 10 16:44:36 1997 by faith@cs.unc.edu
+# Revised: Mon Mar 10 23:29:20 1997 by faith@cs.unc.edu
 # Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.8 1997/03/10 21:46:52 faith Exp $
+# $Id: Makefile.in,v 1.9 1997/03/11 04:31:37 faith Exp $
 #
 
 ifneq (,)
@@ -123,9 +123,14 @@ recursive-clean: clean
 
 distclean: clean
 	@for subdir in $(subdirs); do \
-	 	if [ "$$subdir" != "zlib" -a "$$subdir" != "regex" ]; then \
-			echo making $@ in $$subdir; \
-			(cd $$subdir && $(MAKE) $@) || exit 1; \
+	 	if [ "$$subdir" != "zlib" ]; then \
+			if [ "$$subdir" == "regex" ]; then \
+				echo making clean in $$subdir; \
+				(cd $$subdir && $(MAKE) clean) || exit 1; \
+			else \
+				echo making $@ in $$subdir; \
+				(cd $$subdir && $(MAKE) $@) || exit 1; \
+			fi \
 		fi \
 	done
 	-rm -f config.h config.cache config.status stamp-h.in stamp-h

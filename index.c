@@ -1,6 +1,6 @@
 /* index.c -- 
  * Created: Wed Oct  9 14:52:23 1996 by faith@cs.unc.edu
- * Revised: Mon Mar 10 14:38:37 1997 by faith@cs.unc.edu
+ * Revised: Mon Mar 10 23:22:08 1997 by faith@cs.unc.edu
  * Copyright 1996, 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,11 +17,12 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.6 1997/03/10 21:46:58 faith Exp $
+ * $Id: index.c,v 1.7 1997/03/11 04:31:39 faith Exp $
  * 
  */
 
 #include "dictzip.h"
+#include "regex.h"
 
 #include <sys/stat.h>
 #include <sys/mman.h>
@@ -284,26 +285,31 @@ static lst_List dict_search_substring( const char *word,
 				       dictDatabase *database )
 {
    const char *pt   = database->index->start;
+   const char *end;
    lst_List   l     = lst_create();
    int        count = 0;
    dictWord   *datum;
    const char *p;
    int        result;
 
-   while (pt && pt < database->index->end) {
-      for (p = pt; *p != '\t' && p < database->index->end; ++p) {
-	 result = compare( word, p, database->index->end );
+   end = database->index->end;
+   
+   while (pt && pt < end) {
+      for (p = pt; *p != '\t' && p < end; ++p) {
+	 result = compare( word, p, end );
 	 if (result == -1 || result == 0) {
 	    ++count;
 	    datum = dict_word_create( pt, database );
+#if 0
 	    fprintf( stderr, "Adding %d %s\n",
-		     compare( word, p, database->index->end ),
+		     compare( word, p, end ),
 		     datum->word);
+#endif
 	    lst_append( l, datum );
 	    break;
 	 }
       }
-      FIND_NEXT( pt, database->index->end );
+      FIND_NEXT( pt, end );
    }
 
    if (!count) {
@@ -316,7 +322,62 @@ static lst_List dict_search_substring( const char *word,
 static lst_List dict_search_regexpr( const char *word,
 				     dictDatabase *database )
 {
-   return NULL;
+   const char    *pt;
+   const char    *start;
+   const char    *end;
+   lst_List      l;
+   int           count = 0;
+   dictWord      *datum;
+   const char    *p;
+   regex_t       re;
+   char          erbuf[100];
+   int           err;
+   regmatch_t    subs[1];
+   unsigned char first;
+
+   start = database->index->start;
+   end = database->index->end;
+   
+#if OPTSTART
+   if (word[0] == '^') {
+      first = word[1];
+      end   = database->index->optStart[first+1];
+      start = database->index->optStart[first];
+      if (end < start) end = database->index->end;
+   }
+#endif
+   
+   if ((err = regcomp(&re, word, REG_ICASE|REG_NOSUB))) {
+      regerror(err, &re, erbuf, sizeof(erbuf));
+      log_info( "regcomp(%s): %s\n", word, erbuf );
+      return NULL;
+   }
+
+   l = lst_create();
+   pt = start;
+   while (pt && pt < end) {
+      for (p = pt; *p != '\t' && p < end; ++p);
+      subs[0].rm_so = 0;
+      subs[0].rm_eo = p - pt;
+      if (!regexec(&re, pt, 1, subs, REG_STARTEND)) {
+	 ++count;
+	 datum = dict_word_create( pt, database );
+#if 0
+	 fprintf( stderr, "Adding %d %s\n",
+		  compare( word, p, end ),
+		  datum->word);
+#endif
+	 lst_append( l, datum );
+      }
+      FIND_NEXT( pt, end );
+   }
+
+   regfree(&re);
+   if (!count) {
+      lst_destroy( l );
+      l = NULL;
+   }
+   return l;
 }
 
 static lst_List dict_search_soundex( const char *word,
@@ -334,9 +395,14 @@ static lst_List dict_search_soundex( const char *word,
    int        i;
    int        c = (unsigned char)*word;
 
+#if OPTSTART
    pt  = database->index->optStart[ c ];
    end = database->index->optStart[ c + 1 ];
    if (end < pt) end = database->index->end;
+#else
+   pt = database->index->start;
+   end = database->index->end;
+#endif
 
    strcpy( soundex, txt_soundex( word ) );
    
@@ -481,7 +547,7 @@ lst_List dict_search_database( const char *word,
    case DICT_EXACT:       return dict_search_exact( buf, database );
    case DICT_PREFIX:      return dict_search_prefix( buf, database );
    case DICT_SUBSTRING:   return dict_search_substring( buf, database );
-   case DICT_REGEXP:      return dict_search_regexpr( buf, database );
+   case DICT_REGEXP:      return dict_search_regexpr( word, database );
    case DICT_SOUNDEX:     return dict_search_soundex( buf, database );
    case DICT_LEVENSHTEIN: return dict_search_levenshtein( buf, database);
    default:

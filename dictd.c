@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Mon Mar 10 14:13:11 1997 by faith@cs.unc.edu
+ * Revised: Mon Mar 10 22:36:33 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.8 1997/03/10 21:46:57 faith Exp $
+ * $Id: dictd.c,v 1.9 1997/03/11 04:31:38 faith Exp $
  * 
  */
 
@@ -22,6 +22,37 @@ static void reaper( int dummy )
 
    while ((pid = wait3(&status, WNOHANG, NULL)) > 0)
       log_info( "Reaped %d\n", pid );
+}
+
+static void handler( int sig )
+{
+   const char *name = NULL;
+   
+   switch (sig) {
+   case SIGHUP:  name = "SIGHUP";  break;
+   case SIGINT:  name = "SIGINT";  break;
+   case SIGQUIT: name = "SIGQUIT"; break;
+   case SIGILL:  name = "SIGILL";  break;
+   case SIGTRAP: name = "SIGTRAP"; break;
+   case SIGTERM: name = "SIGTERM"; break;
+   case SIGPIPE: name = "SIGPIPE"; break;
+   }
+
+   if (name)
+      log_info( "Caught %s, exiting\n", name );
+   else
+      log_info( "Caught signal %d, exiting\n", sig );
+   exit(sig+128);
+}
+
+static void setsig( int sig, void (*f)(int) )
+{
+   struct sigaction   sa;
+   
+   sa.sa_handler = f;
+   sigemptyset(&sa.sa_mask);
+   sa.sa_flags = 0;
+   sigaction(sig, &sa, NULL);
 }
 
 struct access_print_struct {
@@ -155,7 +186,7 @@ static const char *id_string( const char *id )
 const char *dict_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dictd.c,v 1.8 1997/03/10 21:46:57 faith Exp $";
+   const char        *id = "$Id: dictd.c,v 1.9 1997/03/11 04:31:38 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -224,7 +255,6 @@ int main( int argc, char **argv )
    struct sockaddr_in csin;
    int                alen        = sizeof(csin);
    pid_t              pid;
-   struct sigaction   sa;
    int                c;
    const char         *service    = DICT_DEFAULT_SERVICE;
    const char         *configFile = DICT_CONFIG_FILE;
@@ -258,6 +288,7 @@ int main( int argc, char **argv )
    dbg_register( DBG_INIT,    "init" );
    dbg_register( DBG_PORT,    "port" );
    dbg_register( DBG_LEV,     "lev" );
+   dbg_register( DBG_NOFORK,  "nofork" );
 
    while ((c = getopt_long( argc, argv,
 			    "vVdD:p:c:hLt:l:s", longopts, NULL )) != EOF)
@@ -335,18 +366,26 @@ int main( int argc, char **argv )
 
 	
    }
-   
-   sa.sa_handler = reaper;
-   sigemptyset(&sa.sa_mask);
-   sa.sa_flags = 0;
-   sigaction(SIGCHLD,&sa,NULL);
+
+   setsig(SIGCHLD, reaper);
+   setsig(SIGHUP,  handler);
+   setsig(SIGINT,  handler);
+   setsig(SIGQUIT, handler);
+   setsig(SIGILL,  handler);
+   setsig(SIGTRAP, handler);
+   setsig(SIGTERM, handler);
+   setsig(SIGPIPE, handler);
 
    fflush(stdout);
    fflush(stderr);
 
-   if (logFile)                log_file( logFile, "dictd" );
-   if (useSyslog)              log_syslog( "dictd", 0 );
-   if (!logFile && !useSyslog) log_stream( stderr, "dictd" );
+   if (detach) net_detach();
+
+   if (logFile)   log_file( logFile, "dictd" );
+   if (useSyslog) log_syslog( "dictd", 0 );
+   if (!detach)   log_stream( stderr, "dictd" );
+   
+   log_info("Starting\n");
    
    masterSocket = net_open_tcp( service, DICT_QUEUE_DEPTH );
 
@@ -356,16 +395,20 @@ int main( int argc, char **argv )
 	 if (errno == EINTR) continue;
 	 err_fatal_errno( __FUNCTION__, "Can't accept" );
       }
-      switch ((pid = fork())) {
-      case 0:			/* child */
-	 close(masterSocket);
-	 exit(dict_daemon(childSocket,&csin));
-      case -1:
-	 err_fatal_errno( __FUNCTION__, "Fork failed" );
-      default:
-	 log_info( "Forked %d\n", pid );
-	 close(childSocket);
-	 break;
+      if (dbg_test(DBG_NOFORK)) {
+	 dict_daemon(childSocket,&csin);
+      } else {
+	 switch ((pid = fork())) {
+	 case 0:			/* child */
+	    close(masterSocket);
+	    exit(dict_daemon(childSocket,&csin));
+	 case -1:
+	    err_fatal_errno( __FUNCTION__, "Fork failed" );
+	 default:
+	    log_info( "Forked %d\n", pid );
+	    close(childSocket);
+	    break;
+	 }
       }
    }
 }
