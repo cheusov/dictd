@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.99 2004/03/11 16:34:59 cheusov Exp $
+# $Id: Makefile.in,v 1.100 2004/03/21 13:28:20 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -73,6 +73,7 @@ LEX=		@LEX@
 LEXLIB= 	@LEXLIB@
 YACC=		@YACC@
 JUDYLIB=        @JUDYLIB@
+DBILIB=         @DBILIB@
 
 CFLAGS= @CFLAGS@ -DDICT_PLUGIN_PATH=\"$(PLUGIN_DIR)\" -DDICT_DICTIONARY_PATH=\"$(DICT_DIR)\" -DDICT_VERSION=\"$(DICT_VERSION)\" -DDICT_CONFIG_PATH=\"$(CONF_DIR)\"
 
@@ -88,8 +89,13 @@ EXES=	 	dict dictd dictzip dictfmt
 all: $(EXES) $(LIBRARIES)
 
 ifdef USE_PLUGIN
+
 ifdef JUDYLIB
-PLUGINS=    dictdplugin_judy.so
+PLUGINS := $(PLUGINS) dictdplugin_judy.so
+endif
+
+ifdef DBILIB
+PLUGINS := $(PLUGINS) dictdplugin_dbi.so
 endif
 
 LIBRARIES=
@@ -165,6 +171,10 @@ ALLLDFLAGS=$(XTRALDFLAGS) $(LDFLAGS) $(LDLIBS)
 	$(CC) -o $@ $(filter-out local_regex local_zlib local_libmaa, $^) \
 		$(OBJS) $(ALLLDFLAGS)
 
+dictd: dictd.o
+	$(CC) -o $@ $(filter-out local_regex local_zlib local_libmaa, $^) \
+		$(DBILIB) $(OBJS) $(ALLLDFLAGS)
+
 include $(srcdir)/deps
 
 dictd.o : servparse.h
@@ -179,9 +189,15 @@ lib%.a : %.o
 	$(CC) -o $@ $(filter-out local_regex local_zlib local_libmaa, $^) \
 		$(ALLLDFLAGS) -shared
 
-dictdplugin_judy.so : data.os str.os heap.os dictdplugin_judy.os
+dictdplugin_judy.so : data.os str.os heap.os dictdplugin_judy.os \
+                      plugins_common.os
 	$(CC) $(filter-out local_regex local_zlib local_libmaa, $^) \
 		 $(ALLLDFLAGS) $(JUDYLIB) -shared -o $@
+
+dictdplugin_dbi.so : heap.os dictdplugin_dbi.os str.os \
+                     plugins_common.os
+	$(CC) $(filter-out local_regex local_zlib local_libmaa, $^) \
+		 $(ALLLDFLAGS) $(DBILIB) -ldl -shared -o $@
 
 .PHONY: plugins
 plugins: $(PLUGINS)
