@@ -17,12 +17,13 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.23 2002/08/02 19:43:14 faith Exp $
+ * $Id: index.c,v 1.24 2002/08/05 11:16:52 cheusov Exp $
  * 
  */
 
 #include "dictzip.h"
 #include "regex.h"
+#include "utf8_ucs4.h"
 
 #include <sys/stat.h>
 #include <sys/mman.h>
@@ -33,6 +34,8 @@
 #define OPTSTART        1	/* Optimize search range for constant start */
 #define MAXWORDLEN    512
 #define BMH_THRESHOLD   3	/* When to start using Boyer-Moore-Hoorspool */
+
+       int utf8_mode; /* dictd uses UTF-8 dictionaries */
 
        int _dict_comparisons;
 static int isspacealnumtab[UCHAR_MAX + 1];
@@ -46,9 +49,79 @@ static int charcount;
 #define c(x)   (((x) < charcount) ? chartab[(unsigned char)(x)] : 0)
 #define altcompare(a,b,c) (1)
 
-static int dict_strcoll(const void *a, const void *b)
+/*
+  compares two 8bit strings (containing one character)
+  according to locate
+*/
+static int dict_table_init_compare_strcoll (const void *a, const void *b)
 {
     return strcoll(*(const char **)a, *(const char **)b);
+}
+
+/*
+  compares two strings (containing one character)
+  converting ASCII character to lower case.
+*/
+static int dict_table_init_compare_utf8 (const void *a, const void *b)
+{
+    int c1 = ** (const unsigned char **) a;
+    int c2 = ** (const unsigned char **) b;
+
+    if (c1 <= CHAR_MAX)
+	c1 = tolower (c1);
+    if (c2 <= CHAR_MAX)
+	c2 = tolower (c2);
+
+    return c1 - c2;
+}
+
+/*
+  Copies alphanumeric and space characters converting them to lower case.
+  Strings are represented in 8-bit character set.
+*/
+static int tolower_alnumspace_8bit (const char *src, char *dest)
+{
+   int c;
+
+   for (; *src; ++src) {
+      c = * (const unsigned char *) src;
+
+      if (isspace( c )) {
+         *dest++ = ' ';
+      }else if (isalnum( c )){
+	 *dest++ = tolower (c);
+      }
+   }
+
+   *dest = '\0';
+   return 1;
+}
+
+/*
+  Copies alphanumeric and space characters converting them to lower case.
+  Strings are represented in UTF-8 character set.
+*/
+static int tolower_alnumspace_utf8 (const char *src, char *dest)
+{
+    wint_t      ucs4_char;
+
+    while (src && src [0]){
+	src = utf8_to_ucs4 (src, &ucs4_char);
+	if (src){
+	    if (iswspace (ucs4_char)){
+		*dest++ = ' ';
+	    }else if (iswalnum (ucs4_char)){
+		if (!ucs4_to_utf8 (towlower (ucs4_char), dest))
+		    return 0;
+
+		dest += strlen (dest);
+	    }
+	}
+    }
+
+    *dest = 0;
+
+    return (src != NULL);
 }
 
 static void dict_table_init(void)
@@ -56,22 +129,35 @@ static void dict_table_init(void)
     int      i;
     unsigned char s[2 * UCHAR_MAX + 2];
     unsigned char *p[UCHAR_MAX + 1];
-    
+
     for (i = 0; i <= UCHAR_MAX; i++) {
-        if (isspace(i) || isalnum(i)) isspacealnumtab[i] = 1;
+	if (isspace(i) || isalnum(i) || (utf8_mode && i >= 0xC0)){
+	    isspacealnumtab [i] = 1;
+	}
     }
     isspacealnumtab['\t'] = isspacealnumtab['\n'] = 0; /* special */
 
-    for (i = 0; i <= UCHAR_MAX; i++) if (islower(i)) chartab[charcount++] = i;
+    for (i = 0; i <= UCHAR_MAX; i++){
+	if (islower (i) || (utf8_mode && i >= 0xC0))
+	    chartab[charcount++] = i;
+    }
 
                                 /* Populate an array with length-1 strings */
     for (i = 0; i <= UCHAR_MAX; i++) {
-        s[2 * i]     = i;
-        s[2 * i + 1] = '\0';
-        p[i]         = &s[2 * i];
+	if (!isupper (i)){
+	    s[2 * i] = i;
+	}else{
+	    s[2 * i] = 0;
+	}
+
+	s[2 * i + 1] = '\0';
+	p[i]         = &s[2 * i];
     }
                                 /* Sort those strings in the locale */
-    qsort(p, UCHAR_MAX + 1, sizeof(p[0]), dict_strcoll);
+    if (utf8_mode)
+	qsort(p, UCHAR_MAX + 1, sizeof(p[0]), dict_table_init_compare_utf8);
+    else
+	qsort(p, UCHAR_MAX + 1, sizeof(p[0]), dict_table_init_compare_strcoll);
 
                                 /* Extract our unordered arrays */
     for (i = 0; i <= UCHAR_MAX; i++) {
@@ -82,12 +168,137 @@ static void dict_table_init(void)
     index2chartab[UCHAR_MAX + 1] = UCHAR_MAX; /* we may index here in  */
 
     if (dbg_test(DBG_SEARCH)) {
+	for (i = 0; i <= UCHAR_MAX; ++i){
+	    if (p [i][0] <= CHAR_MAX)
+		printf ("sorted list: %s\n", p [i]);
+	    else
+		printf ("sorted list: %i\n", (unsigned char) p [i] [0]);
+	}
+    }
+
+    if (dbg_test(DBG_SEARCH)) {
         for (i = 0; i < charcount; i++)
-            printf("%03d %d (%c)\n", i, c(i), c(i));
+            printf("%03d %d ('%c')\n", i, c(i), c(i));
         for (i = 0; i <= UCHAR_MAX; i++)
-            printf("c2i(%d) = %d; i2c(%d) = %d\n",
-                   i, c2i(i), c2i(i), i2c(c2i(i)));
-    }        
+            printf("c2i(%d/'%c') = %d; i2c(%d) = %d/'%c'\n",
+                   i, (char) isgraph(i) ? i : '.',
+		   c2i(i), c2i(i),
+		   i2c(c2i(i)), (char) i2c(c2i(i)) ? i2c(c2i(i)) : '.');
+    }
+}
+
+static int compare_utf8(
+    const char *word,
+    const char *start,
+    const char *end )
+{
+   wint_t        c1, c2;
+   int           result;
+   char          s1 [7], s2 [7];
+
+   while (*word && start < end && *start != '\t') {
+      start = utf8_to_ucs4 (start, &c2);
+      if (!start){
+	 PRINTF(DBG_SEARCH,("   result = ERROR!!!\n"));
+	 return 2;
+      }
+      if (!iswspace (c2) && !iswalnum (c2))
+	 continue;
+      c2 = towlower (c2);
+
+      word = utf8_to_ucs4 (word, &c1);
+      if (!word){
+	 PRINTF(DBG_SEARCH,("   result = ERROR!!!\n"));
+	 return 2;
+      }
+      c1 = towlower (c1);
+
+      if (c1 != c2) {
+	 ucs4_to_utf8 (c1, s1);
+	 ucs4_to_utf8 (c2, s2);
+	 result = strcmp (s1, s2) < 0 ? -2 : 1;
+	 PRINTF(DBG_SEARCH,("   result = %d (%s != %s)\n", result, s1, s2));
+         return result;
+      }
+   }
+
+   if (start == end){
+      PRINTF(DBG_SEARCH,("   result = ERROR!!!\n"));
+      return 2;
+   }
+
+   if (*word){
+       PRINTF(DBG_SEARCH,("   result = 1\n"));
+       return 1;
+   }
+
+   while (*start != '\t'){
+      start = utf8_to_ucs4 (start, &c2);
+      if (!start){
+	 PRINTF(DBG_SEARCH,("   result = ERROR!!!\n"));
+	 return 2;
+      }
+
+      if (iswalnum (c2) || iswspace (c2)){
+	 PRINTF(DBG_SEARCH,("   result = -1\n"));
+	 return -1;
+      }
+   }
+
+   PRINTF(DBG_SEARCH,("   result = 0\n"));
+   return 0;
+}
+
+static int compare_8bit( const char *word, const char *start, const char *end )
+{
+   int c1, c2;
+   int result;
+
+   /* FIXME.  Optimize this inner loop. */
+   while (*word && start < end && *start != '\t') {
+      if (!isspacealnum(*start)) {
+	 ++start;
+	 continue;
+      }
+#if 0
+      if (isspace( *start )) c2 = ' ';
+      else                   c2 = tolower(* (unsigned char *) start);
+      if (isspace( *word )) c1 = ' ';
+      else                  c1 = tolower(* (unsigned char *) word);
+#else
+      c2 = tolower(* (unsigned char *) start);
+      c1 = tolower(* (unsigned char *) word);
+#endif
+      if (c1 != c2) {
+	 if (utf8_mode){
+	    if (
+	       (c1 <= CHAR_MAX ? c2i (c1) : c1) <
+	       (c2 <= CHAR_MAX ? c2i (c2) : c2))
+	    {
+	       result = -2;
+	    }else{
+	       result = 1;
+	    }
+	 }else{
+	    result = (c2i (c1) < c2i (c2) ? -2 : 1);
+	 }
+	 if (dbg_test(DBG_SEARCH)){
+	    if (utf8_mode)
+	       printf("   result = %d (%i != %i) \n", result, c1, c2);
+	    else
+	       printf("   result = %d ('%c' != '%c') \n", result, c1, c2);
+	 }
+         return result;
+      }
+      ++word;
+      ++start;
+   }
+
+   while (*start != '\t' && !isspacealnum(*start)) ++start;
+
+   PRINTF(DBG_SEARCH,("   result = %d\n",
+		      *word ? 1 : ((*start != '\t') ? -1 : 0)));
+   return  *word ? 1 : ((*start != '\t') ? -1 : 0);
 }
 
 /* Compare:
@@ -96,7 +307,8 @@ static void dict_table_init(void)
           -1 if word prefix word-pointed-to-by-start
            0 if word == word-pointed-to-by-start
 	   1 if word >  word-pointed-to-by-start
-	  
+	   2 if some kind of error happened
+
    The comparison must be the same as "sort -df" phone directory order:
    ignore all characters except letters, digits, and blanks; fold upper
    case into the equivalent lowercase.
@@ -106,44 +318,22 @@ static void dict_table_init(void)
 
 static int compare( const char *word, const char *start, const char *end )
 {
-   int        c;
    char       buf[80], *d;
    const char *s;
 
    if (dbg_test(DBG_SEARCH)) {
       for (d = buf, s = start; s < end && *s != '\t';) *d++ = *s++;
       *d = '\0';
-      printf( "compare \"%s\" with \"%s\"\n", word, buf );
+      printf( "compare \"%s\" with \"%s\" (sizes: %i and %i)\n",
+         word, buf, strlen( word ), strlen( buf ) );
    }
-   
-   ++_dict_comparisons;		/* counter for profiling */
-   
-				/* FIXME.  Optimize this inner loop. */
-   while (*word && start < end && *start != '\t') {
-      if (!isspacealnum(*start)) {
-	 ++start;
-	 continue;
-      }
-#if 0
-      if (isspace( *start )) c = ' ';
-      else                   c = tolower(*start);
-#else
-      c = tolower(*start);
-#endif
-      if (*word != c) {
-         int result = (c2i(*word) < c2i(c)) ? -2 : 1;
-	 PRINTF(DBG_SEARCH,("   result = %d\n", result));
-         return result;
-      }
-      ++word;
-      ++start;
-   }
-   
-   while (*start != '\t' && !isspacealnum(*start)) ++start;
 
-   PRINTF(DBG_SEARCH,("   result = %d\n",
-		      *word ? 1 : ((*start != '\t') ? -1 : 0)));
-   return  *word ? 1 : ((*start != '\t') ? -1 : 0);
+   ++_dict_comparisons;		/* counter for profiling */
+
+   if (utf8_mode)
+      return compare_utf8( word, start, end );
+   else
+      return compare_8bit( word, start, end );
 }
 
 static const char *binary_search( const char *word,
@@ -156,8 +346,57 @@ static const char *binary_search( const char *word,
    pt = start + (end-start)/2;
    FIND_NEXT(pt,end);
    while (pt < end) {
-      if (compare( word, pt, end ) > 0) start = pt;
-      else                              end   = pt;
+      switch (compare( word, pt, end )){
+	 case -2: case -1: case 0:
+	    end = pt;
+	    break;
+	 case 1:
+	    start = pt;
+	    break;
+	 case  2:
+	    return end;     /* ERROR!!! */
+	 default:
+	    assert (0);
+      }
+      PRINTF(DBG_SEARCH,("%s %p %p\n",word,start,end));
+      pt = start + (end-start)/2;
+      FIND_NEXT(pt,end);
+   }
+
+   return start;
+}
+
+static const char *binary_search_8bit( const char *word,
+				  const char *start, const char *end )
+{
+   char       buf[80], *d;
+   const char *s;
+   const char *pt;
+
+   PRINTF(DBG_SEARCH,("%s %p %p\n",word,start,end));
+
+   pt = start + (end-start)/2;
+   FIND_NEXT(pt,end);
+   while (pt < end) {
+      if (dbg_test(DBG_SEARCH)) {
+         for (d = buf, s = pt; s < end && *s != '\t';) *d++ = *s++;
+         *d = '\0';
+         printf( "compare \"%s\" with \"%s\" (sizes: %i and %i)\n",
+            word, buf, strlen( word ), strlen( buf ) );
+      }
+
+      switch (compare_8bit ( word, pt, end )){
+	 case -2: case -1: case 0:
+	    end = pt;
+	    break;
+	 case 1:
+	    start = pt;
+	    break;
+	 case  2:
+	    return end;     /* ERROR!!! */
+	 default:
+	    assert (0);
+      }
       PRINTF(DBG_SEARCH,("%s %p %p\n",word,start,end));
       pt = start + (end-start)/2;
       FIND_NEXT(pt,end);
@@ -177,6 +416,7 @@ static const char *linear_search( const char *word,
       case -1:			/* prefix */
       case  0: return pt;	/* exact */
       case  1: break;		/* greater than */
+      case  2: return NULL;     /* ERROR!!! */
       }
       FIND_NEXT(pt,end);
    }
@@ -186,11 +426,11 @@ static const char *linear_search( const char *word,
 const char *dict_index_search( const char *word, dictIndex *idx )
 {
    const char    *start;
-#if OPTSTART
    const char    *end;
-   unsigned char first = *word;
+#if OPTSTART
+   int first, last;
 #endif
-   
+
    if (!idx)
       err_internal( __FUNCTION__, "No information on index file\n" );
 
@@ -208,15 +448,30 @@ const char *dict_index_search( const char *word, dictIndex *idx )
    */
 
 #if OPTSTART
-   end   = idx->optStart[i2c(c2i(first)+1)];
-   start = idx->optStart[first];
-   if (end < start) end = idx->end;
-   start = binary_search( word, start, end );
+   first   = * (const unsigned char *) word;
+   last    = i2c(c2i(first)+1);
+
+   if (dbg_test(DBG_SEARCH)) {
+      if (!utf8_mode || (last <= CHAR_MAX && first <= CHAR_MAX))
+	 printf("binary_search from %c to %c\n", first, last);
+      else
+	 printf("binary_search from %i to %i\n", first, last);
+   }
+
+   end   = idx->optStart [last];
+   start = idx->optStart [first];
 #else
-   start = binary_search( word, idx->start, idx->end );
+   start = idx->start;
+   end   = idx->end;
 #endif
+   if (end < start) end = idx->end;
+
+   start = binary_search( word, start, end );
+
    PRINTF(DBG_SEARCH,("binary_search returns %p\n",start));
-   start = linear_search( word, start,      idx->end );
+
+   start = linear_search( word, start, idx->end );
+
    PRINTF(DBG_SEARCH,("linear_search returns %p\n",start));
 
    return start;
@@ -311,11 +566,13 @@ static int dict_search_exact( lst_List l,
 			      const char *word,
 			      dictDatabase *database )
 {
-   const char *pt   = dict_index_search( word, database->index );
+   const char *pt   = NULL;
    int        count = 0;
    dictWord   *datum;
    const char *previous = NULL;
-   
+
+   pt   = dict_index_search( word, database->index );
+
    while (pt && pt < database->index->end) {
       if (!compare( word, pt, database->index->end )) {
 	 if (!previous || altcompare(previous, pt, database->index->end)) {
@@ -326,7 +583,7 @@ static int dict_search_exact( lst_List l,
       } else break;
       FIND_NEXT( pt, database->index->end );
    }
-   
+
    return count;
 }
 
@@ -340,13 +597,23 @@ static int dict_search_prefix( lst_List l,
    const char *previous = NULL;
 
    while (pt && pt < database->index->end) {
-      if (compare( word, pt, database->index->end ) + 1 >= 0) {
-	 if (!previous || altcompare(previous, pt, database->index->end)) {
-	    ++count;
-	    datum = dict_word_create( previous = pt, database );
-	    lst_append( l, datum );
-	 }
-      } else break;
+      switch (compare( word, pt, database->index->end )) {
+	 case -2:
+	    break;
+	 case -1:
+	 case 0:
+	 case 1:
+	    if (!previous || altcompare(previous, pt, database->index->end)) {
+	       ++count;
+	       datum = dict_word_create( previous = pt, database );
+	       lst_append( l, datum );
+	    }
+	    break;
+	 case 2:
+	    return count; /* ERROR!!! */
+	 default:
+	    assert (0);
+      }
       FIND_NEXT( pt, database->index->end );
    }
 
@@ -354,14 +621,14 @@ static int dict_search_prefix( lst_List l,
 }
 
 static int dict_search_brute( lst_List l,
-			      const char *word,
+			      const unsigned char *word,
 			      dictDatabase *database,
 			      int suffix,
 			      int patlen )
 {
-   const char *start = database->index->start;
-   const char *end   = database->index->end;
-   const char *p, *pt;
+   const unsigned char *start = database->index->start;
+   const unsigned char *end   = database->index->end;
+   const unsigned char *p, *pt;
    int        count = 0;
    dictWord   *datum;
    int        result;
@@ -408,22 +675,22 @@ static int dict_search_brute( lst_List l,
    Addison-Wesley Publishing Co., 1991.  Pages 258-9. */
 
 static int dict_search_bmh( lst_List l,
-			    const char *word,
+			    const unsigned char *word,
 			    dictDatabase *database,
 			    int suffix )
 {
-   const char *start = database->index->start;
-   const char *end   = database->index->end;
+   const unsigned char *start = database->index->start;
+   const unsigned char *end   = database->index->end;
    int        patlen = strlen( word );
    int        skip[UCHAR_MAX + 1];
    int        i;
    int        j;
-   const char *p, *pt;
+   const unsigned char *p, *pt;
    int        count = 0;
-   const char *f = NULL;	/* Boolean flag, but has to be a pointer */
+   const unsigned char *f = NULL; /* Boolean flag, but has to be a pointer */
    dictWord   *datum;
-   const char *wpt;
-   const char *previous = NULL;
+   const unsigned char *wpt;
+   const unsigned char *previous = NULL;
 
    if (patlen < BMH_THRESHOLD)
       return dict_search_brute( l, word, database, suffix, patlen );
@@ -709,35 +976,51 @@ static int dict_search_levenshtein( lst_List l,
 }
 
 int dict_search_database( lst_List l,
-			  const char *word,
+			  const char *const word,
 			  dictDatabase *database,
 			  int strategy )
 {
-   char       *buf = alloca( strlen( word ) + 1 );
-   char       *pt;
-   const char *w   = word;
+   char       *buf = alloca( strlen( word ) + 2 );/* +1 for $ */
 
    if (!l)
       err_internal( __FUNCTION__, "List NULL\n" );
-		  
-   for (pt = buf; *w; w++) {
-      if (isspace( *(const unsigned char *)w )) {
-         *pt++ = ' ';
-      } else {
-         if (!isalnum( *(const unsigned char *)w )) continue;
-         *pt++ = tolower(*w);
-      }
-   }
-   *pt = '\0';
 
+   if (utf8_mode){
+      if (!tolower_alnumspace_utf8 (word, buf)){
+	 PRINTF(DBG_SEARCH, ("tolower_... ERROR!!!\n"));
+	 return 0;
+      }
+   }else{
+      tolower_alnumspace_8bit (word, buf);
+   }
+
+   if (!buf [0] && word [0]){
+      /*
+        This may happen because of invalid --locale specified.
+	Without following line entire dictionary will be returned
+          for non-ASCII words.
+      */
+      return 0;
+   }
    if (!database->index)
       database->index = dict_index_open( database->indexFilename );
 
    switch (strategy) {
    case DICT_EXACT:       return dict_search_exact( l, buf, database );
    case DICT_PREFIX:      return dict_search_prefix( l, buf, database );
-   case DICT_SUBSTRING:   return dict_search_substring( l, buf, database );
-   case DICT_SUFFIX:      return dict_search_suffix( l, buf, database );
+   case DICT_SUBSTRING:
+      if (utf8_mode){
+	 return dict_search_re( l, buf, database );
+      }else{
+	 return dict_search_substring( l, buf, database );
+      }
+   case DICT_SUFFIX:
+      if (utf8_mode){
+	 strcat (buf, "$");
+	 return dict_search_re( l, buf, database );
+      }else{
+	 return dict_search_suffix( l, buf, database );
+      }
    case DICT_RE:          return dict_search_re( l, word, database );
    case DICT_REGEXP:      return dict_search_regexp( l, word, database );
    case DICT_SOUNDEX:     return dict_search_soundex( l, buf, database );
@@ -752,6 +1035,7 @@ dictIndex *dict_index_open( const char *filename )
    dictIndex   *i = xmalloc( sizeof( struct dictIndex ) );
    struct stat sb;
    static int  tabInit = 0;
+   char uuu [1024];
 #if OPTSTART
    int         j;
    char        buf[2];
@@ -778,22 +1062,37 @@ dictIndex *dict_index_open( const char *filename )
    i->end = i->start + i->size;
 
 #if OPTSTART
-   for (j = 0; j <= UCHAR_MAX; j++) i->optStart[j] = i->start;
+   for (j = 0; j <= UCHAR_MAX; j++)
+      i->optStart[j] = i->start;
+
    buf[0] = ' ';
    buf[1] = '\0';
-   i->optStart[ ' ' ] = binary_search( buf, i->start, i->end );
+   i->optStart[ ' ' ] = binary_search_8bit( buf, i->start, i->end );
+
    for (j = 0; j < charcount; j++) {
       buf[0] = c(j);
       buf[1] = '\0';
       i->optStart[toupper(c(j))]
 	 = i->optStart[c(j)]
-	 = binary_search( buf, i->start, i->end );
+	 = binary_search_8bit( buf, i->start, i->end );
+      if (dbg_test (DBG_SEARCH)){
+	 if (!utf8_mode || c(j) <= CHAR_MAX)
+	    printf ("optStart [%c] = %p\n", c(j), i->optStart[c(j)]);
+	 else
+	    printf ("optStart [%i] = %p\n", c(j), i->optStart[c(j)]);
+
+	 memcpy (uuu, i->optStart[toupper(c(j))], sizeof (uuu) - 1);
+	 uuu [sizeof (uuu) - 1] = 0;
+	 printf ("OPTSTART: %s\n", uuu);
+      }
    }
+
    for (j = '0'; j <= '9'; j++) {
       buf[0] = j;
       buf[1] = '\0';
-      i->optStart[j] = binary_search( buf, i->start, i->end );
+      i->optStart[j] = binary_search_8bit( buf, i->start, i->end );
    }
+
    i->optStart[UCHAR_MAX]   = i->end;
    i->optStart[UCHAR_MAX+1] = i->end;
 #endif

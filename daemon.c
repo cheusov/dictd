@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.34 2002/08/02 19:43:14 faith Exp $
+ * $Id: daemon.c,v 1.35 2002/08/05 11:16:52 cheusov Exp $
  * 
  */
 
@@ -56,22 +56,6 @@ static void daemon_status( const char *cmdline, int argc, char **argv );
 static void daemon_help( const char *cmdline, int argc, char **argv );
 static void daemon_quit( const char *cmdline, int argc, char **argv );
 
-static struct {
-   const char *name;
-   const char *description;
-   int        number;
-} strategyInfo[] = {
-   {"exact",     "Match words exactly",                        DICT_EXACT },
-   {"prefix",    "Match prefixes",                             DICT_PREFIX },
-   {"substring", "Match substring occurring anywhere in word", DICT_SUBSTRING},
-   {"suffix",    "Match suffixes",                             DICT_SUFFIX},
-   {"re",        "POSIX 1003.2 (modern) regular expressions",  DICT_RE },
-   {"regexp",    "Old (basic) regular expressions",            DICT_REGEXP },
-   {"soundex",   "Match using SOUNDEX algorithm",              DICT_SOUNDEX },
-   {"lev", "Match words within Levenshtein distance one", DICT_LEVENSHTEIN },
-};
-#define STRATEGIES (sizeof(strategyInfo)/sizeof(strategyInfo[0]))
-
 #define MAXARGCS 3
 static struct {
    int        argc;
@@ -102,8 +86,29 @@ static struct {
 };
 #define COMMANDS (sizeof(commandInfo)/sizeof(commandInfo[0]))
 
+static dictStrategy strategyInfo[] = {
+   {"exact",     "Match words exactly",                        DICT_EXACT },
+   {"prefix",    "Match prefixes",                             DICT_PREFIX },
+   {"substring", "Match substring occurring anywhere in word", DICT_SUBSTRING},
+   {"suffix",    "Match suffixes",                             DICT_SUFFIX},
+   {"re",        "POSIX 1003.2 (modern) regular expressions",  DICT_RE },
+   {"regexp",    "Old (basic) regular expressions",            DICT_REGEXP },
+   {"soundex",   "Match using SOUNDEX algorithm",              DICT_SOUNDEX },
+   {"lev", "Match words within Levenshtein distance one", DICT_LEVENSHTEIN },
+};
+#define STRATEGIES (sizeof(strategyInfo)/sizeof(strategyInfo[0]))
 
-static int lookup_strategy( const char *strategy )
+int get_strategies_count ()
+{
+   return STRATEGIES;
+}
+
+const dictStrategy *get_strategies ()
+{
+   return strategyInfo;
+}
+
+int lookup_strategy( const char *strategy )
 {
    int i;
 

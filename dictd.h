@@ -102,6 +102,12 @@
 
 #define DICT_CACHE_SIZE 5
 
+typedef struct dictStrategy {
+   const char *name;
+   const char *description;
+   int        number;
+} dictStrategy;
+
 typedef struct dictCache {
    int           chunk;
    char          *inBuffer;
@@ -246,6 +252,12 @@ extern int        _dict_forks;	/* GLOBAL VARIABLE */
 extern int  dict_daemon( int s, struct sockaddr_in *csin, char ***argv0,
 			 int delay, int error );
 extern void daemon_terminate( int sig, const char *name );
+extern int get_strategies_count ();
+extern const dictStrategy *get_strategies ();
+extern int lookup_strategy( const char *strategy );
+
+/* */
+extern int        utf8_mode;
 
 				/* dmalloc must be last */
 #ifdef DMALLOC_FUNC_CHECK

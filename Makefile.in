@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.47 2002/08/02 19:43:14 faith Exp $
+# $Id: Makefile.in,v 1.48 2002/08/05 11:16:52 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -65,7 +65,7 @@ EXES=	 	dict dictd dictzip
 
 HEADERS= 	./config.h @XTRAHEADERS@ dictzip.h dictd.h dict.h codes.h md5.h
 
-SRCHOBJS=       index.o data.o
+SRCHOBJS=       index.o data.o utf8_ucs4.o
 NETOBJS=        daemon.o net.o servscan.o servparse.o md5.o
 CLIOBJS=        net.o clientscan.o clientparse.o md5.o
 
@@ -199,7 +199,7 @@ clean:
 	-rm -f *.o *.s *~ core a.out config.log $(EXES) $(TMPS)
 	-rm -f *.log *.aux *.toc *.dvi *.ps
 	-rm -f *.cfg *.dtk .inslog tca.map
-	-rm -f *.dct *.idx y.output
+	-rm -f *.dct *.idx y.output TAGS
 
 recursive-clean: clean
 	@for subdir in `echo $(subdirs)`; do \
@@ -207,7 +207,7 @@ recursive-clean: clean
 		(cd $$subdir && $(MAKE) clean) || exit 1; \
 	done
 
-distclean: clean
+distclean: recursive-clean
 	@for subdir in `echo $(subdirs)`; do \
 	 	if [ "$$subdir" != "zlib" ]; then \
 			if [ "$$subdir" = "regex" ]; then \
@@ -221,7 +221,7 @@ distclean: clean
 	done
 	-rm -f regex/regex.h
 	-rm -f config.h config.cache config.status stamp-h.in stamp-h
-	-rm -f configure Makefile
+	-rm -f Makefile
 
 tags:
 	etags *.[ch]

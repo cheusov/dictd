@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: data.c,v 1.11 2002/08/02 19:43:14 faith Exp $
+ * $Id: data.c,v 1.12 2002/08/05 11:16:52 cheusov Exp $
  * 
  */
 
@@ -26,6 +26,7 @@
 #include <sys/mman.h>
 #include <ctype.h>
 #include <fcntl.h>
+#include <assert.h>
 
 #define USE_CACHE 1
 
@@ -293,7 +294,8 @@ char *dict_data_read( dictData *h, unsigned long start, unsigned long size,
    PRINTF(DBG_UNZIP,
 	  ("dict_data_read( %p, %lu, %lu, %s, %s )\n",
 	   h, start, size, preFilter, postFilter ));
-   
+
+   assert( h != NULL);
    switch (h->type) {
    case DICT_GZIP:
       err_fatal( __FUNCTION__,

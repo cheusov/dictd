@@ -17,12 +17,14 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.44 2002/08/02 19:43:14 faith Exp $
+ * $Id: dictd.c,v 1.45 2002/08/05 11:16:52 cheusov Exp $
  * 
  */
 
 #include "dictd.h"
 #include "servparse.h"
+#include "utf8_ucs4.h"
+
 #include <grp.h>                /* initgroups */
 #include <pwd.h>                /* getpwuid */
 #include <locale.h>             /* setlocale */
@@ -38,6 +40,9 @@
 #endif
 
 extern int        yy_flex_debug;
+
+extern int        utf8_mode;
+
 static int        _dict_daemon;
 static int        _dict_reaps;
 static int        _dict_daemon_limit        = DICT_DAEMON_LIMIT;
@@ -398,7 +403,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.44 2002/08/02 19:43:14 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.45 2002/08/05 11:16:52 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -448,7 +453,7 @@ static void license( void )
    banner();
    while (*p) printf( "   %s\n", *p++ );
 }
-    
+
 static void help( void )
 {
    static const char *help_msg[] = {
@@ -469,7 +474,11 @@ static void help( void )
       "-d --debug <option>   select debug option",
       "-t --test <word>      self test -- lookup word",
       "   --ftest <file>     self test -- lookup all words in file",
-      "-f --force            force startup even if daemon running",
+"   --test-strategy <strategy>   search strategy for --test and --ftest.\n\
+                                the default is 'exact'",
+"-f --force            force startup even if daemon running",
+"   --locale <locale>  specifies the locale used for searching.\n\
+                      if no locale is specified, the \"C\" locale is used.",
       0 };
    const char        **p = help_msg;
 
@@ -560,6 +569,20 @@ static void sanity(const char *configFile)
       err_fatal(__FUNCTION__, ":E: terminating due to errors\n");
    }
 }
+
+static void set_utf8_mode (const char *locale)
+{
+   char *locale_copy;
+   locale_copy = strdup (locale);
+   strlwr_8bit (locale_copy);
+
+   utf8_mode =
+       strstr (locale_copy, "utf-8") ||
+       strstr (locale_copy, "utf8");
+
+   free (locale_copy);
+}
+
 int main( int argc, char **argv, char **envp )
 {
    int                childSocket;
@@ -567,6 +590,7 @@ int main( int argc, char **argv, char **envp )
    struct sockaddr_in csin;
    int                c;
    time_t             startTime;
+   int                word_len;
    int                alen         = sizeof(csin);
    const char         *service     = DICT_DEFAULT_SERVICE;
    const char         *configFile  = DICT_CONFIG_PATH DICTD_CONFIG_NAME;
@@ -580,7 +604,12 @@ int main( int argc, char **argv, char **envp )
    int                logOptions   = 0;
    int                forceStartup = 0;
    const char         *locale      = "C";
-   struct option      longopts[]  = {
+   int                i;
+
+   const char         *strategy_arg= "exact";
+   int                 strategy;
+
+   struct option      longopts[]   = {
       { "verbose",  0, 0, 'v' },
       { "version",  0, 0, 'V' },
       { "debug",    1, 0, 'd' },
@@ -599,8 +628,9 @@ int main( int argc, char **argv, char **envp )
       { "limit",    1, 0, 504 },
       { "facility", 1, 0, 505 },
       { "force",    1, 0, 'f' },
-      { "locale",   1, 0, 506 },
-      { 0,          0, 0,  0  }
+      { "locale",           1, 0, 506 },
+      { "test-strategy",    1, 0, 507 },
+      { 0,                  0, 0, 0  }
    };
 
    release_root_privileges();
@@ -658,9 +688,22 @@ int main( int argc, char **argv, char **envp )
       case 504: _dict_daemon_limit = atoi(optarg);        break;
       case 505: ++useSyslog; log_set_facility(optarg);    break;
       case 506: locale = optarg;                          break;
+      case 507: strategy_arg = optarg;                    break;
       case 'h':
       default:  help(); exit(0);                          break;
       }
+
+   strategy = lookup_strategy (strategy_arg);
+   if (-1 == strategy){
+      fprintf (stderr, "'%s' is invalid strategy\n", strategy_arg);
+      fprintf (stderr, "available ones are:\n");
+      for (i = 0; i < get_strategies_count (); ++i){
+	  fprintf (
+	      stderr, "  %15s : %s\n",
+	      get_strategies () [i].name, get_strategies () [i].description);
+      }
+      exit (1);
+   }
 
    if (dbg_test(DBG_NOFORK))    dbg_set_flag( DBG_NODETACH);
    if (dbg_test(DBG_NODETACH))  detach = 0;
@@ -670,6 +713,7 @@ int main( int argc, char **argv, char **envp )
    if (flg_test(LOG_TIMESTAMP)) log_option( LOG_OPTION_FULL );
    else                         log_option( LOG_OPTION_NO_FULL );
 
+   set_utf8_mode (locale);
    setlocale(LC_ALL, locale);
 
    time(&startTime);
@@ -697,7 +741,7 @@ int main( int argc, char **argv, char **envp )
       if (dict_search_database( list,
 				testWord,
 				lst_nth_get( DictConfig->dbl, 1 ),
-				DICT_EXACT )) {
+				strategy )) {
 	 if (dbg_test(DBG_VERBOSE)) dict_dump_list( list );
 	 dict_dump_defs( list, lst_nth_get( DictConfig->dbl, 1 ) );
 	 dict_destroy_list( list );
@@ -716,21 +760,39 @@ int main( int argc, char **argv, char **envp )
 
       if (!(str = fopen(testFile,"r")))
 	 err_fatal_errno( "Cannot open \"%s\" for read\n", testFile );
+
+      dict_config_print( NULL, DictConfig );
+      dict_init_databases( DictConfig );
       while (fgets(buf,1024,str)) {
-	 lst_List list = lst_create();
-	 ++words;
-         if ((pt = strchr(buf, '\t'))) *pt = '\0'; /* stop at tab */
-	 if (dict_search_database( list, buf, db, DICT_EXACT )) {
-	    if (dbg_test(DBG_VERBOSE)) dict_dump_list( list );
-	    dict_dump_defs( list, db );
-	 } else {
-	    fprintf( stderr, "*************** No match for \"%s\"\n", buf );
-	 }
-	 dict_destroy_list( list );
-	 if (words && !(words % 1000))
-	    fprintf( stderr,
-		     "%d comparisons, %d words\n", _dict_comparisons, words );
+         lst_List list = lst_create();
+
+
+         word_len = strlen( buf );
+         if (word_len > 0){
+            if ('\n' == buf [word_len - 1]){
+               buf [word_len - 1] = '\0';
+            }
+         }
+
+         if ((pt = strchr(buf, '\t')))
+	    *pt = '\0'; /* stop at tab */
+
+         if (buf[0]){
+	    ++words;
+/*	    fprintf( stderr, "searching for word: \"%s\" size: %i\n", buf, strlen( buf ));*/
+            if (dict_search_database( list, buf, db, strategy )) {
+	       if (dbg_test(DBG_VERBOSE)) dict_dump_list( list );
+                  dict_dump_defs( list, db );
+            } else {
+               fprintf( stderr, "*************** No match for \"%s\"\n", buf );
+            }
+         }
+         dict_destroy_list( list );
+         if (words && !(words % 1000))
+            fprintf( stderr,
+                     "%d comparisons, %d words\n", _dict_comparisons, words );
       }
+
       fprintf( stderr,
 	       "%d comparisons, %d words\n", _dict_comparisons, words );
       fclose( str);
