@@ -1,6 +1,6 @@
 /* dictd.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Tue May 27 16:12:58 1997 by faith@acm.org
+ * Revised: Thu Jun  5 11:26:32 1997 by faith@acm.org
  * Copyright 1994, 1995, 1996, 1997 Rickard E. Faith (faith@acm.org)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -44,7 +44,7 @@
 #define DICT_DEFAULT_SERVICE     "2628"
 #define DICT_QUEUE_DEPTH         10
 #define DICT_DEFAULT_DELAY       600 /* 10 minute timeout */
-#define DICT_DAEMON_LIMIT        10 /* maximum simultaneous daemons */
+#define DICT_DAEMON_LIMIT        100 /* maximum simultaneous daemons */
 #define DICT_PERSISTENT_PRESTART 3 /* not implemented */
 #define DICT_PERSISTENT_LIMIT    5 /* not implemented */
 #define DICT_CONFIG_FILE         "/etc/dict.conf"
@@ -58,17 +58,18 @@
 
 #define BUFFERSIZE 10240
 
-#define DBG_VERBOSE     (0<<30|1<< 0) /* Verbose                           */
-#define DBG_ZIP         (0<<30|1<< 1) /* Zip                               */
-#define DBG_UNZIP       (0<<30|1<< 2) /* Unzip                             */
-#define DBG_SEARCH      (0<<30|1<< 3) /* Search                            */
-#define DBG_SCAN        (0<<30|1<< 4) /* Config file scan                  */
-#define DBG_PARSE       (0<<30|1<< 5) /* Config file parse                 */
-#define DBG_INIT        (0<<30|1<< 6) /* Database initialization           */
-#define DBG_PORT        (0<<30|1<< 7) /* Log port number for connections   */
-#define DBG_LEV         (0<<30|1<< 8) /* Levenshtein matching              */
-#define DBG_NOFORK      (0<<30|1<< 9) /* Don't fork (single threaded)      */
-#define DBG_AUTH        (0<<30|1<<10) /* Debug authentication              */
+#define DBG_VERBOSE     (0<<30|1<< 0) /* Verbose                            */
+#define DBG_ZIP         (0<<30|1<< 1) /* Zip                                */
+#define DBG_UNZIP       (0<<30|1<< 2) /* Unzip                              */
+#define DBG_SEARCH      (0<<30|1<< 3) /* Search                             */
+#define DBG_SCAN        (0<<30|1<< 4) /* Config file scan                   */
+#define DBG_PARSE       (0<<30|1<< 5) /* Config file parse                  */
+#define DBG_INIT        (0<<30|1<< 6) /* Database initialization            */
+#define DBG_PORT        (0<<30|1<< 7) /* Log port number for connections    */
+#define DBG_LEV         (0<<30|1<< 8) /* Levenshtein matching               */
+#define DBG_AUTH        (0<<30|1<< 9) /* Debug authentication               */
+#define DBG_NODETACH    (0<<30|1<<10) /* Don't detach as a background proc. */
+#define DBG_NOFORK      (0<<30|1<<11) /* Don't fork (single threaded)       */
 
 #define DICT_UNKNOWN    0
 #define DICT_TEXT       1

@@ -1,6 +1,6 @@
 .\" dictd.1 -- 
 .\" Created: Mon Mar 10 16:10:03 1997 by faith@cs.unc.edu
-.\" Revised: Mon Mar 10 16:23:37 1997 by faith@cs.unc.edu
+.\" Revised: Mon Jun  9 09:27:10 1997 by faith@acm.org
 .\" Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
 .\" 
 .\" Permission is granted to make and distribute verbatim copies of this
@@ -27,7 +27,173 @@
 .SH NAME
 dictd - a dictionary database server
 .SH SYNOPSIS
+.BI dictd " [options]"
 .SH DESCRIPTION
+.B dictd
+is a server for the Dictionary Server Protocol (DICT), a TCP transaction
+based query/response protocol that allows a client to access dictionary
+definitions from a set of natural language dictionary databases.
+.P
+Since startup time is significant, the server is designed to run
+continuously, and should
+.B not
+be run from
+.BR inetd (8).
+.SH OPTIONS
+.TP 2
+.BR \-V " or " \-\-version
+Display version information.
+.TP
+.BR \-L " or " \-\-license
+Display copyright and license information.
+.TP
+.BR \-h " or " \-\-help
+Display help information.
+.TP
+.BR \-v " or " \-\-verbose " or " " \-dverbose"
+Be verbose.
+.TP
+.BI \-c " file\fR or "  \-\-config " file"
+Specify configuration file.  The default is
+.IR /etc/dict.conf ,
+but may be changed in the
+.I dictd.h
+file at compile time (DICT_CONFIG_FILE).
+.TP
+.BI \-\-port " service"
+Specifies the port (e.g., 2628) or service (e.g., dict) for connections.
+The default is 2628, as specified in the DICT Protocol RFC, but may be
+changed in the
+.I dictd.h
+file at compile time (DICT_DEFAULT_SERVICE).
+.TP
+.BI \-\-depth " length"
+Specify the queue length for
+.BR listen (2).
+Specifies the number of pending socket connections which are queued by the
+operating system.  Some operating systems may silently limit this value to
+5 (older BSD systems) or 128 (Linux).  The default is 10 but may be changed
+in the
+.I dictd.h
+file at compile time (DICT_QUEUE_DEPTH).
+.TP
+.BI \-\-delay " seconds"
+Specifies the number of seconds a client may be idle before the server will
+close the connection.  Idle time is defined to be the time the server is
+waiting for input and does not include the time the server spends searching
+the database.  Connections are closed without warning since no provision
+for premature connection termination is specified in the DICT protocol
+RFC.  The default is 600 seconds (10 minutes), but may be changed in the
+.I dictd.h
+file at compile time (DICT_DEFAULT_DELAY).
+.TP
+.B \-\-limit
+Specifies the number of daemons that may be running simultaneously.  Each
+daemon services a single connection.  If the limit is exceeded, a
+(serialized) connection will be made by the server process, and a response
+code 420 (server temporarily unavailable) will be sent to the client.  This
+parameter should be adjusted to prevent the server machine from being
+overloaded by dict clients, but should not be set so low that many clients
+are denied useful connections. The default is 100, but may be changed in
+the
+.I dictd.h
+file at compile time (DICT_DAEMON_LIMIT).
+.TP
+.BI \-d " option"
+Activate a debugging option.  There are several, all of which are only
+useful to developers.  They are documented here for completeness.  A list
+can be obtained interactively by using
+.B \-d
+with an illegal option.
+.RS
+.TP
+.B verbose
+The same as
+.BR \-v " or " \-\-verbose .
+Adds verbosity to other options.
+.TP
+.B scan
+Debug the scanner for the configuration file.
+.TP
+.B parse
+Debug the parser for the configuration file.
+.TP
+.B search
+Debug the character folding and binary search routines.
+.TP
+.B init
+Report database initialization.
+.TP
+.B port
+Log client-side port number to the log file.
+.TP
+.B lev
+Debug Levenshtein search algorithm.
+.TP
+.B auth
+Debug the authorization routines.
+.TP
+.B nodetach
+Do not detach as a background process.  Implies that a copy of the log
+file will appear on the standard outout.
+.TP
+.B nofork
+Do not fork daemons to service requests.  Be a single-threaded server.
+This option implies
+.BR nodetach ,
+and is most useful for using a debugger to find the point at which daemon
+processes are dumping core.
+.RE
+.SH "DATABASE FORMAT"
+Databases for
+.B dictd
+are distributed separately.  A database consists of two files.  One is a
+flat text file, the other in the index.
+.P
+The flat text file contains dictionary entries (or any other suitable
+data), and the index contains tab-delimited tuples consisting of the
+headword, the byte offset at which this entry begins in the flat text file,
+and the length of the entry in bytes.  The offset and length are encoded
+using base 64 encoding using the 64-character subset of International
+Alphabet IA5 discussed in RFC 1421 (printeable encoding) and RFC 1522
+(base64 MIME).  Encoding the offsets in base 64 saves considerable space
+when compared with the usual base 10 encoding, while still permitting tab
+characters (ASCII 9) to be used for delimiting fields in a record.  Each
+record ends with a newline (ASCII 10), so the index file is human readable.
+.P
+The flat text file may be compressed using
+.BR gzip (1)
+(not recommended) or
+.BR dictzip (1)
+(highly recommended).  Optimal speed will be obtained using an uncompressed
+file.  However, the
+.B gzip
+compression algorithm works very well on plain text, and can result in
+space savings typically between 60 and 80%.  Using a file compressed with
+.BR gzip (1)
+is not recommended, however, because random access on the file can only be
+accomplished by serially decompressing the whole file, a process which is
+prohibitively slow.
+.BR dictzip (1)
+uses the same compression algorithm and file format as does
+.BR gzip (1),
+but provides a table that can be used to randomly access compressed blocks
+in the file.  The use of 50-64kB blocks for compression typically degrades
+compression by less than 10%, while maintaining acceptable random access
+capabilities for all data in the file.  As an added benefit, files
+compressed with
+.BR dictzip (1)
+can be decompressed with
+.BR gzip (1)
+or
+.BR zcat (1).
+(Note: recompressing a
+.BR dictzip 'd
+file using, for example,
+.BR znew (1)
+will destroy the random access characteristics of the file.  Always
+compress data files using
+.BR dictzip (1).)
 .SH ACKNOWLEDGEMENTS
 Special thanks to Jean-loup Gailly and Mark Adler for writing the zlib
 general purpose data compression library.  The version contained with

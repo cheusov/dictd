@@ -1,8 +1,8 @@
 .\"
-.\" Revised: Wed May 28 18:21:16 1997 by faith@acm.org
+.\" Revised: Mon Jun  9 08:25:56 1997 by faith@acm.org
 .\" Distribution of this memo is unlimited.
 .\"
-.\" $Id: rfc.ms,v 1.11 1997/06/02 23:09:57 faith Exp $
+.\" $Id: rfc.ms,v 1.12 1997/06/11 01:54:42 faith Exp $
 .\" 
 .pl 10.0i
 .po 0
@@ -1300,10 +1300,9 @@ and
 <URL:http://humanities.uchicago.edu/forms_unrest/webster.form.html>
 
 .XP
-[WORDNET] WordNet: A Lexical Database for English, Cognitive Science
-Laboratory, Princeton University,
+[WORDNET] Miller, G.A. (1990), ed. WordNet: An On-Line Lexical
+Database. International Journal of Lexicography. Volume 3, Number 4. 
 <URL:http://www.cogsci.princeton.edu/~wn/>
-
 
 .RE
 .NH 1

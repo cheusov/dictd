@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Mon Jun  2 19:51:10 1997 by faith@acm.org
+ * Revised: Mon Jun  9 09:27:09 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.21 1997/06/03 00:00:02 faith Exp $
+ * $Id: dictd.c,v 1.22 1997/06/11 01:54:33 faith Exp $
  * 
  */
 
@@ -148,6 +148,7 @@ static void handler( int sig )
    if (_dict_daemon) {
       daemon_terminate( sig, name );
    } else {
+      tim_stop( "dictd" );
       if (name) {
 	 log_info( "%s: c/f = %d/%d; %0.3fr %0.3fu %0.3fs\n",
 		   name,
@@ -354,7 +355,7 @@ static const char *id_string( const char *id )
 const char *dict_get_banner( void )
 {
    static char    *buffer= NULL;
-   const char     *id = "$Id: dictd.c,v 1.21 1997/06/03 00:00:02 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.22 1997/06/11 01:54:33 faith Exp $";
    struct utsname uts;
    
    if (buffer) return buffer;
@@ -425,7 +426,7 @@ int main( int argc, char **argv )
    int                c;
    const char         *service    = DICT_DEFAULT_SERVICE;
    const char         *configFile = DICT_CONFIG_FILE;
-   int                detach      = 0;
+   int                detach      = 1;
    const char         *testWord   = NULL;
    const char         *testFile   = NULL;
    const char         *logFile    = NULL;
@@ -438,8 +439,7 @@ int main( int argc, char **argv )
    struct option      longopts[]  = {
       { "verbose",  0, 0, 'v' },
       { "version",  0, 0, 'V' },
-      { "detach",   0, 0, 'd' },
-      { "debug",    1, 0, 'D' },
+      { "debug",    1, 0, 'd' },
       { "port",     1, 0, 'p' },
       { "config",   1, 0, 'c' },
       { "help",     0, 0, 'h' },
@@ -460,23 +460,23 @@ int main( int argc, char **argv )
 
    maa_init(argv[0]);
 
-   dbg_register( DBG_VERBOSE, "verbose" );
-   dbg_register( DBG_PARSE,   "parse" );
-   dbg_register( DBG_SCAN,    "scan" );
-   dbg_register( DBG_SEARCH,  "search" );
-   dbg_register( DBG_INIT,    "init" );
-   dbg_register( DBG_PORT,    "port" );
-   dbg_register( DBG_LEV,     "lev" );
-   dbg_register( DBG_NOFORK,  "nofork" );
-   dbg_register( DBG_AUTH,    "auth" );
+   dbg_register( DBG_VERBOSE,  "verbose" );
+   dbg_register( DBG_SCAN,     "scan" );
+   dbg_register( DBG_PARSE,    "parse" );
+   dbg_register( DBG_SEARCH,   "search" );
+   dbg_register( DBG_INIT,     "init" );
+   dbg_register( DBG_PORT,     "port" );
+   dbg_register( DBG_LEV,      "lev" );
+   dbg_register( DBG_AUTH,     "auth" );
+   dbg_register( DBG_NODETACH, "nodetach" );
+   dbg_register( DBG_NOFORK,   "nofork" );
 
    while ((c = getopt_long( argc, argv,
-			    "vVdD:p:c:hLt:l:s", longopts, NULL )) != EOF)
+			    "vVd:p:c:hLt:l:s", longopts, NULL )) != EOF)
       switch (c) {
       case 'v': dbg_set( "verbose" ); break;
       case 'V': banner(); exit(1);    break;
-      case 'd': ++detach;             break;
-      case 'D': dbg_set( optarg );    break;
+      case 'd': dbg_set( optarg );    break;
       case 'p': service = optarg;     break;
       case 'c': configFile = optarg;  break;
       case 'L': license(); exit(1);   break;
@@ -499,7 +499,8 @@ int main( int argc, char **argv )
    if (_dict_persistent_prestart > _dict_persistent_limit)
       _dict_persistent_prestart = _dict_persistent_limit;
 #endif
-
+   if (dbg_test(DBG_NOFORK))    dbg_set_flag( DBG_NODETACH);
+   if (dbg_test(DBG_NODETACH))  detach = 0;
    if (dbg_test(DBG_PARSE))     prs_set_debug(1);
    if (dbg_test(DBG_SCAN))      yy_flex_debug = 1;
    else                         yy_flex_debug = 0;
@@ -575,8 +576,7 @@ int main( int argc, char **argv )
    fflush(stdout);
    fflush(stderr);
 
-   if (detach) net_detach();
-
+   if (detach)    net_detach();
    if (logFile)   log_file( "dictd", logFile );
    if (useSyslog) log_syslog( "dictd", 0 );
    if (!detach)   log_stream( "dictd", stderr );
