@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Sun Feb 15 22:44:19 1998 by faith@acm.org
+ * Revised: Mon Feb 16 14:43:17 1998 by faith@acm.org
  * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.36 1998/02/16 03:48:17 faith Exp $
+ * $Id: dictd.c,v 1.37 1998/02/16 19:58:15 faith Exp $
  * 
  */
 
@@ -376,7 +376,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.36 1998/02/16 03:48:17 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.37 1998/02/16 19:58:15 faith Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -658,6 +658,8 @@ int main( int argc, char **argv, char **envp )
       }
    }
 
+   masterSocket = net_open_tcp( service, depth );
+   
    if (flg_test(LOG_TIMESTAMP)) log_option( LOG_OPTION_FULL );
    else                         log_option( LOG_OPTION_NO_FULL );
    
@@ -666,8 +668,6 @@ int main( int argc, char **argv, char **envp )
    if (!detach)   log_stream( "dictd", stderr );
 
    if ((logFile || useSyslog || !detach) && !logOptions) set_minimal();
-
-   masterSocket = net_open_tcp( service, depth );
 
    time(&startTime);
    tim_start( "dictd" );

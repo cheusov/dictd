@@ -1,6 +1,6 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@cs.unc.edu
- * Revised: Sun Jan 18 23:04:20 1998 by faith@acm.org
+ * Revised: Mon Feb 16 14:56:19 1998 by faith@acm.org
  * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.24 1998/01/19 04:05:06 faith Exp $
+ * $Id: daemon.c,v 1.25 1998/02/16 19:58:13 faith Exp $
  * 
  */
 
@@ -787,7 +787,7 @@ static void daemon_show_server( const char *cmdline, int argc, char **argv )
 		  dict_format_time( uptime ),
 		  _dict_forks,
 		  _dict_forks > 1 ? "s" : "",
-		  _dict_forks/uptime/60.0 );
+		  (_dict_forks/uptime)*3600.0 );
    if (count_databases()) {
       daemon_printf( "\nDatabase      Headwords         Index"
 		     "          Data  Uncompressed\n" );
