@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.97 2003/10/14 22:31:23 cheusov Exp $
+ * $Id: dictd.c,v 1.98 2003/10/20 01:24:10 cheusov Exp $
  * 
  */
 
@@ -63,7 +63,15 @@ const char        *locale       = "C";
 const char        *preprocessor = NULL;
 int                inetd        = 0;
 
+int                need_reload_config = 0;
+
 static const char *configFile  = DICT_CONFIG_PATH DICTD_CONFIG_NAME;
+
+static void dict_close_databases (dictConfig *c);
+static void sanity (const char *confFile);
+static void dict_init_databases (dictConfig *c);
+static void dict_config_print (FILE *stream, dictConfig *c);
+static void postprocess_filenames (dictConfig *dc);
 
 void dict_initsetproctitle( int argc, char **argv, char **envp )
 {
@@ -210,6 +218,23 @@ static void log_sig_info (int sig)
       dict_format_time (tim_get_system ("dictd")));
 }
 
+static void reload_config (void)
+{
+   dict_close_databases (DictConfig);
+
+   if (!access(configFile,R_OK)){
+      prs_file_pp (preprocessor, configFile);
+      postprocess_filenames (DictConfig);
+   }
+
+   sanity (configFile);
+
+   if (dbg_test (DBG_VERBOSE))
+      dict_config_print( NULL, DictConfig );
+
+   dict_init_databases (DictConfig);
+}
+
 static void handler( int sig )
 {
    const char *name = NULL;
@@ -221,17 +246,22 @@ static void handler( int sig )
       daemon_terminate( sig, name );
    } else {
       tim_stop( "dictd" );
-      if (sig == SIGALRM && _dict_markTime > 0) {
-	 time(&t);
-	 log_info( ":T: %24.24s; %d/%d %sr %su %ss\n",
-		   ctime(&t),
-		   _dict_forks - _dict_reaps,
-		   _dict_forks,
-		   dict_format_time( tim_get_real( "dictd" ) ),
-		   dict_format_time( tim_get_user( "dictd" ) ),
-		   dict_format_time( tim_get_system( "dictd" ) ) );
-	 alarm(_dict_markTime);
-	 return;
+      switch (sig){
+      case SIGALRM:
+	 if (_dict_markTime > 0){
+	    time(&t);
+	    log_info( ":T: %24.24s; %d/%d %sr %su %ss\n",
+		      ctime(&t),
+		      _dict_forks - _dict_reaps,
+		      _dict_forks,
+		      dict_format_time( tim_get_real( "dictd" ) ),
+		      dict_format_time( tim_get_user( "dictd" ) ),
+		      dict_format_time( tim_get_system( "dictd" ) ) );
+	    alarm(_dict_markTime);
+	    return;
+	 }
+
+	 break;
       }
 
       log_sig_info (sig);
@@ -239,11 +269,6 @@ static void handler( int sig )
    if (!dbg_test(DBG_NOFORK) || sig != SIGALRM)
       exit(sig+128);
 }
-
-static void dict_close_databases (dictConfig *c);
-static void sanity (const char *confFile);
-static void dict_init_databases (dictConfig *c);
-static void dict_config_print (FILE *stream, dictConfig *c);
 
 static const char *postprocess_filename (const char *fn, const char *prefix)
 {
@@ -292,20 +317,7 @@ static void postprocess_filenames (dictConfig *dc)
 static void handler_sighup (int sig)
 {
    log_sig_info (sig);
-
-   dict_close_databases (DictConfig);
-
-   if (!access(configFile,R_OK)){
-      prs_file_pp (preprocessor, configFile);
-      postprocess_filenames (DictConfig);
-   }
-
-   sanity (configFile);
-
-   if (dbg_test (DBG_VERBOSE))
-      dict_config_print( NULL, DictConfig );
-
-   dict_init_databases (DictConfig);
+   need_reload_config = 1;
 }
 
 static void setsig( int sig, void (*f)(int), int sa_flags )
@@ -848,7 +860,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.97 2003/10/14 22:31:23 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.98 2003/10/20 01:24:10 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1309,16 +1321,16 @@ int main( int argc, char **argv, char **envp )
       case 503: depth = atoi(optarg);                     break;
       case 504: _dict_daemon_limit = atoi(optarg);        break;
       case 505: ++useSyslog; log_set_facility(optarg);    break;
-      case 506: locale = optarg;                          break;
+      case 506: locale = str_copy(optarg);                break;
       case 508: mmap_mode = 0;                            break;
-      case 509: database_arg = optarg;                    break;
+      case 509: database_arg = str_copy(optarg);          break;
       case 507:
-	 strategy_arg = optarg;
-	 strategy = lookup_strategy(optarg);
+	 strategy_arg = str_copy (optarg);
+	 strategy = lookup_strategy (strategy_arg);
 	 break;
       case 511:
-	 default_strategy_arg = optarg;
-	 default_strategy = lookup_strategy(optarg);
+	 default_strategy_arg = str_copy (optarg);
+	 default_strategy = lookup_strategy (default_strategy_arg);
 	 break;
       case 512:
 	 match_mode = 1;
@@ -1346,7 +1358,7 @@ int main( int argc, char **argv, char **envp )
 
 	 break;
       case 517: optStart_mode = 0;                        break;
-      case 518: preprocessor = optarg;                    break;
+      case 518: preprocessor = str_copy (optarg);         break;
       case 'h':
       default:  help(); exit(0);                          break;
       }
@@ -1539,7 +1551,14 @@ int main( int argc, char **argv, char **envp )
          log_info( ":I: %d accepting on %s\n", getpid(), service );
       if ((childSocket = accept(masterSocket,
 				(struct sockaddr *)&csin, &alen)) < 0) {
-	 if (errno == EINTR) continue;
+	 if (errno == EINTR){
+	    if (need_reload_config){
+	       reload_config ();
+	       need_reload_config = 0;
+	    }
+	    continue;
+	 }
+
 #ifdef __linux__
 				/* Linux seems to return more types of
                                    errors than other OSs. */
