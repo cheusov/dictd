@@ -1,52 +1,27 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Sun Jan 18 18:40:01 1998 by faith@acm.org
+ * Revised: Sun Jan 18 22:51:57 1998 by faith@acm.org
  * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.33 1998/01/19 03:37:20 faith Exp $
+ * $Id: dictd.c,v 1.34 1998/01/19 03:52:23 faith Exp $
  * 
  */
 
 #include "dictd.h"
 #include "servparse.h"
 
-#define PERSISTENT 0		/* DO *NOT* CHANGE!!!!!  Should be 0.
-				   I didn't have time to implement the
-                                   persistent-daemon support.  It doesn't
-                                   work.  Don't turn it on.  */
-
 #define MAXPROCTITLE 2048       /* Maximum amount of proc title we'll use. */
 #undef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
 
-#if HAVE_SEMGET
-#if PERSISTENT
-#include <sys/ipc.h>
-#include <sys/sem.h>
-#include <sys/stat.h>
-#endif
-#else
-#undef PERSISTENT
-#define PERSISTENT 0
-#endif
-
 extern int        yy_flex_debug;
 static int        _dict_daemon;
-static int        _dict_persistent;
 static int        _dict_daemon_count;
 static int        _dict_daemon_limit        = DICT_DAEMON_LIMIT;
 static int        _dict_markTime;
 static char       *_dict_argvstart;
 static int        _dict_argvlen;
-
-#if PERSISTENT
-static int        _dict_persistent_count;
-static int        _dict_persistent_limit    = DICT_PERSISTENT_LIMIT;
-static int        _dict_persistent_prestart = DICT_PERSISTENT_PRESTART;
-static pid_t      *_dict_persistent_pids;
-static int        _dict_sem;
-#endif
 
        int        _dict_forks;
        dictConfig *DictConfig;
@@ -122,67 +97,16 @@ static void reaper( int dummy )
    union wait status;
 #endif
    pid_t      pid;
-   int        flag = 0;
 
    while ((pid = wait3(&status, WNOHANG, NULL)) > 0) {
-#if PERSISTENT
-      int        i;
-      
-      for (i = 0; i < _dict_persistent_limit; i++) {
-	 if (_dict_persistent_pids[i] == pid) {
-	    _dict_persistent_pids[i] = 0;
-	    ++flag;
-	    break;
-	 }
-      }
-
-      if (flag) {
-	 --_dict_persistent_count;
-      } else
-#endif
-	 --_dict_daemon_count;
+      --_dict_daemon_count;
       
       if (flg_test(LOG_SERVER))
-         log_info( ":I: Reaped %d%s%s%s\n",
+         log_info( ":I: Reaped %d%s%s\n",
                    pid,
-                   flag ? " [persistent]": "",
-                   _dict_daemon ? " IN CHILD": "",
-                   _dict_persistent ? " IN PERSISTENT DAEMON": "" );
+                   _dict_daemon ? " IN CHILD": "" );
    }
 }
-
-#if PERSISTENT
-static int start_persistent( void )
-{
-   pid_t pid;
-   int   i;
-   
-   ++_dict_forks;
-   switch ((pid = fork())) {
-   case 0:
-      ++_dict_daemon;
-      ++_dict_persistent;
-      break;
-   case -1:
-      log_info( ":E: Unable to fork daemon\n" );
-      alarm(10);		/* Can't use sleep() here */
-      pause();
-      break;
-   default:
-      ++_dict_persistent_count;
-      if (flg_test(LOG_SERVER))
-         log_info( ":I: Forked %d, daemon %d\n", pid, _dict_persistent_count );
-      for (i = 0; i < _dict_persistent_limit; i++) {
-	 if (!_dict_persistent_pids[i]) {
-	    _dict_persistent_pids[i] = pid;
-	    break;
-	 }
-      }
-      break;
-   }
-   return pid;
-}
-#endif
 
 static int start_daemon( void )
 {
@@ -465,7 +389,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.33 1998/01/19 03:37:20 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.34 1998/01/19 03:52:23 faith Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -572,9 +496,6 @@ int main( int argc, char **argv, char **envp )
    int                useSyslog    = 0;
    int                logOptions   = 0;
    int                forceStartup = 0;
-#if PERSISTENT
-   struct sembuf      sembuf;
-#endif
    struct option      longopts[]  = {
       { "verbose",  0, 0, 'v' },
       { "version",  0, 0, 'V' },
@@ -592,10 +513,6 @@ int main( int argc, char **argv, char **envp )
       { "depth",    1, 0, 503 },
       { "limit",    1, 0, 504 },
       { "force",    1, 0, 'f' },
-#if PERSISTENT
-      { "perlimit", 1, 0, 505 },
-      { "prestart", 1, 0, 506 },
-#endif
       { 0,          0, 0,  0  }
    };
 
@@ -648,18 +565,10 @@ int main( int argc, char **argv, char **envp )
       case 502: delay = atoi(optarg);                     break;
       case 503: depth = atoi(optarg);                     break;
       case 504: _dict_daemon_limit = atoi(optarg);        break;
-#if PERSISTENT
-      case 505: _dict_persistent_limit = atoi(optarg);    break;
-      case 506: _dict_persistent_prestart = atoi(optarg); break;
-#endif
       case 'h':
       default:  help(); exit(1);                          break;
       }
 
-#if PERSISTENT
-   if (_dict_persistent_prestart > _dict_persistent_limit)
-      _dict_persistent_prestart = _dict_persistent_limit;
-#endif
    if (dbg_test(DBG_NOFORK))    dbg_set_flag( DBG_NODETACH);
    if (dbg_test(DBG_NODETACH))  detach = 0;
    if (dbg_test(DBG_PARSE))     prs_set_debug(1);
@@ -776,22 +685,8 @@ int main( int argc, char **argv, char **envp )
    tim_start( "dictd" );
    alarm(_dict_markTime);
 
-#if !PERSISTENT
    log_info(":I: %d starting %s %24.24s\n",
 	    getpid(), dict_get_banner(0), ctime(&startTime));
-#else
-   if (_dict_persistent_limit) {
-      _dict_persistent_pids = malloc(_dict_persistent_limit
-				     * sizeof(_dict_persistent_pids[0]));
-      _dict_sem = semget( IPC_PRIVATE, 1, IPC_CREAT|IPC_EXCL|S_IRWXU );
-      semctl( _dict_sem, 0, SETVAL, _dict_persistent_limit-1 );
-      if (flg_test(LOG_SERVER))
-         log_info(":I: %d starting, %d/%d persistent daemons\n",
-		  getpid(),
-                  _dict_persistent_limit,
-		  _dict_persistent_prestart);
-   }
-#endif
 
    if (dbg_test(DBG_VERBOSE)) dict_config_print( NULL, DictConfig );
    dict_init_databases( DictConfig );
@@ -804,7 +699,6 @@ int main( int argc, char **argv, char **envp )
 			 dict_get_banner(1),
 			 _dict_daemon_count,
 			 _dict_forks );
-#if !PERSISTENT
       if (flg_test(LOG_SERVER))
          log_info( ":I: %d accepting on %s\n", getpid(), service );
       if ((childSocket = accept(masterSocket,
@@ -830,52 +724,5 @@ int main( int argc, char **argv, char **envp )
 	    dict_daemon(childSocket,&csin,&argv,delay,1);
 	 }
       }
-#else
-      if (_dict_persistent_limit) {
-	 if (_dict_persistent_count == _dict_persistent_limit)
-	    sleep(1);
-	 sembuf.sem_num = 0;
-	 sembuf.sem_op  = -1;
-	 sembuf.sem_flg = SEM_UNDO;
-	 semop( _dict_sem, &sembuf, 1 );
-	 if (flg_test(LOG_SERVER))
-            log_info( ":I: %d accepting, sem = %d\n",
-                      getpid(), semctl( _dict_sem, 0, GETVAL, 0 ) );
-      } else
-	 if (flg_test(LOG_SERVER)) log_info( ":I: %d accepting\n", getpid() );
-      if ((childSocket = accept(masterSocket,
-				(struct sockaddr *)&csin, &alen)) < 0) {
-	 if (errno == EINTR) continue;
-	 err_fatal_errno( __FUNCTION__, ":E: can't accept" );
-      }
-      if (_dict_persistent_limit) {
-	 sembuf.sem_num = 0;
-	 sembuf.sem_op  = 1;
-	 sembuf.sem_flg = SEM_UNDO;
-	 semop( _dict_sem, &sembuf, 1 );
-      }
-      if (_dict_daemon || dbg_test(DBG_NOFORK)) {
-	 dict_daemon(childSocket,&csin,&argv,delay,0);
-	 close(childSocket);
-      } else {
-	 if (_dict_persistent_count < _dict_persistent_limit) {
-	    if (!start_persistent()) { /* child */
-	       alarm(0);
-	       dict_daemon(childSocket,&csin,&argv,delay,0);
-	       close(childSocket);
-	    } else {		   /* parent */
-	       close(childSocket);
-	    }
-	 } else {
-	    if (!start_daemon()) {  /* child */
-	       alarm(0);
-	       close(masterSocket);
-	       exit(dict_daemon(childSocket,&csin,&argv,delay,0));
-	    } else {		   /* parent */
-	       close(childSocket);
-	    }
-	 }
-      }
-#endif
    }
 }
