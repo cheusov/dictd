@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.9 2003/08/10 13:13:20 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.10 2003/08/10 15:50:28 cheusov Exp $
  * 
  */
 
@@ -807,6 +807,9 @@ static int match_exact (
 {
    int const * const *result_curr;
 
+   if (!word [0])
+      return 0;
+
    result_curr = (int const *const *) JudySLGet (
       dict_data -> m_judy_array, word, 0);
 
@@ -1087,23 +1090,25 @@ static int match_soundex (
 }
 
 #define CHECK \
-   value = JudySLGet (dict_data -> m_judy_array, buf, 0);  \
-   if (value && strcmp (prev_buf, buf)){                   \
-      strlcpy (prev_buf, buf, BUFSIZE);                    \
-      ++cnt;                                               \
-                                                           \
-      dict_data -> m_mres = (const char **)                \
-	 xrealloc (                                        \
-	    dict_data -> m_mres,                           \
-	    cnt * sizeof (dict_data -> m_mres [0]));       \
-      dict_data -> m_mres [cnt - 1] =                      \
-	 heap_strdup (dict_data -> m_heap, buf);           \
-                                                           \
-      dict_data -> m_mres_sizes = (int *)                  \
-	 xrealloc (                                        \
-	    dict_data -> m_mres_sizes,                     \
-	    cnt * sizeof (dict_data -> m_mres_sizes [0])); \
-      dict_data -> m_mres_sizes [cnt - 1] = -1;            \
+   if (buf [0]){                                              \
+      value = JudySLGet (dict_data -> m_judy_array, buf, 0);  \
+      if (value && strcmp (prev_buf, buf)){                   \
+         strlcpy (prev_buf, buf, BUFSIZE);                    \
+         ++cnt;                                               \
+                                                              \
+         dict_data -> m_mres = (const char **)                \
+            xrealloc (                                        \
+               dict_data -> m_mres,                           \
+               cnt * sizeof (dict_data -> m_mres [0]));       \
+         dict_data -> m_mres [cnt - 1] =                      \
+            heap_strdup (dict_data -> m_heap, buf);           \
+                                                              \
+         dict_data -> m_mres_sizes = (int *)                  \
+            xrealloc (                                        \
+               dict_data -> m_mres_sizes,                     \
+               cnt * sizeof (dict_data -> m_mres_sizes [0])); \
+               dict_data -> m_mres_sizes [cnt - 1] = -1;      \
+      }                                                       \
    }
 
 static int match_lev (
@@ -1390,6 +1395,8 @@ int dictdb_search (
 //      fprintf (stderr, "This word is too long\n");
 	 return 0;
       }
+
+//      fprintf (stderr, "lowe-cased: %s\n", word_copy2);
    }
 
    if (match_search_type){
@@ -1437,6 +1444,9 @@ int dictdb_search (
       int const * const * offs_size_next;
       int cnt;
       int i;
+
+      if (!word_copy2 [0])
+	 return 0;
 
       offs_size = (int const *const *) JudySLGet (
 	 dict_data -> m_judy_array, word_copy2, 0);

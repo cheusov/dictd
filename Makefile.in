@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.83 2003/08/10 13:13:20 cheusov Exp $
+# $Id: Makefile.in,v 1.84 2003/08/10 15:50:28 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -147,7 +147,9 @@ ALLCFLAGS=$(XTRACFLAGS) $(CFLAGS)
 ALLLDFLAGS=$(XTRALDFLAGS) $(LDFLAGS) $(LDLIBS)
 
 %.o: %.c
-	$(CC) -c $(ALLCFLAGS) $(CFLAGS) $(SCFLAGS) $<
+	$(CC) -c $(ALLCFLAGS) $(SCFLAGS) $<
+%.o: %.cpp
+	$(CXX) -c $(ALLCFLAGS) $(SCFLAGS) $<
 %: %.o
 	$(CC) -o $@ $^ $(OBJS) $(ALLLDFLAGS)
 
@@ -164,13 +166,11 @@ lib%.a : %.o
 
 dictdplugin_judy.so : data.o str.o
 
-dictdplugin_judy.so : dictdplugin_judy.c
-	$(CC) $^ $(ALLCFLAGS) $(ALLLDFLAGS) -lJudy -shared -o $@
+dictdplugin_judy.so : dictdplugin_judy.o
+	$(CC) $^ $(ALLLDFLAGS) -lJudy -shared -o $@
 
-%.so: %.c
-	$(CC) $^ $(CFLAGS) $(LDFLAGS) -shared -o $@
-%.so: %.cpp
-	$(CXX) $^ $(CFLAGS) $(LDFLAGS) -shared -o $@
+%.so : %.o
+	$(CC) $^ $(ALLLDFLAGS) -shared -o $@
 
 .PHONY: plugins
 plugins: $(PLUGINS)
