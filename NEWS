@@ -1,5 +1,7 @@
 Version 1.9.11, Aleksey Cheusov
 
+  NEWS file added
+
   dictd:
     - dictd is compiled successfully on Solaris, MacOS-X(cc).
       A lot of warning and error messages appeared
