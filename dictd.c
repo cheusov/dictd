@@ -1,33 +1,48 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Fri May  2 01:17:10 1997 by faith@cs.unc.edu
+ * Revised: Wed May 21 22:34:35 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.17 1997/05/02 14:49:29 faith Exp $
+ * $Id: dictd.c,v 1.18 1997/05/22 02:40:30 faith Exp $
  * 
  */
 
 #include "dictd.h"
 #include "servparse.h"
 
+#define PERSISTENT 0		/* DO *NOT* CHANGE!!!!!  Should be 0.
+
+				   I didn't have time to implement the
+                                   persistent-daemon support.  It doesn't
+                                   work.  Don't turn it on.  */
+
+
 #if HAVE_SEMGET
+#if PERSISTENT
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/stat.h>
-#define USE_DAEMONS 1
+#endif
 #else
-#define USE_DAEMONS 0
+#undef PERSISTENT
+#define PERSISTENT 0
 #endif
 
 extern int        yy_flex_debug;
-static int        _dict_child;
 static int        _dict_daemon;
+static int        _dict_persistent;
 static int        _dict_daemon_count;
-static int        _dict_daemon_prestart = DICT_DAEMON_PRESTART;
-static int        _dict_daemon_limit    = DICT_DAEMON_LIMIT;
-static pid_t      *_dict_daemon_pids;
+static int        _dict_daemon_limit        = DICT_DAEMON_LIMIT;
+
+#if PERSISTENT
+static int        _dict_persistent_count;
+static int        _dict_persistent_limit    = DICT_PERSISTENT_LIMIT;
+static int        _dict_persistent_prestart = DICT_PERSISTENT_PRESTART;
+static pid_t      *_dict_persistent_pids;
 static int        _dict_sem;
+#endif
+
        int        _dict_forks;
        dictConfig *DictConfig;
 
@@ -36,46 +51,55 @@ static void reaper( int dummy )
    union wait status;
    pid_t      pid;
    int        flag = 0;
-   int        i;
 
    while ((pid = wait3(&status, WNOHANG, NULL)) > 0) {
-      for (i = 0; i < _dict_daemon_limit; i++) {
-	 if (_dict_daemon_pids[i] == pid) {
-	    _dict_daemon_pids[i] = 0;
-	    --_dict_daemon_count;
+#if PERSISTENT
+      int        i;
+      
+      for (i = 0; i < _dict_persistent_limit; i++) {
+	 if (_dict_persistent_pids[i] == pid) {
+	    _dict_persistent_pids[i] = 0;
 	    ++flag;
 	    break;
 	 }
       }
+
+      if (flag) {
+	 --_dict_persistent_count;
+      } else
+#endif
+	 --_dict_daemon_count;
+      
       log_info( "Reaped %d%s%s%s\n",
 		pid,
-		flag ? " [daemon]": "",
-		_dict_child ? " IN CHILD": "",
-		_dict_daemon ? " IN DAEMON": "" );
+		flag ? " [persistent]": "",
+		_dict_daemon ? " IN CHILD": "",
+		_dict_persistent ? " IN PERSISTENT DAEMON": "" );
    }
 }
 
-static int start_daemon( void )
+#if PERSISTENT
+static int start_persistent( void )
 {
    pid_t pid;
    int   i;
    
    ++_dict_forks;
-   ++_dict_daemon_count;
    switch ((pid = fork())) {
    case 0:
-      ++_dict_child;
       ++_dict_daemon;
+      ++_dict_persistent;
       break;
    case -1:
       log_info( "Unable to fork daemon\n" );
       sleep(10);
       break;
    default:
-      log_info( "Forked %d, daemon %d\n", pid, _dict_daemon_count );
-      for (i = 0; i < _dict_daemon_limit; i++) {
-	 if (!_dict_daemon_pids[i]) {
-	    _dict_daemon_pids[i] = pid;
+      ++_dict_persistent_count;
+      log_info( "Forked %d, daemon %d\n", pid, _dict_persistent_count );
+      for (i = 0; i < _dict_persistent_limit; i++) {
+	 if (!_dict_persistent_pids[i]) {
+	    _dict_persistent_pids[i] = pid;
 	    break;
 	 }
       }
@@ -83,21 +107,23 @@ static int start_daemon( void )
    }
    return pid;
 }
+#endif
 
-static int start_child( void )
+static int start_daemon( void )
 {
    pid_t pid;
    
    ++_dict_forks;
    switch ((pid = fork())) {
    case 0:
-      ++_dict_child;
+      ++_dict_daemon;
       break;
    case -1:
       log_info( "Unable to fork daemon\n" );
       sleep(10);
       break;
    default:
+      ++_dict_daemon_count;
       log_info( "Forked %d\n", pid );
       break;
    }
@@ -119,7 +145,7 @@ static void handler( int sig )
    case SIGALRM: name = "SIGALRM"; break;
    }
 
-   if (_dict_child) {
+   if (_dict_daemon) {
       daemon_terminate( sig, name );
    } else {
       if (name) {
@@ -227,8 +253,6 @@ static int config_print( const void *datum, void *arg )
       fprintf( s, "   postfilter %s\n", db->postfilter );
    if (db->databaseShort)
       fprintf( s, "   name       %s\n", db->databaseShort );
-   if (db->databaseURL)
-      fprintf( s, "   url        %s\n", db->databaseURL );
    if (db->acl) acl_print( s, db->acl, 3 );
    fprintf( s, "}\n" );
    return 0;
@@ -275,14 +299,8 @@ static int init_database( const void *datum )
       db->databaseShort = get_entry_info( db, db->databaseShort + 1 );
    if (!db->databaseShort) db->databaseShort = str_find( db->databaseName );
    
-   if (!db->databaseURL)
-      db->databaseURL = get_entry_info( db, DICT_URL_ENTRY_NAME );
-   else if (*db->databaseURL == '@')
-      db->databaseURL = get_entry_info( db, db->databaseURL + 1 );
-   
    PRINTF(DBG_INIT,
-	  ("%s \"%s\" \"%s\" initialized\n",
-	   db->databaseName,db->databaseShort,db->databaseURL));
+	  ("%s \"%s\" initialized\n",db->databaseName,db->databaseShort));
    return 0;
 }
 
@@ -325,7 +343,7 @@ static const char *id_string( const char *id )
 const char *dict_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dictd.c,v 1.17 1997/05/02 14:49:29 faith Exp $";
+   const char        *id = "$Id: dictd.c,v 1.18 1997/05/22 02:40:30 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -403,27 +421,30 @@ int main( int argc, char **argv )
    int                useSyslog   = 0;
    int                delay       = DICT_DEFAULT_DELAY;
    int                depth       = DICT_QUEUE_DEPTH;
-#ifdef HAVE_SEMGET
+#if PERSISTENT
    struct sembuf      sembuf;
 #endif
    struct option      longopts[]  = {
-      { "verbose", 0, 0, 'v' },
-      { "version", 0, 0, 'V' },
-      { "detach",  0, 0, 'd' },
-      { "debug",   1, 0, 'D' },
-      { "port",    1, 0, 'p' },
-      { "config",  1, 0, 'c' },
-      { "help",    0, 0, 'h' },
-      { "license", 0, 0, 'L' },
-      { "test",    1, 0, 't' },
-      { "ftest",   1, 0, 501 },
-      { "log",     1, 0, 'l' },
-      { "syslog",  0, 0, 's' },
-      { "delay",   1, 0, 502 },
-      { "depth",   1, 0, 503 },
-      { "start",   1, 0, 504 },
-      { "limit",   1, 0, 505 },
-      { 0,         0, 0,  0  }
+      { "verbose",  0, 0, 'v' },
+      { "version",  0, 0, 'V' },
+      { "detach",   0, 0, 'd' },
+      { "debug",    1, 0, 'D' },
+      { "port",     1, 0, 'p' },
+      { "config",   1, 0, 'c' },
+      { "help",     0, 0, 'h' },
+      { "license",  0, 0, 'L' },
+      { "test",     1, 0, 't' },
+      { "ftest",    1, 0, 501 },
+      { "log",      1, 0, 'l' },
+      { "syslog",   0, 0, 's' },
+      { "delay",    1, 0, 502 },
+      { "depth",    1, 0, 503 },
+      { "limit",    1, 0, 504 },
+#if PERSISTENT
+      { "perlimit", 1, 0, 505 },
+      { "prestart", 1, 0, 506 },
+#endif
+      { 0,          0, 0,  0  }
    };
 
    maa_init(argv[0]);
@@ -454,18 +475,19 @@ int main( int argc, char **argv )
       case 501: testFile = optarg;    break;
       case 502: delay = atoi(optarg); break;
       case 503: depth = atoi(optarg); break;
-      case 504: _dict_daemon_prestart = atoi(optarg); break;
-      case 505: _dict_daemon_limit = atoi(optarg);    break;
+      case 504: _dict_daemon_limit = atoi(optarg);        break;
+#if PERSISTENT
+      case 505: _dict_persistent_limit = atoi(optarg);    break;
+      case 506: _dict_persistent_prestart = atoi(optarg); break;
+#endif
       case 'h':
       default:  help(); exit(1);      break;
       }
 
-#if !HAVE_SEMGET
-   _dict_daemon_limit = 0;
+#if PERSISTENT
+   if (_dict_persistent_prestart > _dict_persistent_limit)
+      _dict_persistent_prestart = _dict_persistent_limit;
 #endif
-   
-   if (_dict_daemon_prestart > _dict_daemon_limit)
-      _dict_daemon_prestart = _dict_daemon_limit;
 
    if (dbg_test(DBG_PARSE))     prs_set_debug(1);
    if (dbg_test(DBG_SCAN))      yy_flex_debug = 1;
@@ -547,25 +569,48 @@ int main( int argc, char **argv )
 
    tim_start( "dictd" );
 
-#if !USE_DAEMONS
-   log_info("Starting, no persistent daemons\n");
+#if !PERSISTENT
+   log_info("Starting\n");
 #else
-   if (_dict_daemon_limit) {
-      _dict_daemon_pids = malloc(_dict_daemon_limit
-				 * sizeof(_dict_daemon_pids[0]));
+   if (_dict_persistent_limit) {
+      _dict_persistent_pids = malloc(_dict_persistent_limit
+				     * sizeof(_dict_persistent_pids[0]));
       _dict_sem = semget( IPC_PRIVATE, 1, IPC_CREAT|IPC_EXCL|S_IRWXU );
-      semctl( _dict_sem, 0, SETVAL, _dict_daemon_limit-1 );
+      semctl( _dict_sem, 0, SETVAL, _dict_persistent_limit-1 );
       log_info("Starting, %d/%d persistent daemons\n",
-	       _dict_daemon_limit, _dict_daemon_prestart);
+	       _dict_persistent_limit, _dict_persistent_prestart);
    }
 #endif
    
    masterSocket = net_open_tcp( service, depth );
 
    for (;;) {
-#if USE_DAEMONS
-      if (_dict_daemon_limit) {
-	 if (_dict_daemon_count == _dict_daemon_limit)
+#if !PERSISTENT
+      log_info( "%d accepting\n", getpid() );
+      if ((childSocket = accept(masterSocket,
+				(struct sockaddr *)&csin, &alen)) < 0) {
+	 if (errno == EINTR) continue;
+	 err_fatal_errno( __FUNCTION__, "Can't accept" );
+      }
+
+      if (_dict_daemon || dbg_test(DBG_NOFORK)) {
+	 dict_daemon(childSocket,&csin,&argv,delay,0);
+	 close(childSocket);
+      } else {
+	 if (_dict_daemon_count < _dict_daemon_limit) {
+	    if (!start_daemon()) { /* child */
+	       dict_daemon(childSocket,&csin,&argv,delay,0);
+	       close(childSocket);
+	    } else {		   /* parent */
+	       close(childSocket);
+	    }
+	 } else {
+	    dict_daemon(childSocket,&csin,&argv,delay,1);
+	 }
+      }
+#else
+      if (_dict_persistent_limit) {
+	 if (_dict_persistent_count == _dict_persistent_limit)
 	    sleep(1);
 	 sembuf.sem_num = 0;
 	 sembuf.sem_op  = -1;
@@ -574,41 +619,38 @@ int main( int argc, char **argv )
 	 log_info( "%d accepting, sem = %d\n",
 		   getpid(), semctl( _dict_sem, 0, GETVAL, 0 ) );
       } else
-#endif
 	 log_info( "%d accepting\n", getpid() );
       if ((childSocket = accept(masterSocket,
 				(struct sockaddr *)&csin, &alen)) < 0) {
 	 if (errno == EINTR) continue;
 	 err_fatal_errno( __FUNCTION__, "Can't accept" );
       }
-#if USE_DAEMONS
-      if (_dict_daemon_limit) {
+      if (_dict_persistent_limit) {
 	 sembuf.sem_num = 0;
 	 sembuf.sem_op  = 1;
 	 sembuf.sem_flg = SEM_UNDO;
 	 semop( _dict_sem, &sembuf, 1 );
       }
-#endif
-      
-      if (_dict_child || dbg_test(DBG_NOFORK)) {
-	 dict_daemon(childSocket,&csin,&argv,delay);
+      if (_dict_daemon || dbg_test(DBG_NOFORK)) {
+	 dict_daemon(childSocket,&csin,&argv,delay,0);
 	 close(childSocket);
       } else {
-	 if (_dict_daemon_count < _dict_daemon_limit) {
-	    if (!start_daemon()) { /* child */
-	       dict_daemon(childSocket,&csin,&argv,delay);
+	 if (_dict_persistent_count < _dict_persistent_limit) {
+	    if (!start_persistent()) { /* child */
+	       dict_daemon(childSocket,&csin,&argv,delay,0);
 	       close(childSocket);
 	    } else {		   /* parent */
 	       close(childSocket);
 	    }
 	 } else {
-	    if (!start_child()) {  /* child */
+	    if (!start_daemon()) {  /* child */
 	       close(masterSocket);
-	       exit(dict_daemon(childSocket,&csin,&argv,delay));
+	       exit(dict_daemon(childSocket,&csin,&argv,delay,0));
 	    } else {		   /* parent */
 	       close(childSocket);
 	    }
 	 }
       }
+#endif
    }
 }

@@ -1,7 +1,7 @@
 /* dictd.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Fri May  2 00:14:32 1997 by faith@cs.unc.edu
- * Copyright 1994, 1995, 1996 Rickard E. Faith (faith@cs.unc.edu)
+ * Revised: Wed May 21 22:26:28 1997 by faith@acm.org
+ * Copyright 1994, 1995, 1996, 1997 Rickard E. Faith (faith@acm.org)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,15 +39,16 @@
 
 				/* Configurable things */
 
-#define DICT_DEFAULT_SERVICE    "2628"
-#define DICT_QUEUE_DEPTH        10
-#define DICT_DEFAULT_DELAY      600 /* 10 minute timeout */
-#define DICT_DAEMON_PRESTART    3
-#define DICT_DAEMON_LIMIT       5
-#define DICT_CONFIG_FILE        "/etc/dict.conf"
-#define DICT_SHORT_ENTRY_NAME   "00-database-name"
-#define DICT_URL_ENTRY_NAME     "00-database-url"
-#define DICT_INFO_ENTRY_NAME    "00-database-info"
+#define DICT_DEFAULT_SERVICE     "2628"
+#define DICT_QUEUE_DEPTH         10
+#define DICT_DEFAULT_DELAY       600 /* 10 minute timeout */
+#define DICT_DAEMON_LIMIT        10 /* maximum simultaneous daemons */
+#define DICT_PERSISTENT_PRESTART 3 /* not implemented */
+#define DICT_PERSISTENT_LIMIT    5 /* not implemented */
+#define DICT_CONFIG_FILE         "/etc/dict.conf"
+#define DICT_SHORT_ENTRY_NAME    "00-database-short"
+#define DICT_LONG_ENTRY_NAME     "00-database-long"
+#define DICT_INFO_ENTRY_NAME     "00-database-info"
 
 				/* End of configurable things */
 
@@ -121,7 +122,6 @@ typedef struct dictIndex {
 typedef struct dictDatabase {
    const char *databaseName;
    const char *databaseShort;
-   const char *databaseURL;
    const char *databaseInfoPointer;
    const char *dataFilename;
    const char *indexFilename;
@@ -206,7 +206,7 @@ extern int        _dict_forks;	/* GLOBAL VARIABLE */
 /* daemon.c */
 
 extern int  dict_daemon( int s, struct sockaddr_in *csin, char ***argv0,
-			 int delay );
+			 int delay, int error );
 extern void daemon_terminate( int sig, const char *name );
 
 				/* dmalloc must be last */

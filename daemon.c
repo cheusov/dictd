@@ -1,6 +1,6 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@cs.unc.edu
- * Revised: Thu May  1 00:04:31 1997 by faith@cs.unc.edu
+ * Revised: Wed May 21 22:27:35 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.14 1997/05/02 14:49:27 faith Exp $
+ * $Id: daemon.c,v 1.15 1997/05/22 02:40:29 faith Exp $
  * 
  */
 
@@ -414,12 +414,11 @@ static int dump_def( const void *datum, void *arg )
    buf = dict_data_read( db->data, dw->start, dw->end,
 			 db->prefilter, db->postfilter );
 
-   daemon_printf( "%d \"%s\" %s \"%s\" \"%s\" - text follows\n",
+   daemon_printf( "%d \"%s\" %s \"%s\" - text follows\n",
 		  CODE_DEFINITION_FOLLOWS,
                   dw->word,
 		  db->databaseName,
-		  db->databaseShort,
-                  db->databaseURL );
+		  db->databaseShort );
    daemon_text(buf);
    xfree( buf );
    return 0;
@@ -587,14 +586,8 @@ static void daemon_show_db( int argc, char **argv )
 		     CODE_DATABASE_LIST, count );
       reset_databases();
       while ((db = next_database("*"))) {
-	 if (db->databaseURL) {
-	    daemon_printf( "%s \"%s\" %s\n",
-			   db->databaseName, db->databaseShort,
-			   db->databaseURL );
-	 } else {
-	    daemon_printf( "%s \"%s\"\n",
-			   db->databaseName, db->databaseShort );
-	 }
+	 daemon_printf( "%s \"%s\"\n",
+			db->databaseName, db->databaseShort );
       }
       daemon_printf( ".\n" );
    }
@@ -732,7 +725,8 @@ static void daemon_quit( int argc, char **argv )
    daemon_terminate( 0, __FUNCTION__ );
 }
 
-int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0, int delay )
+int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0, int delay,
+		 int error )
 {
    char           buf[4096];
    int            count;
@@ -760,6 +754,12 @@ int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0, int delay )
 
    tim_start( "t" );
    daemon_log( "connected\n" );
+
+   if (error) {
+      daemon_printf( "%d temporarily unavailable\n",
+		     CODE_TEMPORARILY_UNAVAILABLE );
+      daemon_terminate( 0, "temporarily unavailable" );
+   }
 
    if (daemon_check_auth( NULL )) {
       daemon_printf( "%d access denied\n", CODE_ACCESS_DENIED );

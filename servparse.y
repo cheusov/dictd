@@ -1,6 +1,6 @@
 /* servparse.y -- Parser for dictd server configuration file
  * Created: Fri Feb 28 08:31:38 1997 by faith@cs.unc.edu
- * Revised: Wed Apr  2 18:01:22 1997 by faith@cs.unc.edu
+ * Revised: Wed May 21 22:27:34 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.5 1997/04/03 02:17:49 faith Exp $
+ * $Id: servparse.y,v 1.6 1997/05/22 02:40:32 faith Exp $
  * 
  */
 
@@ -46,7 +46,7 @@ static dictDatabase *db;
 				/* Terminals */
 
 %token <token> '{' '}' T_ACCESS T_ALLOW T_DENY T_GROUP T_DATABASE T_DATA
-%token <token> T_INDEX T_FILTER T_PREFILTER T_POSTFILTER T_NAME T_URL
+%token <token> T_INDEX T_FILTER T_PREFILTER T_POSTFILTER T_NAME
 %token <token> T_USER T_AUTHONLY
 
 %token <token>  T_STRING
@@ -151,6 +151,5 @@ Spec : T_DATA T_STRING       { SET(dataFilename,$1,$2); }
      | T_PREFILTER T_STRING  { SET(prefilter,$1,$2); }
      | T_POSTFILTER T_STRING { SET(postfilter,$1,$2); }
      | T_NAME T_STRING       { SET(databaseShort,$1,$2); }
-     | T_URL T_STRING        { SET(databaseURL,$1,$2); }
      | Access                { db->acl = $1; }
      ;
