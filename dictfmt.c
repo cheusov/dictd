@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.46 2004/01/27 00:33:54 hilliard Exp $
+ * $Id: dictfmt.c,v 1.47 2004/01/28 01:54:11 kirk Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -72,11 +72,12 @@ static int quiet_mode    = 0;
 
 static const char *hw_separator = "";
 
-static int         without_hw     = 0;
-static int         without_header = 0;
-static int         without_url    = 0;
-static int         without_time   = 0;
-static int         without_info   = 0;
+static int         without_hw      = 0;
+static int         without_header  = 0;
+static int         without_url     = 0;
+static int         without_time    = 0;
+static int         without_info    = 0;
+static int         break_headwords = 0;
 
 static FILE *fmt_str;
 static int  fmt_indent;
@@ -545,16 +546,6 @@ static void fmt_newheadword( const char *word )
    fflush(stdout);
    end = ftell(str);
 
-   if (
-      word &&
-      !without_hw &&
-      strncmp (word, "00-database", 11) &&
-      strncmp (word, "00database", 10))
-   {
-      fmt_string (word);
-      fmt_newline();
-   }
-
    if (fmt_str && *prev) {
       p = prev;
       do {
@@ -579,8 +570,26 @@ static void fmt_newheadword( const char *word )
 
    if (word) {
       strlcpy(prev, word, sizeof (prev));
-
       start = end;
+   }
+
+   if (
+      word &&
+      !without_hw &&
+      strncmp (word, "00-database", 11) &&
+      strncmp (word, "00database", 10))
+   {
+     p = prev;
+     if (hw_separator[0] && break_headwords)
+       while ((sep = strstr (p, hw_separator))) {
+         *sep = 0;
+         fmt_string (p);
+         fmt_newline();
+         *sep = hw_separator[0];
+         p = sep + strlen (hw_separator);
+       }
+     fmt_string (p);
+     fmt_newline();
    }
 
    if (!quiet_mode){
@@ -662,11 +671,13 @@ static void help( FILE *out_stream )
            if no locale is specified, the \"C\" locale is used.",
 "--allchars all characters (not only alphanumeric and space)\n\
            will be used in search if this argument is supplied",
-"--headword-separator <sep> sets head word separator which allows\n\
-           several words to have the same definition\n\
-           Example: autumn%%%fall can be used\n\
-           if '--headword-separator %%%' is supplied",
-"--without-headword   head words will not be copied to .dict file",
+"--headword-separator <sep> sets headword separator which allows\n\
+                     several words to have the same definition\n\
+                     Example: autumn%%%fall can be used\n\
+                     if '--headword-separator %%%' is supplied",
+"--break-headwords    multiple headwords will be written on separate lines\n\
+                     in the .dict file.  For use with '--headword-separator.",
+"--without-headword   headwords will not be copied to .dict file",
 "--without-header     header will not be copied to DB info entry",
 "--without-url        URL will not be copied to DB info entry",
 "--without-time       time of creation will not be copied to DB info entry",
@@ -882,6 +893,7 @@ int main( int argc, char **argv )
       { "without-time",         0, 0, 508 },
       { "without-info",         0, 0, 509 },
       { "columns",              1, 0, 510 },
+      { "break-headwords",      0, 0, 511 },
       { "quiet",                0, 0, 'q' },
       { "silent",               0, 0, 'q' },
       { "version",              0, 0, 'V' },
@@ -934,7 +946,7 @@ int main( int argc, char **argv )
       case 506: without_header = 1;           break;
       case 507: without_url    = 1;           break;
       case 508: without_time   = 1;           break;
-      case 509: without_info   = 1;             break;
+      case 509: without_info   = 1;           break;
       case 510:
 	 fmt_maxpos = atoi (optarg);
 
@@ -942,7 +954,7 @@ int main( int argc, char **argv )
 	    fmt_maxpos = INT_MAX;
 	 }
 	 break;
-
+      case 511: break_headwords = 1;          break;
       case 't':
 	 without_info = 1;
 	 without_hw   = 1;

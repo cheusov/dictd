@@ -229,14 +229,17 @@ specifies the locale used for sorting.  if no locale is specified, the
 use all characters (not only alphanumeric and space) in sorting the index
 .TP
 .BI \--headword-separator " sep"
-sets the head word separator, which allows several words to have the same
+sets the headword separator, which allows several words to have the same
 definition.  For example, if \'--headword-separator %%%' is given,
 and the input file contains \'autumn%%%fall', both 'autumn' and 'fall'
-will be indexed as  headwords, with the same definition.  This
-option implies the --without-headword option.
+will be indexed as  headwords, with the same definition.
+.TP
+.BI \--break-headwords
+multiple headwords will be written on separate lines in the .dict
+file.  For use with '--headword-separator.
 .TP
 .BI \--without-headword
-head words will not be included in .dict file
+headwords will not be included in .dict file
 .TP
 .BI \--without-header
 header will not be copied to DB info entry
