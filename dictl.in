@@ -16,7 +16,7 @@ fi
 if test -z "$DICTL_PAGER"; then
     if test -r ~/.dictrc; then
 	DICTL_PAGER=`awk '$1 == "pager" {print $2}' < ~/.dictrc`
-	if test -z "$DICTL_PAGER" && test -r $sysconfdir/dict.conf; then
+	if test -z "$DICTL_PAGER" && test -r "$sysconfdir/dict.conf"; then
 	    DICTL_PAGER=`awk '$1 == "pager" {print $2}' < $sysconfdir/dict.conf`
 	fi
     fi
