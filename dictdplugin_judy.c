@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.12 2003/08/11 17:06:27 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.13 2003/08/27 16:10:56 cheusov Exp $
  * 
  */
 
@@ -49,7 +49,7 @@
 #include <wctype.h>
 #endif
 
-#define BUFSIZE 1024
+#define BUFSIZE 4096
 
 #ifndef BOOL
 #define BOOL char
@@ -108,8 +108,10 @@ typedef struct global_data_s {
    Pvoid_t m_judy_array;
    int m_max_hw_len;
 
-   char m_conf_index_fn [NAME_MAX+1];
-   char m_conf_data_fn  [NAME_MAX+1];
+   char m_conf_index_fn  [NAME_MAX+1];
+   char m_conf_data_fn   [NAME_MAX+1];
+   char m_default_db_dir [NAME_MAX+1];
+
    BOOL m_conf_allchars;
    BOOL m_conf_utf8;
 } global_data;
@@ -251,6 +253,21 @@ static void set_strat (
    }
 }
 
+static void concat_dir_and_fn (
+   char *dest, size_t dest_size, const char *dir, const char *fn)
+{
+   if (dest [0] != '/'){
+      strlcpy (dest, dir, dest_size);
+
+      if (dest [strlen (dest) - 1] != '/')
+	 strlcat (dest, "/", dest_size);
+
+      strlcat (dest, fn, dest_size);
+   }else{
+      strlcpy (dest, fn, dest_size);
+   }
+}
+
 static int process_line (char *s, void *data)
 {
    char * value = NULL;
@@ -284,13 +301,17 @@ static int process_line (char *s, void *data)
 	 dict_data -> m_conf_utf8 = 1;
       }
    }else if (!strcmp(s, "index")){
-      strlcpy (
-	 dict_data -> m_conf_index_fn, value,
-	 sizeof (dict_data -> m_conf_index_fn));
+      concat_dir_and_fn (
+	 dict_data -> m_conf_index_fn,
+	 sizeof (dict_data -> m_conf_index_fn),
+	 dict_data -> m_default_db_dir,
+	 value);
    }else if (!strcmp(s, "data")){
-      strlcpy (
-	 dict_data -> m_conf_data_fn, value,
-	 sizeof (dict_data -> m_conf_data_fn));
+      concat_dir_and_fn (
+	 dict_data -> m_conf_data_fn,
+	 sizeof (dict_data -> m_conf_data_fn),
+	 dict_data -> m_default_db_dir,
+	 value);
    }
 
    return 0;
@@ -626,13 +647,13 @@ int dictdb_open (
    err = heap_create (&dict_data -> m_heap, NULL);
    if (err){
       plugin_error (dict_data, heap_error (err));
-      return 1;
+      return 2;
    }
 
    err = heap_create (&dict_data -> m_heap2, NULL);
    if (err){
       plugin_error (dict_data, heap_error (err));
-      return 1;
+      return 3;
    }
 
    if (version)
@@ -665,7 +686,7 @@ int dictdb_open (
 //	    fprintf (stderr, "err='%s'\n", dict_data -> m_err_msg);
 	    if (dict_data -> m_err_msg [0]){
 	       dictdb_free (dict_data);
-	       return 1;
+	       return 4;
 	    }
 
 	    if (buf)
@@ -673,14 +694,21 @@ int dictdb_open (
 
 	    if (!dict_data -> m_conf_index_fn [0]){
 	       plugin_error (dict_data, "missing 'index' option");
-	       return 2;
+	       return 5;
 	    }
 
 	    if (!dict_data -> m_conf_data_fn [0]){
 	       plugin_error (dict_data, "missing 'data' option");
-	       return 2;
+	       return 6;
 	    }
 	 }
+	 break;
+      case DICT_PLUGIN_INITDATA_DEFDBDIR:
+	 strlcpy (
+	    dict_data -> m_default_db_dir,
+	    init_data [i].data,
+	    sizeof (dict_data -> m_default_db_dir));
+
 	 break;
       default:
 	 break;
@@ -691,12 +719,12 @@ int dictdb_open (
    init_data_file  (dict_data);
 
    if (dict_data -> m_err_msg [0])
-      return 1;
+      return 7;
 
 //   fprintf (stderr, "max_word_len = %i\n", dict_data -> m_max_hw_len);
    if (dict_data -> m_max_hw_len > BUFSIZE - 100){
       plugin_error (dict_data, "Index file contains too long word");
-      return 1;
+      return 8;
    }
 
 //   debug_print (dict_data);
@@ -717,8 +745,6 @@ const char *dictdb_error (void *dict_data)
 
    if (data -> m_err_msg [0])
       return data -> m_err_msg;
-//   else if (data -> m_errno)
-//      return strerror (data -> m_errno);
    else
       return NULL;
 }
@@ -741,8 +767,6 @@ int dictdb_free (void * data)
 
       heap_free (dict_data -> m_heap2, dict_data -> m_mres);
       dict_data -> m_mres = NULL;
-
-      dict_data -> m_err_msg [0] = 0;
 
 //      xfree (dict_data -> m_data);
 //      dict_data -> m_data = NULL;
