@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.95 2003/10/02 12:31:46 cheusov Exp $
+ * $Id: dictd.c,v 1.96 2003/10/14 11:54:15 cheusov Exp $
  * 
  */
 
@@ -59,8 +59,9 @@ static char       *_dict_argvstart;
 static int        _dict_argvlen;
 
        int        _dict_forks;
-const char        *locale      = "C";
-int                inetd       = 0;
+const char        *locale       = "C";
+const char        *preprocessor = NULL;
+int                inetd        = 0;
 
 static const char *configFile  = DICT_CONFIG_PATH DICTD_CONFIG_NAME;
 
@@ -295,7 +296,7 @@ static void handler_sighup (int sig)
    dict_close_databases (DictConfig);
 
    if (!access(configFile,R_OK)){
-      prs_file_nocpp (configFile);
+      prs_file_pp (preprocessor, configFile);
       postprocess_filenames (DictConfig);
    }
 
@@ -847,7 +848,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.95 2003/10/02 12:31:46 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.96 2003/10/14 11:54:15 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -921,7 +922,8 @@ static void help( void )
       "-m --mark <minutes>   how often should a timestamp be logged",
       "   --facility <fac>   set syslog logging facility",
       "-d --debug <option>   select debug option",
-      "-i --inetd               run from inetd",
+      "-i --inetd            run from inetd",
+      "   --pp <prog>        set preprocessor for configuration file",
       "-f --force            force startup even if daemon running",
       "   --locale <locale>  specifies the locale used for searching.\n\
                       if no locale is specified, the \"C\" locale is used.",
@@ -1244,6 +1246,7 @@ int main( int argc, char **argv, char **envp )
       { "test-idle",        0, 0, 515 },
       { "add-strategy",     1, 0, 516 },
       { "fast-start",       0, 0, 517 },
+      { "pp",               1, 0, 518 },
       { 0,                  0, 0, 0  }
    };
 
@@ -1343,6 +1346,7 @@ int main( int argc, char **argv, char **envp )
 
 	 break;
       case 517: optStart_mode = 0;                        break;
+      case 518: preprocessor = optarg;                    break;
       case 'h':
       default:  help(); exit(0);                          break;
       }
@@ -1382,7 +1386,7 @@ int main( int argc, char **argv, char **envp )
    alarm(_dict_markTime);
 
    if (!access(configFile,R_OK)) {
-      prs_file_nocpp( configFile );
+      prs_file_pp (preprocessor, configFile );
       postprocess_filenames (DictConfig);
    }
 

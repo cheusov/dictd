@@ -17,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: parse.h,v 1.1 2003/07/07 12:24:16 cheusov Exp $
+ * $Id: parse.h,v 1.2 2003/10/14 11:54:15 cheusov Exp $
  */
 
 #ifndef _PARSE_H_
@@ -28,6 +28,7 @@
 
 extern void   prs_set_debug( int debug_flag );
 extern void   prs_set_cpp_options( const char *cpp_options );
+extern void   prs_file_pp( const char *filename, const char *preprocessor );
 extern void   prs_file( const char *filename );
 extern void   prs_file_nocpp( const char *filename );
 extern void   prs_stream( FILE *str, const char *name );

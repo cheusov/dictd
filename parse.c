@@ -17,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: parse.c,v 1.3 2003/09/19 18:18:53 cheusov Exp $
+ * $Id: parse.c,v 1.4 2003/10/14 11:54:15 cheusov Exp $
  *
  * \section{Parsing (and Lexing) Support}
  * 
@@ -58,6 +58,34 @@ void prs_set_cpp_options( const char *cpp_options )
    A similar function should deal with multiple parsers in the same
    program, but this has not been implemented.  Also, either this function
    or another function should start an interactive parse session. */
+
+void prs_file_pp (const char *pp, const char *filename)
+{
+   char              *buffer;
+   const char        **pt;
+
+   if (!filename)
+      err_fatal( __FUNCTION__, "No filename specified\n" );
+
+   if (!pp){
+      prs_file_nocpp (filename);
+      return;
+   }
+
+   buffer = alloca (strlen (pp) + strlen (filename) + 100);
+
+   sprintf (buffer, "%s '%s' 2>/dev/null", pp, filename);
+
+   PRINTF(MAA_PARSE,(__FUNCTION__ ": %s\n",buffer));
+   if (!(yyin = popen( buffer, "r" )))
+      err_fatal_errno( __FUNCTION__,
+		       "Cannot open \"%s\" for read\n", buffer );
+
+   src_new_file( filename );
+   yydebug = _prs_debug_flag;
+   yyparse();
+   pclose( yyin );
+}
 
 void prs_file( const char *filename )
 {

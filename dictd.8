@@ -143,6 +143,17 @@ Although, due to its rather large startup time, this daemon was not
 intended to run from inetd, with a fast processor it is feasible to do
 so. This option also implies \-\-fast-start.
 .TP
+.BI \-\-pp " prog"
+Sets a preprocessor for configuarion file.
+.br
+Good choice is
+.I " m4 -P"
+or
+.I " cpp".
+See example_pp.conf file
+from distribution. By default configuration file is parsed without
+preprocessor.
+.TP
 .BI \-\-depth " length"
 Specify the queue length for
 .BR listen (2).
