@@ -1,10 +1,10 @@
 /* dict.c -- 
  * Created: Fri Mar 28 19:16:29 1997 by faith@cs.unc.edu
- * Revised: Sun Jan  4 10:28:20 1998 by faith@acm.org
+ * Revised: Sun Jan  4 19:56:51 1998 by faith@acm.org
  * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dict.c,v 1.14 1998/01/04 15:42:13 faith Exp $
+ * $Id: dict.c,v 1.15 1998/01/05 01:07:00 faith Exp $
  * 
  */
 
@@ -520,7 +520,7 @@ end:				/* Ready to send buffer, but are we
       char *pt;
 
       PRINTF(DBG_PIPE,("* Sending %d commands (%d bytes)\n",count,len));
-      PRINTF(DBG_RAW,("* Sent/%d: %s",c->command,buffer));
+      PRINTF(DBG_RAW,("* Send/%d: %s",c->command,buffer));
       pt = alloca(2*len);
       client_crlf(pt,buffer);
       net_write( cmd_reply.s, pt, strlen(pt) );
@@ -622,9 +622,17 @@ static void process( int html )
 	 cmd_reply.retcode = client_read_status( cmd_reply.s,
 						 &message,
 						 NULL, NULL, NULL, NULL, NULL);
+	 if (cmd_reply.retcode && dbg_test(DBG_VERBOSE))
+	    printf( "Client command gave unexpected status code %d (%s)\n",
+		    cmd_reply.retcode, message ? message : "no message" );
+
+	 expected = cmd_reply.retcode;
 	 break;
       case CMD_AUTH:
-	 if (!cmd_reply.key || !cmd_reply.user || !cmd_reply.msgid) break;
+	 if (!cmd_reply.key || !cmd_reply.user || !cmd_reply.msgid) {
+	    expected = cmd_reply.retcode;
+	    break;
+	 }
 	 cmd_reply.retcode = client_read_status( cmd_reply.s,
 						 &message,
 						 NULL, NULL, NULL, NULL, NULL);
@@ -889,7 +897,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.14 1998/01/04 15:42:13 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.15 1998/01/05 01:07:00 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
