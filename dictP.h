@@ -19,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.11 2003/08/06 17:55:54 cheusov Exp $
+ * $Id: dictP.h,v 1.12 2003/09/04 17:57:02 cheusov Exp $
  * 
  */
 
@@ -116,6 +116,10 @@ typedef char mbstate_t;
 
 #if !HAVE_STRLCPY
 extern size_t strlcpy (char *s, const char * wc, size_t size);
+#endif
+
+#if !HAVE_STRLCAT
+size_t strlcat(char *dst, const char *src, size_t siz);
 #endif
 
 #if !HAVE_WCRTOMB
