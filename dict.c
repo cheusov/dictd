@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.c,v 1.35 2003/04/09 17:48:45 cheusov Exp $
+ * $Id: dict.c,v 1.36 2003/04/09 18:24:47 cheusov Exp $
  * 
  */
 
@@ -269,7 +269,7 @@ static void client_print_listed( lst_List l )
 
       arg_destroy(a);
    }
-   snprintf( format, sizeof (buffer), " %%-%ds %%s\n", colWidth );
+   snprintf( format, sizeof (format), " %%-%ds %%s\n", colWidth );
    LST_ITERATE(l,p,e) {
       a = arg_argify( e, 0 );
       fprintf( dict_output, format, arg_get(a,0), arg_get(a,1) );
@@ -964,7 +964,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.35 2003/04/09 17:48:45 cheusov Exp $";
+   const char        *id = "$Id: dict.c,v 1.36 2003/04/09 18:24:47 cheusov Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -1153,7 +1153,6 @@ int main( int argc, char **argv )
       prs_file_nocpp( configFile );
    } else {
       char b[256];
-      int  len;
       char *env = getenv("HOME");
 
       snprintf( b, 256, "%s/%s", env ? env : "./", DICT_RC_NAME );
