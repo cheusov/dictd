@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.58 2003/02/28 15:21:44 cheusov Exp $
+ * $Id: index.c,v 1.59 2003/03/02 13:11:47 cheusov Exp $
  * 
  */
 
@@ -578,6 +578,7 @@ static dictWord *dict_word_create(
    char       *s, *d;
 
    assert (dbindex);
+   assert (pt >= dbindex -> start && pt < dbindex -> end);
 
    memset (dw, 0, sizeof (*dw));
 
@@ -844,24 +845,32 @@ static int dict_search_bmh( lst_List l,
       else
 	 skip[i] = 1;
    }
-   for (i = 0; i < patlen-1; i++) skip[(unsigned char)word[i]] = patlen-i-1;
+   for (i = 0; i < patlen-1; i++)
+      skip[(unsigned char)word[i]] = patlen-i-1;
 
    for (p = start+patlen-1; p < end; f ? (f=NULL) : (p += skip[tolower(*p)])) {
       while (*p == '\t') {
 	 FIND_NEXT(p,end);
 	 p += patlen-1;
-	 if (p > end) return count;
+	 if (p > end)
+	    return count;
       }
       ++_dict_comparisons;		/* counter for profiling */
       
 				/* FIXME.  Optimize this inner loop. */
       for (j = patlen - 1, pt = p, wpt = word + patlen - 1; j >= 0; j--) {
-	 if (pt < start) break;
+	 if (pt < start)
+	    break;
+
  	 while (pt >= start && !dbindex -> isspacealnum[*pt]) {
-	    if (*pt == '\n' || *pt == '\t') goto continue2;
+	    if (*pt == '\n' || *pt == '\t')
+	       goto continue2;
+
 	    --pt;
 	 }
-	 if (tolower(*pt--) != *wpt--) break;
+
+	 if (tolower(*pt--) != *wpt--)
+	    break;
       }
 
       if (j == -1) {
@@ -885,8 +894,13 @@ static int dict_search_bmh( lst_List l,
 	 }
 
 	 for (; pt > start && *pt != '\n'; --pt)
-	    if (*pt == '\t') goto continue2;
-	 if (pt > start) ++pt;
+	    if (*pt == '\t')
+	       goto continue2;
+
+	 ++pt;
+
+	 assert (pt >= start && pt < end);
+
 	 if (!previous || altcompare(previous, pt, dbindex->end)) {
 	    ++count;
 	    datum = dict_word_create( previous = pt, database, dbindex );
