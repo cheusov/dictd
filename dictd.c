@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Fri Feb 27 19:30:36 1998 by faith@acm.org
+ * Revised: Sun Jul  5 21:08:46 1998 by faith@acm.org
  * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.38 1998/02/28 00:32:58 faith Exp $
+ * $Id: dictd.c,v 1.39 1998/07/06 01:35:40 faith Exp $
  * 
  */
 
@@ -376,7 +376,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.38 1998/02/28 00:32:58 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.39 1998/07/06 01:35:40 faith Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -517,6 +517,7 @@ int main( int argc, char **argv, char **envp )
    flg_register( LOG_MIN,       "min" );
 
    dbg_register( DBG_VERBOSE,  "verbose" );
+   dbg_register( DBG_UNZIP,    "unzip" );
    dbg_register( DBG_SCAN,     "scan" );
    dbg_register( DBG_PARSE,    "parse" );
    dbg_register( DBG_SEARCH,   "search" );

@@ -1,6 +1,6 @@
 .\" dictd.8 -- 
 .\" Created: Mon Mar 10 16:10:03 1997 by faith@cs.unc.edu
-.\" Revised: Sun Feb 15 18:54:25 1998 by faith@acm.org
+.\" Revised: Sun Jul  5 19:53:36 1998 by faith@acm.org
 .\" Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
 .\" 
 .\" Permission is granted to make and distribute verbatim copies of this
@@ -23,7 +23,7 @@
 .\" Formatted or processed versions of this manual, if unaccompanied by
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" 
-.TH DICTD 8 "15 February 1998" "" "Linux Programmer's Manual"
+.TH DICTD 8 "15 February 1998" "" ""
 .SH "NAME"
 dictd - a dictionary database server
 .SH "SYNOPSIS"
@@ -96,7 +96,7 @@ Be verbose.
 .TP
 .BI \-c " file\fR or "  \-\-config " file"
 Specify configuration file.  The default is
-.IR /etc/dict.conf ,
+.IR /etc/dictd.conf ,
 but may be changed in the
 .I dictd.h
 file at compile time (DICT_CONFIG_FILE).
@@ -282,7 +282,7 @@ in
 .RE
 .SH "CONFIGURATION FILE"
 The configuration file defaults to
-.IR /etc/dict.conf ,
+.IR /etc/dictd.conf ,
 but can be specified on the command line with the
 .B \-c
 option (see above).  The configuration file has four distinct sections.

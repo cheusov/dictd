@@ -1,7 +1,7 @@
 /* data.c -- 
- * Created: Tue Jul 16 12:45:41 1996 by r.faith@ieee.org
- * Revised: Sat Mar 22 22:52:43 1997 by faith@cs.unc.edu
- * Copyright 1996, 1997 Rickard E. Faith (r.faith@ieee.org)
+ * Created: Tue Jul 16 12:45:41 1996 by faith@acm.org
+ * Revised: Sun Jul  5 21:30:55 1998 by faith@acm.org
+ * Copyright 1996, 1997, 1998 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: data.c,v 1.7 1997/03/23 12:22:34 faith Exp $
+ * $Id: data.c,v 1.8 1998/07/06 01:35:40 faith Exp $
  * 
  */
 
@@ -290,6 +290,10 @@ char *dict_data_read( dictData *h, unsigned long start, unsigned long size,
 
    buffer = xmalloc( size + 1 );
    
+   PRINTF(DBG_UNZIP,
+	  ("dict_data_read( %p, %lu, %lu, %s, %s )\n",
+	   h, start, size, preFilter, postFilter ));
+   
    switch (h->type) {
    case DICT_GZIP:
       err_fatal( __FUNCTION__,
@@ -321,7 +325,7 @@ char *dict_data_read( dictData *h, unsigned long start, unsigned long size,
       lastChunk   = end / h->chunkLength;
       lastOffset  = end - lastChunk * h->chunkLength;
       PRINTF(DBG_UNZIP,
-	     ("start = %lu, end = %lu\n"
+	     ("   start = %lu, end = %lu\n"
 	      "firstChunk = %d, firstOffset = %d,"
 	      " lastChunk = %d, lastOffset = %d\n",
 	      start, end, firstChunk, firstOffset, lastChunk, lastOffset ));
@@ -354,7 +358,12 @@ char *dict_data_read( dictData *h, unsigned long start, unsigned long size,
 	    if (!h->cache[target].inBuffer)
 	       h->cache[target].inBuffer = xmalloc( IN_BUFFER_SIZE );
 	    inBuffer = h->cache[target].inBuffer;
-	    
+
+	    if (h->chunks[i] >= OUT_BUFFER_SIZE ) {
+	       err_internal( __FUNCTION__,
+			     "h->chunks[%d] = %d >= %ld (OUT_BUFFER_SIZE)\n",
+			     i, h->chunks[i], OUT_BUFFER_SIZE );
+	    }
 	    memcpy( outBuffer, h->start + h->offsets[i], h->chunks[i] );
 	    dict_data_filter( outBuffer, &count, OUT_BUFFER_SIZE, preFilter );
 	 

@@ -1,6 +1,6 @@
 /* index.c -- 
  * Created: Wed Oct  9 14:52:23 1996 by faith@cs.unc.edu
- * Revised: Thu Feb 19 21:01:47 1998 by faith@acm.org
+ * Revised: Sun Jul  5 21:27:19 1998 by faith@acm.org
  * Copyright 1996, 1997, 1998 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.17 1998/02/20 02:23:21 faith Exp $
+ * $Id: index.c,v 1.18 1998/07/06 01:35:41 faith Exp $
  * 
  */
 
