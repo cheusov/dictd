@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.52 2002/10/11 18:13:48 cheusov Exp $
+ * $Id: dictd.c,v 1.53 2002/10/14 07:01:33 cheusov Exp $
  * 
  */
 
@@ -290,6 +290,8 @@ static int config_print( const void *datum, void *arg )
       fprintf( s, "   index      %s\n", db->indexFilename );
    if (db->indexsuffixFilename)
       fprintf( s, "   index_suffix      %s\n", db->indexsuffixFilename );
+   if (db->indexwordFilename)
+      fprintf( s, "   index_word      %s\n", db->indexwordFilename );
    if (db->filter)
       fprintf( s, "   filter     %s\n", db->filter ); /* Not implemented. */
    if (db->prefilter)
@@ -366,14 +368,26 @@ static int init_database( const void *datum )
 
    PRINTF (DBG_INIT, (":I: Initializing '%s'\n", db->databaseName));
    PRINTF (DBG_INIT, (":I:   Opening indices\n"));
+
    db->index        = dict_index_open( db->indexFilename, 1, 0, 0 );
+   PRINTF (DBG_INIT, (":I:     .index <ok>\n"));
+
    db->index_suffix = dict_index_open(
        db->indexsuffixFilename,
        0, db->index->flag_utf8, db->index->flag_allchars);
+   db->index_word = dict_index_open(
+       db->indexwordFilename,
+       0, db->index->flag_utf8, db->index->flag_allchars);
 
    if (db->index_suffix){
+      PRINTF (DBG_INIT, (":I:     .indexsuffix <ok>\n"));
       db->index_suffix->flag_utf8     = db->index->flag_utf8;
       db->index_suffix->flag_allchars = db->index->flag_allchars;
+   }
+   if (db->index_word){
+      PRINTF (DBG_INIT, (":I:     .indexword <ok>\n"));
+      db->index_word->flag_utf8     = db->index->flag_utf8;
+      db->index_word->flag_allchars = db->index->flag_allchars;
    }
 
    PRINTF (DBG_INIT, (":I:   Opening data\n"));
@@ -408,6 +422,7 @@ static int close_database (const void *datum)
 
    dict_index_close (db->index);
    dict_index_close (db->index_suffix);
+   dict_index_close (db->index_word);
 
    dict_data_close (db->data);
 
@@ -478,18 +493,25 @@ static void dict_close_databases (dictConfig *c)
    xfree (c);
 }
 
+static int match_mode = 0;
+
 static int dump_def( const void *datum )
 {
    char         *buf;
    const dictWord     *dw = (dictWord *)datum;
    const dictDatabase *db = dw -> database;
 
-   buf = dict_data_obtain( db, dw );
+   if (match_mode){
+      printf (
+	 "%s:\t\"%s\"\n", db -> databaseName, dw -> word );
+   }else{
+      buf = dict_data_obtain( db, dw );
 
-   printf (
-      "From %s [%s]:\n\n%s\n", db -> databaseShort, db -> databaseName, buf );
+      printf (
+	 "From %s [%s]:\n\n%s\n", db -> databaseShort, db -> databaseName, buf );
 
-   xfree( buf );
+      xfree( buf );
+   }
 
    return 0;
 }
@@ -524,7 +546,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.52 2002/10/11 18:13:48 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.53 2002/10/14 07:01:33 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -605,13 +627,14 @@ static void help( void )
                       into memory instead.",
 #endif
       "\n------------------ options for debugging ---------------------------",
-      "-t --test <word>      lookup word",
-      "   --test-file <file>",
-      "   --ftest <file>     lookup all words in file",
+"-t --test <word>                lookup word",
+"   --test-file <file>",
+"   --ftest <file>               lookup all words in file",
 "   --test-strategy <strategy>   search strategy for --test and --ftest.\n\
                                 the default is 'exact'",
 "   --test-db <database>         database name for --test and --ftest.\n\
                                 the default is '*'",
+"   --test-match                 show matched words but the definitions\n",
       0 };
    const char        **p = help_msg;
 
@@ -826,6 +849,7 @@ int main( int argc, char **argv, char **envp )
       { "test-db",          1, 0, 509 },
       { "define-strategy",  1, 0, 510 },
       { "match-strategy",   1, 0, 511 },
+      { "test-match",       0, 0, 512 },
       { 0,                  0, 0, 0  }
    };
 
@@ -897,6 +921,9 @@ int main( int argc, char **argv, char **envp )
       case 511:
 	 match_strategy_arg = optarg;
 	 default_match_strategy = lookup_strategy(optarg);
+	 break;
+      case 512:
+	 match_mode = 1;
 	 break;
       case 'h':
       default:  help(); exit(0);                          break;

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servscan.l,v 1.13 2002/08/05 11:54:03 cheusov Exp $
+ * $Id: servscan.l,v 1.14 2002/10/14 07:01:41 cheusov Exp $
  * 
  */
 
@@ -58,6 +58,7 @@ database                    RETURN(T_DATABASE);
 data                        RETURN(T_DATA);
 index                       RETURN(T_INDEX);
 index_suffix                RETURN(T_INDEX_SUFFIX);
+index_word                  RETURN(T_INDEX_WORD);
 filter                      RETURN(T_FILTER);
 prefilter                   RETURN(T_PREFILTER);
 postfilter                  RETURN(T_POSTFILTER);

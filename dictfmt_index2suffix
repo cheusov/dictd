@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #
-# By Aleksey Cheusov (cheusov@scnsoft.com, vle@gmx.net)
+# By Aleksey Cheusov (vle@gmx.net)
 #
 
 usage (){
@@ -16,6 +16,8 @@ OPTIONS:\n\
 
 LC_ALL=C
 export LC_ALL
+
+arg_locale=C
 
 # Processing arguments
 while [ $# != 0 ]; do
@@ -40,8 +42,10 @@ done
 if echo $arg_locale | egrep -i 'utf-?8' >/dev/null 2>&1; then
 	utf8_mode=1
 	arg_locale=C
-	export arg_locale utf8_mode
+	export utf8_mode
 fi
+
+export arg_locale
 
 #echo $arg_locale
 #echo $utf8_mode

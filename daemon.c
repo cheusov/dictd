@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.40 2002/10/14 06:47:55 cheusov Exp $
+ * $Id: daemon.c,v 1.41 2002/10/14 07:01:31 cheusov Exp $
  * 
  */
 
@@ -638,7 +638,7 @@ static int daemon_count_matches( lst_List list )
 
    LST_ITERATE(list,p,dw) {
       if (prevdb == dw->database && prevword && !strcmp(prevword,dw->word))
-	  continue;
+	 continue;
 
       prevword = dw->word;
       prevdb   = dw->database;

@@ -187,6 +187,7 @@ typedef struct dictDatabase {
    const char *dataFilename;
    const char *indexFilename;
    const char *indexsuffixFilename;
+   const char *indexwordFilename;
    const char *filter;
    const char *prefilter;
    const char *postfilter;
@@ -196,6 +197,7 @@ typedef struct dictDatabase {
    dictData   *data;
    dictIndex  *index;
    dictIndex  *index_suffix;
+   dictIndex  *index_word;
 } dictDatabase;
 
 #define DICT_DENY     0
@@ -221,7 +223,7 @@ typedef struct dictConfig {
 typedef struct dictWord {
    const dictDatabase  *database;
 
-   const char    *word;
+   char    *word;
 
    unsigned long start;
    unsigned long end;

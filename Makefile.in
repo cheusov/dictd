@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.55 2002/09/27 16:57:44 cheusov Exp $
+# $Id: Makefile.in,v 1.56 2002/10/14 07:01:29 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -117,13 +117,15 @@ $(SRCHOBJS):  $(HEADERS)
 $(NETOBJS):  $(HEADERS)
 $(CLIOBJS):  $(HEADERS)
 
+dictdplugin_exit.so : libdictdplugin.a
+
 lib%.a : %.o
 	$(AR) rc $@ $^
 
 %.so: %.c
-	$(CC) $(LDFLAGS) -shared $^ libdictdplugin.a  -o $@
+	$(CC) $(LDFLAGS) -shared $^ -o $@ # libdictdplugin.a
 %.so: %.cpp
-	$(CXX) $(LDFLAGS) -shared $^ libdictdplugin.a  -o $@
+	$(CXX) $(LDFLAGS) -shared $^ -o $@ # libdictdplugin.a
 
 .PHONY: plugins
 plugins: $(PLUGINS)
@@ -185,11 +187,12 @@ install.dictzip: dictzip
 	$(INSTALL_PROGRAM) dictzip $(bindir); \
 	$(INSTALL_DATA) dictzip.1 $(man1_prefix)/dictzip.1
 
-install.dictfmt: dictfmt dictfmt_index2suffix dictfmt_plugin
+install.dictfmt: dictfmt dictfmt_index2word dictfmt_index2suffix dictfmt_plugin
 	if test ! -d $(bindir); then $(INSTALL) -d 755 $(bindir); fi; \
 	if test ! -d $(man1_prefix); then $(INSTALL) -d 755 $(man1_prefix); fi; \
 	$(INSTALL_PROGRAM) dictfmt $(bindir); \
 	$(INSTALL_SCRIPT) dictfmt_index2suffix $(bindir); \
+	$(INSTALL_SCRIPT) dictfmt_index2word $(bindir); \
 	$(INSTALL_DATA) dictfmt.1 $(man1_prefix)/dictfmt.1; \
 	test _$(USE_PLUGIN) = _1 && \
 	    $(INSTALL_SCRIPT) dictfmt_plugin $(bindir) || true
@@ -238,7 +241,8 @@ uninstall.dictd:
 
 uninstall.dictfmt:
 	rm -f $(bindir)/dictfmt $(man1_prefix)/dictfmt.1 \
-	$(bindir)/dictfmt_index2suffix; \
+	$(bindir)/dictfmt_index2suffix \
+	$(bindir)/dictfmt_index2word; \
 	test _$(USE_PLUGIN) = _1 && rm -f $(bindir)/dictfmt_plugin || true
 
 uninstall.includes:

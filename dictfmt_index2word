@@ -1,0 +1,114 @@
+#!/bin/sh
+
+#
+# By Aleksey Cheusov (vle@gmx.net)
+#
+
+usage (){
+   printf "\
+Converts .index file from DICTD database to the index file .word\n\
+usage: dictfmt_index2word [OPTIONS] [files...]\n\
+OPTIONS:\n\
+  --help    display this screen\n\
+  --locale  specify locale\n\
+"
+}
+
+LC_ALL=C
+export LC_ALL
+
+arg_locale=C
+
+# Processing arguments
+while [ $# != 0 ]; do
+	case $1 in
+	--help)
+		usage
+		exit 0;;
+	--locale)
+		arg_locale=$2
+		shift;;
+	--locale=*)
+		arg_locale=`echo $1 | cut -d = -f 2`;;
+	-*)
+		echo "unknown argument $1" 1>&2
+		exit 3;;
+	*)
+		break;;
+	esac
+	shift
+done
+
+if echo $arg_locale | egrep -i 'utf-?8' >/dev/null 2>&1; then
+	utf8_mode=1
+	arg_locale=C
+	export utf8_mode
+fi
+
+export arg_locale
+
+#echo $arg_locale
+#echo $utf8_mode
+
+awk -v "utf8_mode=$utf8_mode" '
+BEGIN {
+	FS = OFS = "\t"
+	offset = 0
+	b64_list="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+}
+{
+	size = length($0)
+}
+function b64_encode (value,        ret){
+	ret = ""
+	ret = ret substr(b64_list, 1 + int(value / 0x40000000) % 0x40, 1)
+	ret = ret substr(b64_list, 1 + int(value / 0x1000000) % 0x40, 1)
+	ret = ret substr(b64_list, 1 + int(value / 0x40000) % 0x40, 1)
+	ret = ret substr(b64_list, 1 + int(value / 0x1000) % 0x40, 1)
+	ret = ret substr(b64_list, 1 + int(value / 0x40) % 0x40, 1)
+	ret = ret substr(b64_list, 1 + value % 0x40, 1)
+	sub(/^A+/, "", ret)
+
+	if (ret != "")
+		return ret
+	else
+		return "A"
+}
+
+3 != NF {
+	exit 2
+}
+{
+#	gsub(/[[:punct:]]/, "", $1)
+	count = split($1, words, /[[:space:][:punct:]]+/)
+	for (i = 1; i <= count; ++i){
+		for (j = i; j <= count; ++j){
+			if (i == 1 && j == count)
+				continue
+
+			subword = words [i]
+			for (k = i + 1; k <= j; ++k){
+				subword = subword " " words [k]
+			}
+
+			gsub(/  +/, " ", subword)
+			sub(/^ /, "", subword)
+			sub(/ $/, "", subword)
+			if (subword != ""){
+#				printf "%s\t%s\t%s\n", subword, b64_encode(offset + match($0, /\t/) - 1), "A"
+				printf "%s\t%s\t%s\n", subword, b64_encode(offset), "A"
+			}
+		}
+	}
+}
+{
+	# +1 for \n
+	offset += size + 1
+}' $@ |
+if test "_$utf8_mode" = "_1"; then
+	sort
+else
+	LC_ALL=$arg_locale
+	export LC_ALL
+	sort -df
+fi | uniq
