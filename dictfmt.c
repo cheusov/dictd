@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.51 2004/05/24 14:20:03 cheusov Exp $
+ * $Id: dictfmt.c,v 1.52 2004/10/12 10:55:41 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -90,8 +90,10 @@ static int  fmt_ignore_headword = 0;
 static int ignore_hw_url       = 0;
 static int ignore_hw_shortname = 0;
 static int ignore_hw_info      = 0;
+static int ignore_hw_def_strat = 0;
 
-static const char *locale         = "C";
+static const char *locale      = "C";
+static const char *default_strategy = NULL;
 
 static str_Pool alphabet_pool = NULL;
 
@@ -494,6 +496,20 @@ static void fmt_newheadword( const char *word )
 
    if (
       word &&
+      (!strcmp (word, "00-database-default-strategy") ||
+       !strcmp (word, "00databasedefaultstrategy")))
+   {
+      if (ignore_hw_def_strat){
+	 fmt_ignore_headword = 1;
+	 return;
+      }
+
+      /* we will ignore following occurences of 00-database-default-strategy*/
+      ignore_hw_def_strat = 1;
+   }
+
+   if (
+      word &&
       (!strcmp (word, "00-database-url") ||
        !strcmp (word, "00databaseurl")))
    {
@@ -691,6 +707,9 @@ static void help( FILE *out_stream )
 "--columns            Set the number of columns for wrapping text\n\
                      before writing it to .dict file.\n\
                      If it is zero, wrapping is off.",
+"--default-strategy  Sets the default search strategy for the database.\n\
+                    Special entry 00-database-default-strategy is created\n\
+                    for this purpose.",
       0 };
    const char        **p = help_msg;
 
@@ -732,10 +751,20 @@ static const char string_unknown [] = "unknown";
 static const char *url = string_unknown;
 static const char *sname = string_unknown;
 
+static void fmt_headword_for_def_strat (void)
+{
+   if (!default_strategy)
+      return;
+
+   fmt_newheadword ("00-database-default-strategy");
+   fmt_string (default_strategy);
+   fmt_newline ();
+}
+
 static void fmt_headword_for_url (void)
 {
-   fmt_newheadword("00-database-url");
-   fmt_string( url );
+   fmt_newheadword ("00-database-url");
+   fmt_string (url);
    fmt_newline ();
 
    ignore_hw_url = 1;
@@ -860,6 +889,7 @@ static void fmt_predefined_headwords_before ()
    fmt_headword_for_utf8 ();
    fmt_headword_for_8bit ();
    fmt_headword_for_allchars ();
+   fmt_headword_for_def_strat ();
 
    if (url != string_unknown){
       /*
@@ -918,6 +948,7 @@ int main( int argc, char **argv )
       { "silent",               0, 0, 'q' },
       { "version",              0, 0, 'V' },
       { "license",              0, 0, 'L' },
+      { "default-strategy",     1, 0, 512 },
    };
 
    init (argv[0]);
@@ -974,7 +1005,12 @@ int main( int argc, char **argv )
 	    fmt_maxpos = INT_MAX;
 	 }
 	 break;
-      case 511: break_headwords = 1;          break;
+      case 511:
+	 break_headwords = 1;
+	 break;
+      case 512:
+	 default_strategy = str_copy (optarg);
+	 break;
       case 't':
 	 without_info = 1;
 	 without_hw   = 1;

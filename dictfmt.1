@@ -255,12 +255,24 @@ DB info entry will not be created.
 This may be useful if 00-database-info headword
 is expected from stdin (dictunformat outputs it).
 .TP
-.BI \--columns " columns"
+.BI \-\-columns " columns"
 By default
 .BI dictfmt
 wraps strings read from stdin to 72 columns.
 This option changes this default. If it is set to zero or negative value,
 wrapping is off.
+.TP
+.BI \-\-default\-strategy " strategy"
+Sets the default search strategy for the database.
+It will be used instead of strategy '.'.
+Special entry
+.I 00\-database\-default\-strategy
+is created
+for this purpose.
+This option may be useful, for example,
+for dictionaries containing mainly phrases but the single words.
+In any case, use this option
+if you are absolutely sure what you are doing.
 .SH CREDITS
 .B dictfmt
 was written by Rik Faith (faith@cs.unc.edu) as part of the dict-misc
