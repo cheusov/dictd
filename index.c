@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.73 2003/08/08 17:50:52 cheusov Exp $
+ * $Id: index.c,v 1.74 2003/09/19 18:18:53 cheusov Exp $
  * 
  */
 
@@ -545,8 +545,8 @@ static dictWord *dict_word_create(
 		    "Too few tabs in index entry \"%20.20s\"\n", entry );
 
    buf = alloca( newline + 1 );
-   strlcpy( buf, entry, newline + 1);
-   buf[firstTab] = buf[secondTab] = '\0';
+   memcpy (buf, entry, newline);
+   buf[firstTab] = buf[secondTab] = buf [newline] = '\0';
 
    dw->start    = b64_decode( buf + firstTab + 1 );
    dw->end      = b64_decode( buf + secondTab + 1 );
