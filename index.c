@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.27 2002/08/05 11:54:03 cheusov Exp $
+ * $Id: index.c,v 1.28 2002/08/05 11:56:51 cheusov Exp $
  * 
  */
 
@@ -131,7 +131,7 @@ static void dict_table_init(void)
     unsigned char *p[UCHAR_MAX + 1];
 
     for (i = 0; i <= UCHAR_MAX; i++) {
-	if (isspace(i) || isalnum(i) || (utf8_mode && i >= 0xC0)){
+	if (isspace(i) || isalnum(i) || (utf8_mode && i >= 0x80)){
 	    isspacealnumtab [i] = 1;
 	}
     }
@@ -1055,7 +1055,7 @@ int dict_search_database( lst_List l,
 			  dictDatabase *database,
 			  int strategy )
 {
-   char       *buf = alloca( strlen( word ) + 2 );/* +1 for $ */
+   char       *buf = alloca( strlen( word ) + 1 );
 
    if (!l)
       err_internal( __FUNCTION__, "List NULL\n" );
@@ -1107,12 +1107,7 @@ int dict_search_database( lst_List l,
 	 PRINTF(DBG_SEARCH, ("'%s'\n", buf));
 	 return dict_search_prefix ( l, buf, database, database->index_suffix);
       }else{
-	 if (utf8_mode){
-	    strcat (buf, "$");
-	    return dict_search_re( l, buf, database, database->index );
-	 }else{
-	     return dict_search_suffix( l, buf, database, database->index );
-	 }
+	 return dict_search_suffix( l, buf, database, database->index );
       }
    case DICT_RE:
       return dict_search_re( l, word, database, database->index );
