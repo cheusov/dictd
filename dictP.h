@@ -1,7 +1,7 @@
 /* dictP.h -- 
  * Created: Fri Mar  7 10:54:05 1997 by faith@cs.unc.edu
- * Revised: Mon Mar 10 10:50:04 1997 by faith@cs.unc.edu
- * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
+ * Revised: Wed Dec 22 09:20:48 1999 by faith@acm.org
+ * Copyright 1997, 1999 Rickard E. Faith (faith@acm.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -18,7 +18,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.3 1997/03/10 21:46:55 faith Exp $
+ * $Id: dictP.h,v 1.4 1999/12/22 14:21:28 faith Exp $
  * 
  */
 
@@ -37,6 +37,10 @@
 #ifdef __GNUC__
 # define alloca __builtin_alloca
 #else
+# if defined(__svr4__) && defined(__sgi__) && !HAVE_ALLOCA_H /* IRIX */
+#  undef HAVE_ALLOCA_H
+#  define HAVE_ALLOCA_H 1
+# endif
 # if HAVE_ALLOCA_H
 #  include <alloca.h>
 # else
@@ -44,7 +48,9 @@
  #pragma alloca
 #  else
 #   ifndef alloca /* predefined by HP cc +Olibcalls */
+#   if !defined(__svr4__) && !defined(__sgi__)	/* not on IRIX */
 char *alloca ();
+#   endif
 #   endif
 #  endif
 # endif

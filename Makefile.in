@@ -1,6 +1,6 @@
 # Makefile.in -- Makefile for dict
 # Created: Wed Apr 24 14:14:09 1996 by faith@cs.unc.edu
-# Revised: Wed Dec 22 08:04:46 1999 by faith@acm.org
+# Revised: Wed Dec 22 09:02:43 1999 by faith@acm.org
 # Copyright 1996, 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.35 1999/12/22 13:22:10 faith Exp $
+# $Id: Makefile.in,v 1.36 1999/12/22 14:21:28 faith Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -54,7 +54,8 @@ LEXLIB= 	@LEXLIB@
 YACC=		@YACC@
 
 CFLAGS=		@CFLAGS@ -DDICT_VERSION=\"$(DICT_VERSION)\" \
-		-DDICT_CONFIG_PATH=\"$(conf)\" -DDICTD_PID_FILE=\"$(pid)\"
+		-DDICT_CONFIG_PATH=\"$(conf)\"
+SCFLAGS=        @SCFLAGS@
 LDFLAGS=        @LDFLAGS@
 XTRACFLAGS=     @WCFLAGS@ @XTRACFLAGS@ @DEFS@ @CPPFLAGS@ -I. -Iregex
 XTRALDFLAGS=    @WLDFLAGS@ @XTRALDFLAGS@
@@ -113,7 +114,7 @@ servscan.c: servscan.l
 	$(LEX) $(LFLAGS) -o$@ $<
 
 servscan.o: servscan.c servparse.o servparse.h $(HEADERS)
-	$(CC) -c $(XTRACFLAGS) $(CFLAGS) -Wno-unused $<
+	$(CC) -c $(XTRACFLAGS) $(CFLAGS) $(SCFLAGS) $<
 
 servparse.c: servparse.y
 	$(YACC) -tdv $<
@@ -122,13 +123,13 @@ servparse.c: servparse.y
 	-rm -f y.tab.h y.tab.c
 
 servparse.o: servparse.c $(HEADERS)
-	$(CC) -c $(XTRACFLAGS) $(CFLAGS) -Wno-implicit $<
+	$(CC) -c $(XTRACFLAGS) $(CFLAGS) $(SCFLAGS) $<
 
 clientscan.c: clientscan.l
 	$(LEX) $(LFLAGS) -o$@ $<
 
 clientscan.o: clientscan.c clientparse.o clientparse.h $(HEADERS)
-	$(CC) -c $(XTRACFLAGS) $(CFLAGS) -Wno-unused $<
+	$(CC) -c $(XTRACFLAGS) $(CFLAGS) $(SCFLAGS) $<
 
 clientparse.c: clientparse.y
 	$(YACC) -tdv $<
@@ -137,7 +138,7 @@ clientparse.c: clientparse.y
 	-rm -f y.tab.h y.tab.c
 
 clientparse.o: clientparse.c $(HEADERS)
-	$(CC) -c $(XTRACFLAGS) $(CFLAGS) -Wno-implicit $<
+	$(CC) -c $(XTRACFLAGS) $(CFLAGS) $(SCFLAGS) $<
 
 install.dict: dict
 	install dict $(bindir)

@@ -1,10 +1,10 @@
 /* dict.c -- 
  * Created: Fri Mar 28 19:16:29 1997 by faith@cs.unc.edu
- * Revised: Wed Dec 22 05:49:19 1999 by faith@acm.org
+ * Revised: Wed Dec 22 09:10:50 1999 by faith@acm.org
  * Copyright 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dict.c,v 1.19 1999/12/22 11:49:56 faith Exp $
+ * $Id: dict.c,v 1.20 1999/12/22 14:21:28 faith Exp $
  * 
  */
 
@@ -933,7 +933,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.19 1999/12/22 11:49:56 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.20 1999/12/22 14:21:28 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -1115,7 +1115,6 @@ int main( int argc, char **argv )
       exit(1);
    }
 
-   if (client_pipesize < 0)       client_pipesize = 0;
    if (client_pipesize > 1000000) client_pipesize = 1000000;
    
    if (dbg_test(DBG_PARSE))     prs_set_debug(1);
