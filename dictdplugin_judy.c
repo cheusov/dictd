@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.15 2003/09/01 15:11:58 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.16 2003/10/13 23:38:18 cheusov Exp $
  * 
  */
 
@@ -25,7 +25,6 @@
 #include "dictdplugin.h"
 #include "data.h"
 #include "str.h"
-#include "include_regex.h"
 
 #include <maa.h>
 #include <Judy.h>
@@ -43,10 +42,6 @@
 
 #if WCTYPE_H
 #include <ctype.h>
-#endif
-
-#if HAVE_WCTYPE_H
-#include <wctype.h>
 #endif
 
 #define BUFSIZE 4096
@@ -81,27 +76,15 @@ typedef struct global_data_s {
    void *m_heap;
    void *m_heap2;
 
-//   char * m_res;
-//   int m_res_size;
-
    int m_mres_count;
    const char ** m_mres;
    int *m_mres_sizes;
 
-//   char *m_result_buf;
-
    int *m_offs_size_array;
-//   int m_offs_size_array_size
    dictData *m_data;
-//   int m_errno;
 
    int m_strat_exact;
    int m_strat_prefix;
-   int m_strat_substring;
-   int m_strat_suffix;
-   int m_strat_re;
-   int m_strat_regexp;
-   int m_strat_soundex;
    int m_strat_lev;
    int m_strat_word;
 
@@ -152,11 +135,6 @@ static global_data * global_data_create (void)
 
    d -> m_strat_exact     = -1;
    d -> m_strat_prefix    = -1;
-   d -> m_strat_substring = -1;
-   d -> m_strat_suffix    = -1;
-   d -> m_strat_re        = -1;
-   d -> m_strat_regexp    = -1;
-   d -> m_strat_soundex   = -1;
    d -> m_strat_lev       = -1;
    d -> m_strat_word      = -1;
 
@@ -170,7 +148,6 @@ static void global_data_destroy (global_data *d)
    if (d -> m_offs_size_array)
       xfree (d -> m_offs_size_array);
 
-//   fprintf (stderr, "destroying...\n");
    JudySLFreeArray (&d -> m_judy_array, 0);
    heap_destroy (&d -> m_heap);
    heap_destroy (&d -> m_heap2);
@@ -244,16 +221,6 @@ static void set_strat (
       dict_data -> m_strat_exact = strat_data -> number;
    }else if (!strcmp (strat_data -> name, "prefix")){
       dict_data -> m_strat_prefix = strat_data -> number;
-   }else if (!strcmp (strat_data -> name, "suffix")){
-      dict_data -> m_strat_suffix = strat_data -> number;
-   }else if (!strcmp (strat_data -> name, "substring")){
-      dict_data -> m_strat_substring = strat_data -> number;
-   }else if (!strcmp (strat_data -> name, "re")){
-      dict_data -> m_strat_re = strat_data -> number;
-   }else if (!strcmp (strat_data -> name, "regexp")){
-      dict_data -> m_strat_regexp = strat_data -> number;
-   }else if (!strcmp (strat_data -> name, "soundex")){
-      dict_data -> m_strat_soundex = strat_data -> number;
    }else if (!strcmp (strat_data -> name, "lev")){
       dict_data -> m_strat_lev = strat_data -> number;
    }else if (!strcmp (strat_data -> name, "word")){
@@ -283,9 +250,6 @@ static int process_line (char *s, void *data)
 
    global_data *dict_data = (global_data *) data;
 
-//   fprintf (stderr, "line_to_be_processed='%s'\n", s);
-//   fprintf (stderr, "err_msg='%s'\n", dict_data -> m_err_msg);
-
    value = strchr (s, '=');
    if (!value){
       snprintf (
@@ -294,11 +258,8 @@ static int process_line (char *s, void *data)
 	 "invalid configure line: '%s'",
 	 s);
 
-//      fprintf (stderr, "value='%s'\n", value);
       return 1;
    }
-
-//   fprintf (stderr, "line='%s'\n", (char *) s);
 
    *value++ = 0;
 
@@ -338,16 +299,6 @@ static int process_line (char *s, void *data)
 	 dict_data -> m_strat_exact = -1;
       }else if (!strcmp (value, "prefix")){
 	 dict_data -> m_strat_prefix = -1;
-      }else if (!strcmp (value, "substring")){
-	 dict_data -> m_strat_substring = -1;
-      }else if (!strcmp (value, "suffix")){
-	 dict_data -> m_strat_suffix = -1;
-      }else if (!strcmp (value, "re")){
-	 dict_data -> m_strat_re = -1;
-      }else if (!strcmp (value, "regexp")){
-	 dict_data -> m_strat_regexp = -1;
-      }else if (!strcmp (value, "soundex")){
-	 dict_data -> m_strat_soundex = -1;
       }else if (!strcmp (value, "lev")){
 	 dict_data -> m_strat_lev = -1;
       }else if (!strcmp (value, "word")){
@@ -386,28 +337,18 @@ static void read_lines (
    char *p     = NULL;
    int comment = 0;
    int i       = 0;
-//   global_data *dict_data = (global_data *) data;
-
-//   fprintf (stderr, "buffer='%s'\n", buf);
 
    for (i=0; i <= len; ++i){
-//      fprintf (stderr, "curr_char='%c'\n", buf [i]);
       switch (buf [i]){
       case '\n':
       case '\0':
 	 buf [i] = 0;
-//	 fprintf (stderr, "curr_line='%s'\n", buf);
 
 	 if (p){
 	    remove_spaces (p);
 	    if (*p){
 	       if (fun (p, data))
 		  return;
-//
-//	       if (dict_data -> m_err_msg [0]){
-//		  fprintf (stderr, "WOW!!!\n");
-//		  return;
-//	       }
 	    }
 	 }
 
@@ -456,9 +397,6 @@ static BOOL split_index (
    }
    *tab = 0;
    def_size_s = tab + 1;
-
-//   fprintf (stderr, "offs=%s\n", def_offset_s);
-//   fprintf (stderr, "size=%s\n", def_size_s);
 
    *def_offset = b64_decode (def_offset_s);
    *def_size   = b64_decode (def_size_s);
@@ -515,8 +453,6 @@ static void debug_print (global_data *dict_data)
 }
 */
 
-//static TWord_t count2offs (global_data *dict_data);
-
 static Word_t count2offs (global_data *dict_data)
 {
    char word [BUFSIZE] = "";
@@ -555,7 +491,6 @@ static void read_index_file (
 
    fd = fopen (dict_data -> m_conf_index_fn, "r");
    if (!fd){
-//      fprintf (stderr, "oops :((\n");
       plugin_error (dict_data, strerror(errno));
       return;
    }
@@ -583,12 +518,11 @@ static void read_index_file (
       if (len > dict_data -> m_max_hw_len)
 	 dict_data -> m_max_hw_len = len;
 
-//      fprintf (stderr, "%s %li %li\n", buf, def_offset, def_size);
       value = JudySLIns (&dict_data -> m_judy_array, buf, 0);
       assert (value != (PPvoid_t) 0 && value != (PPvoid_t) -1);
 
       (*fun) (dict_data, value, buf, def_offset, def_size);
-//      fprintf (stderr, "value=%li\n", *(PWord_t)value);
+
       ++word_count;
    }
 
@@ -598,7 +532,6 @@ static void read_index_file (
       return;
    }
 
-//   fprintf (stderr, "%i\n", word_count);
    fclose (fd);
 }
 
@@ -610,11 +543,6 @@ static void it_fill_array (
    unsigned long size)
 {
    Word_t val = * (PWord_t) value;
-
-//   fprintf (
-//      stderr,
-//      "offs_zzz=%i\n",
-//      dict_data -> m_offs_size_array [val + val + 0]);
 
    while (dict_data -> m_offs_size_array [val + val + 0] != -1){
       ++val;
@@ -653,41 +581,38 @@ static void init_index_file (global_data *dict_data)
       return;
    }
 
-//   debug_print (dict_data);
+/*   debug_print (dict_data); */
 
    sum = count2offs (dict_data);
    array_size = 2 * (sum/* + 1*/) * sizeof (int);
 
    assert (sizeof (word) > dict_data -> m_max_hw_len);
 
-//   dict_data -> m_offs_size_array_size = sum;
    dict_data -> m_offs_size_array = xmalloc (array_size);
    memset (dict_data -> m_offs_size_array, -1, array_size);
-//   dict_data -> m_offs_size_array [sum + sum];
 
    read_index_file (dict_data, it_fill_array);
    if (dict_data -> m_err_msg [0])
       return;
 
-//   fputs ("ura1\n", stderr);
    JUDY_ITERATE_ALL (dict_data -> m_judy_array, value, word){
       val = *(PWord_t) value;
-//      fprintf (stderr, "%s --> %li\n", word, val);
       *value = dict_data -> m_offs_size_array + val * 2;
-//      fprintf (stderr, "%s --> %p\n", word, *value);
-//      fprintf (stderr, "%s --> %li\n", word, *(PWord_t)value - (long)dict_data -> m_offs_size_array);
+/*
+	fprintf (stderr, "%s --> %p\n", word, *value);
+	fprintf (stderr, "%s --> %li\n", word, *(PWord_t)value - (long)dict_data -> m_offs_size_array);
+*/
    }
-//   return;
-
-//   fputs ("ura2\n", stderr);
-//   JUDY_ITERATE_ALL (dict_data -> m_judy_array, value, word){
-//      fprintf (
-//	 stderr,
-//	 "%s --> %i %i\n",
-//	 word,
-//	 ((int *) *value) [0],
-//	 ((int *) *value) [1]);
-//   }
+/*
+   JUDY_ITERATE_ALL (dict_data -> m_judy_array, value, word){
+      fprintf (
+	 stderr,
+	 "%s --> %i %i\n",
+	 word,
+	 ((int *) *value) [0],
+	 ((int *) *value) [1]);
+   }
+*/
 }
 
 static void init_data_file (global_data *dict_data)
@@ -695,7 +620,6 @@ static void init_data_file (global_data *dict_data)
    assert (!dict_data -> m_data);
 
    dict_data -> m_data = dict_data_open (dict_data -> m_conf_data_fn, 0);
-//   fprintf (stderr, "data=%p\n", dict_data -> m_data);
 }
 
 int dictdb_open (
@@ -708,7 +632,6 @@ int dictdb_open (
    int err;
 
    global_data *dict_data = global_data_create ();
-//   fprintf (stderr, "err_msg_init='%s'\n", dict_data -> m_err_msg);
 
    err = heap_create (&dict_data -> m_heap, NULL);
    if (err){
@@ -726,8 +649,6 @@ int dictdb_open (
       *version = 0;
 
    *data = (void *) dict_data;
-
-//   int max_strat_num = -1;
 
    for (i=0; i < init_data_size; ++i){
       switch (init_data [i].id){
@@ -749,7 +670,7 @@ int dictdb_open (
 	    buf = xstrdup(init_data [i].data);
 
 	    read_lines (buf, len, dict_data, process_line);
-//	    fprintf (stderr, "err='%s'\n", dict_data -> m_err_msg);
+
 	    if (dict_data -> m_err_msg [0]){
 	       dictdb_free (dict_data);
 	       return 4;
@@ -787,13 +708,12 @@ int dictdb_open (
    if (dict_data -> m_err_msg [0])
       return 7;
 
-//   fprintf (stderr, "max_word_len = %i\n", dict_data -> m_max_hw_len);
    if (dict_data -> m_max_hw_len > BUFSIZE - 100){
       plugin_error (dict_data, "Index file contains too long word");
       return 8;
    }
 
-//   debug_print (dict_data);
+/*   debug_print (dict_data); */
    return 0;
 }
 
@@ -819,8 +739,6 @@ int dictdb_free (void * data)
    int i;
    global_data *dict_data = (global_data *) data;
 
-//   fprintf (stderr, "dictdb_free\n");
-
    if (dict_data){
       free_minus1_array (dict_data -> m_mres_sizes);
       dict_data -> m_mres_sizes = NULL;
@@ -832,15 +750,12 @@ int dictdb_free (void * data)
 
       heap_free (dict_data -> m_heap2, dict_data -> m_mres);
       dict_data -> m_mres = NULL;
-
-//      xfree (dict_data -> m_data);
-//      dict_data -> m_data = NULL;
    }
 
    return 0;
 }
 
-/* set dict_data -> m_mres_count  and dict_data -> m_mres */
+/* set dict_data->m_mres_count and dict_data->m_mres */
 static int match_exact (
    global_data *dict_data,
    const char *word)
@@ -854,7 +769,6 @@ static int match_exact (
       dict_data -> m_judy_array, word, 0);
 
    if (!result_curr){
-//	 fprintf (stderr, "EHHHHH!!!!\n");
       return 0;
    }
 
@@ -865,35 +779,6 @@ static int match_exact (
       heap_strdup (dict_data -> m_heap, word);
 
    dict_data -> m_mres_count = 1;
-
-   return 0;
-}
-
-static int match_substring (
-   global_data *dict_data,
-   const char *word)
-{
-   PPvoid_t value;
-
-   char curr_word [BUFSIZE];
-
-   curr_word [0] = 0;
-
-   JUDY_ITERATE_ALL (dict_data -> m_judy_array, value, curr_word){
-      if (!strstr (curr_word, word))
-	 continue;
-
-      ++dict_data -> m_mres_count;
-
-      dict_data -> m_mres = (const char **)
-	 heap_realloc (
-	    dict_data -> m_heap2,
-	    dict_data -> m_mres,
-	    dict_data -> m_mres_count * sizeof (dict_data -> m_mres [0]));
-
-      dict_data -> m_mres [dict_data -> m_mres_count - 1] =
-	 heap_strdup (dict_data -> m_heap, curr_word);
-   }
 
    return 0;
 }
@@ -926,7 +811,7 @@ static int match_prefix (
       curr_word [len + 7] = 0;
 
       value_last = JudySLPrev (dict_data -> m_judy_array, curr_word, 0);
-//      fprintf (stderr, "last=%s %p\n", curr_word, value_last);
+/*      fprintf (stderr, "last=%s %p\n", curr_word, value_last); */
       curr_word [len + 0] = 0;
    }else{
       value_last = NULL;
@@ -937,7 +822,7 @@ static int match_prefix (
    if (!value)
       value = JudySLNext (dict_data -> m_judy_array, curr_word, 0);
 
-//   fprintf (stderr, "first=%s %p\n", curr_word, value);
+/*   fprintf (stderr, "first=%s %p\n", curr_word, value);*/
 
    for (
       ;
@@ -948,7 +833,7 @@ static int match_prefix (
 	 cmp_res = strncmp (word, curr_word, len);
 
 	 if (cmp_res){
-//	    fprintf (stderr, "%s != %s\n", word, curr_word);
+/*	    fprintf (stderr, "%s != %s\n", word, curr_word); */
 	    break;
 	 }
       }
@@ -967,78 +852,6 @@ static int match_prefix (
       if (value == value_last){
 	 break;
       }
-   }
-
-   return 0;
-}
-
-static int match_suffix (
-   global_data *dict_data,
-   const char *word)
-{
-   PPvoid_t value;
-
-   char curr_word [BUFSIZE];
-
-   size_t len = strlen (word);
-   size_t curr_len;
-
-   curr_word [0] = 0;
-
-   JUDY_ITERATE_ALL (dict_data -> m_judy_array, value, curr_word){
-      curr_len = strlen (curr_word);
-      if (curr_len < len)
-	 continue;
-
-      if (strncmp (word, curr_word + curr_len - len, len))
-	 continue;
-
-      ++dict_data -> m_mres_count;
-
-      dict_data -> m_mres = (const char **)
-	 heap_realloc (
-	    dict_data -> m_heap2,
-	    dict_data -> m_mres,
-	    dict_data -> m_mres_count * sizeof (dict_data -> m_mres [0]));
-
-      dict_data -> m_mres [dict_data -> m_mres_count - 1] =
-	 heap_strdup (dict_data -> m_heap, curr_word);
-   }
-
-   return 0;
-}
-
-static int match_soundex (
-   global_data *dict_data,
-   const char *word)
-{
-   PPvoid_t value;
-
-   char curr_word [BUFSIZE];
-
-   char soundex  [5];
-   char soundex2 [5];
-
-   curr_word [0] = 0;
-
-   txt_soundex2 (word, soundex);
-
-   JUDY_ITERATE_ALL (dict_data -> m_judy_array, value, curr_word){
-      txt_soundex2 (curr_word, soundex2);
-
-      if (strcmp (soundex, soundex2))
-	 continue;
-
-      ++dict_data -> m_mres_count;
-
-      dict_data -> m_mres = (const char **)
-	 heap_realloc (
-	    dict_data -> m_heap2,
-	    dict_data -> m_mres,
-	    dict_data -> m_mres_count * sizeof (dict_data -> m_mres [0]));
-
-      dict_data -> m_mres [dict_data -> m_mres_count - 1] =
-	 heap_strdup (dict_data -> m_heap, curr_word);
    }
 
    return 0;
@@ -1077,8 +890,6 @@ static int match_lev (
 
    static char const c [] = "qwertyuiopasdfghjklzxcvbnm0123456789"; /* fix this*/
    static int const charcount = sizeof (c) - 1;
-
-//   strlcpy (curr_word, word, sizeof (curr_word));
 
    len = strlen (word);
    if (len >= BUFSIZE)
@@ -1149,98 +960,11 @@ static int match_lev (
    return 0;
 }
 
-static int match_regexp (
-   global_data *dict_data,
-   const char *word,
-
-   int regex_flags)
-{
-   PPvoid_t value;
-   regex_t  re;
-   int      err;
-
-   char curr_word [BUFSIZE];
-
-   if ((err = regcomp (&re, word, REG_ICASE | REG_NOSUB | regex_flags))) {
-      regerror (err, &re, dict_data -> m_err_msg, sizeof (dict_data -> m_err_msg));
-      regfree (&re);
-      return 0;
-   }
-
-   curr_word [0] = 0;
-
-   JUDY_ITERATE_ALL (dict_data -> m_judy_array, value, curr_word){
-      if (regexec(&re, curr_word, 0, NULL, 0))
-	 continue;
-
-      ++dict_data -> m_mres_count;
-
-      dict_data -> m_mres = (const char **)
-	 heap_realloc (
-	    dict_data -> m_heap2,
-	    dict_data -> m_mres,
-	    dict_data -> m_mres_count * sizeof (dict_data -> m_mres [0]));
-
-      dict_data -> m_mres [dict_data -> m_mres_count - 1] =
-	 heap_strdup (dict_data -> m_heap, curr_word);
-   }
-
-   regfree (&re);
-
-   return 0;
-}
-
 static int match_word (
    global_data *dict_data,
    const char *word)
 {
-   static char const prefix_re [] = "(^|[[:space:][:punct:]])"; /* fix this */
-   static char const suffix_re [] = "($|[[:space:][:punct:]])";
-
-   char buf [BUFSIZE];
-   char *p;
-
-   if (sizeof (prefix_re) + sizeof (suffix_re) + 3 * strlen (word) > BUFSIZE){
-      /* too long word */
-      return 0;
-   }
-
-   strcpy (buf, prefix_re);
-
-   p = buf + strlen (buf);
-   for (; *word; ++word){
-      switch (*word){
-      case '?':
-      case '(':
-      case ')':
-      case '|':
-      case '[':
-      case ']':
-      case '+':
-      case '*':
-      case '.':
-      case '^':
-      case '$':
-	 *p++ = '[';
-	 *p++ = *word;
-	 *p++ = ']';
-	 break;
-      case '\\':
-	 *p++ = '\\';
-	 *p++ = '\\';
-	 break;
-      default:
-	 *p++ = *word;
-      }
-   }
-
-   *p++ = 0;
-
-   strcat (buf, suffix_re);
-//   fprintf (stderr, "re=%s\n", buf);
-
-   return match_regexp (
-      dict_data, buf, REG_EXTENDED);
+   return 0;
 }
 
 int dictdb_search (
@@ -1253,17 +977,11 @@ int dictdb_search (
    const int **result_sizes,
    int *results_count)
 {
-//   char *word_copy = NULL;
    int match_search_type;
-//   int const * const *result_next;
    char word_copy2 [BUFSIZE];
-//   int cnt = 0;
-//   int i   = 0;
    int exit_code = 0;
 
    global_data *dict_data = (global_data *) data;
-
-//   dictdb_free (data);
 
    if (result_extra)
       *result_extra      = NULL;
@@ -1289,24 +1007,17 @@ int dictdb_search (
    strlcpy (word_copy2, word, sizeof (word_copy2));
 
    if (
-      search_strategy != dict_data -> m_strat_regexp &&
-      search_strategy != dict_data -> m_strat_re)
+      tolower_alnumspace (
+	 word_copy2, word_copy2,
+	 dict_data -> m_conf_allchars, dict_data -> m_conf_utf8))
    {
-      if (
-	 tolower_alnumspace (
-	    word_copy2, word_copy2,
-	    dict_data -> m_conf_allchars, dict_data -> m_conf_utf8))
-      {
-	 plugin_error (dict_data, "tolower_alnumspace failed");
-	 return 1;
-      }
+      plugin_error (dict_data, "tolower_alnumspace failed");
+      return 1;
+   }
 
-      if (word_size > dict_data -> m_max_hw_len){
-//      fprintf (stderr, "This word is too long\n");
-	 return 0;
-      }
-
-//      fprintf (stderr, "lowe-cased: %s\n", word_copy2);
+   if (word_size > dict_data -> m_max_hw_len){
+/*      fprintf (stderr, "This word is too long\n"); */
+      return 0;
    }
 
    if (match_search_type){
@@ -1320,23 +1031,8 @@ int dictdb_search (
       }else if (search_strategy == dict_data -> m_strat_word){
 	 exit_code = match_word (
 	    dict_data, word_copy2);
-      }else if (search_strategy == dict_data -> m_strat_substring){
-	 exit_code = match_substring (
-	    dict_data, word_copy2);
       }else if (search_strategy == dict_data -> m_strat_prefix){
 	 exit_code = match_prefix (
-	    dict_data, word_copy2);
-      }else if (search_strategy == dict_data -> m_strat_suffix){
-	 exit_code = match_suffix (
-	    dict_data, word_copy2);
-      }else if (search_strategy == dict_data -> m_strat_re){
-	 exit_code = match_regexp (
-	    dict_data, word_copy2, REG_EXTENDED);
-      }else if (search_strategy == dict_data -> m_strat_regexp){
-	 exit_code = match_regexp (
-	    dict_data, word_copy2, 0);
-      }else if (search_strategy == dict_data -> m_strat_soundex){
-	 exit_code = match_soundex (
 	    dict_data, word_copy2);
       }else if (search_strategy == dict_data -> m_strat_lev){
 	 exit_code = match_lev (
