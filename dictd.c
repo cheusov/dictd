@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Thu Aug 21 09:04:01 1997 by faith@acm.org
- * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
+ * Revised: Fri Jan  2 00:03:06 1998 by faith@acm.org
+ * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.29 1997/09/01 01:14:50 faith Exp $
+ * $Id: dictd.c,v 1.30 1998/01/04 15:42:15 faith Exp $
  * 
  */
 
@@ -441,7 +441,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.29 1997/09/01 01:14:50 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.30 1998/01/04 15:42:15 faith Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -466,7 +466,7 @@ static void banner( void )
 {
    fprintf( stderr, "%s\n", dict_get_banner(0) );
    fprintf( stderr,
-	    "Copyright 1996,1997 Rickard E. Faith (faith@cs.unc.edu)\n" );
+	    "Copyright 1997, 1998 Rickard E. Faith (faith@cs.unc.edu)\n" );
 }
 
 static void license( void )

@@ -1,10 +1,10 @@
 /* dict.c -- 
  * Created: Fri Mar 28 19:16:29 1997 by faith@cs.unc.edu
- * Revised: Thu Aug 21 09:04:02 1997 by faith@acm.org
- * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
+ * Revised: Sun Jan  4 10:28:20 1998 by faith@acm.org
+ * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dict.c,v 1.13 1997/09/01 01:23:21 faith Exp $
+ * $Id: dict.c,v 1.14 1998/01/04 15:42:13 faith Exp $
  * 
  */
 
@@ -148,13 +148,22 @@ static void client_print_matches( lst_List l, int html, int flag,
    const char   *e;
    arg_List     a;
    const char   *prev = NULL;
+   const char   *last;
    const char   *db;
    static int   first = 1;
    int          pos = 0;
    int          len;
    int          count;
 
-   count = l ? lst_length(l) : 0;
+   count = 0;
+   if (l) {
+      last = NULL;
+      LST_ITERATE(l,p,e) {
+	 if (last && !strcmp(last,e)) continue;
+	 ++count;
+	 last = e;
+      }
+   }
 
    if (flag) {
       if (html) printf( "<H2>" );
@@ -168,7 +177,10 @@ static void client_print_matches( lst_List l, int html, int flag,
 
    if (!l) return;
 
+   last = NULL;
    LST_ITERATE(l,p,e) {
+      if (last && !strcmp(last,e)) continue;
+      last = e;
       a = arg_argify( e, 0 );
       if (arg_count(a) != 2)
 	 err_internal( __FUNCTION__,
@@ -877,7 +889,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.13 1997/09/01 01:23:21 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.14 1998/01/04 15:42:13 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -894,7 +906,7 @@ static void banner( void )
 {
    fprintf( stderr, "%s\n", client_get_banner() );
    fprintf( stderr,
-	    "Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)\n" );
+	    "Copyright 1997, 1998 Rickard E. Faith (faith@cs.unc.edu)\n" );
 }
 
 static void license( void )

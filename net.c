@@ -1,7 +1,7 @@
 /* net.c -- 
  * Created: Fri Feb 21 20:58:10 1997 by faith@cs.unc.edu
- * Revised: Fri Jul 11 15:24:46 1997 by faith@acm.org
- * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
+ * Revised: Sun Jan  4 10:35:55 1998 by faith@acm.org
+ * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: net.c,v 1.15 1997/07/12 01:50:23 faith Exp $
+ * $Id: net.c,v 1.16 1998/01/04 15:42:16 faith Exp $
  * 
  */
 
@@ -56,12 +56,14 @@ int net_connect_tcp( const char *host, const char *service )
    struct protoent    *protocolEntry;
    struct sockaddr_in ssin;
    int                s;
+   int                hosts = 0;
+   char               **current;
 
    memset( &ssin, 0, sizeof(ssin) );
    ssin.sin_family = AF_INET;
 
    if ((hostEntry = gethostbyname(host))) {
-      memcpy( &ssin.sin_addr.s_addr, hostEntry->h_addr, hostEntry->h_length );
+      ++hosts;
    } else if ((ssin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE)
       return NET_NOHOST;
    
@@ -73,14 +75,28 @@ int net_connect_tcp( const char *host, const char *service )
    if (!(protocolEntry = getprotobyname("tcp")))
       return NET_NOPROTOCOL;
    
-   if ((s = socket(PF_INET, SOCK_STREAM, protocolEntry->p_proto)) < 0)
-      err_fatal_errno( __FUNCTION__, "Can't open socket on port %d\n",
-		       ntohs(ssin.sin_port) );
+   if (hosts) {
+      for (current = hostEntry->h_addr_list; *current; current++) {
+	 memcpy( &ssin.sin_addr.s_addr, *current, hostEntry->h_length );
+	 PRINTF(DBG_VERBOSE,
+		("Trying %s (%s)\n",host,inet_ntoa(ssin.sin_addr)));
+	 if ((s = socket(PF_INET, SOCK_STREAM, protocolEntry->p_proto)) < 0)
+	    err_fatal_errno( __FUNCTION__, "Can't open socket on port %d\n",
+			     ntohs(ssin.sin_port) );      
+	 if (connect(s, (struct sockaddr *)&ssin, sizeof(ssin)) >= 0)
+	    return s;
+	 close(s);
+      }
+   } else {
+      if ((s = socket(PF_INET, SOCK_STREAM, protocolEntry->p_proto)) < 0)
+	 err_fatal_errno( __FUNCTION__, "Can't open socket on port %d\n",
+			  ntohs(ssin.sin_port) );
+      if (connect(s, (struct sockaddr *)&ssin, sizeof(ssin)) >= 0)
+	 return s;
+      close(s);
+   }
 
-   if (connect(s, (struct sockaddr *)&ssin, sizeof(ssin)) < 0)
-      return NET_NOCONNECT;
-
-   return s;
+   return NET_NOCONNECT;
 }
 
 int net_open_tcp( const char *service, int queueLength )

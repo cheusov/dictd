@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.5 1997/09/01 01:14:54 faith Exp $
+# $Id: Makefile.in,v 1.6 1998/01/04 15:42:19 faith Exp $
 # 
 
 
@@ -52,15 +52,15 @@ rfc.txt: rfc.ms
 	@echo "Building table of contents, pass 1"
 	@echo "" > rfc.toc
 	@$(NROFF) -ms toc.ms | awk '/STARTTOC/ { p = 1 } \
-		/\.\.\.\.\./ { if (p == 1) print }' > rfc.toc.new
+		/\..\..\../ { if (p == 1) print }' > rfc.toc.new
 	@cp rfc.toc.new rfc.toc
 	@echo "Building table of contents, pass 2"
 	@$(NROFF) -ms toc.ms | awk '/STARTTOC/ { p = 1 } \
-		/\.\.\.\.\./ { if (p == 1) print }' > rfc.toc.new
+		/\..\..\../ { if (p == 1) print }' > rfc.toc.new
 	@cp rfc.toc.new rfc.toc
 	@echo "Building table of contents, pass 3 (verification)"
 	@$(NROFF) -ms toc.ms | awk '/STARTTOC/ { p = 1 } \
-		/\.\.\.\.\./ { if (p == 1) print }' > rfc.toc.new
+		/\..\..\../ { if (p == 1) print }' > rfc.toc.new
 	@cmp -s rfc.toc.new rfc.toc || echo "WARNING: Contents Changed!"
 	@echo "Building document..."
 	$(NROFF) -ms rfc.ms | ./rfc.sh | $(COL) -bf | $(EXPAND) > rfc.txt
