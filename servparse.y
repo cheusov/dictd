@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.17 2003/02/23 13:03:12 cheusov Exp $
+ * $Id: servparse.y,v 1.18 2003/10/01 17:09:04 cheusov Exp $
  * 
  */
 
@@ -50,7 +50,7 @@ static dictDatabase *db;
 %token <token> T_FILTER T_PREFILTER T_POSTFILTER T_NAME T_INFO
 %token <token> T_USER T_AUTHONLY T_SITE T_DATABASE_EXIT
 %token <token> T_STRING
-%token <token> T_INVISIBLE
+%token <token> T_INVISIBLE T_DISABLE_STRAT
 %token <token> T_DATABASE_VIRTUAL T_DATABASE_LIST
 %token <token> T_DATABASE_PLUGIN T_PLUGIN
 
@@ -215,6 +215,7 @@ Spec_virtual : T_NAME T_STRING       { SET(databaseShort,$1,$2); }
      | T_INFO T_STRING               { SET(databaseInfo,$1,$2); }
      | T_DATABASE_LIST T_STRING      { SET(database_list,$1,$2);}
      | T_INVISIBLE               { db->invisible = 1; }
+     | T_DISABLE_STRAT T_STRING { dict_disable_strat (db, $2.string); };
      | Access                    { db->acl = $1; }
      ;
 
@@ -227,6 +228,7 @@ Spec_plugin : T_NAME T_STRING       { SET(databaseShort,$1,$2); }
      | T_PLUGIN T_STRING      { SET(pluginFilename,$1,$2);}
      | T_DATA T_STRING        { SET(plugin_data,$1,$2);}
      | T_INVISIBLE               { db->invisible = 1; }
+     | T_DISABLE_STRAT T_STRING { dict_disable_strat (db, $2.string); };
      | Access                    { db->acl = $1; }
      ;
 
@@ -244,5 +246,6 @@ Spec : T_DATA T_STRING              { SET(dataFilename,$1,$2); }
      | T_NAME T_STRING       { SET(databaseShort,$1,$2); }
      | T_INFO T_STRING               { SET(databaseInfo,$1,$2); }
      | T_INVISIBLE           { db->invisible = 1; }
+     | T_DISABLE_STRAT T_STRING { dict_disable_strat (db, $2.string); };
      | Access                { db->acl = $1; }
      ;

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.74 2003/09/19 18:18:53 cheusov Exp $
+ * $Id: index.c,v 1.75 2003/10/01 17:09:04 cheusov Exp $
  * 
  */
 
@@ -1440,8 +1440,22 @@ int dict_search (
 #endif
    dictWord *dw;
 
+   int norm_strategy = strategy & ~DICT_MATCH_MASK;
+
    assert (word);
    assert (database);
+
+   if (
+      database -> strategy_disabled &&
+      database -> strategy_disabled [norm_strategy])
+   {
+      PRINTF (DBG_SEARCH, (
+	 ":S: strategy '%s' is disabled for database '%s'\n",
+	 get_strategies () [norm_strategy] -> name,
+	 database -> databaseName ? database -> databaseName : "(unknown)"));
+      /* disable_strategy keyword from configuration file */
+      return 0;
+   }
 
    if (!database -> index && !strcmp (word, DICT_INFO_ENTRY_NAME)){
       dw = xmalloc (sizeof (dictWord));

@@ -649,6 +649,13 @@ the name of the upper visible virtual dictionary or '*' is returned.
 .B NOTE:
 There is no sense to make dictionary invisible unless it is included
 to the virtual dictionary.
+.TP
+.BI disable_strategy " string"
+Disables the specified strategy for database.
+This may be useful for slow dictionaries (plugins)
+or for dictionaries included to virtual ones.
+For an example see file example_complex.conf.
+
 .RE
 .TP
 .B Virtual Database Specification
@@ -671,6 +678,11 @@ is not treated as an entry name.
 Makes dictionary invisible to the clients. See
 .I database specification
 .TP
+.BI disable_strategy " string"
+Disables the specified strategy for database.
+See
+.I database specification
+.TP
 .B NOTE:
 Another way to implement a virtual database is to create
 database files by dictfmt_virtual executable
@@ -686,15 +698,23 @@ Specifies a filename of the plugin.
 Specifies data for initializing plugin.
 .TP
 .BI name " string"
-Specifies the short name of the database. See
+Specifies the short name of the database.
+See
 .I database specification
 .TP
 .BI info " string"
-Specifies the information about database. See
+Specifies the information about database.
+See
 .I database specification
 .TP
 .BI invisible
-Makes dictionary invisible to the clients. See
+Makes dictionary invisible to the clients.
+See
+.I database specification
+.TP
+.BI disable_strategy " string"
+Disables the specified strategy for database.
+See
 .I database specification
 .TP
 .B NOTE:

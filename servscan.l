@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servscan.l,v 1.20 2003/03/02 13:42:38 cheusov Exp $
+ * $Id: servscan.l,v 1.21 2003/10/01 17:09:04 cheusov Exp $
  * 
  */
 
@@ -109,6 +109,7 @@ info                        RETURN(T_INFO);
 database_list               RETURN(T_DATABASE_LIST);
 database_plugin             RETURN(T_DATABASE_PLUGIN);
 plugin                      RETURN(T_PLUGIN);
+disable_strategy            RETURN(T_DISABLE_STRAT);
 
 {word}                      { yylval.token.string = str_findn(yytext, yyleng);
                               RETURN(T_STRING);

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.92 2003/09/30 17:58:44 cheusov Exp $
+ * $Id: dictd.c,v 1.93 2003/10/01 17:09:05 cheusov Exp $
  * 
  */
 
@@ -560,6 +560,30 @@ static int init_plugin( const void *datum )
    return 0;
 }
 
+void dict_disable_strat (dictDatabase *db, const char* strategy)
+{
+   int strat = -1;
+   int strat_count = get_strategy_count ();
+
+   assert (db);
+   assert (strategy);
+
+   if (!db -> strategy_disabled){
+      db -> strategy_disabled = xmalloc (strat_count * sizeof (int));
+      memset (db -> strategy_disabled, 0, strat_count * sizeof (int));
+   }
+
+   strat = lookup_strategy (strategy);
+   assert (strat >= -1 && strat < strat_count);
+
+   if (strat == -1){
+      log_info(":E: strategy '%s' is not available\n", strategy);
+      err_fatal(__FUNCTION__, ":E: terminating due to errors\n");
+   }else{
+      db -> strategy_disabled [strat] = 1;
+   }
+}
+
 static int init_database( const void *datum )
 {
    dictDatabase *db = (dictDatabase *)datum;
@@ -626,9 +650,11 @@ static int init_database_short (const void *datum)
       db->databaseShort = xstrdup (db->databaseShort);
    }
 
-   NL = strchr (db->databaseShort, '\n');
-   if (NL)
-      *NL = 0;
+   if (db->databaseShort){
+      NL = strchr (db->databaseShort, '\n');
+      if (NL)
+	 *NL = 0;
+   }
 
    if (!db->databaseShort)
       db->databaseShort = xstrdup (db->databaseName);
@@ -669,6 +695,8 @@ static int close_database (const void *datum)
       xfree ((void *) db -> indexsuffixFilename);
    if (db -> pluginFilename)
       xfree ((void *) db -> pluginFilename);
+   if (db -> strategy_disabled)
+      xfree ((void *) db -> strategy_disabled);
 
    return 0;
 }
@@ -820,7 +848,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.92 2003/09/30 17:58:44 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.93 2003/10/01 17:09:05 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;

@@ -41,6 +41,8 @@
 #include <sys/wait.h>
 #include <grp.h>
 
+extern void       dict_disable_strat (dictDatabase *db, const char* strat);
+
 extern void       dict_dump_list( lst_List list );
 extern void       dict_destroy_list( lst_List list );
 
