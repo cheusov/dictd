@@ -4,7 +4,7 @@
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: net.c,v 1.7 1997/03/13 05:24:19 faith Exp $
+ * $Id: net.c,v 1.8 1997/03/23 12:22:37 faith Exp $
  * 
  */
 
@@ -73,7 +73,7 @@ void net_detach( void )
    int i;
    int fd;
 
-   switch (fork) {
+   switch (fork()) {
    case -1: err_fatal_errno( __FUNCTION__, "Cannot fork\n" ); break;
    case 0:  break;		/* child */
    default: exit(0);		/* parent */

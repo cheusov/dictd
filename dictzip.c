@@ -1,6 +1,6 @@
 /* dictzip.c -- 
  * Created: Tue Jul 16 12:45:41 1996 by r.faith@ieee.org
- * Revised: Fri Mar  7 11:00:28 1997 by faith@cs.unc.edu
+ * Revised: Sat Mar 22 22:57:06 1997 by faith@cs.unc.edu
  * Copyright 1996 Rickard E. Faith (r.faith@ieee.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictzip.c,v 1.8 1997/03/07 16:10:34 faith Exp $
+ * $Id: dictzip.c,v 1.9 1997/03/23 12:22:35 faith Exp $
  * 
  */
 
@@ -301,7 +301,7 @@ int dict_data_zip( const char *inFilename, const char *outFilename,
 static const char *id_string( const char *id )
 {
    static char buffer[BUFFERSIZE];
-   arg_List a = arg_argify( id );
+   arg_List a = arg_argify( id, 0 );
 
    sprintf( buffer, "%s (%s)", arg_get( a, 2 ), arg_get( a, 3 ) );
    arg_destroy( a );
@@ -310,7 +310,7 @@ static const char *id_string( const char *id )
 
 static void banner( void )
 {
-   const char *id = "$Id: dictzip.c,v 1.8 1997/03/07 16:10:34 faith Exp $";
+   const char *id = "$Id: dictzip.c,v 1.9 1997/03/23 12:22:35 faith Exp $";
    
    fprintf( stderr, "%s %s\n", err_program_name(), id_string( id ) );
    fprintf( stderr, "Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)\n" );
@@ -355,9 +355,9 @@ static void help( void )
       "-V --version         display version number",
       "-D --debug           select debug option",
       "-s --start <offset>  starting offset for decompression (decimal)",
-      "-e --end <offset>    ending offset for decompression (decimal)",
+      "-e --size <offset>   size for decompression (decimal)",
       "-S --Start <offset>  starting offset for decompression (base64)",
-      "-E --End <offset>    ending offset for decompression (base64)",
+      "-E --Size <offset>   size for decompression (base64)",
       "-p --pre <filter>    pre-compression filter",
       "-P --post <filter>   post-compression filter",
       0 };
@@ -382,7 +382,7 @@ int main( int argc, char **argv )
    char          *pre           = NULL;
    char          *post          = NULL;
    unsigned long start          = 0;
-   unsigned long end            = 0;
+   unsigned long size           = 0;
    dictData      *header;
    struct option longopts[] = {
       { "decompress",   0, 0, 'd' },
@@ -397,9 +397,9 @@ int main( int argc, char **argv )
       { "version",      0, 0, 'V' },
       { "debug",        1, 0, 'D' },
       { "start",        1, 0, 's' },
-      { "end",          1, 0, 'e' },
+      { "size",         1, 0, 'e' },
       { "Start",        1, 0, 'S' },
-      { "End",          1, 0, 'E' },
+      { "Size",         1, 0, 'E' },
       { "pre",          1, 0, 'p' },
       { "post",         1, 0, 'P' },
       { 0,              0, 0,  0  }
@@ -431,9 +431,9 @@ int main( int argc, char **argv )
       case 'V': banner(); exit( 1 );                                   break;
       case 'D': dbg_set( optarg );                                     break;
       case 's': ++decompressFlag; start = strtoul( optarg, NULL, 10 ); break;
-      case 'e': ++decompressFlag; end   = strtoul( optarg, NULL, 10 ); break;
+      case 'e': ++decompressFlag; size  = strtoul( optarg, NULL, 10 ); break;
       case 'S': ++decompressFlag; start = b64_decode( optarg );        break;
-      case 'E': ++decompressFlag; end   = b64_decode( optarg );        break;
+      case 'E': ++decompressFlag; size  = b64_decode( optarg );        break;
       case 'p': pre = optarg;                                          break;
       case 'P': post = optarg;                                         break;
       default:  
@@ -447,9 +447,9 @@ int main( int argc, char **argv )
 	 dict_data_close( header );
       } else if (decompressFlag) {
 	 header = dict_data_open( argv[i], 0 );
-	 if (!end) end = header->length;
-	 buf = dict_data_read( header, start, end, pre, post );
-	 fwrite( buf, end-start, 1, stdout );
+	 if (!size) size = header->length;
+	 buf = dict_data_read( header, start, size, pre, post );
+	 fwrite( buf, size, 1, stdout );
 	 fflush( stdout );
 	 xfree( buf );
 	 dict_data_close( header );

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.8 1997/03/12 01:14:12 faith Exp $
+ * $Id: daemon.c,v 1.9 1997/03/23 12:22:33 faith Exp $
  * 
  */
 
@@ -427,7 +427,7 @@ int dict_daemon( int s, struct sockaddr_in *csin )
 	 daemon_status();
 	 continue;
       }
-      cmdline = arg_argify(buf);
+      cmdline = arg_argify(buf,0);
       arg_get_vector( cmdline, &argc, &argv );
       
       if (argc == 2 && !strcmp("define",argv[0])) {

@@ -4,7 +4,7 @@
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.11 1997/03/13 05:24:17 faith Exp $
+ * $Id: dictd.c,v 1.12 1997/03/23 12:22:35 faith Exp $
  * 
  */
 
@@ -183,7 +183,7 @@ static void dict_dump_defs( lst_List list, dictDatabase *db )
 static const char *id_string( const char *id )
 {
    static char buffer[BUFFERSIZE];
-   arg_List a = arg_argify( id );
+   arg_List a = arg_argify( id, 0 );
 
    if (arg_count(a) >= 2)
       sprintf( buffer, "%s", arg_get( a, 2 ) );
@@ -196,7 +196,7 @@ static const char *id_string( const char *id )
 const char *dict_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dictd.c,v 1.11 1997/03/13 05:24:17 faith Exp $";
+   const char        *id = "$Id: dictd.c,v 1.12 1997/03/23 12:22:35 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;

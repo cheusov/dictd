@@ -1,6 +1,6 @@
 /* data.c -- 
  * Created: Tue Jul 16 12:45:41 1996 by r.faith@ieee.org
- * Revised: Sun Mar  9 00:28:17 1997 by faith@cs.unc.edu
+ * Revised: Sat Mar 22 22:52:43 1997 by faith@cs.unc.edu
  * Copyright 1996, 1997 Rickard E. Faith (r.faith@ieee.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: data.c,v 1.6 1997/03/10 21:46:55 faith Exp $
+ * $Id: data.c,v 1.7 1997/03/23 12:22:34 faith Exp $
  * 
  */
 
@@ -272,11 +272,11 @@ void dict_data_close( dictData *header )
    xfree( header );
 }
 
-char *dict_data_read( dictData *h, unsigned long start, unsigned long end,
+char *dict_data_read( dictData *h, unsigned long start, unsigned long size,
 		      const char *preFilter, const char *postFilter )
 {
    char          *buffer, *pt;
-   unsigned long size;
+   unsigned long end;
    int           count;
    char          *inBuffer;
    char          outBuffer[OUT_BUFFER_SIZE];
@@ -286,12 +286,7 @@ char *dict_data_read( dictData *h, unsigned long start, unsigned long end,
    int           found, target, lastStamp;
    static int    stamp = 0;
 
-   if (end < start) {
-      size = end;
-      end  = start + size;
-   } else {
-      size = end - start;
-   }
+   end  = start + size;
 
    buffer = xmalloc( size + 1 );
    
