@@ -70,13 +70,19 @@ it is recommended that all users whose locale is "C" or "POSIX", set
 to "latin1" (ISO_8859-1).
 .SH OPTIONS
 dictl accepts all dict options as described in dict(1).
-In order to determine
-.I dict's
+.I dictl's
 pager
-dictl scans user's .dictrc and system-wide dict.conf files.
+is set to the value of
 .B
 DICTL_PAGER
-variable overrides this.
+variable, pager specified in user's .dictrc or system-wide dict.conf file,
+value of
+.B
+PAGER
+variable or
+.B
+less
+in that order.
 .SH AUTHOR
 .B dictl
 was written by Aleksey Cheusov <vle@gmx.net>
