@@ -290,6 +290,8 @@ int dictdb_search (
    const int match_search_type = search_strategy & DICT_MATCH_MASK;
    search_strategy &= ~DICT_MATCH_MASK;
 
+//   fprintf (stderr, "is it for me?\n");
+
 // does the WORD contain valid characters only?
    for (int i = 0; i < word_size; ++i){
       if (!data -> m_valid_chars [(unsigned char) word [i]])

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.57 2003/02/28 15:07:24 cheusov Exp $
+ * $Id: index.c,v 1.58 2003/02/28 15:21:44 cheusov Exp $
  * 
  */
 
@@ -578,6 +578,8 @@ static dictWord *dict_word_create(
    char       *s, *d;
 
    assert (dbindex);
+
+   memset (dw, 0, sizeof (*dw));
 
    for (;pt < dbindex->end && *pt != '\n'; pt++, offset++) {
       if (*pt == '\t') {
@@ -1378,6 +1380,7 @@ static int dict_search_plugin (
 
       for (i = 0; i < defs_count; ++i){
 	 def = xmalloc (sizeof (dictWord));
+	 memset (def, 0, sizeof (*def));
 
 	 def -> database = database;
 	 def -> start    = def -> end = 0;
@@ -1440,6 +1443,7 @@ static int dict_search_database_ (
 
 	 dw = xmalloc (sizeof (dictWord));
 	 memset (dw, 0, sizeof (dictWord));
+
 	 dw -> database = database;
 	 dw -> def      = utf8_err_msg;
 	 dw -> def_size = -1;
