@@ -11,10 +11,10 @@ It creates two special entries:
 00-database-plugin-data
   Its "definition" is a data passed to plugin during
   initialisation.
-  They are passed from stdin.
 Take a note that -c5 input format is used. You cannot specify
 another one.
-usage: dictfmt_plugin [OPTIONS] <path_to_plugin> [DICTFMT_OPTIONS]
+usage:
+dictfmt_plugin [OPTIONS] <path_to_plugin> [DICTFMT_OPTIONS] [datafiles...]
 OPTIONS:
     --help displays this help
 DICTFMT_OPTIONS:

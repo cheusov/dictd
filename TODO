@@ -2,13 +2,12 @@
 dictd:
 * Add portable snprintf implementation and robustify logging
 * Support "dict:" definition index feature
-* Add support for virtual databases
 * Add anagram search engine
 * Add search for edit distances greater than 1
 * Explore improved spelling correction algorithms
 * Add a stemming option for spelling correction
 * Print a reasonable message if no config file is available
-* Add support for virtual databases (and conditional searches)
+* Add support for conditional searches
 * Add support for index entries that are only matched with "exact"
 * Re-write indexing scheme to make it faster (preprocess entries)
 * Add reverse DNS lookup

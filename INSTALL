@@ -85,29 +85,6 @@ INSTALLATION
 7.  That's it really.  Now piece everything together, run your dictd and
     point it at your config file, and try running dict!
 
-ADVANCED
-========
-
-1.  As of dictd-1.4.9, specifying --prefix=/usr/local to the configure
-    script will NOT build binaries that look for config files (dictd.conf
-    and dict.conf) in /usr/local/etc.  This is a known bug.  To get around
-    this and to build binaries that look in a specific place you want
-    (/usr/local/etc for example), edit Makefile.in and change the line
-    reading:
-
-        conf=    @sysconfdir@/
-
-    to read:
-
-        # NOTE THE TRAILING SLASH!
-        conf=    /my/config/files/are/here/
-
-    So to build binaries that look for config files in /usr/local/etc :
-
-        # NOTE THE TRAILING SLASH!
-        conf=    /usr/local/etc/
-
-    Then run proceed with the installation steps above in INSTALLATION.
 
 GENERAL EXTRA INSTALL HELP
 ==========================
