@@ -17,11 +17,14 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: heap.h,v 1.2 2003/08/11 17:06:27 cheusov Exp $
+ * $Id: heap.h,v 1.3 2004/03/18 19:55:18 cheusov Exp $
  * 
  */
 
 /* create a heap. 'opts' MUST BE NULL at this time */
+
+#ifndef DONOT_USE_INTERNAL_HEAP
+
 extern int heap_create (void **heap, void *opts);
 extern const char *heap_error (int err_code);
 extern void heap_destroy (void **heap);
@@ -30,3 +33,16 @@ extern char * heap_strdup (void *heap, const char *s);
 extern void heap_free (void *heap, void *p);
 extern void * heap_realloc (void *heap, void *p, size_t size);
 extern int heap_isempty (void *heap);
+
+#else
+
+#define heap_create(heap, opts) (0);
+#define heap_error(err_code) (NULL)
+#define heap_destroy(heap) (0)
+#define heap_alloc(heap, size) (xmalloc (size))
+#define heap_strdup(heap, s) (xstrdup (s))
+#define heap_free(heap, p) (p ? xfree (p), NULL : NULL)
+#define heap_realloc(heap, p, size) (realloc (p, size))
+#define heap_isempty(heap) (1)
+
+#endif

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.20 2004/02/23 19:28:25 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.21 2004/03/18 19:55:18 cheusov Exp $
  * 
  */
 
@@ -25,6 +25,7 @@
 #include "dictdplugin.h"
 #include "data.h"
 #include "str.h"
+#include "plugins_common.h"
 
 #include <maa.h>
 #include <Judy.h>
@@ -51,24 +52,9 @@
 #endif
 
 /**********************************************************/
-#define USE_INTERNAL_HEAP /* this may apeeds-up this plugin */
-
-#ifdef USE_INTERNAL_HEAP
+//#define DONOT_USE_INTERNAL_HEAP /* internal heap may speed-up the plugin */
 
 #include "heap.h"
-
-#else
-
-#define heap_create(heap, opts) (0);
-#define heap_error(err_code) (NULL)
-#define heap_destroy(heap) (0)
-#define heap_alloc(heap, size) (xmalloc (size))
-#define heap_strdup(heap, s) (xstrdup (s))
-#define heap_free(heap, p) (p ? xfree (p), NULL : NULL)
-#define heap_realloc(heap, p, size) (realloc (p, size))
-#define heap_isempty(heap) (1)
-
-#endif
 
 typedef struct global_data_s {
    char m_err_msg  [BUFSIZE];
@@ -166,62 +152,9 @@ static void global_data_destroy (global_data *d)
    heap_destroy (&d -> m_heap2);
 
    dict_data_close (d -> m_data);
-   str_destroy ();
 
    if (d)
       xfree (d);
-}
-
-/********************************************************************/
-static int const static_minus1_array [] = {
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-};
-
-static const int *alloc_minus1_array (int count)
-{
-   int *p;
-
-   if (count <= sizeof (static_minus1_array) / sizeof (int)){
-      return static_minus1_array;
-   }else{
-      p = xmalloc (count * sizeof (int));
-      memset (p, -1, count * sizeof (int));
-      return p;
-   }
-}
-
-static void free_minus1_array (int *p)
-{
-   if (p != static_minus1_array && p){
-      xfree (p);
-   }
 }
 
 /********************************************************************/
@@ -253,122 +186,6 @@ static void concat_dir_and_fn (
       strlcat (dest, fn, dest_size);
    }else{
       strlcpy (dest, fn, dest_size);
-   }
-}
-
-static int process_line (char *s, void *data)
-{
-   char * value = NULL;
-   size_t len = 0;
-
-   global_data *dict_data = (global_data *) data;
-
-   value = strchr (s, '=');
-   if (!value){
-      snprintf (
-	 dict_data -> m_err_msg,
-	 BUFSIZE,
-	 "invalid configure line: '%s'",
-	 s);
-
-      return 1;
-   }
-
-   *value++ = 0;
-
-   len = strlen (value);
-
-   if (len <= 0)
-      return 0;
-
-   if (value [0] == '"' && value [len - 1] == '"'){
-      value [len - 1] = 0;
-      ++value;
-      len -= 2;
-   }
-
-   if (!strcmp(s, "allchars")){
-      if (strcmp (value, "0") && strcmp (value, "")){
-	 dict_data -> m_conf_allchars = 1;
-      }
-   }else if (!strcmp(s, "utf8")){
-      if (strcmp (value, "0") && strcmp (value, "")){
-	 dict_data -> m_conf_utf8 = 1;
-      }
-   }else if (!strcmp(s, "index")){
-      concat_dir_and_fn (
-	 dict_data -> m_conf_index_fn,
-	 sizeof (dict_data -> m_conf_index_fn),
-	 dict_data -> m_default_db_dir,
-	 value);
-   }else if (!strcmp(s, "data")){
-      concat_dir_and_fn (
-	 dict_data -> m_conf_data_fn,
-	 sizeof (dict_data -> m_conf_data_fn),
-	 dict_data -> m_default_db_dir,
-	 value);
-   }
-
-   return 0;
-}
-
-static void remove_spaces (char *s)
-{
-   char *p;
-
-   for (p = s; *s; ){
-      if (*s == '#'){
-	 break;
-      }
-
-      if (*s != ' ')
-	 *p++ = *s++;
-      else
-	 ++s;
-   }
-
-   *p = 0;
-}
-
-static void read_lines (
-   char *buf, int len,
-   void *data,
-   int (*fun)(char *, void *))
-{
-   char *p     = NULL;
-   int comment = 0;
-   int i       = 0;
-
-   for (i=0; i <= len; ++i){
-      switch (buf [i]){
-      case '\n':
-      case '\0':
-	 buf [i] = 0;
-
-	 if (p){
-	    remove_spaces (p);
-	    if (*p){
-	       if (fun (p, data))
-		  return;
-	    }
-	 }
-
-	 comment = 0;
-	 p = NULL;
-	 break;
-
-      case '#':
-	 comment = 1;
-	 break;
-
-      default:
-	 if (!p && !isspace (buf [i]))
-	    p = buf + i;
-      }
-
-      if (comment){
-	 buf [i] = 0;
-      }
    }
 }
 
@@ -623,6 +440,48 @@ static void init_data_file (global_data *dict_data)
    dict_data -> m_data = dict_data_open (dict_data -> m_conf_data_fn, 0);
 }
 
+static int process_name_value (
+   const char *option, const char *value,
+   void *data)
+{
+   global_data *dict_data = (global_data *) data;
+
+   if (!strcmp(option, "allchars")){
+      if (strcmp (value, "0") && strcmp (value, "")){
+         dict_data -> m_conf_allchars = 1;
+      }
+   }else if (!strcmp(option, "utf8")){
+      if (strcmp (value, "0") && strcmp (value, "")){
+         dict_data -> m_conf_utf8 = 1;
+      }
+   }else if (!strcmp(option, "index")){
+      concat_dir_and_fn (
+         dict_data -> m_conf_index_fn,
+         sizeof (dict_data -> m_conf_index_fn),
+         dict_data -> m_default_db_dir,
+         value);
+   }else if (!strcmp(option, "data")){
+      concat_dir_and_fn (
+         dict_data -> m_conf_data_fn,
+         sizeof (dict_data -> m_conf_data_fn),
+         dict_data -> m_default_db_dir,
+         value);
+   }
+
+   return 0;
+}
+
+static void on_error (const char *bad_line, void *data)
+{
+   global_data *dict_data = (global_data *) data;
+
+   snprintf (
+      dict_data -> m_err_msg,
+      BUFSIZE,
+      "invalid configure line: '%s'",
+      bad_line);
+}
+
 static void init_alphabet (global_data *dict_data)
 {
    int ret = 0;
@@ -674,6 +533,7 @@ int dictdb_open (
    int err;
 
    global_data *dict_data = global_data_create ();
+   *data = (void *) dict_data;
 
    err = heap_create (&dict_data -> m_heap, NULL);
    if (err){
@@ -689,8 +549,6 @@ int dictdb_open (
 
    if (version)
       *version = 0;
-
-   *data = (void *) dict_data;
 
    for (i=0; i < init_data_size; ++i){
       switch (init_data [i].id){
@@ -711,7 +569,7 @@ int dictdb_open (
 
 	    buf = xstrdup(init_data [i].data);
 
-	    read_lines (buf, len, dict_data, process_line);
+	    process_lines (buf, len, dict_data, process_name_value, on_error);
 
 	    if (dict_data -> m_err_msg [0]){
 	       dictdb_free (dict_data);
