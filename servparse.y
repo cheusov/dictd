@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.12 2002/12/04 19:12:47 cheusov Exp $
+ * $Id: servparse.y,v 1.13 2003/01/16 19:26:42 hilliard Exp $
  * 
  */
 
@@ -179,7 +179,7 @@ Database : T_DATABASE T_STRING
 	      db = xmalloc(sizeof(struct dictDatabase));
 	      memset( db, 0, sizeof(struct dictDatabase));
 	      db -> databaseName  = strdup("--exit--");
-	      db -> databaseShort = strdup("Actually this is EXIT command but the dictionary");
+	      db -> databaseShort = strdup("Stop default search here.");
 	      $$ = db;
 	   }
          ;

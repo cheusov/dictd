@@ -51,7 +51,7 @@ db_base=$1
 shift
 
 {
-	cat "$@"
+	if [ $# -ne 0 ]; then cat "$@";fi
 	echo -en '_____\n\n00-database-virtual\n'
 	echo $db_list | tr ',' '\n'
 } | dictfmt -c5 --without-headword -s "$db_name" "$db_base" 2>/dev/null 1>&2
