@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.82 2003/11/26 14:47:35 cheusov Exp $
+ * $Id: index.c,v 1.83 2003/12/24 20:19:57 cheusov Exp $
  * 
  */
 
@@ -1554,6 +1554,9 @@ dictIndex *dict_index_open(
    int         j;
    char        buf[2];
 
+   int first_char;
+   int first_char_uc;
+
    if (!filename)
       return NULL;
 
@@ -1648,16 +1651,33 @@ dictIndex *dict_index_open(
       i->optStart[ ' ' ] = binary_search_8bit( buf, i, i->start, i->end );
 
       for (j = 0; j < charcount; j++) {
-	 buf[0] = c(j);
+	 first_char = c(j);
+
+	 buf[0] = first_char;
 	 buf[1] = '\0';
-	 i->optStart [toupper(c(j))]
-	    = i->optStart[c(j)]
+
+	 i->optStart [first_char]
 	    = binary_search_8bit( buf, i, i->start, i->end );
+
+	 if (!utf8_mode || first_char < 128){
+	    first_char_uc = toupper (first_char);
+
+	    assert (first_char_uc >= 0 && first_char_uc <= UCHAR_MAX);
+
+	    i->optStart [first_char_uc] = i->optStart [first_char];
+	 }
+
 	 if (dbg_test (DBG_SEARCH)){
-	    if (!utf8_mode || c(j) <= CHAR_MAX)
-	       printf ("optStart [%c] = %p\n", c(j), i->optStart[c(j)]);
+	    if (!utf8_mode || first_char <= CHAR_MAX)
+	       printf (
+		  "optStart [%c] = %p\n",
+		  first_char,
+		  i->optStart [first_char]);
 	    else
-	       printf ("optStart [%i] = %p\n", c(j), i->optStart[c(j)]);
+	       printf (
+		  "optStart [%i] = %p\n",
+		  first_char,
+		  i->optStart [first_char]);
 	 }
       }
 
