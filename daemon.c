@@ -1,6 +1,6 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@cs.unc.edu
- * Revised: Fri Apr 25 20:18:59 1997 by faith@cs.unc.edu
+ * Revised: Thu May  1 00:04:31 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,12 +17,13 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.13 1997/04/30 12:03:47 faith Exp $
+ * $Id: daemon.c,v 1.14 1997/05/02 14:49:27 faith Exp $
  * 
  */
 
 #include "dictd.h"
 #include <ctype.h>
+#include <setjmp.h>
 #include "md5.h"
 #include "regex.h"
 
@@ -33,6 +34,7 @@ static const char   *daemonIP;
 static int          daemonPort;
 static lst_Position databasePosition;
 static char         daemonStamp[256];
+static jmp_buf      env;
 
 static void daemon_define( int argc, char **argv );
 static void daemon_match( int argc, char **argv );
@@ -277,6 +279,7 @@ static void daemon_log( const char *format, ... )
 
 void daemon_terminate( int sig, const char *name )
 {
+   alarm(0);
    tim_stop( "t" );
    close(daemonS);
    if (name) {
@@ -298,6 +301,8 @@ void daemon_terminate( int sig, const char *name )
                   tim_get_user( "t" ),
                   tim_get_system( "t" ) );
    }
+   
+   longjmp(env,1);
    if (sig) exit(sig+128);
    exit(0);
 }
@@ -727,7 +732,7 @@ static void daemon_quit( int argc, char **argv )
    daemon_terminate( 0, __FUNCTION__ );
 }
 
-int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0 )
+int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0, int delay )
 {
    char           buf[4096];
    int            count;
@@ -737,6 +742,8 @@ int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0 )
    char           **argv;
    void           (*command)(int, char **);
       
+   if (setjmp(env)) return 0;
+   
    daemonPort = ntohs(csin->sin_port);
    daemonIP   = str_find( inet_ntoa(csin->sin_addr) );
    if ((h = gethostbyaddr((void *)&csin->sin_addr,
@@ -750,7 +757,7 @@ int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0 )
    _dict_defines     = 0;
    _dict_matches     = 0;
    _dict_comparisons = 0;
-   
+
    tim_start( "t" );
    daemon_log( "connected\n" );
 
@@ -761,7 +768,9 @@ int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0 )
 	      
    daemon_banner();
 
+   alarm(delay);
    while ((count = daemon_read( buf, 4000 )) >= 0) {
+      alarm(0);
       tim_start( "c" );
       if (!count) {
 #if 0
@@ -778,7 +787,9 @@ int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0 )
 	 daemon_printf( "%d unknown command\n", CODE_SYNTAX_ERROR );
       }
       arg_destroy(cmdline);
+      alarm(delay);
    }
+   printf( "%d %d\n", count, errno );
    daemon_terminate( 0, "disconnect" );
    return 0;
 }

@@ -15,6 +15,9 @@
 /* Define if you can safely include both <sys/time.h> and <time.h>.  */
 #undef TIME_WITH_SYS_TIME
 
+/* Define if you have the semget function.  */
+#undef HAVE_SEMGET
+
 /* Define if you have the strdup function.  */
 #undef HAVE_STRDUP
 

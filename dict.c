@@ -1,10 +1,10 @@
 /* dict.c -- 
  * Created: Fri Mar 28 19:16:29 1997 by faith@cs.unc.edu
- * Revised: Wed Apr 16 11:14:31 1997 by faith@cs.unc.edu
+ * Revised: Thu May  1 00:11:50 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dict.c,v 1.4 1997/04/30 12:03:48 faith Exp $
+ * $Id: dict.c,v 1.5 1997/05/02 14:49:28 faith Exp $
  * 
  */
 
@@ -63,7 +63,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.4 1997/04/30 12:03:48 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.5 1997/05/02 14:49:28 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -204,15 +204,15 @@ static int client_read_status( int s,
    case CODE_MATCHES_FOUND:
       cmdline = arg_argify(buf,0);
       arg_get_vector( cmdline, &argc, &argv );
-      if (argc > 0) *count = atoi(argv[1]);
+      if (argc > 1) *count = atoi(argv[1]);
       arg_destroy(cmdline);
       break;
    case CODE_DEFINITION_FOLLOWS:
       cmdline = arg_argify(buf,0);
       arg_get_vector( cmdline, &argc, &argv );
-      if (argc > 0) *db     = str_find(argv[1]);
-      if (argc > 1) *dbname = str_find(argv[2]);
-      if (argc > 2) *dburl  = str_find(argv[3]);
+      if (argc > 1) *db     = str_find(argv[1]);
+      if (argc > 2) *dbname = str_find(argv[2]);
+      if (argc > 3) *dburl  = str_find(argv[3]);
       arg_destroy(cmdline);
       break;
    default:
