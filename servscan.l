@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servscan.l,v 1.15 2002/12/04 19:12:47 cheusov Exp $
+ * $Id: servscan.l,v 1.16 2003/02/20 19:35:37 cheusov Exp $
  * 
  */
 
@@ -40,7 +40,7 @@ src_Type orig_source = NULL;
 %s OTHER
 comment                     #.*
 word                        ([[:alnum:]_/\-\.\*][[:alnum:]_/\-\.\*]*)
-string                      \"(([^\"\n])|\"\")*\"
+string                      \"(([^\"\n])|\"\"|\\\n)*\"
 badstring                   \"(([^\"\n])|\"\")*
 NL                          \n
 WS                          [[:blank:]]+
