@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.9 2002/10/18 20:07:53 hilliard Exp $
+ * $Id: dictfmt.c,v 1.10 2002/11/18 18:29:32 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -145,7 +145,13 @@ static void fmt_string( const char *s )
 
    while ((pt = strchr(pt, ' '))) {
       *pt++ = '\0';
-      len = strlen(p);
+
+      if (utf8_mode){
+	 len = strlen_utf8 (p);
+      }else{
+	 len = strlen (p);
+      }
+
       if (fmt_pending && fmt_pos + len > fmt_maxpos) {
 	 fmt_newline();
       }
@@ -386,8 +392,8 @@ static void set_utf8_mode (const char *locale)
    strlwr_8bit (locale_copy);
 
    utf8_mode =
-       strstr (locale_copy, "utf-8") ||
-       strstr (locale_copy, "utf8");
+      NULL != strstr (locale_copy, "utf-8") ||
+      NULL != strstr (locale_copy, "utf8");
 
    free (locale_copy);
 }
