@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.62 2003/01/09 13:30:35 cheusov Exp $
+# $Id: Makefile.in,v 1.63 2003/01/14 16:47:54 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -72,7 +72,7 @@ SCFLAGS=        @SCFLAGS@
 LDFLAGS=        @LDFLAGS@
 XTRACFLAGS=     @WCFLAGS@ @XTRACFLAGS@ @DEFS@ @CPPFLAGS@ -I. -Iregex
 XTRALDFLAGS=    @WLDFLAGS@ @XTRALDFLAGS@
-LDLIBS=		@LIBS@ -Lregex -lregex
+LDLIBS=		    @LIBOBJS@ @LIBS@ -Lregex -lregex
 
 EXES=	 	dict dictd dictzip dictfmt
 
@@ -82,6 +82,7 @@ ifeq ($(USE_PLUGIN), 1)
 	LIBRARIES=  libdictdplugin.a
 	INCLUDES=   dictdplugin.h
 all             :: plugins
+
 .PHONY : samples install.samples uninstall.samples
 samples         : dictdplugin_exit.so dictdplugin_popen.so man_popen.dict
 install.samples : samples
@@ -128,6 +129,7 @@ all $(EXES)::
 
 all:: $(EXES) $(LIBRARIES) plugins
 
+
 %.o: %.c
 	$(CC) -c $(XTRACFLAGS) $(CFLAGS) $<
 
@@ -159,16 +161,16 @@ man_popen.dict : dictdplugin-config dictfmt_plugin
    } | ./dictfmt_plugin dictdplugin_popen.so -s \
       'Example man dict based on example POPEN plugin' man_popen
 
-dict:: dict.c $(HEADERS) $(CLIOBJS)
+dict:: dict.c $(HEADERS) $(CLIOBJS) @LIBOBJS@
 	$(CC) $(ALLFLAGS) -o $@ $< $(CLIOBJS) $(LDLIBS)
 
-dictd:: dictd.c $(HEADERS) $(NETOBJS) $(SRCHOBJS)
+dictd:: dictd.c $(HEADERS) $(NETOBJS) $(SRCHOBJS) @LIBOBJS@
 	$(CC) $(ALLFLAGS) -o $@ $< $(NETOBJS) $(SRCHOBJS) $(ZIPOBJS) $(LDLIBS)
 
-dictzip:: dictzip.c $(HEADERS) data.o
+dictzip:: dictzip.c $(HEADERS) data.o @LIBOBJS@
 	$(CC) $(ALLFLAGS) -o $@ $< data.o $(LDLIBS)
 
-dictfmt:: dictfmt.c $(HEADERS)
+dictfmt:: dictfmt.c $(HEADERS) @LIBOBJS@
 	$(CC) $(ALLFLAGS) -o $@ $< $(LDLIBS)
 
 servscan.c: servscan.l

@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.31 2003/01/03 19:43:35 cheusov Exp $
+dnl $Id: configure.in,v 1.32 2003/01/14 16:47:59 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -36,7 +36,7 @@ define(VERSION, 1.9.1)
 
 
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.31 $)
+AC_REVISION($Revision: 1.32 $)
 
 AC_INIT(dict, VERSION, "dict-beta@dict.org")
 
@@ -312,10 +312,21 @@ AC_FUNC_VPRINTF
 AC_FUNC_WAIT3
 
 AC_CHECK_FUNCS(strdup strtol strtoul semget strerror inet_aton)
-AC_REPLACE_FUNCS(strdup strtol strtoul)
+AC_CHECK_FUNCS(strdup strtol strtoul)
 AC_CHECK_FUNCS(alarm gethostbyaddr gethostbyname gethostname gettimeofday)
 AC_CHECK_FUNCS(inet_ntoa memmove memset munmap regcomp setenv setlocale)
 AC_CHECK_FUNCS(socket strcasecmp strchr strrchr strstr uname)
+
+#AC_REPLACE_FUNCS(towlower)
+#AC_REPLACE_FUNCS(wcrtomb wctomb mbrlen mbrtowc mbstowcs mbtowc)
+
+AC_LIBOBJ(mbtowc)
+AC_LIBOBJ(mbstowcs)
+AC_LIBOBJ(mbrtowc)
+AC_LIBOBJ(mbrlen)
+AC_LIBOBJ(wctomb)
+AC_LIBOBJ(wcrtomb)
+
 
 echo .
 echo Making output files
