@@ -1,4 +1,4 @@
-Version 1.9.15, by Aleksey Cheusov, Wed, 17 Nov 2004 21:02:47 +0200
+Version 1.9.15, by Aleksey Cheusov, Thu, 23 Dec 2004 21:16:03 +0200
 
   Format of .index files for 8-bit databases (not-ASCII and non-UTF8)
   has been changed. This makes `dictd' backward incompatible with
