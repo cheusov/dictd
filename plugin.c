@@ -15,7 +15,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: plugin.c,v 1.8 2003/10/14 22:31:23 cheusov Exp $
+ * $Id: plugin.c,v 1.9 2003/10/22 03:56:37 cheusov Exp $
  * 
  */
 
@@ -119,7 +119,11 @@ int dict_search_plugin (
 	    def -> def_size = len;
 	 }
 
-	 lst_push (l, def);
+	 if (ret == DICT_PLUGIN_RESULT_PREPROCESS){
+	    lst_push (l, def);
+	 }else{
+	    lst_append (l, def);
+	 }
       }
 
       return defs_count;
@@ -179,7 +183,7 @@ static int plugin_initdata_set_data_file (
       list, DICT_ENTRY_PLUGIN_DATA, db, DICT_EXACT);
 
    if (0 == ret){
-      lst_destroy (list);
+      dict_destroy_list (list);
       return 0;
    }
 
@@ -187,14 +191,12 @@ static int plugin_initdata_set_data_file (
    plugin_data = dict_plugin_data (db, dw);
 
    dict_destroy_datum (dw);
-   if (2 == ret)
-      dict_destroy_datum (lst_pop (list));
 
    data -> id   = DICT_PLUGIN_INITDATA_DICT;
    data -> data = plugin_data;
    data -> size = -1;
 
-   lst_destroy (list);
+   dict_destroy_list (list);
 
    return 1;
 }
@@ -266,7 +268,10 @@ static int plugin_initdata_set_dbnames (dictPluginData *data, int data_size)
    return count;
 }
 
-static int plugin_initdata_set_stratnames (dictPluginData *data, int data_size)
+static int plugin_initdata_set_stratnames (
+   dictPluginData *data,
+   int data_size,
+   const dictDatabase *db)
 {
    dictStrategy **strats;
    int count;
@@ -283,25 +288,30 @@ static int plugin_initdata_set_stratnames (dictPluginData *data, int data_size)
    strats = get_strategies ();
 
    for (i = 0; i < count; ++i){
-      data -> id   = DICT_PLUGIN_INITDATA_STRATEGY;
-
       if (
-	 strlen (strats [i] -> name) + 1 >
-	 sizeof (datum.name))
+	 !db -> strategy_disabled ||
+	 !db -> strategy_disabled [strats [i] -> number])
       {
-	 err_fatal (__FUNCTION__, "too small initial array");
+	 data -> id   = DICT_PLUGIN_INITDATA_STRATEGY;
+
+	 if (
+	    strlen (strats [i] -> name) + 1 >
+	    sizeof (datum.name))
+	 {
+	    err_fatal (__FUNCTION__, "too small initial array");
+	 }
+
+	 datum.number = strats [i] -> number;
+	 strcpy (datum.name, strats [i] -> name);
+
+	 data -> size = sizeof (datum);
+	 data -> data = xmalloc (sizeof (datum));
+
+	 memcpy ((void *) data -> data, &datum, sizeof (datum));
+
+	 ++data;
+	 ++ret;
       }
-
-      datum.number = strats [i] -> number;
-      strcpy (datum.name, strats [i] -> name);
-
-      data -> size = sizeof (datum);
-      data -> data = xmalloc (sizeof (datum));
-
-      memcpy ((void *) data -> data, &datum, sizeof (datum));
-
-      ++data;
-      ++ret;
    }
 
    return ret;
@@ -339,7 +349,7 @@ static int plugin_initdata_set (
    data      += count;
    data_size -= count;
 
-   count = plugin_initdata_set_stratnames (data, data_size);
+   count = plugin_initdata_set_stratnames (data, data_size, db);
    data      += count;
    data_size -= count;
 
@@ -528,9 +538,6 @@ int dict_plugin_init (dictDatabase *db)
 	 plugin_filename = dict_plugin_filename (db, dw);
 
 	 dict_destroy_datum (dw);
-	 if (2 == ret)
-	    dict_destroy_datum (lst_pop (list));
-
 	 break;
       case 0:
 	 break;
@@ -538,7 +545,7 @@ int dict_plugin_init (dictDatabase *db)
 	 err_internal( __FUNCTION__, "Corrupted .index file'\n" );
       }
 
-      lst_destroy (list);
+      dict_destroy_list (list);
    }
 
    if (plugin_filename){
