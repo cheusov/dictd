@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.115 2004/10/06 14:59:10 cheusov Exp $
+ * $Id: dictd.c,v 1.116 2004/10/12 12:55:14 cheusov Exp $
  * 
  */
 
@@ -461,7 +461,7 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
 
    if (
       0 >= dict_search (
-	 list, entryName, db, DICT_EXACT,
+	 list, entryName, db, DICT_STRAT_EXACT,
 	 NULL, NULL, NULL ))
    {
 #ifdef USE_PLUGIN
@@ -563,7 +563,7 @@ static int init_virtual_db_list (const void *datum)
 
       list = lst_create();
       ret = dict_search (
-	 list, DICT_FLAG_VIRTUAL, db, DICT_EXACT,
+	 list, DICT_FLAG_VIRTUAL, db, DICT_STRAT_EXACT,
 	 NULL, NULL, NULL);
 
       switch (ret){
@@ -614,14 +614,10 @@ void dict_disable_strat (dictDatabase *db, const char* strategy)
       memset (db -> strategy_disabled, 0, array_size * sizeof (int));
    }
 
-   strat = lookup_strategy (strategy);
+   strat = lookup_strategy_ex (strategy);
+   assert (strat >= 0);
 
-   if (strat == -1){
-      log_info(":E: strategy '%s' is not available\n", strategy);
-      err_fatal(__FUNCTION__, ":E: terminating due to errors.\n");
-   }else{
-      db -> strategy_disabled [strat] = 1;
-   }
+   db -> strategy_disabled [strat] = 1;
 }
 
 static void init_database_alphabet (dictDatabase *db)
@@ -636,7 +632,7 @@ static void init_database_alphabet (dictDatabase *db)
 
    l = lst_create ();
 
-   ret = dict_search_database_ (l, DICT_FLAG_ALPHABET, db, DICT_EXACT);
+   ret = dict_search_database_ (l, DICT_FLAG_ALPHABET, db, DICT_STRAT_EXACT);
 
    if (ret){
       dw = (const dictWord *) lst_top (l);
@@ -927,7 +923,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.115 2004/10/06 14:59:10 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.116 2004/10/12 12:55:14 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1371,7 +1367,7 @@ int main( int argc, char **argv, char **envp )
    int                i;
 
    const char *       strategy_arg = "exact";
-   int                strategy     = DICT_EXACT;
+   int                strategy     = DICT_STRAT_EXACT;
 
    const char *       default_strategy_arg = "???";
 
@@ -1484,7 +1480,7 @@ int main( int argc, char **argv, char **envp )
 	 break;
       case 511:
 	 default_strategy_arg = str_copy (optarg);
-	 default_strategy = lookup_strategy (default_strategy_arg);
+	 default_strategy = lookup_strategy_ex (default_strategy_arg);
 	 break;
       case 512:
 	 match_mode = 1;

@@ -15,7 +15,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: plugin.c,v 1.16 2004/03/24 09:15:33 cheusov Exp $
+ * $Id: plugin.c,v 1.17 2004/10/12 12:55:14 cheusov Exp $
  * 
  */
 
@@ -183,7 +183,7 @@ static int plugin_initdata_set_data_file (
    list = lst_create ();
 
    ret = dict_search_database_ (
-      list, DICT_ENTRY_PLUGIN_DATA, db, DICT_EXACT);
+      list, DICT_ENTRY_PLUGIN_DATA, db, DICT_STRAT_EXACT);
 
    if (0 == ret){
       dict_destroy_list (list);
@@ -276,7 +276,7 @@ static int plugin_initdata_set_stratnames (
    int data_size,
    const dictDatabase *db)
 {
-   dictStrategy **strats;
+   dictStrategy const * const *strats;
    int count;
    int ret = 0;
    int i;
@@ -567,7 +567,7 @@ int dict_plugin_init (dictDatabase *db)
 
       list = lst_create ();
 
-      ret = dict_search_database_ (list, DICT_ENTRY_PLUGIN, db, DICT_EXACT);
+      ret = dict_search_database_ (list, DICT_ENTRY_PLUGIN, db, DICT_STRAT_EXACT);
       switch (ret){
       case 1: case 2:
 	 dw = (dictWord *) lst_pop (list);

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.76 2004/05/15 16:51:46 cheusov Exp $
+ * $Id: daemon.c,v 1.77 2004/10/12 12:55:14 cheusov Exp $
  * 
  */
 
@@ -718,7 +718,7 @@ static void daemon_define( const char *cmdline, int argc, char **argv )
 
    matches = abs(dict_search_databases (
       list, NULL,
-      databaseName, word, DICT_EXACT,
+      databaseName, word, DICT_STRAT_EXACT,
       &db_found));
 
    if (db_found && matches > 0) {
@@ -1153,7 +1153,7 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
 	 list,
 	 info_entry_name,
 	 db,
-	 DICT_EXACT,
+	 DICT_STRAT_EXACT,
 	 NULL, NULL, NULL))
       {
 	 dw = lst_nth_get( list, 1 );

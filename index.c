@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.90 2004/10/08 08:14:39 cheusov Exp $
+ * $Id: index.c,v 1.91 2004/10/12 12:55:14 cheusov Exp $
  * 
  */
 
@@ -1395,31 +1395,31 @@ int dict_search_database_ (
 */
 
    switch (strategy) {
-   case DICT_EXACT:
+   case DICT_STRAT_EXACT:
       return dict_search_exact( l, buf, database, database->index );
 
-   case DICT_PREFIX:
+   case DICT_STRAT_PREFIX:
       return dict_search_prefix( l, buf, database, database->index );
 
-   case DICT_SUBSTRING:
+   case DICT_STRAT_SUBSTRING:
       return dict_search_substring( l, buf, database, database->index );
 
-   case DICT_SUFFIX:
+   case DICT_STRAT_SUFFIX:
       return dict_search_suffix( l, buf, database );
 
-   case DICT_RE:
+   case DICT_STRAT_RE:
       return dict_search_re( l, word, database, database->index );
 
-   case DICT_REGEXP:
+   case DICT_STRAT_REGEXP:
       return dict_search_regexp( l, word, database, database->index );
 
-   case DICT_SOUNDEX:
+   case DICT_STRAT_SOUNDEX:
       return dict_search_soundex( l, buf, database, database->index );
 
-   case DICT_LEVENSHTEIN:
+   case DICT_STRAT_LEVENSHTEIN:
       return dict_search_levenshtein( l, buf, database, database->index);
 
-   case DICT_WORD:
+   case DICT_STRAT_WORD:
       return dict_search_word( l, buf, database);
 
    default:
@@ -1616,7 +1616,7 @@ dictIndex *dict_index_open(
       i->isspacealnum = isspacealnumtab_allchars;
 
       i->flag_allchars =
-	 0 != dict_search_database_ (NULL, DICT_FLAG_ALLCHARS, &db, DICT_EXACT);
+	 0 != dict_search_database_ (NULL, DICT_FLAG_ALLCHARS, &db, DICT_STRAT_EXACT);
       PRINTF(DBG_INIT, (":I:     \"%s\": flag_allchars=%i\n", filename, i->flag_allchars));
 
       /* utf8 flag */
@@ -1624,7 +1624,7 @@ dictIndex *dict_index_open(
 	 i -> isspacealnum = isspacealnumtab;
 
       i->flag_utf8 =
-	 0 != dict_search_database_ (NULL, DICT_FLAG_UTF8, &db, DICT_EXACT);
+	 0 != dict_search_database_ (NULL, DICT_FLAG_UTF8, &db, DICT_STRAT_EXACT);
       PRINTF(DBG_INIT, (":I:     \"%s\": flag_utf8=%i\n", filename, i->flag_utf8));
       if (i->flag_utf8 && !utf8_mode){
 	 fprintf (stderr, "locale '%s' can not be used for utf-8 dictionaries\n", locale);
@@ -1634,7 +1634,7 @@ dictIndex *dict_index_open(
 
       /* 8bit flag */
       i->flag_8bit =
-	 0 != dict_search_database_ (NULL, DICT_FLAG_8BIT, &db, DICT_EXACT);
+	 0 != dict_search_database_ (NULL, DICT_FLAG_8BIT, &db, DICT_STRAT_EXACT);
       PRINTF(DBG_INIT, (":I:     \"%s\": flag_8bit=%i\n", filename, i->flag_8bit));
       if (i->flag_8bit && !bit8_mode){
 	 fprintf (stderr, "locale '%s' can not be used for 8-bit dictionaries\n", locale);

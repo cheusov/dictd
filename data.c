@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: data.c,v 1.23 2003/10/31 00:40:04 cheusov Exp $
+ * $Id: data.c,v 1.24 2004/10/12 12:55:14 cheusov Exp $
  * 
  */
 
@@ -351,7 +351,7 @@ char *dict_data_obtain (const dictDatabase *db, const dictWord *dw)
    char *word_copy;
    int len;
 
-   if (!dw)
+   if (!dw || !db)
       return NULL;
 
    if (dw -> def){
