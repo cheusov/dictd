@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.72 2003/04/14 15:12:47 cheusov Exp $
+# $Id: Makefile.in,v 1.73 2003/04/30 17:04:04 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -274,7 +274,8 @@ install.includes:
 install.plugins:
 	test _$(USE_PLUGIN) != _ && \
 	{ if test ! -d $(DESTDIR)$(libexecdir); then $(INSTALL) -d 755 $(DESTDIR)$(libexecdir); fi; \
-    $(INSTALL_DATA) $(PLUGINS) $(DESTDIR)$(libexecdir); } || true
+    test $(PLUGINS) && \
+        $(INSTALL_DATA) $(PLUGINS) $(DESTDIR)$(libexecdir); } || true
 
 .PHONY: install
 
