@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.43 2003/03/26 12:38:09 cheusov Exp $
+dnl $Id: configure.in,v 1.44 2003/04/07 14:45:55 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -36,7 +36,7 @@ define(VERSION, 1.9.8)
 
 
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.43 $)
+AC_REVISION($Revision: 1.44 $)
 
 AC_INIT(dict, VERSION, "dict-beta@dict.org")
 
@@ -253,12 +253,10 @@ fi
 
 if test "$local_zlib" = 1; then
     AC_MSG_CHECKING(for zlib in local source tree)
-    if test -d zlib; then
+    if cd zlib && ./configure && cd ..; then
         REALLIBS="$REALLIBS -Lzlib -lz"
         XTRACFLAGS="$XTRACFLAGS -Izlib"
         allsubdirs="$allsubdirs zlib"
-
-	AC_CONFIG_SUBDIRS(zlib)
 
         AC_MSG_RESULT(yes)
     else
