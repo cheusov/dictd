@@ -1,3 +1,70 @@
+Version 1.9.12, by Aleksey Cheusov, 10 Mar 2004 18:45:15 +0200
+
+  Both dictd and Judy-plugin correctly implement
+    the 'lev' strategy for utf-8 databases.
+    For this purpose additional headword 00-database-alphabet is
+    created by dictfmt.
+     So, if you often use 'lev' strategy on utf-8 dictionaries,
+    rebuild them using dictfmt-1.9.12
+
+  'nl_langinfo' function is used to detect
+      whether dictd/dictfmt uses 8bit, utf-8, or C locale.
+
+  dictd:
+    - fixes
+
+       SHOW SERVER command cuts off long database names
+
+       crash on Solaris (and FreeBSD5 ?) due to
+         toupper('255') returns 376 if using utf-8 locale is set.
+
+       LC_CTYPE and LC_COLLATE are set according to --locale.
+         As a result date and time are logged using a locale C
+
+    - MATCH|DEFINE *|! ignore invisible dictionaries.
+         Now there is no reason to separate visible and invisible dictionaries
+         by database_exit command.
+         This simplifies a configuration file.
+
+    - dictd --test|--test-file notifies about invalid database name
+
+  dictl:
+
+    - checks whether recode/iconv/konwert/locale commands are available
+
+    - analyses PAGER variable to set a pager.
+
+    - incorrect charset determination has been fixed
+
+  dictfmt:
+
+     - new option --break-headwords for use with --headword-separator, so
+       each headword is written on its own line of the .dict file.
+
+     - correctly wraps utf-8 input
+
+     - new option --columns to set a number of columns for
+      wrapping text. See dictfmt.1. By default this value is 72.
+      All formats are affected and use the same default.
+
+     - 00-database-XXX headwords are not copied to .dict file.
+         The only exception is 00-database-short which should be copied
+         to .dict file for older 'dictd'
+
+  maa:
+      new functions and #defines:
+         'str_pool_init_position', 'str_pool_next_position',
+         'str_pool_get_position', 'str_pool_readonly', 'str_pool_iterate',
+         'str_pool_iterate_arg', 'STR_ITERATE' and 'STR_ITERATE_END'
+         to iterate over strings in the string pool.
+
+      fixed a bug in flags.c/flg_set function
+
+  dictdplugin_judy:
+      
+      fixed: if a requested headword has more than one definition,
+         DEFINE command always returns the first one
+
 Version 1.9.11, by Aleksey Cheusov, 8 Dec 2003 20:55:31 +0200
 
   NEWS file added
