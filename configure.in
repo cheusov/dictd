@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.18 1999/12/22 14:46:23 faith Exp $
+dnl $Id: configure.in,v 1.19 1999/12/22 14:57:50 faith Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -32,7 +32,7 @@ dnl     YCFLAGS is for yacc
 dnl     LCFLAGS is for lex
 
 AC_PREREQ(2.1)
-AC_REVISION($Revision: 1.18 $)
+AC_REVISION($Revision: 1.19 $)
 AC_INIT(dictd.c)
 AC_CONFIG_HEADER(config.h)
 
@@ -67,7 +67,7 @@ if test "$CC" = gcc; then
 	  WCFLAGS="$WCFLAGS -pipe";;
     esac
 				# Silence flex/bison output
-    SCFLAGS=-Wno-implicit -wno-unused
+    SCFLAGS="-Wno-implicit -Wno-unused"
 else
     CFLAGS='-g'
 fi
