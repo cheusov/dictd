@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.22 2003/06/23 18:40:59 cheusov Exp $
+ * $Id: dictfmt.c,v 1.23 2003/07/09 17:11:59 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -665,6 +665,7 @@ static void fmt_headword_for_url (void)
    fmt_newheadword("00-database-url",1);
    fmt_string( "     " );
    fmt_string( url );
+   fmt_newline();
 
    ignore_hw_url = 1;
 }
@@ -674,6 +675,7 @@ static void fmt_headword_for_shortname (void)
    fmt_newheadword("00-database-short",1);
    fmt_string( "     " );
    fmt_string( sname );
+   fmt_newline();
 
    ignore_hw_shortname = 1;
 }
@@ -720,7 +722,7 @@ static void fmt_headword_for_utf8 (void)
 {
    if (utf8_mode){
       fmt_newheadword("00-database-utf8",1);
-      fmt_string( "     " );
+      fmt_newline();
    }
 }
 
@@ -728,7 +730,7 @@ static void fmt_headword_for_8bit (void)
 {
    if (bit8_mode){
       fmt_newheadword("00-database-8bit",1);
-      fmt_string( "     " );
+      fmt_newline();
    }
 }
 
@@ -736,7 +738,7 @@ static void fmt_headword_for_allchars (void)
 {
    if (allchars_mode){
       fmt_newheadword("00-database-allchars",1);
-      fmt_string( "     " );
+      fmt_newline();
    }
 }
 
