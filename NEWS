@@ -1,3 +1,49 @@
+Version 1.9.13, by Aleksey Cheusov, 24 Mar 2004 11:32:53 +0200
+
+  FIXED: if database has no 00-database-alphabet headword,
+      "global" alphabet is built incorrectly. As a result
+      dictd may work (FreeBSD does) incorrectly with LEV strategy.
+      Affected versions: 1.9.12
+
+  ADDED: plugin using libdbi library for implementing DICT database using
+    SQL server. It is possible to specify custom search strategies
+    by specifying SQL query.
+
+    The following option are currently supported:
+
+      driverdir       - path to DBI drivers
+      drivername      - DBI driver name, such as pgsql, mysql, sqlite etc.
+      option_host     - host to connect to
+      option_port     - port to connect to
+      option_dbname   - database name
+      option_username - user name for authorizing to SQL server
+      option_password - user password for authorizing to SQL server
+      query_define    -        SQL query for implementing DEFINE command
+      query_<strategy> - SQL query for implementing
+           'strategy' (MATCH command).
+           Note that 'strategy' is not limited to the "standard" ones.
+
+    See the file example_plugin_dbi.conf for sample of how
+      this plugin can be configured.
+
+    SQL queries should return 1-column result by using SELECT command.
+      %q sequence inside SQL query is expanded to user's query.
+      %% is expanded to single % sign.
+
+    This plugin gives a simplest way to implement editable
+      dictionaries with a help
+      of WEB interface, but with a read-only access to it
+      using DICT protocol.
+
+    NOTE! Unless libdbi library is not found on your system
+    or you configure dictd with --disable-plugin option,
+    'dictd' is linked with libdbi to resolv DBI driver's symbols.
+    This should be fixed.
+
+    NOTE! Connection to SQL database is made
+    for every DEFINE/MATCH command.
+    This slows down plugin and should be fixed.
+
 Version 1.9.12, by Aleksey Cheusov, 10 Mar 2004 18:45:15 +0200
 
   Both dictd and Judy-plugin correctly implement
