@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.99 2003/12/05 01:06:30 hilliard Exp $
+ * $Id: dictd.c,v 1.100 2003/12/08 17:14:47 cheusov Exp $
  * 
  */
 
@@ -860,7 +860,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.99 2003/12/05 01:06:30 hilliard Exp $";
+   const char     *id = "$Id: dictd.c,v 1.100 2003/12/08 17:14:47 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -889,13 +889,12 @@ const char *dict_get_banner( int shortFlag )
 static void banner( void )
 {
    printf( "%s\n", dict_get_banner(0) );
-   printf( "Copyright 1997-2002 Rickard E. Faith (faith@dict.org)\n" );
+   printf( "Copyright 1997-2002 Rickard E. Faith (faith@dict.org)\n\n" );
 }
 
 static void license( void )
 {
    static const char *license_msg[] = {
-     "",
      "This program is free software; you can redistribute it and/or modify it",
      "under the terms of the GNU General Public License as published by the",
      "Free Software Foundation; either version 1, or (at your option) any",

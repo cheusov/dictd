@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictzip.c,v 1.24 2003/10/26 12:48:23 cheusov Exp $
+ * $Id: dictzip.c,v 1.25 2003/12/08 17:14:47 cheusov Exp $
  * 
  */
 
@@ -313,17 +313,16 @@ static const char *id_string( const char *id )
 
 static void banner( void )
 {
-   const char *id = "$Id: dictzip.c,v 1.24 2003/10/26 12:48:23 cheusov Exp $";
+   const char *id = "$Id: dictzip.c,v 1.25 2003/12/08 17:14:47 cheusov Exp $";
    
    fprintf( stderr, "%s %s\n", err_program_name(), id_string( id ) );
    fprintf( stderr,
-	    "Copyright 1996-2002 Rickard E. Faith (faith@dict.org)\n" );
+	    "Copyright 1996-2002 Rickard E. Faith (faith@dict.org)\n\n" );
 }
 
 static void license( void )
 {
    static const char *license_msg[] = {
-     "",
      "This program is free software; you can redistribute it and/or modify it",
      "under the terms of the GNU General Public License as published by the",
      "Free Software Foundation; either version 1, or (at your option) any",
@@ -343,10 +342,12 @@ static void license( void )
    banner();
    while (*p) fprintf( stderr, "   %s\n", *p++ );
 }
-    
+
 static void help( void )
 {
    static const char *help_msg[] = {
+      "Usage: dictzip [options] name",
+      "",
       "-d --decompress      decompress",
       "-f --force           force overwrite of output file",
       "-h --help            give this help",
