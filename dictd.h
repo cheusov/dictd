@@ -1,6 +1,6 @@
 /* dict.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Fri Mar  7 15:33:25 1997 by faith@cs.unc.edu
+ * Revised: Sat Mar  8 18:40:01 1997 by faith@cs.unc.edu
  * Copyright 1994, 1995, 1996 Rickard E. Faith (faith@cs.unc.edu)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -88,10 +88,11 @@ typedef struct dictData {
 } dictData;
 
 typedef struct dictIndex {
-   int           fd;		/* file descriptor */
-   const char    *start;	/* start of mmap'd area */
-   const char    *end;		/* end of mmap'd area */
-   unsigned long size;		/* size of mmap */
+   int           fd;		 /* file descriptor */
+   const char    *start;	 /* start of mmap'd area */
+   const char    *end;		 /* end of mmap'd area */
+   unsigned long size;		 /* size of mmap */
+   const char    *optStart[257]; /* Optimized starting points */
 } dictIndex;
 
 typedef struct dictDatabase {

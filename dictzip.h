@@ -1,6 +1,6 @@
 /* dict.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Fri Mar  7 11:03:19 1997 by faith@cs.unc.edu
+ * Revised: Sat Mar  8 18:37:21 1997 by faith@cs.unc.edu
  * Copyright 1994, 1995, 1996 Rickard E. Faith (faith@cs.unc.edu)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,15 +22,9 @@
 #ifndef _DICTZIP_H_
 #define _DICTZIP_H_
 
-#include "dictP.h"
 #include "maa.h"
 #include "zlib.h"
-
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <errno.h>
-#include <netdb.h>
-
+#include "dictd.h"
 
 				/* Configurable things */
 
@@ -123,143 +117,10 @@
 #define GZ_CHUNKCNT     20	/* Number of chunks (16bit)                */
 #define GZ_RNDDATA      22	/* Random access data (16bit)              */
 
-extern void fmt_newline( void );
-extern void fmt_new( const char *word );
-extern void fmt_string( const char *string );
-extern void fmt_flush( void );
-extern void fmt_line( const char *line );
-extern void fmt_def( const char *pos, int entry );
-extern void fmt_open( const char *basename );
-extern void fmt_close( void );
-
 #define DICT_UNKNOWN    0
 #define DICT_TEXT       1
 #define DICT_GZIP       2
 #define DICT_DZIP       3
 
-typedef struct dictData {
-   int           fd;		/* file descriptor */
-   const char    *start;	/* start of mmap'd area */
-   const char    *end;		/* end of mmap'd area */
-   unsigned long size;		/* size of mmap */
-   
-   int           type;
-   const char    *filename;
-   z_stream      zStream;
-   int           initialized;
-   
-   int           headerLength;
-   int           method;
-   int           flags;
-   time_t        mtime;
-   int           extraFlags;
-   int           os;
-   int           version;
-   int           chunkLength;
-   int           chunkCount;
-   int           *chunks;
-   unsigned long *offsets;	/* Sum-scan of chunks. */
-   const char    *origFilename;
-   const char    *comment;
-   unsigned long crc;
-   unsigned long length;
-   unsigned long compressedLength;
-} dictData;
-
-typedef struct dictIndex {
-   int           fd;		/* file descriptor */
-   const char    *start;	/* start of mmap'd area */
-   const char    *end;		/* end of mmap'd area */
-   unsigned long size;		/* size of mmap */
-} dictIndex;
-
-typedef struct dictDatabase {
-   const char *databaseName;
-   const char *databaseShort;
-   const char *dataFilename;
-   const char *indexFilename;
-   const char *filter;
-   const char *prefilter;
-   const char *postfilter;
-   lst_List   acl;
-   
-   dictData   *data;
-   dictIndex  *index;
-} dictDatabase;
-
-#define DICT_DENY  0
-#define DICT_ALLOW 1
-#define DICT_USER  0
-#define DICT_GROUP 1
-#define DICT_ADDR  2
-#define DICT_NAME  3
-
-typedef struct dictAccess {
-   int        allow;		/* 1 = allow; 0 = deny */
-   int        type;		/* user, group, hostaddr, hostname */
-   const char *spec;
-} dictAccess;
-
-typedef struct dictConfig {
-   lst_List   acl;
-   lst_List   dbl;
-} dictConfig;
-
-#define DICT_EXACT        1
-#define DICT_PREFIX       2
-#define DICT_SUBSTRING    3
-#define DICT_REGEXP       4
-#define DICT_SOUNDEX      5
-#define DICT_LEVENSHTEIN  6
-
-
-typedef struct dictWord {
-   const char    *word;
-   unsigned long start;
-   unsigned long end;
-   dictDatabase  *database;
-} dictWord;
-
-typedef struct dictToken {
-   const char   *string;
-   int          integer;
-   src_Type     src;
-} dictToken;
-
-extern dictData *dict_data_open( const char *filename, int computeCRC );
-extern void     dict_data_close( dictData *data );
-extern void     dict_data_print_header( FILE *str, dictData *data );
-extern int      dict_data_zip( const char *inFilename, const char *outFilename,
-			       const char *preFilter, const char *postFilter );
-extern char     *dict_data_read( dictData *data,
-				 unsigned long start, unsigned long end,
-				 const char *preFilter,
-				 const char *postFilter );
-extern int      dict_data_filter( char *buffer, int *len, int maxLength,
-				  const char *filter );
-
-
-extern const char *dict_index_search( const char *word, dictIndex *idx );
-extern lst_List   dict_search_database( const char *word,
-					dictDatabase *database, int strategy );
-extern dictIndex  *dict_index_open( const char *filename );
-extern void       dict_index_close( dictIndex *i );
-extern void       dict_dump_list( lst_List list );
-extern void       dict_destroy_list( lst_List list );
-
-/* dictd.c */
-
-extern void       dict_set_config( dictConfig *dc );
-extern dictConfig *dict_get_config( void );
-extern const char *dict_get_hostname( void );
-extern const char *dict_get_banner( void );
-
-/* daemon.c */
-
-extern int dict_daemon( int s, struct sockaddr_in *csin );
-				/* dmalloc must be last */
-#ifdef DMALLOC_FUNC_CHECK
-# include "dmalloc.h"
-#endif
 
 #endif

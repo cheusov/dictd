@@ -1,6 +1,6 @@
 /* index.c -- 
  * Created: Wed Oct  9 14:52:23 1996 by faith@cs.unc.edu
- * Revised: Fri Mar  7 15:33:27 1997 by faith@cs.unc.edu
+ * Revised: Sat Mar  8 18:59:53 1997 by faith@cs.unc.edu
  * Copyright 1996, 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.4 1997/03/07 20:37:12 faith Exp $
+ * $Id: index.c,v 1.5 1997/03/09 00:20:12 faith Exp $
  * 
  */
 
@@ -29,10 +29,25 @@
 #include <ctype.h>
 
 #define FIND_NEXT(pt,end) while (pt < end && *pt++ != '\n');
-#define DEBUG 0
+#define DEBUG    0
+#define OPTSTART 0
 
-static int compare( const char *word, const char *start, const char *end,
-		    int exact, int strict )
+int _dict_comparisons;
+
+/* Compare:
+   
+   Return -1 if word <  word-pointed-to-by-start
+           0 if word == word-pointed-to-by-start
+	   1 if word >  word-pointed-to-by-start
+	  
+   The comparison must be the same as "sort -df" phone directory order:
+   ignore all characters except letters, digits, and blanks; fold upper
+   case into the equivalent lowercase.
+
+   word already has all of the illegal characters removed
+*/
+
+static int compare( const char *word, const char *start, const char *end )
 {
    int c;
 
@@ -45,13 +60,14 @@ static int compare( const char *word, const char *start, const char *end,
    printf( "compare \"%s\" with \"%s\"\n", word, buf );
 #endif
    
+   ++_dict_comparisons;		/* counter for profiling */
    for (; *word && start < end && *start != '\t';) {
-      if (!strict && (*start == ' ' || !isalnum( *start ))) {
+      if (*start != ' ' && !isalnum( *start )) {
 	 ++start;
 	 continue;
       }
-      if (strict) c = *start;
-      else       c = tolower( *start );
+      if (isspace( *start )) c = ' ';
+      else                   c = tolower( *start );
       if (*word != c) {
 #if DEBUG
 	 printf( "   result = %d\n", (*word < c) ? -1 : 1 );
@@ -61,11 +77,15 @@ static int compare( const char *word, const char *start, const char *end,
       ++word;
       ++start;
    }
+   
+   while (*start != '\t' && *start != ' ' && !isalnum(*start))
+      ++start;
+   
 #if DEBUG
    printf( "   result = %d\n",
-	   *word ? 1 : ((exact && *start != '\t') ? -1 : 0) );
+	   *word ? 1 : ((*start != '\t') ? -1 : 0) );
 #endif
-   return  *word ? 1 : ((exact && *start != '\t') ? -1 : 0);
+   return  *word ? 1 : ((*start != '\t') ? -1 : 0);
 }
 
 static const char *binary_search( const char *word,
@@ -78,8 +98,8 @@ static const char *binary_search( const char *word,
    pt = start + (end-start)/2;
    FIND_NEXT(pt,end);
    while (pt < end) {
-      if (compare( word, pt, end, 0, 0 ) > 0) start = pt;
-      else                                    end   = pt;
+      if (compare( word, pt, end ) > 0) start = pt;
+      else                              end   = pt;
       PRINTF(DBG_SEARCH,("%s %p %p\n",word,start,end));
       pt = start + (end-start)/2;
       FIND_NEXT(pt,end);
@@ -94,7 +114,7 @@ static const char *linear_search( const char *word,
    const char *pt;
 
    for (pt = start; pt < end;) {
-      switch (compare( word, pt, end, 0, 0 )) {
+      switch (compare( word, pt, end )) {
       case -1: return NULL;
       case  0: return pt;
       case  1: break;
@@ -106,12 +126,32 @@ static const char *linear_search( const char *word,
 
 const char *dict_index_search( const char *word, dictIndex *idx )
 {
-   const char *start;
+   const char    *start;
+#if OPTSTART
+   unsigned char first = *word;
+#endif
    
    if (!idx)
       err_internal( __FUNCTION__, "No information on index file\n" );
 
+   /* With optStart:
+      17071 comparisons, 1000 words
+      33946 comparisons, 2000 words
+
+      Without optStart:
+      20889 comparisons, 1000 words
+      41668 comparisons, 2000 words
+
+      Linear:
+       594527 comparisons, 1000 words
+      2097035 comparisons, 2000 words
+   */
+
+#if OPTSTART
+   start = binary_search( word, idx->optStart[first], idx->optStart[first+1] );
+#else
    start = binary_search( word, idx->start, idx->end );
+#endif
    PRINTF(DBG_SEARCH,("binary_search returns %p\n",start));
    start = linear_search( word, start,      idx->end );
    PRINTF(DBG_SEARCH,("linear_search returns %p\n",start));
@@ -199,26 +239,15 @@ static lst_List dict_search_exact( const char *word,
    int        count = 0;
    dictWord   *datum;
 
-   if (orig[0] == '!') {
-      while (pt && pt < database->index->end) {
-	 if (!compare( orig, pt, database->index->end, 1, 1 )) {
-	    ++count;
-	    datum = dict_word_create( pt, database );
-	    lst_append( l, datum );
-	 } else break;
-	 FIND_NEXT( pt, database->index->end );
-      }
-   } else {
-      while (pt && pt < database->index->end) {
-	 if (!compare( word, pt, database->index->end, 1, 0 )) {
-	    ++count;
-	    datum = dict_word_create( pt, database );
-	    lst_append( l, datum );
-	 } else break;
-	 FIND_NEXT( pt, database->index->end );
-      }
+   while (pt && pt < database->index->end) {
+      if (!compare( word, pt, database->index->end )) {
+	 ++count;
+	 datum = dict_word_create( pt, database );
+	 lst_append( l, datum );
+      } else break;
+      FIND_NEXT( pt, database->index->end );
    }
-
+   
    if (!count) {
       lst_destroy( l );
       l = NULL;
@@ -236,7 +265,7 @@ static lst_List dict_search_prefix( const char *word,
    dictWord   *datum;
 
    while (pt && pt < database->index->end) {
-      if (compare( word, pt, database->index->end, 0, 0 ) >= 0) {
+      if (compare( word, pt, database->index->end ) >= 0) {
 	 ++count;
 	 datum = dict_word_create( pt, database );
 	 lst_append( l, datum );
@@ -261,7 +290,7 @@ static lst_List dict_search_substring( const char *word,
    dictWord   *datum;
 
    while (pt && pt < database->index->end) {
-      if (compare( word, pt, database->index->end, 0, 0) >= 0) {
+      if (compare( word, pt, database->index->end ) >= 0) {
 	 ++count;
 	 datum = dict_word_create( pt, database );
 	 lst_append( l, datum );
@@ -306,8 +335,9 @@ lst_List dict_search_database( const char *word,
    const char *w   = word;
 		  
    for (pt = buf; *w; w++) {
-      if (*word == ' ' || !isalnum( *w )) continue;
-      *pt++ = tolower(*w);
+      if (*w != ' ' && !isalnum( *w )) continue;
+      if (isspace( *w )) *pt++ = ' ';
+      else               *pt++ = tolower(*w);
    }
    *pt = '\0';
 
@@ -330,6 +360,9 @@ dictIndex *dict_index_open( const char *filename )
 {
    dictIndex   *i = xmalloc( sizeof( struct dictIndex ) );
    struct stat sb;
+#if OPTSTART
+   int         j;
+#endif
 
    memset( i, 0, sizeof( struct dictIndex ) );
 
@@ -347,6 +380,22 @@ dictIndex *dict_index_open( const char *filename )
 		       "Cannot mmap index file \"%s\"\b", filename );
 
    i->end = i->start + i->size;
+
+#if OPTSTART
+   for (j = 0; j < 256; j++) {
+      char buf[2];
+
+      if (j != ' ' && !isalnum(j)) {
+	 i->optStart[j] = i->end;
+      } else {
+	 buf[0] = tolower(j);
+	 buf[1] = '\0';
+	 i->optStart[j] = binary_search( buf, i->start, i->end );
+      }
+   }
+   i->optStart[256] = i->end;
+#endif
+   
    return i;
 }
 

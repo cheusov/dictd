@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Sat Mar  8 17:06:12 1997 by faith@cs.unc.edu
+ * Revised: Sat Mar  8 18:38:15 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.6 1997/03/08 22:09:38 faith Exp $
+ * $Id: dictd.c,v 1.7 1997/03/09 00:20:10 faith Exp $
  * 
  */
 
@@ -12,6 +12,8 @@
 #include "servparse.h"
 
 extern int yy_flex_debug;
+
+extern int _dict_comparisons;
 
 static dictConfig *DictConfig;
 static const char *DictHostname;
@@ -187,7 +189,7 @@ static const char *id_string( const char *id )
 const char *dict_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dictd.c,v 1.6 1997/03/08 22:09:38 faith Exp $";
+   const char        *id = "$Id: dictd.c,v 1.7 1997/03/09 00:20:10 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -262,6 +264,7 @@ int main( int argc, char **argv )
    const char         *configFile = DICT_CONFIG_FILE;
    int                detach      = 0;
    const char         *testWord   = NULL;
+   const char         *testFile   = NULL;
    struct option      longopts[]  = {
       { "verbose", 0, 0, 'v' },
       { "version", 0, 0, 'V' },
@@ -272,6 +275,7 @@ int main( int argc, char **argv )
       { "help",    0, 0, 'h' },
       { "license", 0, 0, 'L' },
       { "test",    1, 0, 't' },
+      { "ftest",   1, 0, 501 },
       { 0,         0, 0,  0  }
    };
 
@@ -294,6 +298,7 @@ int main( int argc, char **argv )
       case 'c': configFile = optarg;  break;
       case 'L': license(); exit(1);   break;
       case 't': testWord = optarg;    break;
+      case 501: testFile = optarg;    break;
       case 'h':
       default:  help(); exit(1);      break;
       }
@@ -313,13 +318,42 @@ int main( int argc, char **argv )
 					    lst_nth_get( DictConfig->dbl, 1 ),
 					    DICT_EXACT );
       if (list) {
-	 dict_dump_list( list );
+	 if (dbg_test(DBG_VERBOSE)) dict_dump_list( list );
 	 dict_dump_defs( list, lst_nth_get( DictConfig->dbl, 1 ) );
 	 dict_destroy_list( list );
       } else {
 	 printf( "No match\n" );
       }
+      fprintf( stderr, "%d comparisons\n", _dict_comparisons );
       exit( 0 );
+   }
+
+   if (testFile) {
+      FILE         *str;
+      char         buf[1024];
+      dictDatabase *db = lst_nth_get(DictConfig->dbl, 1);
+      int          words = 0;
+
+      if (!(str = fopen(testFile,"r")))
+	 err_fatal_errno( "Cannot open \"%s\" for read\n", testFile );
+      while (fgets(buf,1024,str)) {
+	 lst_List list = dict_search_database( buf, db, DICT_EXACT );
+	 ++words;
+	 if (list) {
+	    if (dbg_test(DBG_VERBOSE)) dict_dump_list( list );
+	    dict_dump_defs( list, db );
+	    dict_destroy_list( list );
+	 } else {
+	    fprintf( stderr, "*************** No match for \"%s\"\n", buf );
+	 }
+	 if (words && !(words % 1000))
+	    fprintf( stderr,
+		     "%d comparisons, %d words\n", _dict_comparisons, words );
+      }
+      fprintf( stderr,
+	       "%d comparisons, %d words\n", _dict_comparisons, words );
+      fclose( str);
+      exit(0);
    }
    
    sa.sa_handler = reaper;
