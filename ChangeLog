@@ -1,166 +1,58 @@
-2002-05-05  Rik Faith  <faith@dict.org>
-
-  * Makefile.in, dictd.c:
-  Process --locale option
-  Bump version
-
-2002-05-03  Rik Faith  <faith@dict.org>
-
-  * dict.c:
-  Use user/key for default servers, not just command-line server
-
-  * dict.c:
-  Make sure pager is closed when reporting fatal error
-
-  * Makefile.in: Bump version
-
-2002-04-29  Rik Faith  <faith@dict.org>
-
-  * daemon.c, dictd.8, dictd.c, index.c:
-  Add --locale option
-  Make log output 8-bit clean
-
-2002-04-22  Rik Faith  <faith@dict.org>
-
-  * Makefile.in: Bump version for testing
-
-  * dictd.h, index.c:
-  Fix support for locale patch
+2002-08-05  Aleksey Cheusov <cheusov@scnsoft.com>
 
   * index.c:
-  Apply patches from Aleksey Cheusov to make dictd know about locale
-  If LC_CTYPE and LC_COLLATE are the same for dictfmt and dictd, then a non C collating order should work.
+  changed: substring search for UTF-8 dictionaries uses BMH but the RE.
 
-  * daemon.c, dictd.h:
-  Make -l connect log something (under :K:)
+  * libmaa/list.c, dictd.c, dictd.h, index.c:
+  added: possibility to search using all characters
+    but the alphanumeric and space only.
+    00-database-allchars special entry in the index file is used.
 
-  * dictzip.c:
-  Fix Debian Bug#142672: dictunzip problem with single chunk files
+  * dictd.h, index.c:
+  changed: utf-8 search becomes faster
 
-2002-03-31  Rik Faith  <faith@dict.org>
+  * index.c:
+  changed: UTF-8 "suffix" search uses BMH but the RE.
+
+  * dictd.c, dictd.h, index.c, servparse.y, servscan.l, utf8_ucs4.c, utf8_ucs4.h:
+  added: more efficient (probably) suffix search algorithm is implemented.
+   Uses additional index file consisting of anagrams.
+
+  * index.c:
+  fixed: bug causing a lot of unnecessary comparisons
 
   * Makefile.in:
-  Update permissions on files placed into distribution tarball.
+  changed: distclean target in Makefile.in
 
-  * libmaa/log.c: Remove debugging statements
+  * index.c:
+  fixed: bug in debugging output
 
-  * libmaa/log.c: Fix log file path creation
+  * libmaa/Makefile.in, libmaa/log.c, libmaa/maa.h, Makefile.in, daemon.c, data.c, dictd.c, dictd.h, index.c, utf8_ucs4.c, utf8_ucs4.h:
+  added: utf-8 functions in utf8_ucs4.c
+  changed: 'distclean' target of Makefile.in
+  added: argument '--test-strategy'
+    it can be used for debugging.
+  fixed: crash at fclose(NULL)
+  fixed: crash of dictd with --ftest
+  fixed: "8bit" bug in compare:index.c
+  changed: comparions count in the debugging mode is calculated
+    without optStart array initialization
+  fixed: "8bit" bug in suffix/substring searching strategy
+  changed: PRINTF and FPRINTF macroses.
+    old variants cause problems with the nested if/else
+  added: UTF-8 support
 
-  * Makefile.in: Bump version for testing
+2002-08-02  faith  <faith@dict.org>
 
-  * libmaa/log.c: Make path for log file
+  * libmaa/Makefile.in, libmaa/arg.c, libmaa/argtest.c, libmaa/base26.c, libmaa/base64.c, libmaa/basetest.c, libmaa/bit.c, libmaa/bittest.c, libmaa/configure.in, libmaa/debug.c, libmaa/debugtest.c, libmaa/decl.h, libmaa/error.c, libmaa/flags.c, libmaa/hash.c, libmaa/hashtest.c, libmaa/list.c, libmaa/listtest.c, libmaa/log.c, libmaa/maa.c, libmaa/maa.h, libmaa/maaP.h, libmaa/memory.c, libmaa/memtest.c, libmaa/mkrnd.c, libmaa/parse-concrete.c, libmaa/parse.c, libmaa/pr.c, libmaa/prime.c, libmaa/primetest.c, libmaa/prtest.c, libmaa/rnd.c, libmaa/set.c, libmaa/settest.c, libmaa/sl.c, libmaa/sltest.c, libmaa/source.c, libmaa/stack.c, libmaa/strdup.c, libmaa/string.c, libmaa/stringtest.c, libmaa/text.c, libmaa/timer.c, libmaa/xmalloc.c, servscan.l, zlib/ChangeLog, zlib/adler32.c, zlib/compress.c, zlib/crc32.c, zlib/deflate.c, zlib/deflate.h, zlib/example.c, zlib/gzio.c, zlib/minigzip.c, zlib/trees.c, zlib/uncompr.c, zlib/zconf.h, zlib/zutil.c, zlib/zutil.h, ChangeLog, Makefile.in, clientparse.y, configure.in, daemon.c, data.c, dict.c, dictd.c, dictzip.c, index.c, net.c:
+  Update with 1.7.1 release
 
-  * regex/Makefile, regex/README.DICT:
-  Do not rebuild library each time make is called
+2002-05-03  faith  <faith@dict.org>
 
-  * INSTALL, daemon.c, dictd.8:
-  Improve documentation
-  Fix authentication match reporting
-  Prevent core dump if user is NULL
-  Improve reporting of access denial
+  * regex/COPYRIGHT, regex/Makefile, regex/README, regex/README.DICT, regex/WHATSNEW, regex/engine.c, regex/regcomp.c, regex/regerror.c, regex/regex.3, regex/regex.7, regex/regex2.h, regex/regexec.c, regex/tests, regex/utils.h, zlib/ChangeLog, zlib/FAQ, zlib/INDEX, zlib/Make_vms.com, zlib/Makefile, zlib/Makefile.in, zlib/Makefile.riscos, zlib/README, zlib/README.DICT, zlib/adler32.c, zlib/algorithm.txt, zlib/compress.c, zlib/configure, zlib/crc32.c, zlib/deflate.c, zlib/deflate.h, zlib/example.c, zlib/gzio.c, zlib/infblock.c, zlib/infblock.h, zlib/infcodes.c, zlib/infcodes.h, zlib/inffast.c, zlib/inffast.h, zlib/inffixed.h, zlib/inflate.c, zlib/inftrees.c, zlib/inftrees.h, zlib/infutil.c, zlib/infutil.h, zlib/maketree.c, zlib/minigzip.c, zlib/trees.c, zlib/trees.h, zlib/uncompr.c, zlib/zconf.h, zlib/zlib.3, zlib/zlib.h, zlib/zlib.html, zlib/zutil.c, zlib/zutil.h, libmaa/debugtest.c, libmaa/decl.h, libmaa/error.c, libmaa/flags.c, libmaa/hash.c, libmaa/hashtest.c, libmaa/list.c, libmaa/listtest.c, libmaa/log.c, libmaa/maa.c, libmaa/maa.h, libmaa/maaP.h, libmaa/memory.c, libmaa/memtest.c, libmaa/mkrnd.c, libmaa/parse-concrete.c, libmaa/parse.c, libmaa/pr.c, libmaa/prime.c, libmaa/primetest.c, libmaa/prtest.c, libmaa/rnd.c, libmaa/set.c, libmaa/settest.c, libmaa/sl.c, libmaa/sltest.c, libmaa/source.c, libmaa/stack.c, libmaa/strdup.c, libmaa/string.c, libmaa/stringtest.c, libmaa/text.c, libmaa/timer.c, libmaa/version.c, libmaa/xmalloc.c, INSTALL, Makefile.in, clientparse.y, config.h.in, configure.in, daemon.c, data.c, dict.1, dict.c, dictd.8, dictd.c, dictd.h, dictzip.c, index.c, libmaa/Makefile.in, libmaa/acconfig.h, libmaa/arg.c, libmaa/argtest.c, libmaa/base26.c, libmaa/base64.c, libmaa/basetest.c, libmaa/bit.c, libmaa/bittest.c, libmaa/config.h.in, libmaa/configure.in, libmaa/debug.c, net.c, servscan.l, ChangeLog:
+  Sync sourceforge.net repository with dictd-1.7.0 release
 
-  * Makefile.in: Use INSTALL* macros
-  Make directories if they do not exist
-
-  * libmaa/log.c:
-  Do not close stdout or stderr when other log files are closed
-
-  * dict.c: Allow -u option to work
-
-2002-03-30  Rik Faith  <faith@dict.org>
-
-  * Makefile.in, dict.c, dictd.c, dictzip.c, libmaa/Makefile.in, libmaa/arg.c, libmaa/argtest.c, libmaa/base26.c, libmaa/base64.c, libmaa/basetest.c, libmaa/bit.c, libmaa/bittest.c, libmaa/configure.in, libmaa/debug.c, libmaa/debugtest.c, libmaa/decl.h, libmaa/error.c, libmaa/flags.c, libmaa/hash.c, libmaa/hashtest.c, libmaa/list.c, libmaa/listtest.c, libmaa/log.c, libmaa/maa.c, libmaa/maa.h, libmaa/maaP.h, libmaa/memory.c, libmaa/memtest.c, libmaa/mkrnd.c, libmaa/parse-concrete.c, libmaa/parse.c, libmaa/pr.c, libmaa/prime.c, libmaa/primetest.c, libmaa/prtest.c, libmaa/rnd.c, libmaa/set.c, libmaa/settest.c, libmaa/sl.c, libmaa/sltest.c, libmaa/source.c, libmaa/stack.c, libmaa/strdup.c, libmaa/string.c, libmaa/stringtest.c, libmaa/text.c, libmaa/timer.c, libmaa/xmalloc.c:
-  Update email address
-  Update copyright notices
-  Bump version for testing
-
-  * dictd.c: Re-open logs after detach routines close all fds
-
-  * libmaa/maaP.h, config.h.in, configure.in, daemon.c, data.c, dict.c, dictd.c, index.c, net.c:
-  Changes for Solaris 2.7 with WorkShop Compilers 5.0
-
-  * Makefile.in, libmaa/version.c:
-  Bump version for testing
-
-  * Makefile.in, daemon.c, dictd.8, dictd.c, dictd.h, libmaa/acconfig.h, libmaa/config.h.in, libmaa/configure.in, libmaa/log.c, libmaa/maa.h, libmaa/sl.c:
-  Add --facility option
-  Based on patch from Bob Hilliard for the debian 1.5.5-8 version.
-
-  * regex/Makefile, regex/README.DICT:
-  Prevent all objects from being rebuilt every time.
-
-  * Makefile.in: Update ChangeLog creation
-
-  * regex/COPYRIGHT, regex/Makefile, regex/README, regex/README.DICT, regex/WHATSNEW, regex/engine.c, regex/regcomp.c, regex/regerror.c, regex/regex.3, regex/regex.7, regex/regex2.h, regex/regexec.c, regex/tests, regex/utils.h:
-  Upgrade to aleph3.8 version of regex
-
-  * dictd.8, dictd.c:
-  Apply general patches from Bob Hilliard
-  Fix typos in man page
-  Make man page formatting clearer
-  Add man page information about security and previously missing options
-  Update URLs in man page
-  Make help write to stdout
-  Add sanity checks and move logging so that people get information about:
-    unreadable configuration files
-    unreadable databases files
-    other errors that prevent startup (and were previously silent)
-
-  * zlib/README.DICT:
-  Add file reporting source and possible modifications.
-
-  * dictd.c: Print help to stdout instead of stderr
-
-2002-03-29  Rik Faith  <faith@dict.org>
-
-  * dict.1, dict.c:
-  Remove html support from dict client
-  (it was broken anyway)
-
-  * dictd.8, dictzip.c:
-  Patch from Bob Hilliard to make dictunzip and dictzcat work
-
-  * dict.c: Added newline to err_fatal
-
-  * daemon.c, dictd.c, dictd.h:
-  Improved authentication debugging
-  Added authentication failure logging
-  Fixed bug that closed fd multiple times (Debian bug #137500 from Russell Coker)
-
-  * zlib/ChangeLog, zlib/FAQ, zlib/INDEX, zlib/Make_vms.com, zlib/Makefile, zlib/Makefile.b32, zlib/Makefile.bor, zlib/Makefile.dj2, zlib/Makefile.in, zlib/Makefile.msc, zlib/Makefile.riscos, zlib/Makefile.sas, zlib/Makefile.tc, zlib/Makefile.wat, zlib/README, zlib/adler32.c, zlib/algorithm.doc, zlib/algorithm.txt, zlib/compress.c, zlib/configure, zlib/crc32.c, zlib/deflate.c, zlib/deflate.h, zlib/example.c, zlib/gzio.c, zlib/infblock.c, zlib/infblock.h, zlib/infcodes.c, zlib/infcodes.h, zlib/inffast.c, zlib/inffast.h, zlib/inffixed.h, zlib/inflate.c, zlib/inftrees.c, zlib/inftrees.h, zlib/infutil.c, zlib/infutil.h, zlib/maketree.c, zlib/minigzip.c, zlib/trees.c, zlib/trees.h, zlib/uncompr.c, zlib/zconf.h, zlib/zlib.3, zlib/zlib.def, zlib/zlib.h, zlib/zlib.html, zlib/zlib.rc, zlib/zutil.c, zlib/zutil.h:
-  Updgrade to zlib 1.1.4
-  This version does not have the double free bug:
-  http://www.gzip.org/zlib/advisory-2002-03-11.txt
-  Note, though, that dictd never decompressed Internet traffic.
-
-  * dictd.8: Add breaks to make syntax clearer.
-
-  * servscan.l: Allow strings to start with numbers
-
-  * daemon.c, dictd.8:
-  Add support for IP ranges and masks.
-
-  * clientparse.y:
-  Allow the server list to come before or after the pager in the client configuration file.
-
-  * dictd.8:
-  Clarify in the man page that allow only takes one argument.
-
-2001-10-14  Rik Faith  <faith@dict.org>
-
-  * dict.c:
-  Print "No matches..." message when -m have no matches
-
-  * libmaa/configure.in, Makefile.in:
-  Bump version
-
-  * configure.in, dict.c:
-  When parsing dict:// URIs, treat empty hostname as the default host.
-
-  * libmaa/configure.in, libmaa/log.c:
-  Add strftime processing to log file names
-
-2001-01-12  Rik Faith  <faith@dict.org>
+2001-01-12  faith  <faith@dict.org>
 
   * Makefile.in: Bump version
 
@@ -169,9 +61,10 @@
   * dict.c:
   Aaaargh!  Previous update broke pager in dict.  This is fixed now.
 
-2000-12-31  Rik Faith  <faith@dict.org>
+2000-12-31  faith  <faith@dict.org>
 
-  * Makefile.in, index.c: Fix const warning
+  * Makefile.in, index.c:
+  Fix const warning
   Bump version number
 
   * libmaa/decl.h, libmaa/text.c, decl.h, index.c:
@@ -187,7 +80,7 @@
   disabled.
        dictd.8 - corrected typo
 
-2000-12-22  Rik Faith  <faith@dict.org>
+2000-12-22  faith  <faith@dict.org>
 
   * Makefile.in, codes.h, daemon.c, data.c, decl.h, dict.c, dict.h, dictP.h, dictzip.c, dictzip.h, index.c, net.c, net.h:
   Fix Debian bug #77685 (dict crashes with "-s regexp sch*".
@@ -197,7 +90,7 @@
   * daemon.c, dict.c:
   Fix memory leak and remove limitation on matches.
 
-2000-11-09  Rik Faith  <faith@dict.org>
+2000-11-09  faith  <faith@dict.org>
 
   * dict.c: Limit number of matches to print
   Because of the use of a string pool by the argification functions,
@@ -206,34 +99,35 @@
 
   * dict.c: Limit number of definitions returned to 100
 
-2000-11-08  Rik Faith  <faith@dict.org>
+2000-11-08  faith  <faith@dict.org>
 
   * Makefile.in, dictd.c, dictd.h, servscan.l:
   Apply patches from Bob Hilliard that are in the Debian version.
   The grp.h file may not be portable and should be tested.
   Bump version number to avoid confusion.
 
-2000-05-29  Rik Faith  <faith@dict.org>
+2000-05-29  faith  <faith@dict.org>
 
   * daemon.c: Fix MATCH
 
   * Makefile.in: Bump version
 
-2000-01-27  Rik Faith  <faith@dict.org>
+2000-01-27  faith  <faith@dict.org>
 
-  * Makefile.in: Man page directory fix from weed@DeepThought
+  * Makefile.in:
+  Man page directory fix from weed@DeepThought
 
 1999-12-23  Julian Squires  <tek@wiw.org>
 
   * libmaa/maaP.h:
   Added OpenBSD to list of BSDs to allow smooth compilation.
 
-1999-12-23  Rik Faith  <faith@dict.org>
+1999-12-23  faith  <faith@dict.org>
 
   * libmaa/bit.c, libmaa/hash.c, libmaa/hashtest.c, libmaa/listtest.c, libmaa/settest.c:
   Update for 64-bit machines
 
-1999-12-22  Rik Faith  <faith@dict.org>
+1999-12-22  faith  <faith@dict.org>
 
   * libmaa/decl.h: Update for Linux/Sparc
 
@@ -284,13 +178,13 @@
 
   Also, fix --prefix on configuration
 
-1998-07-06  Rik Faith  <faith@dict.org>
+1998-07-06  faith  <faith@dict.org>
 
   * dictzip.1, index.c, data.c, dict.1, dictd.8, dictd.c:
   Removed Linux from man pages
   Added more UNZIP debugging code
 
-1998-07-05  Rik Faith  <faith@dict.org>
+1998-07-05  faith  <faith@dict.org>
 
   * libmaa/configure.in:
   Fixed Makefile.in and configure.in syntax per email from Ian T Zimmerman
@@ -299,7 +193,7 @@
   Fixed timer wrap-around between 49 and 50 days
   Fixed Makefile.in and configure.in syntax per email from Ian T Zimmerman
 
-1998-03-01  Rik Faith  <faith@dict.org>
+1998-03-01  faith  <faith@dict.org>
 
   * dictzip.c, Makefile.in, daemon.c:
   Fixed typo in daemon.c
@@ -309,19 +203,20 @@
   Fixed . problem
   Fixed dictzip to conform to man page
 
-1998-02-28  Rik Faith  <faith@dict.org>
+1998-02-28  faith  <faith@dict.org>
 
   * dictd.c, Makefile.in:
   Update for Linux accept(2)
 
-1998-02-22  Rik Faith  <faith@dict.org>
+1998-02-22  faith  <faith@dict.org>
 
   * ANNOUNCE: Update ANNOUNCE
 
   * dictd.conf:
   Another (more complete) example dictd.conf file
 
-  * README, configure.in: Minor changes
+  * README, configure.in:
+  Minor changes
   Always use local libmaa, because of recent bug fixes
 
   * libmaa/log.c, libmaa/maa.h:
@@ -330,14 +225,15 @@
   * libmaa/source.c:
   Fixed NULL pointer dereference in err_ routines
 
-  * Makefile.in, libmaa/maaP.h: Port to BSDI
+  * Makefile.in, libmaa/maaP.h:
+  Port to BSDI
 
-1998-02-20  Rik Faith  <faith@dict.org>
+1998-02-20  faith  <faith@dict.org>
 
   * index.c, daemon.c, Makefile.in:
   Fixed problem with duplicates
 
-1998-02-16  Rik Faith  <faith@dict.org>
+1998-02-16  faith  <faith@dict.org>
 
   * dictd.c, daemon.c, Makefile.in:
   Fixed startup bug and rate computation
@@ -348,7 +244,7 @@
   * index.c, dictd.h, dictd.c, dictd.8, dict.h, dict.c, dict.1, TODO, Makefile.in, README, ANNOUNCE:
   Added more features
 
-1998-01-19  Rik Faith  <faith@dict.org>
+1998-01-19  faith  <faith@dict.org>
 
   * daemon.c: Updated buffer overflow behavior
 
@@ -357,7 +253,7 @@
   * net.c, dictd.h, dictd.c, dict.h, dict.c, daemon.c, clientscan.l, clientparse.y, Makefile.in:
   Added paging feature
 
-1998-01-16  Rik Faith  <faith@dict.org>
+1998-01-16  faith  <faith@dict.org>
 
   * decl.h, net.c, libmaa/log.c, libmaa/maaP.h, libmaa/decl.h:
   Changes for HPUX
@@ -367,7 +263,7 @@
   * decl.h, dictd.c, configure.in:
   Changes for Solaris (and some DG/UX)
 
-1998-01-05  Rik Faith  <faith@dict.org>
+1998-01-05  faith  <faith@dict.org>
 
   * libmaa/maaP.h, libmaa/log.c:
   Port to DG/UX
@@ -377,7 +273,7 @@
 
   * libmaa/maaP.h: Port to FreeBSD
 
-1998-01-04  Rik Faith  <faith@dict.org>
+1998-01-04  faith  <faith@dict.org>
 
   * ANNOUNCE: Add draft of announcement
 
@@ -389,36 +285,36 @@
   Minor updates
   Try all IPs for round-robin DNS entries
 
-1997-11-30  Rik Faith  <faith@dict.org>
+1997-11-30  faith  <faith@dict.org>
 
   * libmaa/sl.c: Update for dissertation benchmarks
 
-1997-11-08  Rik Faith  <faith@dict.org>
+1997-11-08  faith  <faith@dict.org>
 
   * libmaa/list.c, libmaa/maa.h:
   This version is buggy, do not check out
 
-1997-09-25  Rik Faith  <faith@dict.org>
+1997-09-25  faith  <faith@dict.org>
 
   * libmaa/version.c, libmaa/log.c, libmaa/decl.h:
   Updates for DSL Example under Solaris
 
-1997-09-19  Rik Faith  <faith@dict.org>
+1997-09-19  faith  <faith@dict.org>
 
   * libmaa/maaP.h: Fix Solaris predefined macros
 
-1997-09-14  Rik Faith  <faith@dict.org>
+1997-09-14  faith  <faith@dict.org>
 
   * libmaa/set.c, libmaa/maa.h:
   Reimplemented algorithm based on write-up in
   dissertation.  Now using the same algorithm in both places.
 
-1997-09-12  Rik Faith  <faith@dict.org>
+1997-09-12  faith  <faith@dict.org>
 
   * libmaa/decl.h, libmaa/configure.in:
   Preparing DSL example snapshot
 
-1997-09-01  Rik Faith  <faith@dict.org>
+1997-09-01  faith  <faith@dict.org>
 
   * dictzip.c, dictzip.1, dictd.8, dict.c, dict.1, TODO, Makefile.in:
   Improved man pages
@@ -426,31 +322,31 @@
   * doc/rfc.ms, doc/Makefile.in, example3.conf, dictd.c, dict.c, daemon.c, configure.in:
   Work based on IETF comments
 
-1997-08-26  Rik Faith  <faith@dict.org>
+1997-08-26  faith  <faith@dict.org>
 
   * doc/toc.ms, doc/rfc.ms, doc/Makefile.in:
   Working on draft -02 for IETF
 
-1997-08-21  Rik Faith  <faith@dict.org>
+1997-08-21  faith  <faith@dict.org>
 
   * libmaa/maa.h:
   Got breakpoint tracking and navigation working
 
-1997-08-15  Rik Faith  <faith@dict.org>
+1997-08-15  faith  <faith@dict.org>
 
   * libmaa/arg.c: More work on tracking
 
-1997-07-27  Rik Faith  <faith@dict.org>
+1997-07-27  faith  <faith@dict.org>
 
   * doc/rfc.ms: Describe form of extensions
 
-1997-07-18  Rik Faith  <faith@dict.org>
+1997-07-18  faith  <faith@dict.org>
 
   * doc/security.doc, doc/rfc.ms:
   Minor RFC changes
   Addition of security-related comments
 
-1997-07-12  Rik Faith  <faith@dict.org>
+1997-07-12  faith  <faith@dict.org>
 
   * dict.c: Fixed -I
 
@@ -459,7 +355,8 @@
   * dictd.8, README, Makefile.in:
   Added README.  Fixed install
 
-  * TODO, Makefile.in: Installation fixes
+  * TODO, Makefile.in:
+  Installation fixes
 
   * doc/rfc.ms, servparse.y, servscan.l, net.h, net.c, example.dictrc, example3.conf, dictzip.1, dictd.h, dictd.c, dictd.8, dict.html, dict.h, dict.c, dict.1, configure.in, config.h.in, clientscan.l, clientparse.y, Makefile.in:
   Added config files to client
@@ -468,7 +365,7 @@
   General cleanup
   Install and dist targets
 
-1997-07-11  Rik Faith  <faith@dict.org>
+1997-07-11  faith  <faith@dict.org>
 
   * libmaa/error.c: Allow routine name to be NULL
 
@@ -481,17 +378,17 @@
   Cleaned up Makefiles
   More client bug fixes
 
-1997-07-09  Rik Faith  <faith@dict.org>
+1997-07-09  faith  <faith@dict.org>
 
   * net.c, dictzip.c, dictd.c, dict.h, dict.c, dict.1, daemon.c:
   More work on client
 
-1997-07-08  Rik Faith  <faith@dict.org>
+1997-07-08  faith  <faith@dict.org>
 
   * doc/rfc.ms, net.c, dictd.8, dict.h, dict.c, dict.1, daemon.c:
   Work on client
 
-1997-07-07  Rik Faith  <faith@dict.org>
+1997-07-07  faith  <faith@dict.org>
 
   * doc/rfc.ms, example3.conf, dictd.c:
   Fixed proctitles on SunOS
@@ -499,13 +396,13 @@
   * libmaa/timer.c:
   Use millisecond resolution for timer, instead of microseconds
 
-1997-06-28  Rik Faith  <faith@dict.org>
+1997-06-28  faith  <faith@dict.org>
 
   * dictzip.1: dictzip documentation
 
   * doc/rfc.ms: Final revisions
 
-1997-06-23  Rik Faith  <faith@dict.org>
+1997-06-23  faith  <faith@dict.org>
 
   * index.c, config:
   Fixed BMH string matching (again)
@@ -516,7 +413,7 @@
   * libmaa/timer.c:
   Made timers return parent and children times
 
-1997-06-21  Rik Faith  <faith@dict.org>
+1997-06-21  faith  <faith@dict.org>
 
   * index.c, dictd.h, dictd.c, dictd.8, daemon.c:
   Work on logging and documentation
@@ -525,16 +422,16 @@
   Made timestamps on logs optional
   Fixed typos
 
-1997-06-11  Rik Faith  <faith@dict.org>
+1997-06-11  faith  <faith@dict.org>
 
   * doc/rfc.ms, index.c, example.conf, dictd.h, dictd.c, dictd.8:
   More work on RFC
 
-1997-06-03  Rik Faith  <faith@dict.org>
+1997-06-03  faith  <faith@dict.org>
 
   * dictd.c: Zero memory before use
 
-1997-06-02  Rik Faith  <faith@dict.org>
+1997-06-02  faith  <faith@dict.org>
 
   * libmaa/version.c, libmaa/parse.c, libmaa/configure.in:
   Only make weak symbols when compiling a shared library.
@@ -546,30 +443,31 @@
   * doc/rfc.ms, doc/Makefile.in, dict.html:
   More work on document
 
-1997-05-27  Rik Faith  <faith@dict.org>
+1997-05-27  faith  <faith@dict.org>
 
   * doc/rfc.ms, doc/Makefile.in, servparse.y, servscan.l, index.c, example.site, dictd.h, example.conf, dictd.c, dict.c, daemon.c, configure.in, codes.h:
   Made daemon conform to 26May RFC draft
 
   * doc/Makefile.in: Makefile for doc directory
 
-  * doc/rfc.ms, doc/design.tex: Careful edit
+  * doc/rfc.ms, doc/design.tex:
+  Careful edit
   Fixed -ms style formatting things.  Numbering now automatic.
   Adjusted grammar and made references to it in appropriate places.
   Added requirements section.
   Added pipelining section.
   Added comments about virtual databases.
 
-1997-05-26  Rik Faith  <faith@dict.org>
+1997-05-26  faith  <faith@dict.org>
 
   * doc/rfc.sh: Formfee dconverter
 
-1997-05-22  Rik Faith  <faith@dict.org>
+1997-05-22  faith  <faith@dict.org>
 
   * servscan.l, servparse.y, dictd.h, example2.conf, dictd.c, daemon.c:
   Persistent daemon clean up
 
-1997-05-21  Rik Faith  <faith@dict.org>
+1997-05-21  faith  <faith@dict.org>
 
   * libmaa/Makefile.in: Fixed ChangeLog target
 
@@ -582,7 +480,7 @@
 
   * libmaa/version.c: Bump version
 
-1997-05-20  Rik Faith  <faith@dict.org>
+1997-05-20  faith  <faith@dict.org>
 
   * libmaa/string.c, libmaa/maa.h, libmaa/hash.c:
   Added hash function caching
@@ -590,30 +488,30 @@
   (e.g., source lines).
   Both of these changes should speed up scanning and parsing.
 
-1997-05-10  Rik Faith  <faith@dict.org>
+1997-05-10  faith  <faith@dict.org>
 
   * libmaa/source.c:
   Fixed core dump when sourceType is not available
 
-1997-05-09  Rik Faith  <faith@dict.org>
+1997-05-09  faith  <faith@dict.org>
 
   * doc/rfc.ms: More work on RFC
 
-1997-05-07  Rik Faith  <faith@dict.org>
+1997-05-07  faith  <faith@dict.org>
 
   * doc/rfc.ms: Remove mention of URL
 
-1997-05-02  Rik Faith  <faith@dict.org>
+1997-05-02  faith  <faith@dict.org>
 
   * dictd.h, dictd.c, dict.c, daemon.c, config.h.in, configure.in, codes.h, Makefile.conf:
   Initial experiment with persistent daemons
 
-1997-05-01  Rik Faith  <faith@dict.org>
+1997-05-01  faith  <faith@dict.org>
 
   * libmaa/argtest.out, libmaa/argtest.c, libmaa/arg.c:
   Fix arg_argify, again
 
-1997-04-30  Rik Faith  <faith@dict.org>
+1997-04-30  faith  <faith@dict.org>
 
   * doc/rfc.ms: More changes from Bret
 
@@ -621,50 +519,50 @@
   Start on client
   Fix up socket I/O
 
-1997-04-26  Rik Faith  <faith@dict.org>
+1997-04-26  faith  <faith@dict.org>
 
   * doc/rfc.ms: Minor revisions
 
-1997-04-22  Rik Faith  <faith@dict.org>
+1997-04-22  faith  <faith@dict.org>
 
   * doc/rfc.ms: Bret's initial additions and changes
 
-1997-04-21  Rik Faith  <faith@dict.org>
+1997-04-21  faith  <faith@dict.org>
 
   * libmaa/version.c, libmaa/set.c, libmaa/maa.h, libmaa/list.c, libmaa/Makefile.in:
   Keep version numbers from automatically bouncing.
   Make remaining iterators return non-zero if the iteration ended early.
 
-1997-04-03  Rik Faith  <faith@dict.org>
+1997-04-03  faith  <faith@dict.org>
 
   * servscan.l, servparse.y, net.c, md5.h, md5.c, index.c, example.conf, dictd.h, dictd.c, daemon.c, Makefile.in:
   Finished initial implementation of new protocol
 
   * doc/rfc.ms: More changes
 
-1997-03-31  Rik Faith  <faith@dict.org>
+1997-03-31  faith  <faith@dict.org>
 
   * doc/rfc.ms, net.h, net.c, dictd.h, dictd.c, dict.c, daemon.c, Makefile.in:
   Moving toward new protocol
 
-1997-03-26  Rik Faith  <faith@dict.org>
+1997-03-26  faith  <faith@dict.org>
 
   * dictzip.h, dictd.h, dictd.c, daemon.c:
   Moving toward new protocol
 
   * doc/rfc.ms: RFC-like document
 
-1997-03-23  Rik Faith  <faith@dict.org>
+1997-03-23  faith  <faith@dict.org>
 
   * net.c, example.conf, dictd.c, dictzip.c, data.c, daemon.c:
   Tweaking
 
-1997-03-19  Rik Faith  <faith@dict.org>
+1997-03-19  faith  <faith@dict.org>
 
   * libmaa/version.c, libmaa/source.c, libmaa/argtest.out, libmaa/maa.h, libmaa/pr.c, libmaa/arg.c, libmaa/argtest.c:
   Allow arg_argify to quote in different ways.
 
-1997-03-18  Rik Faith  <faith@dict.org>
+1997-03-18  faith  <faith@dict.org>
 
   * libmaa/version.c, libmaa/source.c:
   Increased buffer size for error reporting
@@ -672,7 +570,7 @@
   * libmaa/version.c, libmaa/parse.c, libmaa/maa.h:
   Added new parser entry point
 
-1997-03-15  Rik Faith  <faith@dict.org>
+1997-03-15  faith  <faith@dict.org>
 
   * libmaa/version.c, libmaa/sl.c:
   Finished implementing Algorithms 1-6
@@ -706,7 +604,7 @@
   %     22067 nodes have been labelled (349455 relabelled, 662227 needs comp.)
   %     11.910u 0.180s 14.250 84%
 
-1997-03-13  Rik Faith  <faith@dict.org>
+1997-03-13  faith  <faith@dict.org>
 
   * libmaa/version.c:
   Added -a option to select fast labeling algorithms
@@ -719,7 +617,7 @@
   Fixed up daemon code
   Fiddled with search algorithms a bit
 
-1997-03-12  Rik Faith  <faith@dict.org>
+1997-03-12  faith  <faith@dict.org>
 
   * index.c, net.c, dictd.c, decl.h, daemon.c, Makefile.in:
   Made status report elapsed times for previous command
@@ -733,7 +631,7 @@
   Improved logging
   Added more C prototypes for SunOS
 
-1997-03-11  Rik Faith  <faith@dict.org>
+1997-03-11  faith  <faith@dict.org>
 
   * net.h, net.c, dictd.h, index.c, dictd.c, Makefile.in, daemon.c:
   Added regexp matching, fixed logging
@@ -744,7 +642,7 @@
   * libmaa/version.c, libmaa/log.c:
   Fixed log_stream bug
 
-1997-03-10  Rik Faith  <faith@dict.org>
+1997-03-10  faith  <faith@dict.org>
 
   * net.h, servparse.y, net.c, dictd.h, index.c, dictd.c, dictd.8, data.c, dictP.h, daemon.c, configure.in, Makefile.in, TODO, COPYING:
   More work
@@ -758,12 +656,12 @@
   * regex/tests, regex/utils.h, regex/split.c, regex/regexec.c, regex/regfree.c, regex/regex2.h, regex/regex.3, regex/regex.7, regex/regerror.c, regex/mkh, regex/regcomp.c, regex/main.c, regex/debug.c, regex/engine.c, regex/cname.h, regex/WHATSNEW, regex/cclass.h, regex/README, regex/Makefile, regex/COPYRIGHT:
   Original files from regex.shar
 
-1997-03-09  Rik Faith  <faith@dict.org>
+1997-03-09  faith  <faith@dict.org>
 
   * example.conf, index.c, dictd.h, dictzip.h, dictd.c:
   Performance enhancements
 
-1997-03-08  Rik Faith  <faith@dict.org>
+1997-03-08  faith  <faith@dict.org>
 
   * example.conf, servscan.l, configure.in, data.c, Makefile.in:
   Finish SunOS port
@@ -778,7 +676,7 @@
   Updated arg functions to skip over whitespace in a reasonable way.\
   Updated argtest to test these updates.
 
-1997-03-07  Rik Faith  <faith@dict.org>
+1997-03-07  faith  <faith@dict.org>
 
   * search.c, index.c, look.c, dictd.c, dictd.h, configure.in, servscan.l, wndump.c, jargdump.c, net.c, servparse.y, dictzip.c, dictzip.h, dictrc.sample, dictP.h, decl.h, dict.h, daemon.c, data.c, config.sub, Makefile.in:
   Reorganization for better packaging
@@ -786,7 +684,7 @@
   * servparse.y, dictd.c, daemon.c:
   Port to SunOS
 
-1997-03-01  Rik Faith  <faith@dict.org>
+1997-03-01  faith  <faith@dict.org>
 
   * index.c, dictzip.c, dictd.c, data.c, daemon.c:
   Updates for SunOS
@@ -800,7 +698,7 @@
   * libmaa/version.c, libmaa/timer.c, libmaa/source.c, libmaa/parse.c, libmaa/maa.h:
   Fixed bugs in timer and error routines
 
-1997-02-28  Rik Faith  <faith@dict.org>
+1997-02-28  faith  <faith@dict.org>
 
   * libmaa/doc/Makefile.in, libmaa/version.c:
   Removed parse and source support from Khepera library
@@ -812,20 +710,20 @@
 
   * doc/design.tex: More documentation
 
-1997-02-27  Rik Faith  <faith@dict.org>
+1997-02-27  faith  <faith@dict.org>
 
   * doc/webster.out, doc/design.tex:
   Add doc directory
 
-1997-02-21  Rik Faith  <faith@dict.org>
+1997-02-21  faith  <faith@dict.org>
 
   * libmaa/README: Updated credits information and version
 
-1997-02-08  Rik Faith  <faith@dict.org>
+1997-02-08  faith  <faith@dict.org>
 
   * libmaa/version.c: Fix typos
 
-1996-12-26  Rik Faith  <faith@dict.org>
+1996-12-26  faith  <faith@dict.org>
 
   * libmaa/version.c:
   1) Make top-level "tests" target to run all regression tests.
@@ -833,7 +731,7 @@
   3) Add .dq debugging flag to debug the pending delete queue.
   4) Fix typo that prevented -pg from working (this was most important).
 
-1996-12-25  Rik Faith  <faith@dict.org>
+1996-12-25  faith  <faith@dict.org>
 
   * libmaa/version.c:
   1) Re-did all the Range stuff again.  Here is how it works:
@@ -873,7 +771,7 @@
      error of printing -- the types were correctly stored as differentiated
      variables.)
 
-1996-12-23  Rik Faith  <faith@dict.org>
+1996-12-23  faith  <faith@dict.org>
 
   * libmaa/version.c:
   1) Get insert/extract working.  For type checking, there is now a callback
@@ -898,7 +796,7 @@
   Next, figure out how to type check indexing.  Was the type system designed
   to handle this?
 
-1996-12-22  Rik Faith  <faith@dict.org>
+1996-12-22  faith  <faith@dict.org>
 
   * libmaa/version.c:
   1) Removed some calls to fixup_scopes() since these should no longer be
@@ -923,7 +821,7 @@
   still makes use of the type inference engine, it just bypasses the
   arithmetic type clauses.
 
-1996-12-14  Rik Faith  <faith@dict.org>
+1996-12-14  faith  <faith@dict.org>
 
   * libmaa/version.c: 1) Changed spacing of ChangeLog
   2) Re-wrote let flattening (Palmer96 Rule1).  But still need to fixup
@@ -943,7 +841,7 @@
 
   Still working on let scoping debugging.
 
-1996-12-09  Rik Faith  <faith@dict.org>
+1996-12-09  faith  <faith@dict.org>
 
   * libmaa/Makefile.in: Fix ChangeLog creation
 
@@ -951,7 +849,7 @@
   Added dist target to makefile
   Fixed perl script to work under Perl 5
 
-1996-12-07  Rik Faith  <faith@dict.org>
+1996-12-07  faith  <faith@dict.org>
 
   * libmaa/version.c:
   1) Temporarily removed FORTRAN transformations from build.  They need to be
@@ -975,7 +873,7 @@
 
   Tomorrow: get qsort to compile as well.
 
-1996-12-01  Rik Faith  <faith@dict.org>
+1996-12-01  faith  <faith@dict.org>
 
   * libmaa/version.c:
   Added query and if-then-else simplification.
@@ -986,7 +884,7 @@
   hack it so that it won't print warnings for Proteus code.  For now, just
   redirect errors to /dev/null.
 
-1996-11-26  Rik Faith  <faith@dict.org>
+1996-11-26  faith  <faith@dict.org>
 
   * libmaa/version.c, libmaa/error.c:
   1) Added simplify.k and moved all the simplifications there.
@@ -1017,7 +915,7 @@
      decalred.  This should all be done with typechecking, and will be in the
      next re-write of the Khepera language compiler :)
 
-1996-11-23  Rik Faith  <faith@dict.org>
+1996-11-23  faith  <faith@dict.org>
 
   * libmaa/version.c:
   1) Make add_primed_func_defns propagate the return type as well as the
@@ -1042,7 +940,7 @@
   going to work on function call parameter lifting next, and then on last-use
   detection so that DPL memory management can be added....
 
-1996-11-19  Rik Faith  <faith@dict.org>
+1996-11-19  faith  <faith@dict.org>
 
   * libmaa/version.c:
   1) Finally got Palmer96 rules 1-5 implemented.  There are a few problems:
@@ -1077,11 +975,11 @@
      possible.  It isn't right now if you aren't walking from the root of the
      labeled tree.
 
-1996-11-15  Rik Faith  <faith@dict.org>
+1996-11-15  faith  <faith@dict.org>
 
   * libmaa/version.c: New example
 
-1996-11-11  Rik Faith  <faith@dict.org>
+1996-11-11  faith  <faith@dict.org>
 
   * libmaa/version.c, libmaa/maa.c:
   Broke out type dumping routines (for debugging with readable types).
@@ -1111,7 +1009,7 @@
      the type has to be most (all?) of the time).
   todo) work on -fflatten and -fsimple, especially for if statements
 
-1996-11-10  Rik Faith  <faith@dict.org>
+1996-11-10  faith  <faith@dict.org>
 
   * libmaa/version.c, libmaa/memory.c, libmaa/maa.h, libmaa/basetest.c, libmaa/basetest.out, libmaa/base64.c, libmaa/base26.c, libmaa/Makefile.in:
   1) Fixed up name mangling for multi-arity types.
@@ -1157,7 +1055,7 @@
 
   * libmaa/version.c: Recursive typechecking works.  Joy.
 
-1996-11-08  Rik Faith  <faith@dict.org>
+1996-11-08  faith  <faith@dict.org>
 
   * libmaa/version.c:
   Recursive functions do _not_ typecheck.  Fuck.
@@ -1166,7 +1064,7 @@
   Make ground matching work (e.g., (N_Node 0) matches N_Node without
   any children) in Khephera language.
 
-1996-11-04  Rik Faith  <faith@dict.org>
+1996-11-04  faith  <faith@dict.org>
 
   * libmaa/version.c:
   Fixed pp_* so that default printing styles works.
@@ -1179,18 +1077,18 @@
   Made 'else' actually work in Khepera if clauses.  Previously the else
      clause was executed along with the then clause.
 
-1996-11-02  Rik Faith  <faith@dict.org>
+1996-11-02  faith  <faith@dict.org>
 
   * libmaa/version.c:
   Starting to add primitive dpl_mul-like operations.
 
-1996-10-31  Rik Faith  <faith@dict.org>
+1996-10-31  faith  <faith@dict.org>
 
   * libmaa/version.c: Added dpl_build_*
   Added ability to use .. (sametypes) wildcard in var declaration
     (this is essential to be able to type dpl_build_*)
 
-1996-10-30  Rik Faith  <faith@dict.org>
+1996-10-30  faith  <faith@dict.org>
 
   * libmaa/version.c, libmaa/config.sub:
   Added topl.c and pl.k for transformations to a generic parallel library
@@ -1201,17 +1099,17 @@
      selective (e.g., for debugging)
   Fixed bug where a poiner from alloca was used as a symbol name
 
-1996-10-10  Rik Faith  <faith@dict.org>
+1996-10-10  faith  <faith@dict.org>
 
   * search.c, dict.h, dictzip.c, Makefile.in:
   Work on searching
 
-1996-10-07  Rik Faith  <faith@dict.org>
+1996-10-07  faith  <faith@dict.org>
 
   * libmaa/maaP.h, libmaa/version.c:
   Changes for Solaris cc compiler
 
-1996-10-03  Rik Faith  <faith@dict.org>
+1996-10-03  faith  <faith@dict.org>
 
   * libmaa/prtest.out, libmaa/version.c, libmaa/Makefile.in:
   Added -with-nox option to inhibit building X applications
@@ -1227,11 +1125,11 @@
   still aren't handled in a POSIX way, and deaths of children aren't caught
   asynchronously, so support can still be made better.
 
-1996-10-02  Rik Faith  <faith@dict.org>
+1996-10-02  faith  <faith@dict.org>
 
   * libmaa/pr.c: Before ripping out stream I/O
 
-1996-09-30  Rik Faith  <faith@dict.org>
+1996-09-30  faith  <faith@dict.org>
 
   * zlib/Makefile, zlib/Makefile.in:
   Add distclean to Makefile
@@ -1242,11 +1140,11 @@
   * libmaa/version.c, libmaa/error.c:
   Make error messages prettier
 
-1996-09-29  Rik Faith  <faith@dict.org>
+1996-09-29  faith  <faith@dict.org>
 
   * dictzip.c: Update Id string
 
-1996-09-26  Rik Faith  <faith@dict.org>
+1996-09-26  faith  <faith@dict.org>
 
   * wndump.c, install-sh, jargdump.c, fmt.h, dictzip.c, fmt.c, dict.h, config.sub, configure.in, config.h.in, config.guess, Makefile, Makefile.in:
   General work on formatting and use with configure.
@@ -1254,7 +1152,7 @@
   * libmaa/version.c, libmaa/maa.h, libmaa/pr.c, libmaa/base64.c:
   Work on base64 and process management
 
-1996-09-25  Rik Faith  <faith@dict.org>
+1996-09-25  faith  <faith@dict.org>
 
   * libmaa/version.c, libmaa/hash.c, libmaa/maaP.h, libmaa/decl.h:
   Finish Solaris port
@@ -1280,7 +1178,7 @@
   Make sure all library functions are under LGPL
   Update configure support from autoconf-2.10
 
-1996-09-24  Rik Faith  <faith@dict.org>
+1996-09-24  faith  <faith@dict.org>
 
   * wndump.c, output.c, fmt.c, fmt.h, encode.c, engine.c, dictzip.c, decode.c.save, compressdict.c, decode.c, compressdict.1, compress2.c, compress3.c, buildindex.c, COPYING.look, buildindex.1, COPYING:
   Move to version 2.0
@@ -1289,7 +1187,7 @@
   Added base64 routines
   Fixed warnings generated under Linux
 
-1996-09-23  Rik Faith  <faith@dict.org>
+1996-09-23  faith  <faith@dict.org>
 
   * libmaa/xmalloc.c, libmaa/stringtest.c, libmaa/timer.c, libmaa/string.c, libmaa/sl.c, libmaa/strdup.c, libmaa/settest.c, libmaa/set.c, libmaa/prime.c, libmaa/primetest.c, libmaa/listtest.c, libmaa/list.c, libmaa/error.c, libmaa/debugtest.c, libmaa/decl.h, libmaa/debug.c, libmaa/bit.c, libmaa/Makefile.in, libmaa/COPYING.LIB, libmaa/COPYING:
   Make sure all library routines are under GNU LGPL.
