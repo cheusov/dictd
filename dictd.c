@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.71 2003/02/23 14:23:09 cheusov Exp $
+ * $Id: dictd.c,v 1.72 2003/02/23 14:58:41 cheusov Exp $
  * 
  */
 
@@ -284,6 +284,7 @@ static void postprocess_filenames (dictConfig *dc)
       db -> indexFilename = postprocess_dict_filename (db -> indexFilename);
       db -> indexsuffixFilename = postprocess_dict_filename (db -> indexsuffixFilename);
       db -> indexwordFilename = postprocess_dict_filename (db -> indexwordFilename);
+      db -> pluginFilename = postprocess_plugin_filename (db -> pluginFilename);
    }
 
    dc -> site = postprocess_dict_filename (dc -> site);
@@ -639,6 +640,8 @@ static int close_database (const void *datum)
       xfree ((void *) db -> indexwordFilename);
    if (db -> indexsuffixFilename)
       xfree ((void *) db -> indexsuffixFilename);
+   if (db -> pluginFilename)
+      xfree ((void *) db -> pluginFilename);
 
    return 0;
 }
@@ -799,7 +802,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.71 2003/02/23 14:23:09 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.72 2003/02/23 14:58:41 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
