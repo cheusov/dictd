@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.69 2003/10/31 00:40:04 cheusov Exp $
+ * $Id: daemon.c,v 1.70 2003/12/24 20:16:02 cheusov Exp $
  * 
  */
 
@@ -1179,6 +1179,28 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
 		  CODE_INVALID_DB );
 }
 
+static int daemon_get_max_dbname_length ()
+{
+   size_t max_len  = 0;
+   size_t curr_len = 0;
+
+   const dictDatabase *db;
+
+   lst_Position databasePosition = first_database_pos ();
+
+   while (NULL != (db = next_database (&databasePosition, "*"))){
+      if (!db -> invisible && db -> databaseName){
+	 curr_len = strlen (db -> databaseName);
+
+	 if (curr_len > max_len){
+	    max_len = curr_len;
+	 }
+      }
+   }
+
+   return (int) max_len;
+}
+
 static void daemon_show_server( const char *cmdline, int argc, char **argv )
 {
    FILE          *str;
@@ -1219,6 +1241,8 @@ static void daemon_show_server( const char *cmdline, int argc, char **argv )
 	 int data_length     = 0;
 	 char data_length_uom= 'k';
 
+	 int max_dbname_len = 0;
+
 	 if (db -> invisible)
 	    continue;
 
@@ -1238,8 +1262,13 @@ static void daemon_show_server( const char *cmdline, int argc, char **argv )
 	    data_length_uom = db->data->length/1024 > 10240 ? 'M' : 'k';
 	 }
 
+	 max_dbname_len = daemon_get_max_dbname_length ();
+
 	 daemon_printf(
-	    "%-12.12s %10lu %10lu %cB %10lu %cB %10lu %cB\n",
+	    "%-*.*s %10lu %10lu %cB %10lu %cB %10lu %cB\n",
+	    max_dbname_len,
+	    max_dbname_len,
+
 	    db->databaseName,
 	    headwords,
 
