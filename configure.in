@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.62 2003/10/27 18:34:12 cheusov Exp $
+dnl $Id: configure.in,v 1.63 2003/10/30 14:48:55 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -36,7 +36,7 @@ define(VERSION, 1.9.10)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.62 $)
+AC_REVISION($Revision: 1.63 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -214,9 +214,9 @@ if test "x${enableval}" != xno; then
     AC_CHECK_LIB(c, dlopen,
         [USE_PLUGIN=2],
         AC_CHECK_LIB(dl, dlopen,
-            [REALLIBS="$REALLIBS -ldl"; USE_PLUGIN=2],
+            [LIBS="$LIBS -ldl"; USE_PLUGIN=2],
             AC_CHECK_LIB(ltdl,lt_dlopen,
-                [REALLIBS="$REALLIBS -lltdl"; USE_PLUGIN=1],
+                [LIBS="$LIBS -lltdl"; USE_PLUGIN=1],
                 [AC_MSG_ERROR(
                     [Install ltdl library and appropriate header files
                            or run ./configure --disable-plugin])])))
@@ -275,7 +275,7 @@ if test "$local_libmaa" = 1; then
 fi
 
 if test "$local_zlib" = 0; then
-    AC_CHECK_LIB(z,zlibVersion,REALLIBS="$REALLIBS -lz",local_zlib=1)
+    AC_CHECK_LIB(z,zlibVersion,LIBS="$LIBS -lz",local_zlib=1)
 fi
 
 if test "$local_zlib" = 1; then
@@ -308,10 +308,10 @@ if test "$local_regex" = 1; then
     fi
 fi
 
-AC_CHECK_LIB(socket,main,REALLIBS="$REALLIBS -lsocket")
-AC_CHECK_LIB(c,getservbyname,
+AC_CHECK_LIB(socket,main)
+AC_CHECK_LIB(c,inet_ntoa,
 	,
-	[AC_CHECK_LIB(nsl,getservbyname,REALLIBS="$REALLIBS -lnsl")])
+	[AC_CHECK_LIB(nsl,inet_ntoa)])
 
 if test "$local_dmalloc" = 0 -a "$needs_dmalloc" = 1; then
     AC_CHECK_LIB(dmalloc,main,
@@ -413,7 +413,7 @@ echo .
 echo Making output files
 
 CC="$REALCC"
-LIBS="$REALLIBS"
+LIBS="$REALLIBS $LIBS"
 
 AC_SUBST(DICT_VERSION)
 AC_SUBST(WCFLAGS)
