@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.79 2003/10/20 01:21:39 cheusov Exp $
+ * $Id: index.c,v 1.80 2003/10/22 03:36:01 cheusov Exp $
  * 
  */
 
@@ -1436,7 +1436,7 @@ int dict_search_database_ (
   Replaces invisible databases with db argument.
  */
 static void replace_invisible_databases (
-   lst_Position *pos,
+   lst_Position pos,
    const dictDatabase *db)
 {
    dictWord *dw;
@@ -1444,7 +1444,11 @@ static void replace_invisible_databases (
    while (pos){
       dw = (dictWord *) lst_get_position (pos);
 
-      if (dw -> database && dw -> database -> invisible){
+      if (
+	 dw -> database &&
+	 dw -> database -> invisible &&
+	 !dw -> database_visible)
+      {
 	 dw -> database_visible = db;
       }
 
@@ -1466,23 +1470,15 @@ int dict_search (
    int *extra_data_size)
 {
    int count = 0;
-#ifdef USE_PLUGIN
-   int res = 0;
-#endif
    dictWord *dw;
 
    int norm_strategy = strategy & ~DICT_MATCH_MASK;
 
+   if (extra_result)
+      *extra_result = DICT_PLUGIN_RESULT_NOTFOUND;
+
    assert (word);
    assert (database);
-
-/*
-   fprintf (
-      stderr,
-      "search in '%s' for '%s'\n",
-      database -> databaseName,
-      word);
-*/
 
    if (
       database -> strategy_disabled &&
@@ -1504,35 +1500,22 @@ int dict_search (
       fprintf (stderr, "STRATEGY: %x\n", strategy);
 #endif
 
-#ifdef USE_PLUGIN
-      if (database -> plugin){
-	 PRINTF (DBG_SEARCH, (":S:   plugin search\n"));
-	 count = dict_search_plugin (
-	    l, word, database, strategy,
-	    &res, extra_data, extra_data_size);
-
-	 if (extra_result)
-	    *extra_result = res;
-
-	 if (count)
-	    return count;
-
-	 switch (res){
-	 case DICT_PLUGIN_RESULT_EXIT:
-	    return 0;
-	 case DICT_PLUGIN_RESULT_NOTFOUND:
-	    if (strncmp (word, DICT_ENTRY_PREFIX, DICT_ENTRY_PREFIX_LEN))
-	       return 0;
-	 default:
-	    break;
-	 }
-      }
-#endif
-
       if (database -> index){
 	 PRINTF (DBG_SEARCH, (":S:   database search\n"));
 	 count = dict_search_database_ (l, word, database, norm_strategy);
       }
+
+#ifdef USE_PLUGIN
+      if (!count && database -> plugin){
+	 PRINTF (DBG_SEARCH, (":S:   plugin search\n"));
+	 count = dict_search_plugin (
+	    l, word, database, strategy,
+	    extra_result, extra_data, extra_data_size);
+
+	 if (count)
+	    return count;
+      }
+#endif
 
       if (!count && database -> virtual_db_list){
 	 lst_Position db_list_pos;
@@ -1554,13 +1537,8 @@ int dict_search (
 	 }
       }
 
-   if (extra_result){
-      if (count != 0){
-	 *extra_result = DICT_PLUGIN_RESULT_FOUND;
-      }else{
-	 *extra_result = DICT_PLUGIN_RESULT_NOTFOUND;
-      }
-   }
+   if (count > 0 && extra_result)
+      *extra_result = DICT_PLUGIN_RESULT_FOUND;
 
    return count;
 }
