@@ -1,14 +1,14 @@
 % design.tex -- 
 % Created: Fri Feb 21 08:04:03 1997 by faith@cs.unc.edu
-% Revised: Wed Feb 26 13:51:54 1997 by faith@cs.unc.edu
+% Revised: Thu Feb 27 16:58:01 1997 by faith@cs.unc.edu
 % Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
 % This program comes with ABSOLUTELY NO WARRANTY.
 % 
-% $Id: design.tex,v 1.1 1997/02/27 19:30:36 faith Exp $
+% $Id: design.tex,v 1.2 1997/02/28 03:50:03 faith Exp $
 % 
 %
 \def\FileCreated{Fri Feb 21 08:04:03 1997}
-\def\FileRevised{Wed Feb 26 13:51:54 1997}
+\def\FileRevised{Thu Feb 27 16:58:01 1997}
 
 \documentclass{article}
 \usepackage{xspace}
@@ -62,7 +62,7 @@ down access to the general Internet community.\footnote{We believe that
   of the same or similar database and that some of the \webster servers on
   the Internet have served this database.} For example, prior to 1994,
 generally accessible \webster servers were running at MIT, CMU, Indiana
-University, and several other sites.  Since 1996, the only publically
+University, and several other sites.  Since 1996, the only publicly
 available server appears to be running at the University of Michigan,
 although at least one other server is accessible via the WWW.
 
@@ -81,13 +81,13 @@ dictionaries are also available.
 \section{The \dict Protocol}
 
 \prd{banner}{\lit{server} \WS \lhs{number} \WS \lhs{string} \WS
-  \lhs{msg-id}}
+  \lhs{msg-id} \NL}
 
-\note When a client connects, the server sends a \lhs{baner}.  \lhs{number}
+\note When a client connects, the server sends a \lhs{banner}.  \lhs{number}
 is the highest protocol level supported by the server, \lhs{string} is an
 arbitrary identification string, which may contain whitespace, and
 \lhs{msg-id} is a timestamp.  The syntax of the timestamp corresponds to
-the `msg-id' in RFC822 \cite{RFC822}, and \emph{must} be differrent each
+the `msg-id' in RFC822 \cite{RFC822}, and \emph{must} be different each
 time the the \dict server issues a banner greeting.  For example,
 \begin{center}
 \begin{verbatim}
@@ -98,8 +98,8 @@ The timestamp can be used by a client to provide secure transmission of a
 shared secret in the manner described in RFC1939 \cite{RFC1939} for APOP
 authentication.\note
 
-\prd{error}{\lit{error} \WS \lhs{number} \lhs{error-message}}
-\prd{status}{\lit{status} \WS \lhs{status-message}}
+\prd{error}{\lit{error} \WS \lhs{number} \WS \lhs{error-message} \NL}
+\prd{status}{\lit{status} \WS \lhs{status-message} \NL}
 
 \note After the \lhs{banner} is sent, the conversation is client-driven.
 The server replies to the client requests with database information as
@@ -110,7 +110,7 @@ server implementations may include a running total of commands,
 definitions, or resources requested by the client.  This may be useful for
 debugging or logging purposes.\note
 
-\prd{ident}{\lit{client} \WS \lhs{number} \WS \lhs{string}}
+\prd{ident}{\lit{client} \WS \lhs{number} \WS \lhs{string} \NL}
 \prd{ident-response}{\lhs{error}}
 \prd{ident-response}{\lhs{status}}
 
@@ -120,16 +120,45 @@ or a \lhs{status} message.  From this point forward, the client will drive
 all communications.  Note that the \lhs{client-ident} is optional, thereby
 allowing simple use with a \texttt{telnet} connection.\note
 
-\prd{protocol}{\lit{protocol} \WS \lhs{number}}
+\prd{protocol}{\lit{protocol} \WS \lhs{number} \NL}
 \prd{protocol-response}{\lhs{error}}
 \prd{protocol-response}{\lhs{status}}
 
 \note The client can request a protocol level change later in the
-conversation.  This will probably not be implemented in the prototype
-servers.\note
+conversation.
 
-\prd{show-db}{\lit{show} \WS \lit{databases}}
-\prd{show-db}{\lit{show} \WS \lit{db}}
+This server capability is optional.  If the capability is not implemented,
+\lhs{error} will be returned to the client in the same manner as for an
+illegal keyword.  A server that does not implement this capability should
+be fully compatible with the version 1 protocol described here.\note
+
+\prd{auth}{\lit{auth} \WS \lhs{user-string} \WS \lhs{password-string} \NL}
+\prd{auth-response}{\lhs{error}}
+\prd{auth-response}{\lhs{status}}
+
+\note The client can authenticate to the server using a username and
+password.  For this version of the \lhs{auth} request, the
+\lhs{password-string} will be computed as in the APOP protocol discussed in
+RFC1939 \cite{RFC1939}.  Briefly, the \lhs{password-string} is the MD5
+checksum of the concatenation of the \lhs{msg-id} and the ``shared secret''
+(or password).  The shared secret is stored in the configuration files for
+the client and the server.  Since the user does not have to type this
+shared secret when accessing the server, the shared secret can be an
+arbitrarily long passphrase.  Because of the computational ease of
+computing the MD5 checksum, the shared secret should be significantly
+longer than a usual password.
+
+Authentication may make more dictionary databases available for the current
+session.  For example, there may be some publicly distributable databases
+available to all users, and other private databases available only to
+authenticated users.  Or, a server may require authentication from all
+users to minimize resource utilization on the server machine.
+
+Authentication is an optional server capability and need not be
+provided in a typical server.\note
+
+\prd{show-db}{\lit{show} \WS \lit{databases} \NL}
+\prd{show-db}{\lit{show} \WS \lit{db} \NL}
 \prd{show-db-response}{\lit{databases} \WS \lhs{number} \NL \lhs{db-list}
   \lhs{status}}
 \prd{db-list}{\lit{database} \WS \lhs{db-id} \WS \lhs{db-description} \NL
@@ -138,7 +167,7 @@ servers.\note
 
 \note The short description of the database list should be suitable for use
 in a human-readable identification line of the form:
-\begin{center}
+\begin{center}\tt
   From <short-description>:
 \end{center}
 which can be used to preface a retrieved definition.  A typical reply might
@@ -153,9 +182,8 @@ status ok
 \end{verbatim}
 
 The descriptions given are from the databases themselves, and are stored
-under the required ``::short-description::'' headword.  See below for a
-complete list of required and optional headwords.
-\note
+under the required ``!short!'' headword.  See below for a complete list of
+required and optional headwords.\note
 
 \prd{show-strat}{\lit{show} \WS \lit{strategies}}
 \prd{show-strat}{\lit{show} \WS \lit{strat}}
@@ -265,7 +293,7 @@ in place of the word itself in a \lhs{define} request.\note
 not be found in the dictionary.  The list contains possible words which are
 within a Levenshtein distance of one from the requested word.  The exact
 \webster algorithm is unknown, but it appears that transposition, single
-character deletion, single character addition, and signel character
+character deletion, single character addition, and single character
 correction are all attempted).\note
 
 \prd{definition-response}{\lit{DEFINITION} \SP \lhs{number}
@@ -334,6 +362,43 @@ an EOF packet (ASCII 128).
 
 After a fatal error, the server will terminate the connection.
 
+\section{Required Database Headwords}
+
+When databases are prepared for a server, they should contain several
+headwords that provide information about the database.  Three headwords are
+required:
+\begin{description}
+\item[!info!] Human-readable information about the original source of the
+  data and about the copyright and licensing information that apply to the
+  data.  The information should be sufficient to:
+  \begin{enumerate}
+  \item Locate the original source of the pristine, non-dict database (and
+    to find a potential location of an updated version)
+  \item Determine if the data can be freely served or distributed, or if
+    restrictions on use or distribution apply to the data
+  \item Locate the copyright holder so that any necessary permissions for
+    use or distribution can be obtained
+  \end{enumerate}
+\item[!short!] A short (e.g., one line) description of the database.  This
+  should be suitable for a credit line printed by a client of the form:
+  \begin{center}\tt
+    From <short-description>:
+  \end{center}
+\item[!long!] A longer description of the database, which will help the
+  human database user to determine if a database is of interest.
+\end{description}
+
+Other headwords of the general form:
+\begin{center}\tt
+  !headword!
+\end{center}
+may be used to provide additional information, but these fields will not be
+used by the initial server implementation.  All of these special fields
+should be placed at the top of  any flat database files provided for use by
+the server.  The goal here is to make it easy for a human to determine the
+source, copyright, distribution, and use restrictions that apply to any
+given database.
+
 \section{Available Databases}
 
 In general, dictionary databases that might be useful with \dict fall into
@@ -349,16 +414,26 @@ three classes:
   redistributed using the \dict server.
 \end{itemize}
 
-Databases in the last two catagories are listed here for informational
+Databases in the last two categories are listed here for informational
 purposes only.  Many of these databases are probably not suitable for use
 with \dict due to legal restrictions on their use and/or distribution.  We
 do not have the legal resources available to determine which databases are
 redistributable.
 
 The only databases which we will provide for use with \dict are those that
-are clearly in the Public Domain, or those for which we have specific
-permission from the author or copyright owner to redistribute.
-Fortunately, this catagory now includes enough information to make \dict a
-useful system.
+are clearly in the Public Domain, or are otherwise distributable.  This may
+mean that we have specific permission from the author or copyright owner to
+redistribute the database with the \dict programs.
+
+The example \dict server(s) and client(s) distributed in this package are
+all distributed under the GNU General Public License or a less restrictive
+license.
+
+However, note that some of the databases that are available in \dict format
+may have \emph{additional restrictions} on their use or distribution.  If
+you want to redistribute a database, you should determine if this is
+allowed by the database owner.  Do \emph{not} assume that the databases are
+distributed under terms which are compatible with the \dict distribution
+terms.
 
 \end{document}
