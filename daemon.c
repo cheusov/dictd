@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.66 2003/08/27 16:05:22 cheusov Exp $
+ * $Id: daemon.c,v 1.67 2003/10/02 12:31:46 cheusov Exp $
  * 
  */
 
@@ -901,26 +901,6 @@ static void destroy_word_list (lst_List l)
 }
 
 /*
-  Replaces invisible databases with db argument.
- */
-static void replace_invisible_databases (
-   lst_Position *pos,
-   const dictDatabase *db)
-{
-   dictWord *dw;
-
-   while (pos){
-      dw = (dictWord *) lst_get_position (pos);
-
-      if (dw -> database && dw -> database -> invisible){
-	 dw -> database_visible = db;
-      }
-
-      pos = lst_next_position (pos);
-   }
-}
-
-/*
   Search for all words in word_list in the database db
  */
 static int dict_search_words (
@@ -944,33 +924,15 @@ static int dict_search_words (
       word = lst_get_position (word_list_pos);
 
       if (word){
-	 if (db -> virtual_db_list){
-	    assert (lst_init_position (db -> virtual_db_list));
+	 matches_count = dict_search (
+	    l, word, db, strategy,
+	    result, extra_result, extra_result_size);
 
-	    old_count = lst_length (l);
+	 if (*result == DICT_PLUGIN_RESULT_PREPROCESS){
+	    assert (matches_count > 0);
 
-	    matches_count = dict_search_databases (
-	       l, lst_init_position (db -> virtual_db_list),
-	       "*", word, strategy, &db_found);
-
-	    assert (db_found);
-
-	    if (matches_count > 0){
-	       replace_invisible_databases (
-		  lst_nth_position (l, old_count + 1),
-		  db);
-	    }
-	 }else{
-	    matches_count = dict_search (
-	       l, word, db, strategy,
-	       result, extra_result, extra_result_size);
-
-	    if (*result == DICT_PLUGIN_RESULT_PREPROCESS){
-	       assert (matches_count > 0);
-
-	       xfree (lst_get_position (word_list_pos));
-	       lst_set_position (word_list_pos, NULL);
-	    }
+	    xfree (lst_get_position (word_list_pos));
+	    lst_set_position (word_list_pos, NULL);
 	 }
 
 	 if (matches_count < 0){
@@ -1163,10 +1125,7 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
 
    list = lst_create();
    while ((db = next_database(&databasePosition, argv[2] ))) {
-      if (
-	 db -> databaseInfo &&
-	 (db -> virtual_db || db -> databaseInfo [0] != '@'))
-      {
+      if (db -> databaseInfo && db -> databaseInfo [0] != '@'){
 	 daemon_printf( "%d information for %s\n",
 			CODE_DATABASE_INFO, argv[2] );
 	 daemon_mime();

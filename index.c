@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.75 2003/10/01 17:09:04 cheusov Exp $
+ * $Id: index.c,v 1.76 2003/10/02 12:31:46 cheusov Exp $
  * 
  */
 
@@ -1422,6 +1422,26 @@ int dict_search_database_ (
 }
 
 /*
+  Replaces invisible databases with db argument.
+ */
+static void replace_invisible_databases (
+   lst_Position *pos,
+   const dictDatabase *db)
+{
+   dictWord *dw;
+
+   while (pos){
+      dw = (dictWord *) lst_get_position (pos);
+
+      if (dw -> database && dw -> database -> invisible){
+	 dw -> database_visible = db;
+      }
+
+      pos = lst_next_position (pos);
+   }
+}
+
+/*
   returns a number of matches ( >= 0 ) or
   negative value for invalid UTF-8 string
 */
@@ -1449,26 +1469,15 @@ int dict_search (
       database -> strategy_disabled &&
       database -> strategy_disabled [norm_strategy])
    {
+      /* disable_strategy keyword from configuration file */
+#if 0
       PRINTF (DBG_SEARCH, (
 	 ":S: strategy '%s' is disabled for database '%s'\n",
 	 get_strategies () [norm_strategy] -> name,
 	 database -> databaseName ? database -> databaseName : "(unknown)"));
-      /* disable_strategy keyword from configuration file */
+#endif
       return 0;
    }
-
-   if (!database -> index && !strcmp (word, DICT_INFO_ENTRY_NAME)){
-      dw = xmalloc (sizeof (dictWord));
-      memset (dw, 0, sizeof (dictWord));
-
-      dw -> database = database;
-      dw -> word     = strdup (word);
-      dw -> def      = database -> databaseShort;
-      dw -> def_size = -1;
-      lst_append (l, dw);
-      count = 1;
-
-   }else{
 
       PRINTF (DBG_SEARCH, (":S: Searching in '%s'\n", database -> databaseName));
 
@@ -1502,12 +1511,29 @@ int dict_search (
 #endif
 
       if (database -> index){
-	 strategy &= ~DICT_MATCH_MASK;
-
 	 PRINTF (DBG_SEARCH, (":S:   database search\n"));
-	 count = dict_search_database_ (l, word, database, strategy);
+	 count = dict_search_database_ (l, word, database, norm_strategy);
       }
-   }
+
+      if (!count && database -> virtual_db_list){
+	 lst_Position db_list_pos;
+	 dictDatabase *db = NULL;
+	 int old_count = lst_length (l);
+
+	 assert (lst_init_position (database -> virtual_db_list));
+
+	 LST_ITERATE (database -> virtual_db_list, db_list_pos, db){
+	    count += dict_search (
+	       l, word, db, strategy,
+	       extra_result, extra_data, extra_data_size);
+	 }
+
+	 if (count > 0){
+	    replace_invisible_databases (
+	       lst_nth_position (l, old_count + 1),
+	       database);
+	 }
+      }
 
    if (extra_result){
       if (count != 0){
