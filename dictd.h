@@ -62,6 +62,7 @@ extern const char *dict_get_banner( int shortFlag );
 extern dictConfig *DictConfig;  /* GLOBAL VARIABLE */
 extern int        _dict_comparisons; /* GLOBAL VARIABLE */
 extern int        _dict_forks;	/* GLOBAL VARIABLE */
+extern const char *locale;
 
 /*
   If the filename doesn't start with / or .,
@@ -78,6 +79,7 @@ extern const char *postprocess_plugin_filename (const char *fn);
 
 extern int  dict_daemon( int s, struct sockaddr_in *csin, char ***argv0,
 			 int delay, int error );
+extern int  dict_inetd( char ***argv0, int delay, int error );
 extern void daemon_terminate( int sig, const char *name );
 
 /* */

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.61 2003/03/19 16:43:12 cheusov Exp $
+ * $Id: daemon.c,v 1.62 2003/04/07 13:24:03 cheusov Exp $
  * 
  */
 
@@ -34,7 +34,7 @@
 #include <setjmp.h>
 
 static int          _dict_defines, _dict_matches;
-static int          daemonS;
+static int          daemonS_in, daemonS_out;
 static const char   *daemonHostname;
 static const char   *daemonIP;
 static int          daemonPort;
@@ -378,7 +378,8 @@ void daemon_terminate( int sig, const char *name )
 {
    alarm(0);
    tim_stop( "t" );
-   close(daemonS);
+   close(daemonS_in);
+   close(daemonS_out);
    if (name) {
       daemon_log( DICT_LOG_TERM,
 		  "%s: d/m/c = %d/%d/%d; %sr %su %ss\n",
@@ -413,7 +414,7 @@ static void daemon_write( const char *buf, int len )
    int count;
    
    while (left) {
-      if ((count = write(daemonS, buf, left)) != left) {
+      if ((count = write(daemonS_out, buf, left)) != left) {
 	 if (count <= 0) {
 	    if (errno == EPIPE) {
 	       daemon_terminate( 0, "pipe" );
@@ -494,7 +495,7 @@ static void daemon_text( const char *text )
 
 static int daemon_read( char *buf, int count )
 {
-   return net_read( daemonS, buf, count );
+   return net_read( daemonS_in, buf, count );
 }
 
 static void daemon_ok( int code, const char *string, const char *timer )
@@ -1397,17 +1398,25 @@ static void daemon_quit( const char *cmdline, int argc, char **argv )
    daemon_terminate( 0, "quit" );
 }
 
+/* The whole sub should be moved here, but I want to keep the diff small. */
+int _handleconn (int delay, int error);
+
+int dict_inetd(char ***argv0, int delay, int error )
+{
+   if (setjmp(env)) return 0;
+   
+   daemonPort = -1;
+   daemonIP   = "inetd";
+   daemonHostname = daemonIP;
+   
+   return _handleconn(delay, error);
+}
+
 int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0, int delay,
 		 int error )
 {
-   char           buf[4096];
-   int            count;
    struct hostent *h;
-   arg_List       cmdline;
-   int            argc;
-   char           **argv;
-   void           (*command)(const char *, int, char **);
-      
+	
    if (setjmp(env)) return 0;
    
    daemonPort = ntohs(csin->sin_port);
@@ -1418,8 +1427,20 @@ int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0, int delay,
    } else
       daemonHostname = daemonIP;
 
-   daemonS           = s;
-   
+   daemonS_in        = s;
+   daemonS_out       = s;
+
+   return _handleconn(delay, error);
+}
+
+int _handleconn (int delay, int error) {
+   char           buf[4096];
+   int            count;
+   arg_List       cmdline;
+   int            argc;
+   char           **argv;
+   void           (*command)(const char *, int, char **);
+      
    _dict_defines     = 0;
    _dict_matches     = 0;
    _dict_comparisons = 0;

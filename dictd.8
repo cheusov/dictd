@@ -50,6 +50,7 @@ continuously, and should
 .I not
 be run from
 .BR inetd (8).
+(However, with a fast processor, it is feasible to do so.)
 .P
 Databases are distributed separately from the server.
 .P
@@ -135,6 +136,12 @@ The default is 2628, as specified in the DICT Protocol RFC, but may be
 changed in the
 .I dictd.h
 file at compile time (DICT_DEFAULT_SERVICE).
+.TP
+.BR \-i " or " \-\-inetd
+Communicate on standard input/output, suitable for use from inetd.
+Although, due to its rather large startup time, this daemon was not
+intended to run from inetd, with a fast processor it is feasible to do
+so.
 .TP
 .BI \-\-depth " length"
 Specify the queue length for
