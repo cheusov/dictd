@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.c,v 1.38 2003/07/07 12:24:16 cheusov Exp $
+ * $Id: dict.c,v 1.39 2003/12/05 01:06:30 hilliard Exp $
  * 
  */
 
@@ -965,7 +965,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.38 2003/07/07 12:24:16 cheusov Exp $";
+   const char        *id = "$Id: dict.c,v 1.39 2003/12/05 01:06:30 hilliard Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -1011,6 +1011,9 @@ static void license( void )
 static void help( FILE *out_stream )
 {
    static const char *help_msg[] = {
+   "Usage: dict [options] [word]",
+   "Query a dictd server for the definition of a word", 
+   "",
       "-h --host <server>        specify server",
       "-p --port <service>       specify port",
       "-d --database <dbname>    select a database to search",

@@ -54,16 +54,19 @@ be run from
 .P
 Databases are distributed separately from the server.
 .P
+By default, 
 .B dictd
-assumes that the index files are sorted alphabeticaly.  By default, only
-alphanumeric characters are used for search.  This default may be
-overridden by a header in the data file.  The only such features
-implemented at this time are the headers "00-database-allchars" which
-tells
+assumes that the index files are sorted alphabetically, and only
+alphanumeric characters from the 7-bit ASCII character set are used
+for search.  This default may be overridden by a header in the data
+file.  The only such features implemented at this time are the headers
+"00-database-allchars" which tells
 .B dictd 
-that non-alphanumeric characters may also be used for search, and the
+that non-alphanumeric characters may also be used for search, the
 header "00-database-utf8" which indicates that the database uses utf8
-encoding. All headwords in the index file are sorted alphabetically.
+encoding, and the 00-database-8bit which indicates that the database
+is encoded and sorted according to a locale that uses an 8-bit
+encoding.
 .P
 A header "00-database-plugin" may also be present and is used for
 integrating plugins into dictd. See "dictfmt_plugin --help" and
@@ -219,7 +222,10 @@ then the dictd server will not be compliant to RFC 2229.
 If utf-8 or 8-bit dictionaries are included in the configuration file,
 and the appropriate --locale has not been specified,
 .B dictd
-will fail to start.
+will failt to start.  This implies that
+.B dictd 
+will not run with both utf-8 and 8-bit dictionaries in the
+configuration file.
 .TP
 .B \-s
 Log using the
@@ -964,7 +970,7 @@ The main source files for the
 .B dictd
 server and the
 .B dictzip
-compression program were written by Rik Faith (faith@dict) and are
+compression program were written by Rik Faith (faith@dict.org) and are
 distributed under the terms of the GNU General Public License.  If you need
 to distribute under other terms, write to the author.
 .P

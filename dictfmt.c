@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.32 2003/10/27 18:34:12 cheusov Exp $
+ * $Id: dictfmt.c,v 1.33 2003/12/05 01:06:30 hilliard Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -526,6 +526,9 @@ static void license( void )
 static void help( FILE *out_stream )
 {
    static const char *help_msg[] = {
+   "Usage: dictfmt [-c5|-t|-e|-f|-h|-j|-p] -u url -s name [options] basename",
+   "Create a dictionary databse and index file for use by a dictd server",
+   "",
      "usage: dictfmt [-jfephDLV] [-c5] -u url -s name basename",
      "-c5       headwords are preceded by a line containing at least \n\
                 5 underscore (_) characters",

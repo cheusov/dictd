@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.98 2003/10/20 01:24:10 cheusov Exp $
+ * $Id: dictd.c,v 1.99 2003/12/05 01:06:30 hilliard Exp $
  * 
  */
 
@@ -860,7 +860,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.98 2003/10/20 01:24:10 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.99 2003/12/05 01:06:30 hilliard Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -919,6 +919,9 @@ static void license( void )
 static void help( void )
 {
    static const char *help_msg[] = {
+   "Usage: dictd [options]",
+   "Start the dictd daemon",
+   "",
       "-h --help             give this help",
       "   --license          display software license",
       "-v --verbose          verbose mode",
