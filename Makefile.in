@@ -1,6 +1,6 @@
 # Makefile.in -- Makefile for dict
 # Created: Wed Apr 24 14:14:09 1996 by faith@cs.unc.edu
-# Revised: Sun Mar  1 07:02:06 1998 by faith@acm.org
+# Revised: Sun Jul  5 17:55:23 1998 by faith@acm.org
 # Copyright 1996, 1997, 1998 Rickard E. Faith (faith@acm.org)
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,12 +17,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.31 1998/03/01 12:05:28 faith Exp $
+# $Id: Makefile.in,v 1.32 1998/07/05 22:09:59 faith Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
 # Numbers are for the original author(s) only.
-DICT_VERSION=1.4.8
+DICT_VERSION=1.4.9
 
 ifneq (,)
 This makefile requires GNU Make.
@@ -73,7 +73,7 @@ TMPS=           servscan.c servparse.c servparse.h \
 		clientscan.c clientparse.c clientparse.h
 
 all $(EXES)::
-	@for subdir in $(subdirs); do \
+	@for subdir in `echo $(subdirs)`; do \
 		echo making in $$subdir; \
 	 	if [ "$$subdir" = "zlib" ]; then \
 			(cd $$subdir \
@@ -193,13 +193,13 @@ clean:
 	-rm -f *.dct *.idx y.output
 
 recursive-clean: clean
-	@for subdir in $(subdirs); do \
+	@for subdir in `echo $(subdirs)`; do \
 		echo making clean in $$subdir; \
 		(cd $$subdir && $(MAKE) clean) || exit 1; \
 	done
 
 distclean: clean
-	@for subdir in $(subdirs); do \
+	@for subdir in `echo $(subdirs)`; do \
 	 	if [ "$$subdir" != "zlib" ]; then \
 			if [ "$$subdir" = "regex" ]; then \
 				echo making clean in $$subdir; \
