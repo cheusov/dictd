@@ -178,7 +178,7 @@ size_t strlen_utf8 (const char *str)
 	else
 	    return (size_t) -1;
 
-	ret += len;
+	ret += 1;
 	str += len;
     }
 
