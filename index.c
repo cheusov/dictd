@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.72 2003/08/08 14:50:21 cheusov Exp $
+ * $Id: index.c,v 1.73 2003/08/08 17:50:52 cheusov Exp $
  * 
  */
 
@@ -1189,10 +1189,12 @@ static int dict_search_levenshtein( lst_List l,
    strcpy( buf, word );
    for (i = 0; i < len; i++) {
       for (j = 0; j < charcount; j++) {
-	 tmp = buf [i];
-         buf[i] = c(j);
-	 CHECK;
-	 buf [i] = tmp;
+	 if (buf[i] != c(j)){
+	    tmp = buf [i];
+	    buf[i] = c(j);
+	    CHECK;
+	    buf [i] = tmp;
+	 }
       }
    }
 
