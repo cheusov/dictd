@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.85 2003/08/11 15:54:22 cheusov Exp $
+# $Id: Makefile.in,v 1.86 2003/08/18 13:06:06 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -373,6 +373,7 @@ dist:
 	cvs export -fd dictd-$${VERSION} -r dictd-$${VERSION_CVS} dictd1; \
 	cd dictd-$${VERSION}; \
 	make -f Makefile.conf; \
+	rm -rf autom4te.cache libmaa/autom4te.cache \
 	chmod -R a+rX,g-w .; \
 	cd ..; \
 	echo "***** Taring and zipping dictd-$${VERSION}.tar.gz..."; \
@@ -412,7 +413,8 @@ distclean: recursive-clean
 	rm -f Makefile doc/Makefile dictdplugin-config include_regex.h
 
 cvsclean: distclean
-	-rm -f configure libmaa/configure
+	rm -f configure libmaa/configure
+	rm -rf autom4te.cache libmaa/autom4te.cache
 
 tags:
 	etags *.[ch]
