@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.24 2002/08/05 11:16:52 cheusov Exp $
+ * $Id: index.c,v 1.25 2002/08/05 11:34:23 cheusov Exp $
  * 
  */
 
@@ -1035,7 +1035,6 @@ dictIndex *dict_index_open( const char *filename )
    dictIndex   *i = xmalloc( sizeof( struct dictIndex ) );
    struct stat sb;
    static int  tabInit = 0;
-   char uuu [1024];
 #if OPTSTART
    int         j;
    char        buf[2];
@@ -1080,10 +1079,6 @@ dictIndex *dict_index_open( const char *filename )
 	    printf ("optStart [%c] = %p\n", c(j), i->optStart[c(j)]);
 	 else
 	    printf ("optStart [%i] = %p\n", c(j), i->optStart[c(j)]);
-
-	 memcpy (uuu, i->optStart[toupper(c(j))], sizeof (uuu) - 1);
-	 uuu [sizeof (uuu) - 1] = 0;
-	 printf ("OPTSTART: %s\n", uuu);
       }
    }
 
