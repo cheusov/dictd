@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.80 2003/08/06 17:55:54 cheusov Exp $
+# $Id: Makefile.in,v 1.81 2003/08/07 16:24:48 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -84,7 +84,7 @@ DICTD_LDFLAGS=    @DICTD_LDFLAGS@
 EXES=	 	dict dictd dictzip dictfmt
 
 ifdef USE_PLUGIN
-	PLUGINS=    
+	PLUGINS=    dictdplugin_judy.so
 	LIBRARIES=  libdictdplugin.a
 	INCLUDES=   dictdplugin.h
 all             :: plugins
@@ -157,15 +157,20 @@ $(CLIOBJS):  $(HEADERS)
 dict.o dictfmt.o dictd.o dictzip.o : $(HEADERS)
 dictd.o : servparse.h
 
-dictdplugin_exit.so : libdictdplugin.a
+$(PLUGINS) dictdplugin_popen.so dictdplugin_exit.so : libdictdplugin.a @LIBOBJS@
 
 lib%.a : %.o
 	$(AR) rc $@ $^
 
+dictdplugin_judy.so : data.o
+
+dictdplugin_judy.so : dictdplugin_judy.c
+	$(CC) $^ $(ALLCFLAGS) $(ALLLDFLAGS) -lJudy -shared -o $@
+
 %.so: %.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -shared $^ -o $@ libdictdplugin.a
+	$(CC) $^ $(CFLAGS) $(LDFLAGS) -shared -o $@
 %.so: %.cpp
-	$(CXX) $(CFLAGS) $(LDFLAGS) -shared $^ -o $@ libdictdplugin.a
+	$(CXX) $^ $(CFLAGS) $(LDFLAGS) -shared -o $@
 
 .PHONY: plugins
 plugins: $(PLUGINS)
