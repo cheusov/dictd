@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.28 2002/08/05 11:56:51 cheusov Exp $
+ * $Id: index.c,v 1.29 2002/08/05 12:01:24 cheusov Exp $
  * 
  */
 
@@ -187,6 +187,47 @@ static void dict_table_init(void)
     }
 }
 
+static int compare_utf8( const char *word, const char *start, const char *end )
+{
+   int c1, c2;
+   int result;
+
+   /* FIXME.  Optimize this inner loop. */
+   while (*word && start < end && *start != '\t') {
+//      if (!isspacealnum(*start)) {
+//	 ++start;
+//	 continue;
+//      }
+#if 0
+      if (isspace( *start )) c2 = ' ';
+      else                   c2 = * (unsigned char *) start;
+      if (isspace( *word )) c1 = ' ';
+      else                  c1 = * (unsigned char *) word;
+#else
+      c2 = * (unsigned char *) start;
+      c1 = * (unsigned char *) word;
+#endif
+      if (c1 != c2) {
+	    if (c1 < c2){
+	       result = -2;
+	    }else{
+	       result = 1;
+	    }
+	 if (dbg_test(DBG_SEARCH)){
+	    printf("   result = %d (%i != %i) \n", result, c1, c2);
+	 }
+         return result;
+      }
+      ++word;
+      ++start;
+   }
+
+   PRINTF(DBG_SEARCH,("   result = %d\n",
+		      *word ? 1 : ((*start != '\t') ? -1 : 0)));
+   return  *word ? 1 : ((*start != '\t') ? -1 : 0);
+}
+
+/*
 static int compare_utf8(
     const char *word,
     const char *start,
@@ -248,6 +289,7 @@ static int compare_utf8(
    PRINTF(DBG_SEARCH,("   result = 0\n"));
    return 0;
 }
+*/
 
 static int compare_8bit( const char *word, const char *start, const char *end )
 {
@@ -316,7 +358,10 @@ static int compare_8bit( const char *word, const char *start, const char *end )
    word already has all of the illegal characters removed
 */
 
-static int compare( const char *word, const char *start, const char *end )
+static int compare(
+   const char *word,
+   const dictIndex *dbindex,
+   const char *start, const char *end )
 {
    char       buf[80], *d;
    const char *s;
@@ -330,14 +375,16 @@ static int compare( const char *word, const char *start, const char *end )
 
    ++_dict_comparisons;		/* counter for profiling */
 
-   if (utf8_mode)
+   if (utf8_mode && dbindex && dbindex -> flag_utf8)
       return compare_utf8( word, start, end );
    else
       return compare_8bit( word, start, end );
 }
 
-static const char *binary_search( const char *word,
-				  const char *start, const char *end )
+static const char *binary_search(
+    const char *word,
+    const dictIndex *dbindex,
+    const char *start, const char *end )
 {
    const char *pt;
 
@@ -346,7 +393,7 @@ static const char *binary_search( const char *word,
    pt = start + (end-start)/2;
    FIND_NEXT(pt,end);
    while (pt < end) {
-      switch (compare( word, pt, end )){
+      switch (compare( word, dbindex, pt, end )){
 	 case -2: case -1: case 0:
 	    end = pt;
 	    break;
@@ -366,8 +413,10 @@ static const char *binary_search( const char *word,
    return start;
 }
 
-static const char *binary_search_8bit( const char *word,
-				  const char *start, const char *end )
+static const char *binary_search_8bit(
+    const char *word,
+    const dictIndex *dbindex,
+    const char *start, const char *end )
 {
    char       buf[80], *d;
    const char *s;
@@ -405,13 +454,15 @@ static const char *binary_search_8bit( const char *word,
    return start;
 }
 
-static const char *linear_search( const char *word,
-				  const char *start, const char *end )
+static const char *linear_search(
+    const char *word,
+    const dictIndex *dbindex,
+    const char *start, const char *end )
 {
    const char *pt;
 
    for (pt = start; pt < end;) {
-      switch (compare( word, pt, end )) {
+      switch (compare( word, dbindex, pt, end )) {
       case -2: return NULL;	/* less than and not prefix */
       case -1:			/* prefix */
       case  0: return pt;	/* exact */
@@ -466,11 +517,11 @@ const char *dict_index_search( const char *word, dictIndex *idx )
 #endif
    if (end < start) end = idx->end;
 
-   start = binary_search( word, start, end );
+   start = binary_search( word, idx, start, end );
 
    PRINTF(DBG_SEARCH,("binary_search returns %p\n",start));
 
-   start = linear_search( word, start, idx->end );
+   start = linear_search( word, idx, start, idx->end );
 
    PRINTF(DBG_SEARCH,("linear_search returns %p\n",start));
 
@@ -578,7 +629,7 @@ static int dict_search_exact( lst_List l,
    pt   = dict_index_search( word, dbindex );
 
    while (pt && pt < dbindex->end) {
-      if (!compare( word, pt, dbindex->end )) {
+      if (!compare( word, dbindex, pt, dbindex->end )) {
 	 if (!previous || altcompare(previous, pt, dbindex->end)) {
 	    ++count;
 	    datum = dict_word_create( previous = pt, database, dbindex );
@@ -602,7 +653,7 @@ static int dict_search_prefix( lst_List l,
    const char *previous = NULL;
 
    while (pt && pt < dbindex->end) {
-      switch (compare( word, pt, dbindex->end )) {
+      switch (compare( word, dbindex, pt, dbindex->end )) {
 	 case -2:
 	    return count;
 	 case -1:
@@ -650,7 +701,7 @@ static int dict_search_brute( lst_List l,
 	 while (p < end && !isspacealnum(*p)) ++p;
       }
       if (tolower(*p) == *word) {
-	 result = compare( word, p, end );
+	 result = compare( word, dbindex, p, end );
 	 if (result == -1 || result == 0) {
 	    if (suffix && result) continue;
 	    for (pt = p; pt >= start && *pt != '\n'; --pt)
@@ -660,7 +711,7 @@ static int dict_search_brute( lst_List l,
 	       datum = dict_word_create( previous = pt + 1, database, dbindex );
 #if 0
 	       fprintf( stderr, "Adding %d %s\n",
-			compare( word, p, end ),
+			compare( word, dbindex, p, end ),
 			datum->word);
 #endif
 	       lst_append( l, datum );
@@ -737,7 +788,7 @@ static int dict_search_bmh( lst_List l,
 	    datum = dict_word_create( previous = pt, database, dbindex );
 #if 0
 	    fprintf( stderr, "Adding %d %s, word = %s\n",
-		     compare( word, p, dbindex->end ),
+		     compare( word, dbindex, p, dbindex->end ),
 		     datum->word,
 		     word );
 #endif
@@ -815,7 +866,7 @@ static int dict_search_regexpr( lst_List l,
 	    datum = dict_word_create( previous = pt, database, dbindex );
 #if 0
 	    fprintf( stderr, "Adding %d %s\n",
-		     compare( word, pt, end ),
+		     compare( word, dbindex, pt, end ),
 		     datum->word);
 #endif
 	    lst_append( l, datum );
@@ -927,7 +978,7 @@ static int dict_search_levenshtein( lst_List l,
 
 #define CHECK                                         \
    if ((pt = dict_index_search(buf, dbindex))           \
-       && !compare(buf, pt, dbindex->end)) {            \
+       && !compare(buf, dbindex, pt, dbindex->end)) {            \
       if (!set_member(s,buf)) {                       \
 	 ++count;                                     \
 	 set_insert(s,str_find(buf));                 \
@@ -1167,14 +1218,14 @@ dictIndex *dict_index_open( const char *filename )
 
    buf[0] = ' ';
    buf[1] = '\0';
-   i->optStart[ ' ' ] = binary_search_8bit( buf, i->start, i->end );
+   i->optStart[ ' ' ] = binary_search_8bit( buf, NULL, i->start, i->end );
 
    for (j = 0; j < charcount; j++) {
       buf[0] = c(j);
       buf[1] = '\0';
       i->optStart[toupper(c(j))]
 	 = i->optStart[c(j)]
-	 = binary_search_8bit( buf, i->start, i->end );
+	 = binary_search_8bit( buf, NULL, i->start, i->end );
       if (dbg_test (DBG_SEARCH)){
 	 if (!utf8_mode || c(j) <= CHAR_MAX)
 	    printf ("optStart [%c] = %p\n", c(j), i->optStart[c(j)]);
@@ -1186,13 +1237,21 @@ dictIndex *dict_index_open( const char *filename )
    for (j = '0'; j <= '9'; j++) {
       buf[0] = j;
       buf[1] = '\0';
-      i->optStart[j] = binary_search_8bit( buf, i->start, i->end );
+      i->optStart[j] = binary_search_8bit( buf, NULL, i->start, i->end );
    }
 
    i->optStart[UCHAR_MAX]   = i->end;
    i->optStart[UCHAR_MAX+1] = i->end;
 #endif
-   
+
+   i->flag_utf8 = 0;
+   i->flag_utf8 =
+       NULL != linear_search(
+	   DICT_FLAG_UTF8_ALNUM,
+	   NULL,
+	   i->start/*binary_search_8bit (DICT_FLAG_UTF8, i->start, i->end)*/,
+	   i->end);
+   PRINTF(DBG_INIT, ("\"%s\": flag_utf8=%i\n", filename, i->flag_utf8));
    return i;
 }
 
@@ -1203,5 +1262,6 @@ void dict_index_close( dictIndex *i )
       close( i->fd );
       i->fd = 0;
       i->start = i->end = NULL;
+      i->flag_utf8 = 0;
    }
 }

@@ -52,6 +52,10 @@
 #define DICT_SHORT_ENTRY_NAME    "00-database-short"
 #define DICT_LONG_ENTRY_NAME     "00-database-long"
 #define DICT_INFO_ENTRY_NAME     "00-database-info"
+
+#define DICT_FLAG_UTF8           "00-database-utf8"
+#define DICT_FLAG_UTF8_ALNUM     "00databaseutf8"
+
 #define DICT_DEFAULT_STRATEGY    DICT_LEVENSHTEIN
 
 				/* End of configurable things */
@@ -152,6 +156,8 @@ typedef struct dictIndex {
    unsigned long size;		 /* size of mmap */
    const char    *optStart[UCHAR_MAX+2]; /* Optimized starting points */
    unsigned long headwords;	 /* computed number of headwords */
+
+   int        flag_utf8; /* not zero if it has 00-database-ut8 entry*/
 } dictIndex;
 
 typedef struct dictDatabase {
