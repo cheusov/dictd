@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.33 2002/05/03 14:12:22 faith Exp $
+ * $Id: daemon.c,v 1.34 2002/08/02 19:43:14 faith Exp $
  * 
  */
 

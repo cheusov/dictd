@@ -1,6 +1,6 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@dict.org
- * Revised: Tue Apr 23 09:14:43 2002 by faith@dict.org
+ * Revised: Sat May  4 21:58:16 2002 by faith@dict.org
  * Copyright 1997-2000, 2002 Rickard E. Faith (faith@dict.org)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.43 2002/05/03 14:12:22 faith Exp $
+ * $Id: dictd.c,v 1.44 2002/08/02 19:43:14 faith Exp $
  * 
  */
 
@@ -398,7 +398,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.43 2002/05/03 14:12:22 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.44 2002/08/02 19:43:14 faith Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -657,6 +657,7 @@ int main( int argc, char **argv, char **envp )
       case 503: depth = atoi(optarg);                     break;
       case 504: _dict_daemon_limit = atoi(optarg);        break;
       case 505: ++useSyslog; log_set_facility(optarg);    break;
+      case 506: locale = optarg;                          break;
       case 'h':
       default:  help(); exit(0);                          break;
       }
@@ -766,6 +767,7 @@ int main( int argc, char **argv, char **envp )
 
    log_info(":I: %d starting %s %24.24s\n",
 	    getpid(), dict_get_banner(0), ctime(&startTime));
+   if (strcmp(locale, "C")) log_info(":I: using locale \"%s\"\n", locale);
 
    masterSocket = net_open_tcp( service, depth );
    

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictzip.c,v 1.17 2002/05/03 14:12:22 faith Exp $
+ * $Id: dictzip.c,v 1.18 2002/08/02 19:43:14 faith Exp $
  * 
  */
 
@@ -311,7 +311,7 @@ static const char *id_string( const char *id )
 
 static void banner( void )
 {
-   const char *id = "$Id: dictzip.c,v 1.17 2002/05/03 14:12:22 faith Exp $";
+   const char *id = "$Id: dictzip.c,v 1.18 2002/08/02 19:43:14 faith Exp $";
    
    fprintf( stderr, "%s %s\n", err_program_name(), id_string( id ) );
    fprintf( stderr,

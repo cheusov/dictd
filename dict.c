@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.c,v 1.27 2002/05/03 14:12:22 faith Exp $
+ * $Id: dict.c,v 1.28 2002/08/02 19:43:14 faith Exp $
  * 
  */
 
@@ -942,7 +942,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.27 2002/05/03 14:12:22 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.28 2002/08/02 19:43:14 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;

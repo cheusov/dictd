@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: data.c,v 1.10 2002/05/03 14:12:22 faith Exp $
+ * $Id: data.c,v 1.11 2002/08/02 19:43:14 faith Exp $
  * 
  */
 
