@@ -1,6 +1,6 @@
 /* dict.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Sat Mar  8 18:37:21 1997 by faith@cs.unc.edu
+ * Revised: Wed Mar 26 13:24:59 1997 by faith@cs.unc.edu
  * Copyright 1994, 1995, 1996 Rickard E. Faith (faith@cs.unc.edu)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,12 +25,6 @@
 #include "maa.h"
 #include "zlib.h"
 #include "dictd.h"
-
-				/* Configurable things */
-
-#define DICT_DEFAULT_SERVICE    "2627"
-#define DICT_QUEUE_DEPTH        10
-#define DICT_CONFIG_FILE        "/etc/dict.conf"
 
 				/* End of configurable things */
 

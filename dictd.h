@@ -1,6 +1,6 @@
 /* dict.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Mon Mar 10 21:51:13 1997 by faith@cs.unc.edu
+ * Revised: Wed Mar 26 13:28:08 1997 by faith@cs.unc.edu
  * Copyright 1994, 1995, 1996 Rickard E. Faith (faith@cs.unc.edu)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,7 +38,7 @@
 
 				/* Configurable things */
 
-#define DICT_DEFAULT_SERVICE    "2627"
+#define DICT_DEFAULT_SERVICE    "2628"
 #define DICT_QUEUE_DEPTH        10
 #define DICT_CONFIG_FILE        "/etc/dict.conf"
 
@@ -136,8 +136,8 @@ typedef struct dictAccess {
 } dictAccess;
 
 typedef struct dictConfig {
-   lst_List   acl;
-   lst_List   dbl;
+   lst_List   acl;              /* type dictAccess */
+   lst_List   dbl;              /* type dictDatabase */
 } dictConfig;
 
 #define DICT_EXACT        1
@@ -186,11 +186,13 @@ extern void       dict_destroy_list( lst_List list );
 
 extern const char *dict_get_hostname( void );
 extern const char *dict_get_banner( void );
-extern dictConfig *DictConfig;
+extern dictConfig *DictConfig;  /* GLOBAL VARIABLE */
+extern int        _dict_comparisons; /* GLOBAL VARIABLE */
 
 /* daemon.c */
 
-extern int dict_daemon( int s, struct sockaddr_in *csin );
+extern int  dict_daemon( int s, struct sockaddr_in *csin, char ***argv0 );
+extern void daemon_terminate( int signal, const char *name );
 
 				/* dmalloc must be last */
 #ifdef DMALLOC_FUNC_CHECK

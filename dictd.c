@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Tue Mar 11 22:42:45 1997 by faith@cs.unc.edu
+ * Revised: Wed Mar 26 13:29:42 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.12 1997/03/23 12:22:35 faith Exp $
+ * $Id: dictd.c,v 1.13 1997/03/26 18:39:17 faith Exp $
  * 
  */
 
@@ -12,7 +12,6 @@
 #include "servparse.h"
 
 extern int        yy_flex_debug;
-extern int        _dict_comparisons;
 static int        _dict_forks;
 static int        _dict_child;
        dictConfig *DictConfig;
@@ -41,10 +40,7 @@ static void handler( int sig )
    }
 
    if (_dict_child) {
-      if (name) log_info( "Child caught %s, exiting (%d comparisons)\n",
-			  name, _dict_comparisons );
-      else      log_info( "Child caught signal %d, exiting (%d comparisons)\n",
-			  sig, _dict_comparisons );
+      daemon_terminate( sig, name );
    } else {
       if (name) log_info( "Caught %s, exiting (%d comparisons, %d forks)\n",
 			  name, _dict_comparisons, _dict_forks );
@@ -196,14 +192,14 @@ static const char *id_string( const char *id )
 const char *dict_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dictd.c,v 1.12 1997/03/23 12:22:35 faith Exp $";
+   const char        *id = "$Id: dictd.c,v 1.13 1997/03/26 18:39:17 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
    uname( &uts );
    buffer = xmalloc(256);
    sprintf( buffer,
-	    "%s %s (%s %s)", err_program_name(), id_string( id ),
+	    "%s (version %s on %s %s)", err_program_name(), id_string( id ),
 	    uts.sysname,
 	    uts.release );
    return buffer;
@@ -406,14 +402,14 @@ int main( int argc, char **argv )
 	 err_fatal_errno( __FUNCTION__, "Can't accept" );
       }
       if (dbg_test(DBG_NOFORK)) {
-	 dict_daemon(childSocket,&csin);
+	 dict_daemon(childSocket,&csin,&argv);
       } else {
 	 ++_dict_forks;
 	 switch ((pid = fork())) {
 	 case 0:			/* child */
 	    ++_dict_child;
 	    close(masterSocket);
-	    exit(dict_daemon(childSocket,&csin));
+	    exit(dict_daemon(childSocket,&csin,&argv));
 	 case -1:
 	    err_fatal_errno( __FUNCTION__, "Fork failed" );
 	 default:
