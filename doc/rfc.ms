@@ -1,8 +1,8 @@
 .\"
-.\" Revised: Tue May 27 14:13:08 1997 by faith@acm.org
+.\" Revised: Wed May 28 18:21:16 1997 by faith@acm.org
 .\" Distribution of this memo is unlimited.
 .\"
-.\" $Id: rfc.ms,v 1.10 1997/05/27 20:28:46 faith Exp $
+.\" $Id: rfc.ms,v 1.11 1997/06/02 23:09:57 faith Exp $
 .\" 
 .pl 10.0i
 .po 0
@@ -233,9 +233,9 @@ x1z - Information (e.g., help)
 x2z - Connections
 x3z - Authentication
 x4z - Unspecified as yet
-x5z - DICT System (These replies indicate the status of the receiver
-      mail system vis-a-vis the requested transfer or other DICT
-      system action.)
+x5z - DICT System (These replies indicate the status of the
+      receiver mail system vis-a-vis the requested transfer
+      or other DICT system action.)
 x8z - Nonstandard (private implementation) extensions
 .DE
 
@@ -975,10 +975,10 @@ Trailing colons may be omitted.  For example, the following URLs might
 specify definitions or matches:
 
 .DS
-dict://dict.org/d:cow:
-dict://dict.org/d:cow:*
-dict://dict.org/d:cow:wordnet:
-dict://dict.org/d:cow:wordnet:1
+dict://dict.org/d:shortcake:
+dict://dict.org/d:shortcake:*
+dict://dict.org/d:shortcake:wordnet:
+dict://dict.org/d:shortcake:wordnet:1
 dict://dict.org/d:abcdefgh
 dict://dict.org/d:sun
 dict://dict.org/d:sun::1
@@ -1060,17 +1060,24 @@ S: 250 Command complete
 .DE
 
 .DS I 0
-C: DEFINE * cow
+C: DEFINE * shortcacke
 
-S: 150 1 definitions found: list follows
-S: 151 "cow" wn "WordNet 1.5" : definition text follows
-S: cow
-S:   1. n: mature female of mammals of which the male is called "bull"
-S:   2. n: female of domestic cattle: "`moo-cow'" is a child's term
-S:   3. n: a large unpleasant woman
+S: 150 2 definitions found: list follows
+S: 151 "shortcake" wn "WordNet 1.5" : text follows
+S: shortcake
+S:   1. n: very short biscuit spread with sweetened fruit and usu.
+S:      whipped cream
+S: .
+S: 151 "Shortcake" web1913 "Webster's Dictionary (1913)" : text follows
+S: Shortcake
+S:    \\Short"cake`\\, n.
+S:    An unsweetened breakfast cake shortened with butter or lard,
+S:    rolled thin, and baked.
 S: .
 S: 250 Command complete
 .DE
+.\" " for emacs
+.\"
 
 .DS I 0
 C: DEFINE abcdefgh
@@ -1084,13 +1091,14 @@ C: DEFINE ! Sun
 S: 150 2 definitions found: list follows
 S: 151 "Sun" wn "WordNet 1.5" : definition text follows
 S: Sun
-S:   1. n: the star that is the source of light and heat for the planets in
-S:      the solar system
+S:   1. n: the star that is the source of light and heat for the
+S:      planets in the solar system
 S: .
 S: 151 "sun" wn "WordNet 1.5" : definition text follows
 S: sun
 S:   1. n: any star around which a planetary system evolves
-S:   2. n: a person considered as a source of warmth or energy or glory etc
+S:   2. n: a person considered as a source of warmth or energy
+S:      or glory etc
 S:   3. v: expose to as if to sun rays
 S: .
 S: 250 Command complete

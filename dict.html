@@ -1,0 +1,118 @@
+<HTML>
+<HEAD>
+	<TITLE>dict project</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+
+<H1><TT>dict</TT> project</H1>
+
+<TT>dict</TT> is my programming project to satisfy the <A
+HREF="http://zoo.cs.yale.edu/classes/cs490">CS 490</A> project
+requirement for my BS degree in <A
+HREF="http://www.yale.edu">Yale</A>'s <A
+HREF="http://www.cs.yale.edu">Computer Science</A> major.
+Professor <A HREF="http://daffy.cs.yale.edu">Zhong Shao</A> is my
+project advisor.
+
+
+
+<P>Read my <A HREF="proposal.html">original project proposal</A> for a
+more in-depth description.
+
+<HR>
+Look up something using my <TT>dict</TT> server right now.
+
+<FORM METHOD="POST" ACTION="dict.cgi">
+Query string:
+<INPUT TYPE="text" NAME="query" SIZE=40>
+
+<BR>
+<B>query type</B>
+<SELECT NAME="type">
+<OPTION VALUE="define">get definition(s)
+<OPTION VALUE="exact">list exact matches
+<OPTION VALUE="prefix">list prefix matches
+<OPTION VALUE="substring">list substring matches
+<OPTION VALUE="suffix">list suffix matches
+<OPTION VALUE="regex">list regular expression matches
+<OPTION VALUE="reverse">list matches based on definition keywords
+(reverse match)
+</SELECT>
+
+<BR>
+in <B>database</B>
+<SELECT NAME="database">
+<OPTION VALUE="*">Any
+<OPTION VALUE="!">First match
+<OPTION VALUE="web1913">Webster's Dictionary (1913)
+<OPTION VALUE="wn">WordNet 1.5
+<OPTION VALUE="jargon">Hacker Jargon File
+<OPTION VALUE="foldoc">Free Online Dictionary of Computing
+<OPTION VALUE="elements">Periodic Table of the Elements
+</SELECT>
+
+<BR>
+<INPUT TYPE="submit" NAME="submit" VALUE="Submit query">
+<INPUT TYPE="reset" VALUE="Reset form">
+</FORM>
+
+<B>Note:</B> reverse matching can take a <I>long</I> time depending on
+the length of your search string.  Because of the size of the Webster
+database, reverse matching is not yet implemented for it.
+<HR>
+
+Here are some sample queries, just to give you an idea of what you can
+do.
+<UL>
+<LI><A HREF="dict.cgi?query=pre&type=prefix&database=*">All the words
+starting with "pre"</A> (query: "pre", prefix match, any database)
+<LI><A HREF="dict.cgi?query=cow&type=substring&database=*">All the
+words containing the string "cow"</A> (query: "cow", substring match,
+any database)
+<LI><A HREF="dict.cgi?query=SCSI&type=substring&database=foldoc">All
+the kinds of SCSI according to the Free Online Dictionary of
+Computing</A> (query: "SCSI", substring match, FOLDOC)
+</UL>
+
+<HR>
+
+Grab the current <A HREF="dict">Perl DICT system client</A> to have a
+network dictionary at your UNIX command-line.
+
+<HR>
+<H2>Informational Links</H2>
+
+<H4><I>n</I>-gram analysis</H4>
+
+<UL>
+<LI><A HREF="http://www.c3.lanl.gov:8064/revdict/how.html" ADD_DATE="850084373" LAST_VISIT="855816269" LAST_MODIFIED="850084371">How Casey's Snow Day Reverse Dictionary Works</A>
+<LI><A HREF="http://www.c3.lanl.gov:8076/help/ngram-help.html" ADD_DATE="855818908" LAST_VISIT="855818925" LAST_MODIFIED="855818903">OLA N-Gram Help</A>
+</UL>
+
+
+<H4>Latent semantic analysis</H4>
+
+<UL>
+<LI><A HREF="http://www-speech.sri.com/people/stolcke/papers/icassp96/paper.html" ADD_DATE="855819260" LAST_VISIT="855819250" LAST_MODIFIED="855819250">Statistical Language Modeling for Speech Disfluencies</A>
+<LI><A HREF="http://samiam.colorado.edu/~lsi/content.html" ADD_DATE="855819460" LAST_VISIT="856142621" LAST_MODIFIED="855819457">Latent Semantic Analysis (CU)</A>
+<LI><A HREF="http://newsroom.gsfc.nasa.gov/eval/lsi_sb.html" ADD_DATE="855819721" LAST_VISIT="856142652" LAST_MODIFIED="855819653">Latent Semantic Indexing (NASA)</A>
+<LI><A HREF="http://www.cs.utk.edu/~berry/sc95/sc95.html" ADD_DATE="855819619" LAST_VISIT="856142742" LAST_MODIFIED="855819573">Latent Semantic Indexing (UTK)</A>
+</UL>
+
+<H4>Other dictionary and word database projects</H4>
+
+<UL>
+<LI><A HREF="http://www.cogsci.princeton.edu/~wn/" ADD_DATE="850159738" LAST_VISIT="850268560" LAST_MODIFIED="850268560">WordNet Home Page</A>
+</UL>
+
+<HR>
+<A HREF="mailto:martin-bret@cs.yale.edu"><B>martin-bret@cs.yale.edu</B></A>
+<BR>Last modified: Tuesday, 06-May-97 16:30:26 EDT
+
+
+<P>
+</FONT>
+
+</BODY>
+</HTML>
