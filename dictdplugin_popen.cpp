@@ -46,6 +46,7 @@
 #include <unistd.h>
 #include <strstream>
 #include <list>
+#include <assert.h>
 
 #include "dictdplugin.h"
 
