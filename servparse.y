@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.23 2005/03/29 17:55:57 cheusov Exp $
+ * $Id: servparse.y,v 1.24 2005/03/30 10:33:06 cheusov Exp $
  * 
  */
 
@@ -444,7 +444,7 @@ Spec__default_strat : TOKEN_DEFAULT_STRAT TOKEN_STRING
      {  db -> default_strategy = lookup_strategy_ex ($2.string);  };
 
 Spec__dbname_mime : TOKEN_MIME_DBNAME TOKEN_STRING
-     {  SET(mime_mimeDbname,$1,$2);  }
+     {  SET(mime_mimeDbname,$1,$2);  };
 
 Spec__dbname_nomime : TOKEN_NOMIME_DBNAME TOKEN_STRING 
-         {  SET(mime_nomimeDbname,$1,$2);  }
+     {  SET(mime_nomimeDbname,$1,$2);  };
