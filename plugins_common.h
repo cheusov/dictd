@@ -17,13 +17,13 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: plugins_common.h,v 1.1 2004/03/18 19:55:17 cheusov Exp $
+ * $Id: plugins_common.h,v 1.2 2004/11/17 12:39:45 cheusov Exp $
  * 
  */
 
 /********************************************************************/
 
-extern const int *alloc_minus1_array (int count);
+extern const int *alloc_minus1_array (size_t count);
 extern void free_minus1_array (int *p);
 
 extern int process_lines (

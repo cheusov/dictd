@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: strategy.c,v 1.6 2004/10/12 10:34:24 cheusov Exp $
+ * $Id: strategy.c,v 1.7 2004/11/17 12:39:45 cheusov Exp $
  * 
  */
 
@@ -46,6 +46,7 @@ static dictStrategy strategyInfo[] = {
 #define STRATEGIES (sizeof(strategyInfo)/sizeof(strategyInfo[0]))
 
 static dictStrategy **strategies = NULL;
+
 static int strategy_count = 0;
 static int strategy_id    = 0;
 
@@ -53,7 +54,7 @@ static int strategy_id    = 0;
 
 void dict_init_strategies (void)
 {
-   int i;
+   size_t i;
    strategy_id = NEW_STRAT_ID;
 
    strategies = (dictStrategy **) xmalloc (STRATEGIES * sizeof (dictStrategy *));
@@ -98,7 +99,7 @@ int get_strategy_count (void)
    return strategy_count;
 }
 
-dictStrategy const *const *get_strategies (void)
+const dictStrategy *const *const get_strategies (void)
 {
    return strategies;
 }

@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: lev.h,v 1.2 2004/03/19 18:46:06 cheusov Exp $
+ * $Id: lev.h,v 1.3 2004/11/17 12:39:45 cheusov Exp $
  * 
  */
 
@@ -54,7 +54,7 @@ static int dict_search_lev_8bit (
    char       *p    = buf;
    int        count = 0;
    set_Set    s     = set_create(NULL,NULL);
-   int        i, j, k;
+   size_t     i, j, k;
    const char *pt;
    dictWord   *datum;
    size_t alphabet_len = strlen (alphabet);

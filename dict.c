@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.c,v 1.43 2004/05/24 11:42:25 cheusov Exp $
+ * $Id: dict.c,v 1.44 2004/11/17 12:39:44 cheusov Exp $
  * 
  */
 
@@ -557,7 +557,7 @@ static void request( void )
    char              hex[33];
    struct MD5Context ctx;
    int               i;
-   int               len;
+   unsigned          len;
    int               total = 0;
    int               count = 0;
 
@@ -1106,7 +1106,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.43 2004/05/24 11:42:25 cheusov Exp $";
+   const char        *id = "$Id: dict.c,v 1.44 2004/11/17 12:39:44 cheusov Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;

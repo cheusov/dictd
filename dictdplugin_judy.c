@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.22 2004/03/19 18:46:06 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.23 2004/11/17 12:39:44 cheusov Exp $
  * 
  */
 
@@ -76,7 +76,7 @@ typedef struct global_data_s {
    int m_strat_word;
 
    Pvoid_t m_judy_array;
-   int m_max_hw_len;
+   size_t  m_max_hw_len;
 
    char m_conf_index_fn  [NAME_MAX+1];
    char m_conf_data_fn   [NAME_MAX+1];
@@ -280,6 +280,7 @@ static Word_t count2offs (global_data *dict_data)
    Word_t val;
 
    assert (sizeof (word) > dict_data -> m_max_hw_len);
+
    JUDY_ITERATE_ALL (dict_data -> m_judy_array, value, word){
       val = (*(PWord_t) value);
       *(PWord_t) value = sum;
@@ -306,7 +307,7 @@ static void read_index_file (
    unsigned long def_offset;
    unsigned long def_size;
 
-   int len;
+   size_t len;
 
    fd = fopen (dict_data -> m_conf_index_fn, "r");
    if (!fd){

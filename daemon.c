@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.78 2004/10/12 13:51:30 cheusov Exp $
+ * $Id: daemon.c,v 1.79 2004/11/17 12:39:42 cheusov Exp $
  * 
  */
 
@@ -90,9 +90,10 @@ static struct {
 
 static void *(lookup_command)( int argc, const char **argv )
 {
-   int i, j;
+   size_t i;
+   int j;
    int err;
-   
+
    for (i = 0; i < COMMANDS; i++) {
       if (argc >= commandInfo[i].argc) {
 	 for (err = 0, j = 0; j < commandInfo[i].argc; j++) {
@@ -121,7 +122,7 @@ static void daemon_log( int type, const char *format, ... )
    va_list ap;
    char    buf[8*1024];
    char    *buf2;
-   int     len;
+   size_t  len;
    char    *s, *d;
    int     c;
    char    marker = '?';

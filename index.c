@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.93 2004/11/07 12:07:33 cheusov Exp $
+ * $Id: index.c,v 1.94 2004/11/17 12:39:44 cheusov Exp $
  * 
  */
 
@@ -223,6 +223,8 @@ static int compare_allchars(
    int c1, c2;
    int result;
 
+   PRINTF(DBG_SEARCH,("   We are inside index.c:compare_allchars\n"));
+
    /* FIXME.  Optimize this inner loop. */
    while (*word && start < end && *start != '\t') {
 //      if (!isspacealnum(*start)) {
@@ -273,6 +275,8 @@ static int compare_alnumspace(
    int result;
 
    assert (dbindex);
+
+   PRINTF(DBG_SEARCH,("   We are inside index.c:compare_alnumspace\n"));
 
    /* FIXME.  Optimize this inner loop. */
    while (*word && start < end && *start != '\t') {
@@ -366,7 +370,7 @@ static int compare(
    if (dbg_test(DBG_SEARCH)) {
       for (
 	 d = buf, s = start;
-	 d - buf < sizeof (buf)-1 && s < end && *s != '\t';)
+	 d - buf + 1 < (int) sizeof (buf) && s < end && *s != '\t';)
       {
 	 *d++ = *s++;
       }
@@ -439,7 +443,7 @@ static const char *binary_search_8bit(
       if (dbg_test(DBG_SEARCH)) {
          for (
 	    d = buf, s = pt;
-	    s < end && *s != '\t' && d - buf < sizeof (buf)-1;)
+	    s < end && *s != '\t' && d - buf + 1 < (int) sizeof (buf);)
 	 {
 	    *d++ = *s++;
 	 }

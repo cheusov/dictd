@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictzip.c,v 1.25 2003/12/08 17:14:47 cheusov Exp $
+ * $Id: dictzip.c,v 1.26 2004/11/17 12:39:44 cheusov Exp $
  * 
  */
 
@@ -313,7 +313,7 @@ static const char *id_string( const char *id )
 
 static void banner( void )
 {
-   const char *id = "$Id: dictzip.c,v 1.25 2003/12/08 17:14:47 cheusov Exp $";
+   const char *id = "$Id: dictzip.c,v 1.26 2004/11/17 12:39:44 cheusov Exp $";
    
    fprintf( stderr, "%s %s\n", err_program_name(), id_string( id ) );
    fprintf( stderr,
@@ -375,8 +375,8 @@ static void help( void )
 int main( int argc, char **argv )
 {
    int           c;
-   int           i;
-   int           j;
+   size_t        i;
+   size_t        j;
    int           decompressFlag = 0;
    int           forceFlag      = 0;
    int           keepFlag       = 0;
@@ -462,7 +462,7 @@ int main( int argc, char **argv )
 
    if (testFlag) ++listFlag;
 
-   for (i = optind; i < argc; i++) {
+   for (i = optind; i < (size_t) argc; i++) {
       size  = clSize  ? clSize  : 0;
       start = clStart ? clStart : 0;
       if (listFlag) {

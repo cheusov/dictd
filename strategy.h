@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: strategy.h,v 1.5 2004/10/12 10:34:24 cheusov Exp $
+ * $Id: strategy.h,v 1.6 2004/11/17 12:39:45 cheusov Exp $
  */
 
 #ifndef _STRATEGY_H_
@@ -56,7 +56,7 @@ extern void dict_add_strategy (const char *strat, const char *description);
 /* */
 extern int get_strategy_count (void);
 extern int get_max_strategy_num (void);
-extern const dictStrategy *const *get_strategies (void);
+extern const dictStrategy *const *const get_strategies (void);
 extern const dictStrategy *get_strategy (int strat);
 
 /* returns -1 if fails */
