@@ -1,10 +1,10 @@
 /* dict.c -- 
  * Created: Fri Mar 28 19:16:29 1997 by faith@dict.org
- * Revised: Thu Nov  9 16:27:12 2000 by faith@dict.org
+ * Revised: Thu Nov  9 16:41:14 2000 by faith@dict.org
  * Copyright 1997, 1998, 1999, 2000 Rickard E. Faith (faith@dict.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dict.c,v 1.21 2000/11/09 21:27:29 faith Exp $
+ * $Id: dict.c,v 1.22 2000/11/09 21:43:01 faith Exp $
  * 
  */
 
@@ -199,7 +199,12 @@ static void client_print_matches( lst_List l, int html, int flag,
 
    if (flag) {
       if (html) fprintf( dict_output, "<H2>" );
-      if (count)
+      if (count > 100) {
+	 fprintf( dict_output,
+		  "%d match%s found -- too many to print\n",
+		  count, count == 1 ? "" : "es" );
+	 return;
+      } else if (count)
 	 fprintf( dict_output,
 		  "%d match%s found", count, count == 1 ? "" : "es" );
       else
@@ -813,7 +818,8 @@ static void process( int html )
       case CMD_WIND:
 	 if (cmd_reply.matches > 100) {
 	     fprintf(dict_output,
-		     "Your request would have returned %d definitions\n",
+		     "Your request would have returned %d definitions"
+		     " -- too many to print\n",
 		     cmd_reply.matches);
 	 } else if (cmd_reply.matches) {
 	    if (!cmd_reply.data)
@@ -937,7 +943,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.21 2000/11/09 21:27:29 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.22 2000/11/09 21:43:01 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
