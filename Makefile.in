@@ -1,6 +1,6 @@
 # Makefile.in -- Makefile for dict
 # Created: Wed Apr 24 14:14:09 1996 by faith@cs.unc.edu
-# Revised: Fri Jul 11 21:47:02 1997 by faith@acm.org
+# Revised: Fri Jul 11 21:56:53 1997 by faith@acm.org
 # Copyright 1996, 1997 Rickard E. Faith (faith@acm.org)
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,12 +17,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.17 1997/07/12 01:50:07 faith Exp $
+# $Id: Makefile.in,v 1.18 1997/07/12 02:05:47 faith Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
 # Numbers are for the original author(s) only.
-DICT_VERSION=1.0.alpha
+DICT_VERSION=1.0a
 
 ifneq (,)
 This makefile requires GNU Make.
@@ -140,13 +140,19 @@ clientparse.c: clientparse.y
 clientparse.o: clientparse.c $(HEADERS)
 	$(CC) -c $(XTRACFLAGS) $(CFLAGS) -Wno-implicit $<
 
-install: $(EXES)
+install.dict: dict
 	install dict $(bindir)
-	install dictzip $(bindir)
-	install dictd $(sbindir)
 	install -m 644 dict.1 $(man1_prefix)
+
+install.dictzip: dictzip
+	install dictzip $(bindir)
 	install -m 644 dictzip.1 $(man1_prefix)
+
+install.dictd: dictd
+	install dictd $(sbindir)
 	install -m 644 dictd.8 $(man8_prefix)
+
+install: $(EXES) install.dict install.dictzip install.dictd
 
 .PHONY: ChangeLog
 ChangeLog:

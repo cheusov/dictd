@@ -1,7 +1,0 @@
-Mon Mar 10 15:43:59 1997:
-0) daemonizing
-1) IP/hostname matching
-2) username/APOP protocol
-3) full index retrieval tester
-4) test with more databases
-5) modify protocol so that "match word" does something useful
