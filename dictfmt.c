@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.15 2003/02/07 18:58:55 cheusov Exp $
+ * $Id: dictfmt.c,v 1.16 2003/02/10 19:08:33 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -65,6 +65,8 @@ static int  Debug;
 static FILE *str;
 
 static int utf8_mode     = 0;
+static int bit8_mode     = 0;
+
 static int allchars_mode = 0;
 
 static int quiet_mode    = 0;
@@ -263,6 +265,9 @@ static void write_hw_to_index (const char *word, int start, int end)
 
 static int contain_nonascii_symbol (const char *word)
 {
+   if (!word)
+      return 0;
+
    while (*word){
       if (!isascii ((unsigned char) *word))
 	 return 1;
@@ -283,7 +288,7 @@ static void fmt_newheadword( const char *word, int flag )
 
    if (locale [0] == 'C' && locale [1] == 0){
       if (contain_nonascii_symbol (word)){
-	 fprintf (stderr, "8-bit head word is encountered while \"C\" locale is used\n");
+	 fprintf (stderr, "\n8-bit head word \"%s\"is encountered while \"C\" locale is used\n", word);
 	 exit (1);
       }
    }
@@ -424,7 +429,7 @@ static char *strlwr_8bit (char *s)
    return s;
 }
 
-static void set_utf8_mode (const char *loc)
+static void set_utf8bit_mode (const char *loc)
 {
    char *locale_copy;
    locale_copy = strdup (loc);
@@ -433,6 +438,8 @@ static void set_utf8_mode (const char *loc)
    utf8_mode =
       NULL != strstr (locale_copy, "utf-8") ||
       NULL != strstr (locale_copy, "utf8");
+
+   bit8_mode = !utf8_mode && (locale_copy [0] != 'c' || locale_copy [1] != 0);
 
    free (locale_copy);
 }
@@ -506,7 +513,7 @@ int main( int argc, char **argv )
       exit(1);
    }
 
-   set_utf8_mode (locale);
+   set_utf8bit_mode (locale);
 
    if (utf8_mode)
       setenv("LC_ALL", "C", 1); /* this is for 'sort' subprocess */
@@ -539,6 +546,11 @@ int main( int argc, char **argv )
 
    if (utf8_mode){
       fmt_newheadword("00-database-utf8",1);
+      fmt_string( "     " );
+   }
+
+   if (bit8_mode){
+      fmt_newheadword("00-database-8bit",1);
       fmt_string( "     " );
    }
 
