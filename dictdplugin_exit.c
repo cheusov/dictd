@@ -2,6 +2,24 @@
 
 #include "dictdplugin.h"
 
+int dictdb_close (void *dict_data);
+int dictdb_open (
+   const dictPluginData *init_data,
+   int init_data_size,
+   int *version,
+   void ** dict_data);
+const char *dictdb_error (void *dict_data);
+int dictdb_free (void * dict_data);
+int dictdb_search (
+   void * dict_data,
+   const char * word, int word_size,
+   int search_strategy,
+   int *ret,
+   const dictPluginData **result_extra, int *result_extra_size,
+   const char * const* *result,
+   const int **result_sizes,
+   int *result_count);
+
 int dictdb_open (
     const dictPluginData * init_data,
     int init_data_size,
