@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.94 2004/11/17 12:39:44 cheusov Exp $
+ * $Id: index.c,v 1.95 2004/11/19 19:09:07 cheusov Exp $
  * 
  */
 
@@ -382,7 +382,10 @@ static int compare(
 
    ++_dict_comparisons;		/* counter for profiling */
 
-   if (dbindex && (dbindex -> flag_allchars || dbindex -> flag_utf8)){
+   if (dbindex &&
+       (dbindex -> flag_allchars || dbindex -> flag_utf8 ||
+	dbindex -> flag_8bit))
+   {
       return compare_allchars( word, start, end );
    }else{
       return compare_alnumspace( word, dbindex, start, end );
