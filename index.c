@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.19 2000/12/22 14:15:25 faith Exp $
+ * $Id: index.c,v 1.20 2000/12/31 21:14:18 faith Exp $
  * 
  */
 
@@ -667,10 +667,10 @@ int dict_search_database( lst_List l,
       err_internal( __FUNCTION__, "List NULL\n" );
 		  
    for (pt = buf; *w; w++) {
-      if (isspace( *w )) {
+      if (isspace( *(const unsigned char *)w )) {
          *pt++ = ' ';
       } else {
-         if (!isalnum( *w )) continue;
+         if (!isalnum( *(const unsigned char *)w )) continue;
          *pt++ = tolower(*w);
       }
    }
