@@ -1,3 +1,146 @@
+2002-12-04  Aleksey Cheusov  <vle@gmx.net>
+
+  * index.c:
+  Plugin version == 1 is disabled. Version == 0 is allowed only.
+
+  * dictd.c, example_virtual.conf, index.c, servparse.y, servscan.l, daemon.c, data.c, dictd.8:
+  added: 'database_exit' directive to dictd.conf.
+         You can use 'virtual' dictionaries without plugin support.
+         See man dictd.8 and example_virtual.conf for details.
+  fixed: crash during debugging (-dsearch) output (80 chars limit)
+
+2002-12-03  Aleksey Cheusov  <vle@gmx.net>
+
+  * dictdplugin_popen.cpp, example_popen.conf, index.c, search_man, dictdplugin_exit.c, dictdplugin.h, daemon.c, data.c, dictd.h, dictdplugin-config.in, INSTALL, Makefile.in:
+  fixed: warning messages produced by gcc
+  added: example 'popen' plugin. FOR PLUGIN DEMONSTRATION ONLY.
+  added: popen plugin dictdplugin_popen.cpp. See INSTALL section 5.
+  added: plugins can operate with strategies.
+         See DICT_PLUGIN_INITDATA_STRATEGY constant,
+           dictPluginData_strategy structure from dictdplugin.h and
+           dictdplugin_popen.cpp for a sample of use
+
+  * dictd.c:
+  fixed: non-critical memory leaks again
+
+  * dictd.h, dictdplugin-config.in, dictfmt_plugin, index.c, dictd.8, dictd.c, Makefile.in:
+  By default (if not full filename name specified) plugins/dictionaries will be
+    searched in $datadir/$libexecdir directory. It is a compile time option.
+    See man dictd.
+  added: dictdplugin-config --dictdir and --plugindir options
+
+2002-12-02  Aleksey Cheusov  <vle@gmx.net>
+
+  * dictd.c:
+  fixed: not critical memory leak
+
+  * dictd.h, index.c:
+  *** empty log message ***
+
+  * dictd.8:
+  documentation update
+
+2002-11-28  Aleksey Cheusov  <vle@gmx.net>
+
+  * dictd.8, dictfmt_plugin, example2.conf, example3.conf, INSTALL, TODO:
+  documentation update
+
+2002-11-25  Aleksey Cheusov  <vle@gmx.net>
+
+  * servparse.y:
+  servparse.y: fix by Dima Dorfman <d+dict@trit.org>
+
+2002-11-19  Aleksey Cheusov  <vle@gmx.net>
+
+  * daemon.c:
+  dictd can processes several conversions made by plugin.
+    Example: if the plugin converts 'found' word to 'find' and 'found',
+             all following dictionaries will be searched for both
+             'find' and 'found'
+    Example: if the plugin converts 'fruit' word to 'apple' and 'orange',
+             all following dictionaries will be searched for both 'apple'
+             and 'orange'
+
+  * libmaa/text.c:
+  fixed: possible crash in libmaa/text.c:txt_soundex
+         My previous commit did not fix it
+
+2002-11-18  Aleksey Cheusov  <vle@gmx.net>
+
+  * libmaa/text.c, utf8_ucs4.c, dictfmt.c, index.c:
+  fixed: problems with 'toupper/tolower/isXXXX (-1)
+  fixed: possible crash in libmaa/text.c:txt_soundex
+
+  * dictfmt.c:
+  fixed: invalid calculating the UTF-8 string length
+         while formatting the dictionary
+
+2002-11-04  Bob Hilliard  <hilliard@debian.org>
+
+  * config.sub, config.guess:
+  updated config.sub and config.guess to September 02 values
+  .
+
+2002-10-29  Aleksey Cheusov  <vle@gmx.net>
+
+  * utf8_ucs4.c:
+  fixed: utf8_ucs4.c:strlen_utf8
+
+2002-10-28  Aleksey Cheusov  <vle@gmx.net>
+
+  * ChangeLog, configure.in, daemon.c, dictd.c, dictd.h, dictfmt_plugin, dictfmt_virtual, Makefile.in:
+  added: 'dictfmt_virtual' utility for creating virtual dictionary
+  ADDED: Virtual dictionary capability for 'dictd'.
+         Run 'dictfmt-virtual --help' for a help
+
+  * configure.in, dictd.c, ChangeLog:
+  SIGHUP causes 'dictd' to reload configuration file
+
+2002-10-18  Bob Hilliard  <hilliard@debian.org>
+
+  * dictfmt.1, dictfmt.c, dictd.8:
+  Updated dictd.8 to include options added in 1.8.0.
+  Updated dictfmt.c to correct previous errors and omissions and include
+  options added in 1.8.0.
+  Patched dictfmt.c to correct help message for -c5 and to fix the bug
+  that caused the last headword read in to be duplicated in the index.
+
+2002-10-17  Aleksey Cheusov  <vle@gmx.net>
+
+  * daemon.c, dictd.c, dictd.h:
+  removed: --define-strategy option for 'dictd'
+  renamed: --match-strategy ==> --default-strategy
+  added:   --disable-strategy option for 'dictd'
+
+2002-10-16  Aleksey Cheusov  <vle@gmx.net>
+
+  * dictfmt.c:
+  fixed: typo
+
+2002-10-14  Aleksey Cheusov  <vle@gmx.net>
+
+  * index.c: *** empty log message ***
+
+  * servparse.y, servscan.l, index.c, dictfmt_index2suffix, dictfmt_index2word, dictd.h, dictd.c, daemon.c, Makefile.in:
+  fixed: missing dependancy in Makefile.in
+  added: fast implementation (binary search) of the WORD strategy search.
+         This requires additional index file created by dictfmt_index2word
+  added: --test-match option to dictd executable
+  fixed: problems with suffix strategy using additional index file
+
+  * daemon.c, dictdplugin.h, index.c:
+  ADDED: new search strategy 'word'
+  fixed: uninitialized variable charcount from index.c:dict_table_init
+
+2002-10-11  Aleksey Cheusov  <vle@gmx.net>
+
+  * daemon.c, dictd.c, ChangeLog:
+  added:   --match-strategy argument to dictd.
+           It sets the default strategy for 'match' queries
+  added:   --define-strategy argument to dictd.
+           It sets the default strategy for 'define' queries
+  update ChangeLog
+
 2002-09-27  Aleksey Cheusov  <vle@gmx.net>
 
   * libmaa/config.h.in, libmaa/configure.in, libmaa/error.c, ChangeLog, config.h.in, configure.in, daemon.c, data.c, dictd.c, dictd.h, dictdplugin.c, dictdplugin_exit.c, dictdplugin.h, dictP.h, index.c, Makefile.in:
