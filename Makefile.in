@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.60 2002/12/25 19:09:18 cheusov Exp $
+# $Id: Makefile.in,v 1.61 2003/01/03 19:43:35 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -97,9 +97,9 @@ uninstall.samples :
 endif
 
 HEADERS= 	./config.h @XTRAHEADERS@ dictzip.h dictd.h dict.h \
-                codes.h md5.h utf8_ucs4.h
+                codes.h md5.h
 
-SRCHOBJS=       index.o data.o utf8_ucs4.o dictdplugin.o
+SRCHOBJS=       index.o data.o dictdplugin.o
 NETOBJS=        daemon.o net.o servscan.o servparse.o md5.o
 CLIOBJS=        net.o clientscan.o clientparse.o md5.o
 
@@ -166,8 +166,8 @@ dictd:: dictd.c $(HEADERS) $(NETOBJS) $(SRCHOBJS)
 dictzip:: dictzip.c $(HEADERS) data.o
 	$(CC) $(ALLFLAGS) -o $@ $< data.o $(LDLIBS)
 
-dictfmt:: dictfmt.c $(HEADERS) utf8_ucs4.o
-	$(CC) $(ALLFLAGS) -o $@ $< utf8_ucs4.o $(LDLIBS)
+dictfmt:: dictfmt.c $(HEADERS)
+	$(CC) $(ALLFLAGS) -o $@ $< $(LDLIBS)
 
 servscan.c: servscan.l
 	$(LEX) $(LFLAGS) -o$@ $<

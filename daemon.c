@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.46 2002/12/04 19:12:46 cheusov Exp $
+ * $Id: daemon.c,v 1.47 2003/01/03 19:43:35 cheusov Exp $
  * 
  */
 
@@ -734,9 +734,9 @@ static void daemon_define( const char *cmdline, int argc, char **argv )
       return;
    }
 
-   matches = dict_search_databases (
+   matches = abs(dict_search_databases (
       list, NULL,
-      databaseName, word, DICT_EXACT);
+      databaseName, word, DICT_EXACT));
 
    if (matches > 0) {
       int actual_matches = daemon_count_defs( list );
@@ -802,9 +802,9 @@ static void daemon_match( const char *cmdline, int argc, char **argv )
       return;
    }
 
-   matches = dict_search_databases (
+   matches = abs(dict_search_databases (
       list, NULL,
-      databaseName, word, strategyNumber | DICT_MATCH_MASK);
+      databaseName, word, strategyNumber | DICT_MATCH_MASK));
 
    if (matches > 0) {
       int actual_matches = daemon_count_matches( list );
@@ -902,6 +902,7 @@ int dict_search_databases (
    int matches       = -1;
    int matches_count = 0;
    int mc;
+   int error         = 0;
 
    dictDatabase *db;
    dictWord *dw;
@@ -922,7 +923,7 @@ int dict_search_databases (
    preprocessed_words = lst_create ();
    lst_append (preprocessed_words, xstrdup(word));
 
-   while ((db = next_database (&databasePosition, databaseName))) {
+   while (!error && (db = next_database (&databasePosition, databaseName))) {
       if (!db -> index)
 	 /* actually dictionary_exit */
 	 break;
@@ -946,12 +947,19 @@ int dict_search_databases (
 		  &result, &extra_result, &extra_result_size);
 
 	       if (result == DICT_PLUGIN_RESULT_PREPROCESS){
+		  assert (matches_count > 0);
+
 		  xfree (lst_get_position (preprocessed_words_pos));
 		  lst_set_position (preprocessed_words_pos, NULL);
 	       }
 	    }
-	    if (matches_count < 0)
+
+	    if (matches_count < 0){
+	       error = 1;
+	       matches_count = abs (matches_count);
+	       mc += matches_count;
 	       break;
+	    }
 
 	    mc += matches_count;
 	 }
@@ -985,27 +993,23 @@ int dict_search_databases (
 	    dict_destroy_datum (dw);
 	 }
       }else{
-	 matches += abs(matches_count);
-
-	 if (matches_count < 0)
-	    break;
+	 matches += matches_count;
 
 	 if (result == DICT_PLUGIN_RESULT_EXIT)
 	    break;
 
-	 if (matches > 0 && *databaseName != '*')
-	    break;
-	 else if (*databaseName == '*' || *databaseName == '!')
+	 if (*databaseName == '*')
+	    continue;
+	 else if (!matches && *databaseName == '!')
 	    continue;
 
-	 matches = 0;
 	 break;
       }
    }
 
    destroy_word_list (preprocessed_words);
 
-   return matches;
+   return error ? -matches : matches;
 }
 
 static void daemon_show_db( const char *cmdline, int argc, char **argv )

@@ -1,5 +1,8 @@
 2002-12-17  Aleksey Cheusov  <vle@gmx.net>
 
+  * ChangeLog:
+  ChangeLog is up-to-date
+
   * libmaa/config.sub, libmaa/configure.in, ChangeLog, configure.in, dict.c, utf8_ucs4.c:
   code cleanups
   libmaa version set to 0.95

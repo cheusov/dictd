@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.11 2002/11/18 19:15:07 cheusov Exp $
+ * $Id: dictfmt.c,v 1.12 2003/01/03 19:43:36 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -27,15 +27,15 @@
  */
 
 #include "dictP.h"
+#include <maa.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <ctype.h>
+#include <wctype.h>
 #include <locale.h>
-
-#include "utf8_ucs4.h"
 
 #if HAVE_GETOPT_H
 #include <getopt.h>
@@ -60,34 +60,10 @@ static int utf8_mode     = 0;
 static int allchars_mode = 0;
 
 static const char *hw_separator = "";
-static int         without_hw   = 0;
-
-static unsigned char b64_list[] =
-"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-/* |b64_encode| encodes |val| in a printable bae 64 format.  A MSB-first
-   encoding is generated. */
-
-static const char *b64_encode( unsigned long val )
-{
-   static char   result[7];
-   int    i;
-
-   result[0] = b64_list[ (val & 0xc0000000) >> 30 ];
-   result[1] = b64_list[ (val & 0x3f000000) >> 24 ];
-   result[2] = b64_list[ (val & 0x00fc0000) >> 18 ];
-   result[3] = b64_list[ (val & 0x0003f000) >> 12 ];
-   result[4] = b64_list[ (val & 0x00000fc0) >>  6 ];
-   result[5] = b64_list[ (val & 0x0000003f)       ];
-   result[6] = 0;
-
-   for (i = 0; i < 5; i++){
-      if (result[i] != b64_list[0])
-         return result + i;
-   }
-
-   return result + 5;
-}
+static int         without_hw     = 0;
+static int         without_header = 0;
+static int         without_url    = 0;
+static int         without_time   = 0;
 
 static FILE *fmt_str;
 static int  fmt_indent;
@@ -131,7 +107,7 @@ static void fmt_string( const char *s )
 #if 0
    char *t;
 #endif
-   int  len;
+   size_t  len;
 
 #if 1
    strcpy( sdup, s );
@@ -147,7 +123,9 @@ static void fmt_string( const char *s )
       *pt++ = '\0';
 
       if (utf8_mode){
-	 len = strlen_utf8 (p);
+	 len = mbstowcs (NULL, p, 0);
+	 if (len == (size_t) -1)
+	    err_fatal (__FUNCTION__, "invalid utf-8 string\n");
       }else{
 	 len = strlen (p);
       }
@@ -187,20 +165,26 @@ static void fmt_string( const char *s )
 
 static int tolower_alnumspace_utf8 (const char *src, char *dest)
 {
-   wint_t      ucs4_char;
+   wchar_t      ucs4_char;
+   size_t len;
+   int    len2;
 
    while (src && src [0]){
-      src = utf8_to_ucs4 (src, &ucs4_char);
-      if (src){
-	 if (iswspace (ucs4_char)){
-	     *dest++ = ' ';
-	 }else if (allchars_mode || iswalnum (ucs4_char)){
-	    if (!ucs4_to_utf8 (towlower (ucs4_char), dest))
-	       return 0;
+      len = mbtowc (&ucs4_char, src, MB_CUR_MAX);
+      if ((int) len < 0)
+	 return 0;
 
-	    dest += strlen (dest);
-	 }
+      if (iswspace (ucs4_char)){
+	 *dest++ = ' ';
+      }else if (allchars_mode || iswalnum (ucs4_char)){
+	 len2 = wctomb (dest, towlower (ucs4_char));
+	 if (len2 < 0)
+	    return 0;
+
+	 dest += len2;
       }
+
+      src += len;
    }
 
    *dest = 0;
@@ -376,13 +360,25 @@ static void help( FILE *out_stream )
            several words to have the same definition\n\
            Example: autumn%%%fall can be used\n\
            if '--headword-separator %%%' is supplied",
-"--without-headword         with this parameter supplied
-           head words will not be copied to .dict file",
+"--without-headword   head words will not be copied to .dict file",
+"--without-header     header will not be copied to DB info entry",
+"--without-url        URL will not be copied to DB info entry",
+"--without-time       time of creation will not be copied to DB info entry",
       0 };
    const char        **p = help_msg;
 
    banner( out_stream );
    while (*p) fprintf( out_stream, "%s\n", *p++ );
+}
+
+static char *strlwr_8bit (char *s)
+{
+   char *p;
+   for (p = s; *p; ++p){
+      *p = tolower ((unsigned char) *p);
+   }
+
+   return s;
 }
 
 static void set_utf8_mode (const char *locale)
@@ -421,6 +417,9 @@ int main( int argc, char **argv )
       { "allchars",   0, 0, 503 },
       { "headword-separator",   1, 0, 504 },
       { "without-headword",     0, 0, 505 },
+      { "without-header",       0, 0, 506 },
+      { "without-url",          0, 0, 507 },
+      { "without-time",         0, 0, 508 },
    };
 
    while ((c = getopt_long( argc, argv, "VLjfephDu:s:c:",
@@ -445,10 +444,13 @@ int main( int argc, char **argv )
 	 exit(1);
 	 }
 	 break;
-      case 502: locale        = optarg;      break;
-      case 503: allchars_mode = 1;           break;
-      case 504: hw_separator  = optarg;      break;
-      case 505: without_hw    = 1;           break;
+      case 502: locale         = optarg;      break;
+      case 503: allchars_mode  = 1;           break;
+      case 504: hw_separator   = optarg;      break;
+      case 505: without_hw     = 1;           break;
+      case 506: without_header = 1;           break;
+      case 507: without_url    = 1;           break;
+      case 508: without_time   = 1;           break;
       default:
          help (stderr);
 	 exit(1);
@@ -504,27 +506,37 @@ int main( int argc, char **argv )
 /*   fprintf (stderr, "%s\n", sname);*/
 
    fmt_newheadword("00-database-info",1);
-   fmt_string("This file was converted from the original database on:" );
-   fmt_newline();
-   time(&t);
-   sprintf( buffer, "          %25.25s", ctime(&t) );
-   fmt_string( buffer );
-   fmt_newline();
-   fmt_newline();
-   fmt_string( "The original data is available from:" );
-   fmt_newline();
-   fmt_string( "     " );
-   fmt_string( url );
-   fmt_newline();
-   fmt_newline();
-   fmt_string(
-      "The original data was distributed with the notice shown below."
-      "  No additional restrictions are claimed.  Please redistribute"
-      " this changed version under the same conditions and restriction"
-      " that apply to the original version." );
-   fmt_newline();
-   fmt_indent += 3;
-   fmt_newline();
+
+   if (!without_time){
+      fmt_string("This file was converted from the original database on:" );
+      fmt_newline();
+      time(&t);
+      sprintf( buffer, "          %25.25s", ctime(&t) );
+      fmt_string( buffer );
+      fmt_newline();
+      fmt_newline();
+   }
+
+   if (!without_url){
+      fmt_string( "The original data is available from:" );
+      fmt_newline();
+      fmt_string( "     " );
+      fmt_string( url );
+      fmt_newline();
+      fmt_newline();
+   }
+
+   if (!without_header){
+      fmt_string(
+	 "The original data was distributed with the notice shown below."
+	 "  No additional restrictions are claimed.  Please redistribute"
+	 " this changed version under the same conditions and restriction"
+	 " that apply to the original version." );
+      fmt_newline();
+      fmt_indent += 3;
+      fmt_newline();
+   }
+
    fmt_maxpos = 200;		/* Don't wrap */
 
    while (fgets(buf = buffer,BSIZE-1,stdin)) {

@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.30 2002/12/17 13:49:01 cheusov Exp $
+dnl $Id: configure.in,v 1.31 2003/01/03 19:43:35 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -36,7 +36,7 @@ define(VERSION, 1.9.1)
 
 
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.30 $)
+AC_REVISION($Revision: 1.31 $)
 
 AC_INIT(dict, VERSION, "dict-beta@dict.org")
 
@@ -290,6 +290,7 @@ fi
 
 AC_CHECK_HEADERS(unistd.h strings.h limits.h)
 AC_CHECK_HEADERS(sys/resource.h sys/time.h sys/param.h sys/wait.h)
+AC_CHECK_HEADERS(wctype.h)
 
 echo .
 echo Checking for system constants
@@ -302,8 +303,19 @@ echo Checking for library functions
 
 AC_FUNC_ALLOCA
 AC_FUNC_MMAP
+AC_FUNC_FORK
+AC_FUNC_MALLOC
+AC_FUNC_STAT
+AC_FUNC_STRCOLL
+AC_FUNC_STRFTIME
+AC_FUNC_VPRINTF
+AC_FUNC_WAIT3
+
 AC_CHECK_FUNCS(strdup strtol strtoul semget strerror inet_aton)
 AC_REPLACE_FUNCS(strdup strtol strtoul)
+AC_CHECK_FUNCS(alarm gethostbyaddr gethostbyname gethostname gettimeofday)
+AC_CHECK_FUNCS(inet_ntoa memmove memset munmap regcomp setenv setlocale)
+AC_CHECK_FUNCS(socket strcasecmp strchr strrchr strstr uname)
 
 echo .
 echo Making output files

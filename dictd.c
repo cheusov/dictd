@@ -17,17 +17,17 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.60 2002/12/04 19:12:47 cheusov Exp $
+ * $Id: dictd.c,v 1.61 2003/01/03 19:43:36 cheusov Exp $
  * 
  */
 
 #include "dictd.h"
 #include "servparse.h"
-#include "utf8_ucs4.h"
 
 #include <grp.h>                /* initgroups */
 #include <pwd.h>                /* getpwuid */
 #include <locale.h>             /* setlocale */
+#include <ctype.h>
 
 #define MAXPROCTITLE 2048       /* Maximum amount of proc title we'll use. */
 #undef MIN
@@ -728,7 +728,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.60 2002/12/04 19:12:47 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.61 2003/01/03 19:43:36 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -913,6 +913,16 @@ static void sanity(const char *confFile)
    }
 }
 
+static char *strlwr_8bit (char *str)
+{
+   char *p;
+   for (p = str; *p; ++p){
+      *p = tolower ((unsigned char) *p);
+   }
+
+   return str;
+}
+
 static void set_utf8_mode (const char *locale)
 {
    char *locale_copy;
@@ -966,7 +976,7 @@ static void dict_test (
 
    count = dict_search_databases (l, NULL, database_arg, word, strategy);
 
-   if (count > 0){
+   if (count != 0){
       dict_dump_defs (l);
    }else{
       fprintf (stderr, "No definitions found for \"%s\"\n", word);

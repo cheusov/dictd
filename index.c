@@ -17,19 +17,20 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.45 2002/12/25 18:24:54 cheusov Exp $
+ * $Id: index.c,v 1.46 2003/01/03 19:43:36 cheusov Exp $
  * 
  */
 
 #include "dictzip.h"
 #include "dictd.h"
 #include "regex.h"
-#include "utf8_ucs4.h"
 
 #include <sys/stat.h>
 
 #include <fcntl.h>
 #include <ctype.h>
+#include <wctype.h>
+#include <wchar.h>
 #include <stdio.h>
 
 #ifdef USE_PLUGIN
@@ -120,25 +121,37 @@ static int tolower_alnumspace_utf8 (
    const char *src, char *dest,
    int allchars_mode)
 {
-    wint_t      ucs4_char;
+   wchar_t      ucs4_char;
+   size_t len;
+   int    len2;
 
-    while (src && src [0]){
-	src = utf8_to_ucs4 (src, &ucs4_char);
-	if (src){
-	    if (iswspace (ucs4_char)){
-		*dest++ = ' ';
-	    }else if (allchars_mode || iswalnum (ucs4_char)){
-		if (!ucs4_to_utf8 (towlower (ucs4_char), dest))
-		    return 0;
+   mbstate_t ps;
+   mbstate_t ps2;
 
-		dest += strlen (dest);
-	    }
-	}
-    }
+   mbsinit (&ps);
+   mbsinit (&ps2);
 
-    *dest = 0;
+   while (src && src [0]){
+      len = mbrtowc (&ucs4_char, src, MB_CUR_MAX, &ps);
+      if ((int) len < 0)
+	 return 0;
 
-    return (src != NULL);
+      if (iswspace (ucs4_char)){
+	 *dest++ = ' ';
+      }else if (allchars_mode || iswalnum (ucs4_char)){
+	 len2 = wcrtomb (dest, towlower (ucs4_char), &ps2);
+	 if (len2 < 0)
+	    return 0;
+
+	 dest += len2;
+      }
+
+      src += len;
+   }
+
+   *dest = 0;
+
+   return (src != NULL);
 }
 
 static void dict_table_init(void)
@@ -265,70 +278,6 @@ static int compare_allchars(
 		      *word ? 1 : ((*start != '\t') ? -1 : 0)));
    return  *word ? 1 : ((*start != '\t') ? -1 : 0);
 }
-
-/*
-static int compare_utf8(
-    const char *word,
-    const char *start,
-    const char *end )
-{
-   wint_t        c1, c2;
-   int           result;
-   char          s1 [7], s2 [7];
-
-   while (*word && start < end && *start != '\t') {
-      start = utf8_to_ucs4 (start, &c2);
-      if (!start){
-	 PRINTF(DBG_SEARCH,("   result = ERROR!!!\n"));
-	 return 2;
-      }
-      if (!iswspace (c2) && !iswalnum (c2))
-	 continue;
-      c2 = towlower (c2);
-
-      word = utf8_to_ucs4 (word, &c1);
-      if (!word){
-	 PRINTF(DBG_SEARCH,("   result = ERROR!!!\n"));
-	 return 2;
-      }
-      c1 = towlower (c1);
-
-      if (c1 != c2) {
-	 ucs4_to_utf8 (c1, s1);
-	 ucs4_to_utf8 (c2, s2);
-	 result = strcmp (s1, s2) < 0 ? -2 : 1;
-	 PRINTF(DBG_SEARCH,("   result = %d (%s != %s)\n", result, s1, s2));
-         return result;
-      }
-   }
-
-   if (start == end){
-      PRINTF(DBG_SEARCH,("   result = ERROR!!!\n"));
-      return 2;
-   }
-
-   if (*word){
-       PRINTF(DBG_SEARCH,("   result = 1\n"));
-       return 1;
-   }
-
-   while (*start != '\t'){
-      start = utf8_to_ucs4 (start, &c2);
-      if (!start){
-	 PRINTF(DBG_SEARCH,("   result = ERROR!!!\n"));
-	 return 2;
-      }
-
-      if (iswalnum (c2) || iswspace (c2)){
-	 PRINTF(DBG_SEARCH,("   result = -1\n"));
-	 return -1;
-      }
-   }
-
-   PRINTF(DBG_SEARCH,("   result = 0\n"));
-   return 0;
-}
-*/
 
 static int compare_alnumspace(
     const char *word,
@@ -1292,13 +1241,16 @@ static void stranagram_8bit (char *str, int length)
 static int stranagram_utf8 (char *str)
 {
    size_t len;
-   char *p;
+   char   *p;
+
+   mbstate_t ps;
 
    assert (str);
+   mbsinit (&ps);
 
    for (p = str; *p; ){
-      len = charlen_utf8 (p);
-      if (len == (size_t) -1)
+      len = mbrlen (p, MB_CUR_MAX, &ps);
+      if ((int) len < 0)
 	 return 0; /* not a UTF-8 string */
 
       if (len > 1)
@@ -1458,6 +1410,10 @@ static int dict_search_plugin (
 static const char *utf8_err_msg = "\
 error: The request is not a valid UTF-8 string";
 
+/*
+  returns a number of matches ( >= 0 ) or
+  negative value for invalid UTF-8 string
+*/
 static int dict_search_database_ (
    lst_List l,
    const char *const word,
@@ -1473,8 +1429,10 @@ static int dict_search_database_ (
    buf = alloca( strlen( word ) + 1 );
 
    if (utf8_mode){
-      if (!tolower_alnumspace_utf8 (
-	  word, buf, database -> index -> flag_allchars))
+      if (
+	 !strcmp(utf8_err_msg, word) ||
+	 !tolower_alnumspace_utf8 (
+	    word, buf, database -> index -> flag_allchars))
       {
 	 PRINTF(DBG_SEARCH, ("tolower_... ERROR!!!\n"));
 
@@ -1483,6 +1441,7 @@ static int dict_search_database_ (
 	 dw -> database = database;
 	 dw -> def      = utf8_err_msg;
 	 dw -> def_size = -1;
+	 dw -> word     = strdup (word);
 
 	 lst_append (l, dw);
 
@@ -1726,6 +1685,10 @@ static void plugin_init_data_free (
    }
 }
 
+/*
+  returns a number of matches ( >= 0 ) or
+  negative value for invalid UTF-8 string
+*/
 int dict_search (
    lst_List l,
    const char *const word,
@@ -1778,7 +1741,7 @@ int dict_search (
 
 	 switch (res){
 	 case DICT_PLUGIN_RESULT_EXIT:
-	    return count;
+	    return 0;
 	 default:
 	    break;
 	 }
@@ -1792,7 +1755,7 @@ int dict_search (
    }
 
    if (extra_result){
-      if (count > 0){
+      if (count != 0){
 	 *extra_result = DICT_PLUGIN_RESULT_FOUND;
       }else{
 	 *extra_result = DICT_PLUGIN_RESULT_NOTFOUND;

@@ -17,12 +17,11 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: data.c,v 1.16 2002/12/04 19:12:46 cheusov Exp $
+ * $Id: data.c,v 1.17 2003/01/03 19:43:36 cheusov Exp $
  * 
  */
 
 #include "dictzip.h"
-#include "utf8_ucs4.h"
 
 #include <sys/stat.h>
 #ifdef HAVE_MMAP
