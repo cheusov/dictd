@@ -1,6 +1,6 @@
 /* dictzip.c -- 
  * Created: Tue Jul 16 12:45:41 1996 by faith@acm.org
- * Revised: Fri Feb 27 20:38:36 1998 by faith@acm.org
+ * Revised: Sun Mar  1 07:03:52 1998 by faith@acm.org
  * Copyright 1996, 1997, 1998 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictzip.c,v 1.14 1998/03/01 11:32:52 faith Exp $
+ * $Id: dictzip.c,v 1.15 1998/03/01 12:05:29 faith Exp $
  * 
  */
 
@@ -301,29 +301,17 @@ int dict_data_zip( const char *inFilename, const char *outFilename,
 static const char *id_string( const char *id )
 {
    static char buffer[BUFFERSIZE];
-   arg_List    a;
-   char        *pt, *dot;
+   char        *pt;
 
    sprintf( buffer, "%s", DICT_VERSION );
    pt = buffer + strlen( buffer );
 
-#if 0
-   a = arg_argify( id, 0 );
-   if (arg_count(a) >= 2) {
-      if ((dot = strchr( arg_get(a, 2), '.' )))
-	 sprintf( pt, ".%s", dot+1 );
-      else
-	 sprintf( pt, ".%s", arg_get( a, 2 ) );
-   }
-   arg_destroy( a );
-#endif
-   
    return buffer;
 }
 
 static void banner( void )
 {
-   const char *id = "$Id: dictzip.c,v 1.14 1998/03/01 11:32:52 faith Exp $";
+   const char *id = "$Id: dictzip.c,v 1.15 1998/03/01 12:05:29 faith Exp $";
    
    fprintf( stderr, "%s %s\n", err_program_name(), id_string( id ) );
    fprintf( stderr,
