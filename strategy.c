@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: strategy.c,v 1.5 2003/10/31 00:40:03 cheusov Exp $
+ * $Id: strategy.c,v 1.6 2004/10/12 10:34:24 cheusov Exp $
  * 
  */
 
@@ -30,18 +30,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-int default_strategy  = DICT_DEFAULT_STRATEGY;
+int default_strategy  = DICT_STRAT_LEVENSHTEIN;
 
 static dictStrategy strategyInfo[] = {
-   {"exact",     "Match headwords exactly",                    DICT_EXACT },
-   {"prefix",    "Match prefixes",                             DICT_PREFIX },
-   {"substring", "Match substring occurring anywhere in a headword", DICT_SUBSTRING},
-   {"suffix",    "Match suffixes",                             DICT_SUFFIX},
-   {"re",        "POSIX 1003.2 (modern) regular expressions",  DICT_RE },
-   {"regexp",    "Old (basic) regular expressions",            DICT_REGEXP },
-   {"soundex",   "Match using SOUNDEX algorithm",              DICT_SOUNDEX },
-   {"lev", "Match headwords within Levenshtein distance one",  DICT_LEVENSHTEIN },
-   {"word", "Match separate words within headwords",           DICT_WORD },
+   {"exact",     "Match headwords exactly",                    DICT_STRAT_EXACT },
+   {"prefix",    "Match prefixes",                             DICT_STRAT_PREFIX },
+   {"substring", "Match substring occurring anywhere in a headword", DICT_STRAT_SUBSTRING},
+   {"suffix",    "Match suffixes",                             DICT_STRAT_SUFFIX},
+   {"re",        "POSIX 1003.2 (modern) regular expressions",  DICT_STRAT_RE },
+   {"regexp",    "Old (basic) regular expressions",            DICT_STRAT_REGEXP },
+   {"soundex",   "Match using SOUNDEX algorithm",              DICT_STRAT_SOUNDEX },
+   {"lev", "Match headwords within Levenshtein distance one",  DICT_STRAT_LEVENSHTEIN },
+   {"word", "Match separate words within headwords",           DICT_STRAT_WORD },
 };
 #define STRATEGIES (sizeof(strategyInfo)/sizeof(strategyInfo[0]))
 
@@ -98,7 +98,7 @@ int get_strategy_count (void)
    return strategy_count;
 }
 
-dictStrategy **get_strategies (void)
+dictStrategy const *const *get_strategies (void)
 {
    return strategies;
 }
@@ -130,7 +130,7 @@ int lookup_strategy( const char *strategy )
 {
    int idx;
    if (strategy[0] == '.' && strategy[1] == '\0')
-      return default_strategy;
+      return DICT_STRAT_DOT;
 
    idx = lookup_strategy_index (strategy);
    if (-1 == idx)
@@ -139,13 +139,37 @@ int lookup_strategy( const char *strategy )
       return strategies [idx] -> number;
 }
 
-static dictStrategy * lookup_strat( const char *strategy )
+int lookup_strategy_ex (const char *strategy)
+{
+   int strat = lookup_strategy (strategy);
+
+   if (strat == -1){
+      log_info ("strategy '%s' is not available\n", strategy);
+      exit (1);
+   }else{
+      return strat;
+   }
+}
+
+static dictStrategy * lookup_strat (const char *strategy)
 {
    int idx = lookup_strategy_index (strategy);
    if (-1 == idx)
       return NULL;
    else
       return strategies [idx];
+}
+
+static dictStrategy * lookup_strat_ex (const char *strategy)
+{
+   dictStrategy *strat = lookup_strat (strategy);
+
+   if (!strat){
+      log_info ("strategy '%s' is not available\n", strategy);
+      exit (1);
+   }else{
+      return strat;
+   }
 }
 
 static void dict_disable_strategy (dictStrategy *strat)
@@ -191,7 +215,7 @@ void dict_disable_strategies (const char *strats)
 
       s = buffer + i;
 
-      si = lookup_strat (s);
+      si = lookup_strat_ex (s);
 
       if (si){
 	 dict_disable_strategy (si);
@@ -215,4 +239,17 @@ void dict_add_strategy (const char *strat, const char *description)
 
    ++strategy_id;
    ++strategy_count;
+}
+
+const dictStrategy *get_strategy (int strat)
+{
+   int i;
+
+   for (i = 0; i < strategy_count; i++) {
+      if (strat == strategies [i] -> number){
+         return strategies [i];
+      }
+   }
+
+   return NULL;
 }

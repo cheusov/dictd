@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: strategy.h,v 1.4 2003/11/03 00:28:52 cheusov Exp $
+ * $Id: strategy.h,v 1.5 2004/10/12 10:34:24 cheusov Exp $
  */
 
 #ifndef _STRATEGY_H_
@@ -25,17 +25,16 @@
 #include "dictP.h"
 
 /* search strategies*/
-#define DICT_EXACT        1     /* Exact */ 
-#define DICT_PREFIX       2     /* Prefix */ 
-#define DICT_SUBSTRING    3     /* Substring */ 
-#define DICT_SUFFIX       4     /* Suffix */ 
-#define DICT_RE           5     /* POSIX 1003.2 (modern) regular expressions */ 
-#define DICT_REGEXP       6     /* old (basic) regular expresions */ 
-#define DICT_SOUNDEX      7     /* Soundex */ 
-#define DICT_LEVENSHTEIN  8     /* Levenshtein */ 
-#define DICT_WORD         9     /* Word */
-
-#define DICT_DEFAULT_STRATEGY    DICT_LEVENSHTEIN
+#define DICT_STRAT_DOT          0     /* `.' i.e. default strategy */
+#define DICT_STRAT_EXACT        1     /* Exact */ 
+#define DICT_STRAT_PREFIX       2     /* Prefix */ 
+#define DICT_STRAT_SUBSTRING    3     /* Substring */ 
+#define DICT_STRAT_SUFFIX       4     /* Suffix */ 
+#define DICT_STRAT_RE           5     /* POSIX 1003.2 (modern) regular expressions */ 
+#define DICT_STRAT_REGEXP       6     /* old (basic) regular expresions */ 
+#define DICT_STRAT_SOUNDEX      7     /* Soundex */ 
+#define DICT_STRAT_LEVENSHTEIN  8     /* Levenshtein */ 
+#define DICT_STRAT_WORD         9     /* Word */
 
 typedef struct dictStrategy {
    const char *name;
@@ -57,7 +56,12 @@ extern void dict_add_strategy (const char *strat, const char *description);
 /* */
 extern int get_strategy_count (void);
 extern int get_max_strategy_num (void);
-extern dictStrategy **get_strategies (void);
-extern int lookup_strategy( const char *strategy );
+extern const dictStrategy *const *get_strategies (void);
+extern const dictStrategy *get_strategy (int strat);
+
+/* returns -1 if fails */
+extern int lookup_strategy (const char *strategy);
+/* terminates dictd if fails */
+extern int lookup_strategy_ex (const char *strategy);
 
 #endif /* _STRATEGY_H_ */
