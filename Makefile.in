@@ -1,6 +1,6 @@
 # Makefile.in -- Makefile for dict
 # Created: Wed Apr 24 14:14:09 1996 by faith@cs.unc.edu
-# Revised: Wed Apr  2 18:14:33 1997 by faith@cs.unc.edu
+# Revised: Wed Apr 16 08:45:42 1997 by faith@cs.unc.edu
 # Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.12 1997/04/03 02:17:33 faith Exp $
+# $Id: Makefile.in,v 1.13 1997/04/30 12:03:45 faith Exp $
 #
 
 ifneq (,)
@@ -53,7 +53,7 @@ LDLIBS=		@LIBS@ -Lregex -lregex
 
 EXES=	 	dict dictd dictzip
 
-HEADERS= 	./config.h @XTRAHEADERS@ dictzip.h dictd.h md5.h
+HEADERS= 	./config.h @XTRAHEADERS@ dictzip.h dictd.h dict.h codes.h md5.h
 
 SRCHOBJS=       index.o data.o
 NETOBJS=        daemon.o net.o servscan.o servparse.o md5.o

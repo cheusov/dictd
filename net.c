@@ -1,10 +1,10 @@
 /* net.c -- 
  * Created: Fri Feb 21 20:58:10 1997 by faith@cs.unc.edu
- * Revised: Fri Mar 28 19:33:03 1997 by faith@cs.unc.edu
+ * Revised: Thu Apr 17 11:31:43 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: net.c,v 1.10 1997/04/03 02:17:48 faith Exp $
+ * $Id: net.c,v 1.11 1997/04/30 12:03:53 faith Exp $
  * 
  */
 
@@ -141,4 +141,39 @@ void net_detach( void )
    fd = open("/dev/null", O_RDWR);    /* stdin */
    dup(fd);			      /* stdout */
    dup(fd);			      /* stderr */
+}
+
+int net_read( int s, char *buf, int maxlen )
+{
+   int  len;
+   int  n = 0;
+   char c;
+   char *pt = buf;
+
+   *pt = '\0';
+
+   for (len = 0; len < maxlen && (n = read( s, &c, 1 )) > 0; /*void*/) {
+      switch (c) {
+      case '\n': *pt = '\0';       return len;
+      case '\r':                   break;
+      default:   *pt++ = c; ++len; break;
+      }
+   }
+   *pt = '\0';
+   if (!n) return len ? len : EOF;
+   return n;			/* error code */
+}
+
+int net_write( int s, const char *buf, int len )
+{
+   int left = len;
+   int count;
+   
+   while (left) {
+      if ((count = write(s, buf, left)) != left) {
+	 if (count <= 0) return count; /* error code */
+      }
+      left -= count;
+   }
+   return len;
 }

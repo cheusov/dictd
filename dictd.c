@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Wed Apr  2 21:11:59 1997 by faith@cs.unc.edu
+ * Revised: Wed Apr 16 11:13:45 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.15 1997/04/03 02:17:38 faith Exp $
+ * $Id: dictd.c,v 1.16 1997/04/30 12:03:51 faith Exp $
  * 
  */
 
@@ -244,7 +244,7 @@ static const char *id_string( const char *id )
 const char *dict_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dictd.c,v 1.15 1997/04/03 02:17:38 faith Exp $";
+   const char        *id = "$Id: dictd.c,v 1.16 1997/04/30 12:03:51 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -428,7 +428,7 @@ int main( int argc, char **argv )
 
    setsig(SIGCHLD, reaper);
    setsig(SIGHUP,  handler);
-   setsig(SIGINT,  handler);
+   if (!dbg_test(DBG_NOFORK)) setsig(SIGINT,  handler);
    setsig(SIGQUIT, handler);
    setsig(SIGILL,  handler);
    setsig(SIGTRAP, handler);

@@ -1,6 +1,6 @@
-/* net.h -- 
- * Created: Sat Feb 22 00:39:54 1997 by faith@cs.unc.edu
- * Revised: Wed Apr 16 09:35:43 1997 by faith@cs.unc.edu
+/* dict.h -- 
+ * Created: Wed Apr 16 08:44:21 1997 by faith@cs.unc.edu
+ * Revised: Wed Apr 16 10:46:32 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,14 +17,28 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: net.h,v 1.5 1997/04/30 12:03:53 faith Exp $
+ * $Id: dict.h,v 1.8 1997/04/30 12:03:50 faith Exp $
  * 
  */
 
+#ifndef _DICT_H_
+#define _DICT_H_
 
-extern const char *net_hostname( void );
-extern int        net_connect_tcp( const char *host, const char *service );
-extern int        net_open_tcp( const char *service, int queueLength );
-extern void       net_detach( void );
-extern int        net_read( int s, char *buf, int maxlen );
-extern int        net_write( int s, const char *buf, int len );
+#include "dictP.h"
+#include "maa.h"
+#include "zlib.h"
+#include "net.h"
+#include "codes.h"
+
+#include <signal.h>
+#include <sys/utsname.h>
+
+#define DBG_VERBOSE     (0<<30|1<< 0) /* Verbose                           */
+#define DBG_TRACE       (0<<30|1<< 1) /* Trace client/server interaction   */
+
+				/* dmalloc must be last */
+#ifdef DMALLOC_FUNC_CHECK
+# include "dmalloc.h"
+#endif
+
+#endif

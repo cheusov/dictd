@@ -1,6 +1,6 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@cs.unc.edu
- * Revised: Wed Apr  2 21:16:14 1997 by faith@cs.unc.edu
+ * Revised: Fri Apr 25 20:18:59 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.12 1997/04/03 02:17:35 faith Exp $
+ * $Id: daemon.c,v 1.13 1997/04/30 12:03:47 faith Exp $
  * 
  */
 
@@ -25,40 +25,6 @@
 #include <ctype.h>
 #include "md5.h"
 #include "regex.h"
-
-#define CODE_DATABASE_LIST           210
-#define CODE_STRATEGY_LIST           211
-#define CODE_DATABASE_INFO           212
-#define CODE_STATUS                  213
-#define CODE_HELP                    214
-
-#define CODE_HELLO                   220
-#define CODE_GOODBYE                 221
-
-#define CODE_AUTH_OK                 230
-
-#define CODE_FOUND_DEFINITIONS       250
-#define CODE_DEFINITION_FOLLOWS      251
-#define CODE_MATCHES_FOUND           253
-#define CODE_DEFINITIONS_FINISHED    259
-#define CODE_MATCHES_FINISHED        259
-#define CODE_OK                      259
-
-#define CODE_SYNTAX_ERROR            500
-#define CODE_ILLEGAL_PARAM           501
-#define CODE_COMMAND_NOT_IMPLEMENTED 502
-#define CODE_PARAM_NOT_IMPLEMENTED   503
-
-#define CODE_ACCESS_DENIED           530
-#define CODE_AUTH_DENIED             531
-
-#define CODE_INVALID_DB              550
-#define CODE_INVALID_STRATEGY        551
-#define CODE_NO_MATCH                552
-#define CODE_NO_DATABASES            554
-#define CODE_NO_STRATEGIES           555
-
-
 
 static int          _dict_defines, _dict_matches;
 static int          daemonS;
@@ -414,47 +380,24 @@ static void daemon_text( const char *text )
 
 static int daemon_read( char *buf, int count )
 {
-   int  len = 0;
-   int  n;
-   char c;
-   char *pt = buf;
-
-   *pt = '\0';
-
-   while ((n = read( daemonS, &c, 1 )) > 0) {
-      switch (c) {
-      case '\n': *pt = '\0';       return len;
-      case '\r':                   break;
-      default:   *pt++ = c; ++len; break;
-      }
-   }
-   if (!n) return len;
-   return n;
+   return net_read( daemonS, buf, count );
 }
 
 static void daemon_ok( int code, const char *string, const char *timer )
 {
-   char   buf[1024];
-   int    len;
-
    if (!timer) {
-      sprintf(buf, "%d %s\n", code, string);
+      daemon_printf("%d %s\n", code, string);
    } else {
-      tim_stop( timer );
-      sprintf(buf,
-	      "%d %s [d/m/c = %d/%d/%d; %0.3fr %0.3fu %0.3fs]\n",
-	      code,
-	      string,
-	      _dict_defines,
-	      _dict_matches,
-	      _dict_comparisons,
-	      tim_get_real( timer ),
-	      tim_get_user( timer ),
-	      tim_get_system( timer ));
+      daemon_printf("%d %s [d/m/c = %d/%d/%d; %0.3fr %0.3fu %0.3fs]\n",
+                    code,
+                    string,
+                    _dict_defines,
+                    _dict_matches,
+                    _dict_comparisons,
+                    tim_get_real( timer ),
+                    tim_get_user( timer ),
+                    tim_get_system( timer ));
    }
-
-   len = strlen( buf );
-   daemon_write(buf, len);
 }
 
 static int dump_def( const void *datum, void *arg )
@@ -466,10 +409,12 @@ static int dump_def( const void *datum, void *arg )
    buf = dict_data_read( db->data, dw->start, dw->end,
 			 db->prefilter, db->postfilter );
 
-   daemon_printf( "%d %s \"%s\" - text follows\n",
+   daemon_printf( "%d \"%s\" %s \"%s\" \"%s\" - text follows\n",
 		  CODE_DEFINITION_FOLLOWS,
+                  dw->word,
 		  db->databaseName,
-		  db->databaseShort );
+		  db->databaseShort,
+                  db->databaseURL );
    daemon_text(buf);
    xfree( buf );
    return 0;
@@ -491,6 +436,7 @@ static int dump_match( const void *datum )
 static void daemon_dump_matches( lst_List list )
 {
    lst_iterate( list, dump_match );
+   daemon_printf( ".\n" );
 }
 
 static void daemon_banner( void )
@@ -536,7 +482,7 @@ static void daemon_define( int argc, char **argv )
       if (list && (matches = lst_length(list)) > 0) {
 	 _dict_defines += matches;
 	 daemon_printf( "%d %d definitions retrieved - definitions follow\n",
-			CODE_FOUND_DEFINITIONS,
+			CODE_DEFINITIONS_FOUND,
 			matches );
 	 daemon_dump_defs( list, db );
 	 daemon_ok( CODE_DEFINITIONS_FINISHED, "ok", "c" );
@@ -707,7 +653,7 @@ static void daemon_client( int argc, char **argv )
       daemon_log( "client: %.80s %.80s %.80s\n", argv[1], argv[2], argv[3] );
       break;
    }
-   daemon_ok( CODE_OK, "ok", NULL );
+   if (argc == 2) daemon_ok( CODE_OK, "ok", NULL );
 }
 
 static void daemon_auth( int argc, char **argv )
@@ -819,7 +765,7 @@ int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0 )
       tim_start( "c" );
       if (!count) {
 #if 0
-         daemon_ok( "259 ok", "c" );
+         daemon_ok( CODE_OK, "ok", "c" );
 #endif
 	 continue;
       }

@@ -1,6 +1,6 @@
 /* dictd.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Wed Apr  2 18:34:52 1997 by faith@cs.unc.edu
+ * Revised: Thu Apr 24 21:16:06 1997 by faith@cs.unc.edu
  * Copyright 1994, 1995, 1996 Rickard E. Faith (faith@cs.unc.edu)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,7 @@
 #include "dictP.h"
 #include "maa.h"
 #include "zlib.h"
+#include "codes.h"
 
 #include "net.h"
 #include <arpa/inet.h>
@@ -47,7 +48,9 @@
 
 				/* End of configurable things */
 
+
 #define BUFFERSIZE 10240
+
 #define DBG_VERBOSE     (0<<30|1<< 0) /* Verbose                           */
 #define DBG_ZIP         (0<<30|1<< 1) /* Zip                               */
 #define DBG_UNZIP       (0<<30|1<< 2) /* Unzip                             */
