@@ -1,4 +1,83 @@
+2003-04-14  Aleksey Cheusov  <vle@gmx.net>
+
+  * INSTALL:
+  a few words about cygwin
+
+  * configure.in:
+  version ==> 1.9.9
+
+  * Makefile.in: better cygwin support
+
+  * libmaa/config.h.in, config.h.in:
+  *** empty log message ***
+
+  * configure.in, Makefile.in:
+  better cygwin support
+
+  * dictd.c:
+  fixed: warning message produced by gcc under cygwin
+
+  * daemon.c:
+  file descriptors are explicitly initialized
+
+2003-04-10  Aleksey Cheusov  <vle@gmx.net>
+
+  * configure.in, defs.h, dictd.c, dictP.h, plugin.c, plugin.h, config.h.in, Makefile.in:
+  'libdl' is used instead of 'libltdl' on platforms where it is available
+  dictP.h cleaups
+
+2003-04-09  Aleksey Cheusov  <vle@gmx.net>
+
+  * dict.c:
+  nothing
+
+  * dict.c, snprintf.c, vsnprintf.c:
+  err_fatal(..."Buffer too small\n" ); have been moved to
+      snprintf.c and vsnprintf.c
+  all sprintf() in the dict.c have been replaced with snprintf()
+
+  * dictP.h, config.h.in, configure.in:
+  dictP.h and configure.in clean-ups
+      Thanks to Kimura Fuyuki <fuyuki@hadaly.org> for remarks
+
+2003-04-09  Bob Hilliard  <hilliard@debian.org>
+
+  * dict.c:
+  Patched to prevent segfault/buffer overrun on excessively long
+  dict command lines
+  .
+  .
+
+2003-04-07  Aleksey Cheusov  <vle@gmx.net>
+
+  * configure.in:
+  fixed: 'dictd' can not be configured with ./configure --with-local-zlib
+
+  * index.h, dictd.c, index.c, dictd.8:
+  added: dictd --fast-start (implied by --inetd) improves dictd's performance
+      if it is run from inetd or on platforms without copy-on-write (CYGWIN).
+
+  * dictd.8:
+  documentation update
+
+  * dictd.h, dictd.c, daemon.c:
+  SHOW SERVER command doesn't show uptime/forks statistics,
+      if the dictd is run from inetd.
+
+  * index.c, dictd.h, dictd.c, dictd.8, daemon.c:
+  added: dictd inetd support (dictd --inetd)
+      Thanks to Joey Hess <joeyh@debian.org>
+      and Robert D. Hilliard <hilliard@debian.org> for the patch.
+
+2003-03-27  Aleksey Cheusov  <vle@gmx.net>
+
+  * dictP.h:
+  fixed: compilation error
+
 2003-03-26  Aleksey Cheusov  <vle@gmx.net>
+
+  * ChangeLog:
+  ChangeLog is up-to-date
 
   * configure.in:
   version == 1.9.8
