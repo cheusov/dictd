@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.c,v 1.30 2002/08/21 17:35:29 cheusov Exp $
+ * $Id: dict.c,v 1.31 2002/12/15 20:15:05 hilliard Exp $
  * 
  */
 
@@ -250,14 +250,25 @@ static void client_print_listed( lst_List l )
    lst_Position p;
    const char   *e;
    arg_List     a;
+   int          colWidth = 10; /* minimum size of first column */
+   int          colMax = 16; /* maximum size of unragged first column */
+   char         format[BUFFERSIZE];
 
    if (!l) return;
    LST_ITERATE(l,p,e) {
+      int len;
       a = arg_argify( e, 0 );
       if (arg_count(a) != 2)
 	 err_internal( __FUNCTION__,
 		       "SHOW command didn't return 2 args: \"%s\"\n", e );
-      fprintf( dict_output, "  %-10.10s %s\n", arg_get(a,0), arg_get(a,1) );
+      if ( (len = strlen(arg_get(a,0))) > colWidth && len <= colMax)
+        colWidth = len;
+      arg_destroy(a);
+   }
+   sprintf( format, " %%-%ds %%s\n", colWidth );
+   LST_ITERATE(l,p,e) {
+      a = arg_argify( e, 0 );
+      fprintf( dict_output, format, arg_get(a,0), arg_get(a,1) );
       arg_destroy(a);
    }
 }
@@ -944,7 +955,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.30 2002/08/21 17:35:29 cheusov Exp $";
+   const char        *id = "$Id: dict.c,v 1.31 2002/12/15 20:15:05 hilliard Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
