@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.57 2002/12/02 14:36:14 cheusov Exp $
+ * $Id: dictd.c,v 1.58 2002/12/03 14:04:01 cheusov Exp $
  * 
  */
 
@@ -233,14 +233,60 @@ static void sanity (const char *confFile);
 static void dict_init_databases (dictConfig *c);
 static void dict_config_print (FILE *stream, dictConfig *c);
 
+static const char *postprocess_filename (const char *fn, const char *prefix)
+{
+   char *new_fn;
+
+   if (!fn)
+      return NULL;
+
+   if (fn [0] != '/' && fn [0] != '.'){
+      new_fn = xmalloc (2 + strlen (prefix) + strlen (fn));
+      strcpy (new_fn, prefix);
+      strcat (new_fn, fn);
+
+      return new_fn;
+   }else{
+      return xstrdup (fn);
+   }
+}
+
+const char *postprocess_plugin_filename (const char *fn)
+{
+   return postprocess_filename (fn, DICT_PLUGIN_PATH);
+}
+
+const char *postprocess_dict_filename (const char *fn)
+{
+   return postprocess_filename (fn, DICT_DICTIONARY_PATH);
+}
+
+static void postprocess_filenames (dictConfig *dc)
+{
+   lst_Position p;
+   dictDatabase *db;
+
+   LST_ITERATE(dc -> dbl, p, db) {
+      db -> dataFilename = postprocess_dict_filename (db -> dataFilename);
+      db -> indexFilename = postprocess_dict_filename (db -> indexFilename);
+      db -> indexsuffixFilename = postprocess_dict_filename (db -> indexsuffixFilename);
+      db -> indexwordFilename = postprocess_dict_filename (db -> indexwordFilename);
+   }
+
+   dc -> site = postprocess_dict_filename (dc -> site);
+}
+
 static void handler_sighup (int sig)
 {
    log_sig_info (sig);
 
    dict_close_databases (DictConfig);
 
-   if (!access(configFile,R_OK))
+   if (!access(configFile,R_OK)){
       prs_file_nocpp (configFile);
+      postprocess_filenames (DictConfig);
+   }
+
    sanity (configFile);
 
    if (dbg_test (DBG_VERBOSE))
@@ -662,7 +708,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.57 2002/12/02 14:36:14 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.58 2002/12/03 14:04:01 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -811,12 +857,12 @@ static void sanity(const char *confFile)
       log_info(":E: %s is not readable (config file)\n", confFile);
       ++fail;
    }
-   if (!DictConfig->dbl) {
+   if (DictConfig && !DictConfig->dbl) {
       log_info(":E: no databases have been defined\n");
       log_info(":E: check %s or use -c\n", confFile);
       ++fail;
    }
-   if (DictConfig->dbl) {
+   if (DictConfig && DictConfig->dbl) {
       lst_Position p;
       dictDatabase *e;
       LST_ITERATE(DictConfig->dbl, p, e) {
@@ -1107,8 +1153,10 @@ int main( int argc, char **argv, char **envp )
    tim_start( "dictd" );
    alarm(_dict_markTime);
 
-   if (!access(configFile,R_OK))
+   if (!access(configFile,R_OK)) {
       prs_file_nocpp( configFile );
+      postprocess_filenames (DictConfig);
+   }
 
 
                                 /* Open up logs for sanity check */

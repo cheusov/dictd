@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.40 2002/12/02 14:20:56 cheusov Exp $
+ * $Id: index.c,v 1.41 2002/12/03 14:04:02 cheusov Exp $
  * 
  */
 
@@ -1721,7 +1721,16 @@ static char *dict_plugin_filename (
 
    p [len] = 0;
 
-   strncpy (filename, p, sizeof (filename) - 1);
+   if (p [0] != '.' && p [0] != '/'){
+      if (sizeof (filename) < strlen (DICT_PLUGIN_PATH) + strlen (p) + 1)
+	 err_fatal (__FUNCTION__, "too small initial array\n");
+
+      strcpy (filename, DICT_PLUGIN_PATH);
+      strcat (filename, p);
+   }else{
+      strncpy (filename, p, sizeof (filename) - 1);
+   }
+
    filename [sizeof (filename) - 1] = 0;
 
    xfree (buf);

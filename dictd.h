@@ -307,6 +307,17 @@ extern dictConfig *DictConfig;  /* GLOBAL VARIABLE */
 extern int        _dict_comparisons; /* GLOBAL VARIABLE */
 extern int        _dict_forks;	/* GLOBAL VARIABLE */
 
+/*
+  If the filename doesn't start with / or .,
+  it is prepended with DICT_DIR
+*/
+extern const char *postprocess_dict_filename (const char *fn);
+/*
+  If the filename doesn't start with / or .,
+  it is prepended with PLUGIN_DIR
+*/
+extern const char *postprocess_plugin_filename (const char *fn);
+
 /* daemon.c */
 
 extern int  dict_daemon( int s, struct sockaddr_in *csin, char ***argv0,

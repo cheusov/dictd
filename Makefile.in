@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.57 2002/10/28 13:23:48 cheusov Exp $
+# $Id: Makefile.in,v 1.58 2002/12/03 14:04:01 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -41,12 +41,16 @@ bindir=         @bindir@
 libdir=         @libdir@
 libexecdir=     @libexecdir@
 sbindir=        @sbindir@
-conf=           @sysconfdir@/
 includedir=     @includedir@
+datadir=        @datadir@
 
 SHELL=		/bin/sh
 
-USE_PLUGIN= @USE_PLUGIN@
+USE_PLUGIN=@USE_PLUGIN@
+
+CONF_DIR=@sysconfdir@/
+PLUGIN_DIR=${libexecdir}/
+DICT_DIR=${datadir}/
 
 CC=		    @CC@
 CPP=		@CPP@
@@ -60,8 +64,8 @@ LEX=		@LEX@
 LEXLIB= 	@LEXLIB@
 YACC=		@YACC@
 
-CFLAGS=		@CFLAGS@ -DDICT_VERSION=\"$(DICT_VERSION)\" \
-		-DDICT_CONFIG_PATH=\"$(conf)\"
+CFLAGS=		@CFLAGS@ -DDICT_PLUGIN_PATH=\"$(PLUGIN_DIR)\" -DDICT_DICTIONARY_PATH=\"$(DICT_DIR)\" -DDICT_VERSION=\"$(DICT_VERSION)\" -DDICT_CONFIG_PATH=\"$(CONF_DIR)\"
+
 SCFLAGS=        @SCFLAGS@
 LDFLAGS=        @LDFLAGS@
 XTRACFLAGS=     @WCFLAGS@ @XTRACFLAGS@ @DEFS@ @CPPFLAGS@ -I. -Iregex
@@ -123,9 +127,9 @@ lib%.a : %.o
 	$(AR) rc $@ $^
 
 %.so: %.c
-	$(CC) $(LDFLAGS) -shared $^ -o $@ # libdictdplugin.a
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared $^ -o $@ # libdictdplugin.a
 %.so: %.cpp
-	$(CXX) $(LDFLAGS) -shared $^ -o $@ # libdictdplugin.a
+	$(CXX) $(CFLAGS) $(LDFLAGS) -shared $^ -o $@ # libdictdplugin.a
 
 .PHONY: plugins
 plugins: $(PLUGINS)
