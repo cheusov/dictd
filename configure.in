@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.77 2004/06/15 07:02:04 cheusov Exp $
+dnl $Id: configure.in,v 1.78 2004/09/21 12:37:37 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -36,7 +36,7 @@ define(VERSION, 1.9.14)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.77 $)
+AC_REVISION($Revision: 1.78 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -240,13 +240,13 @@ dnl AC_LIBTOOL_DLOPEN
 
 AC_PROG_YACC
 if ! which `echo $YACC | cut -f 1 -d ' '` >/dev/null 2>&1; then
-   AC_MSG_ERROR(['bison' is missing on your system.
+   AC_MSG_ERROR(['yacc' is missing on your system.
 You can get `bison' from any GNU archive site.])
 fi
 
 AC_PROG_LEX
 if ! which `echo $LEX | cut -f 1 -d ' '` >/dev/null 2>&1; then
-   AC_MSG_ERROR(['flex' is missing on your system.
+   AC_MSG_ERROR(['lex' is missing on your system.
 You can get `flex' from any GNU archive site.])
 fi
 
