@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.4 2002/08/23 09:03:53 cheusov Exp $
+ * $Id: dictfmt.c,v 1.5 2002/08/23 14:37:39 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -58,6 +58,8 @@ static FILE *str;
 
 static int utf8_mode     = 0;
 static int allchars_mode = 0;
+
+const char *hw_separator = "";
 
 static unsigned char b64_list[] =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -218,43 +220,50 @@ static void tolower_alnumspace_8bit (const char *src, char *dest)
    *dest = 0;
 }
 
+static void write_hw_to_index (const char *word, int start, int end)
+{
+   int len = 0;
+   char *new_word = NULL;
+
+   if (!word)
+       return;
+
+   len = strlen (word);
+
+   if (len > 0){
+      new_word = malloc (len + 1);
+      if (!new_word){
+	 perror ("malloc failed");
+	 exit (1);
+      }
+
+      if (utf8_mode){
+	 if (!tolower_alnumspace_utf8 (word, new_word)){
+	    fprintf (stderr, "'%s' is not a UTF-8 string", word);
+	    exit (1);
+	 }
+      }else{
+	 tolower_alnumspace_8bit (word, new_word);
+      }
+
+      while (len > 0 && isspace (word [len - 1])){
+	 new_word [--len] = 0;
+      }
+
+      fprintf( fmt_str, "%s\t%s\t", new_word, b64_encode(start) );
+      fprintf( fmt_str, "%s\n", b64_encode(end-start) );
+
+      free (new_word);
+   }
+}
+
 static void fmt_newheadword( const char *word, int flag )
 {
    static char prev[1024] = "";
    static int  start = 0;
    static int  end;
-   char *      new_word      = NULL;
-   int         len;
-
-   if (word) {
-      len = strlen (word);
-
-      if (len > 0){
-	 new_word     = malloc (strlen (word) + 1);
-	 if (!new_word){
-	    perror ("malloc failed");
-	    exit (1);
-	 }
-
-	 if (utf8_mode){
-	    if (!tolower_alnumspace_utf8 (word, new_word)){
-	       fprintf (stderr, "'%s' is not a UTF-8 string", word);
-	       exit (1);
-	    }
-	 }else{
-	    tolower_alnumspace_8bit (word, new_word);
-	    while (len > 0 && isspace (word [len - 1])){
-	       new_word [--len] = 0;
-	    }
-	 }
-
-	 while (len > 0 && isspace (word [len - 1])){
-	    new_word [--len] = 0;
-	 }
-
-	 word = new_word;
-      }
-   }
+   char *      sep   = NULL;
+   char *      p;
 
    fmt_indent = 0;
    if (*prev) fmt_newline();
@@ -262,9 +271,24 @@ static void fmt_newheadword( const char *word, int flag )
    end = ftell(str);
 
    if (fmt_str && *prev) {
-      fprintf( fmt_str, "%s\t%s\t", prev, b64_encode(start) );
-      fprintf( fmt_str, "%s\n", b64_encode(end-start) );
+      p = prev;
+      do {
+	  sep = NULL;
+	  if (hw_separator [0] && !flag){
+	      sep = strstr (prev, hw_separator);
+	      if (sep)
+		  *sep = 0;
+	  }
+
+	  write_hw_to_index (p, start, end);
+
+	  if (!sep)
+	     break;
+
+	  p = sep + strlen (hw_separator);
+      }while (1);
    }
+
    if (word) {
       strncpy(prev, word, sizeof (prev) - 1);
       prev [sizeof (prev) - 1] = 0;
@@ -281,10 +305,6 @@ static void fmt_newheadword( const char *word, int flag )
       fprintf( stderr, "%10d headwords\r", fmt_hwcount );
    }
    ++fmt_hwcount;
-
-   if (new_word){
-      free (new_word);
-   }
 }
 
 static void fmt_closeindex( void )
@@ -343,7 +363,11 @@ static void help( FILE *out_stream )
 "--locale   <locale> specifies the locale used for sorting.\n\
            if no locale is specified, the \"C\" locale is used.",
 "--allchars all characters (not only alphanumeric and space)\n\
-           will be used in search if this argument is applied",
+           will be used in search if this argument is supplied",
+"--headword-separator <sep> sets head word separator which allows\n\
+           several words to have the same definition\n\
+           Example: autumn%%%fall can be used\n\
+           if '--headword-separator %%%' is supplied",
       0 };
    const char        **p = help_msg;
 
@@ -385,6 +409,7 @@ int main( int argc, char **argv )
       { "help",       0, 0, 501 },
       { "locale",     1, 0, 502 },
       { "allchars",   0, 0, 503 },
+      { "headword-separator",   1, 0, 504 },
    };
 
    while ((c = getopt_long( argc, argv, "VLjfephDu:s:c:",
@@ -411,6 +436,7 @@ int main( int argc, char **argv )
 	 break;
       case 502: locale        = optarg;      break;
       case 503: allchars_mode = 1;           break;
+      case 504: hw_separator  = optarg;      break;
       default:
          help (stderr);
 	 exit(1);
@@ -504,6 +530,8 @@ int main( int argc, char **argv )
 	    if ((pt = strchr( buffer2, ','))) {
 	       *pt = '\0';
 	       fmt_newheadword(buffer2, 0);
+	       if (hw_separator [0])
+		  buf = NULL;
 	    }
 	 }
 	 break;
@@ -579,7 +607,6 @@ int main( int argc, char **argv )
 	       
 	       *pt = '\0';
 	       fmt_newheadword(buffer+1, 0);
-
 	       memmove( buf, buffer+1, strlen(buffer+1));
 	       memmove( pt-1, s, strlen(s)+1 ); /* move \0 also */
 	    }
@@ -639,6 +666,8 @@ int main( int argc, char **argv )
 
 	    if (*buf != '\0') {
 	       fmt_newheadword(buf,0);
+	       if (hw_separator [0])
+		  buf = NULL;
 	    }
  	 }
  	 break;
@@ -646,11 +675,13 @@ int main( int argc, char **argv )
 	 fprintf(stderr, "Unknown input format type %d\n", type );
 	 exit(2);
       }
-      fmt_string(buf);
-      fmt_newline();
+      if (buf){
+	 fmt_string(buf);
+	 fmt_newline();
+      }
  skip:
    }
-   
+
    fmt_newheadword(NULL,0);
 
    fmt_closeindex();
