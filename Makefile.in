@@ -1,6 +1,6 @@
 # Makefile.in -- Makefile for dict
 # Created: Wed Apr 24 14:14:09 1996 by faith@cs.unc.edu
-# Revised: Fri Feb 28 18:23:16 1997 by faith@cs.unc.edu
+# Revised: Fri Feb 28 23:31:29 1997 by faith@cs.unc.edu
 # Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.4 1997/03/01 04:23:23 faith Exp $
+# $Id: Makefile.in,v 1.5 1997/03/01 04:48:27 faith Exp $
 #
 
 ifneq (,)
@@ -86,6 +86,9 @@ jargon.dct jargon.idx: jargdump data/jarg400.txt
 
 dictd: dictd.c net.o servscan.o servparse.o index.o data.o daemon.o $(HEADERS)
 	$(CC) $(ALLFLAGS) -o $@ $< net.o servscan.o servparse.o index.o data.o  daemon.o $(LDLIBS)
+
+dictzip: dictzip.c data.o $(HEADERS)
+	$(CC) $(ALLFLAGS) -o $@ $< data.o $(LDLIBS)
 
 servscan.c: servscan.l
 	$(LEX) -b -p -p $(LFLAGS) -o$@ $<
