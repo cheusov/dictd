@@ -1,6 +1,6 @@
 # Makefile.in -- Makefile for dict
 # Created: Wed Apr 24 14:14:09 1996 by faith@cs.unc.edu
-# Revised: Fri Jul 11 10:00:49 1997 by faith@acm.org
+# Revised: Fri Jul 11 10:44:07 1997 by faith@acm.org
 # Copyright 1996, 1997 Rickard E. Faith (faith@acm.org)
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,8 +17,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.15 1997/07/11 14:07:09 faith Exp $
+# $Id: Makefile.in,v 1.16 1997/07/11 15:20:08 faith Exp $
 #
+
+# Add a _letter_ if you change the version number and release your own version.
+# Numbers are for the original author(s) only.
+DICT_VERSION="1.1"
 
 ifneq (,)
 This makefile requires GNU Make.
@@ -47,7 +51,7 @@ LEX=		@LEX@
 LEXLIB= 	@LEXLIB@
 YACC=		@YACC@
 
-CFLAGS=		@CFLAGS@ \
+CFLAGS=		@CFLAGS@ -DDICT_VERSION=\"$(DICT_VERSION)\" \
 		-DDICT_CONFIG_FILE=\"$(conf)\" -DDICT_PID_FILE=\"$(pid)\"
 LDFLAGS=        @LDFLAGS@
 XTRACFLAGS=     @WCFLAGS@ @XTRACFLAGS@ @DEFS@ @CPPFLAGS@ -I. -Iregex
@@ -136,10 +140,10 @@ dist: ChangeLog
 	echo "***** Exporting files for dictd-$${VERSION}..."; \
 	cd /tmp; \
 	rm -rf /tmp/dictd-$${VERSION}; \
-	cvs -d $LIBMAACVSROOT export -fNd dictd$${VERSION} -r HEAD dictd; \
+	cvs export -fNd dictd-$${VERSION} -r HEAD dictd; \
 	cd dictd-$${VERSION}; \
 	echo "***** Exporting files for libmaa..."; \
-	cvs export -fNd libmaa -r HEAD libmaa; \
+	cvs -d $${LIBMAACVSROOT} export -fNd libmaa -r HEAD libmaa; \
 	make -f Makefile.conf; \
 	mv ../ChangeLog .; \
 	cd ..; \
