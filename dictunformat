@@ -195,13 +195,9 @@ BEGIN {
 		exit 5
 	}
 
-
 	skip("00-database-utf8")
 	skip("00-database-8bit")
-	skip("00-database-url")
-	skip("00-database-short")
 	skip("00-database-allchars")
-	skip("00-database-info")
 
 	offset  = 0
 }

@@ -184,7 +184,7 @@ file, and '%h ' is stripped from in front of the headword.  All
 text before the first headword is included in the headers.   
 ..br
 This option was written to format Jay Kominek's elements database.  
-.TP
+
 .SH OPTIONS
 .TP
 .BI \-u " url"
@@ -221,6 +221,20 @@ will be indexed as  headwords, with the same definition.
 .TP
 .BI \--without-headword
 head words will not be included in .dict file
+.TP
+.BI \--without-header
+header will not be copied to DB info entry
+.TP
+.BI \--without-url
+URL will not be copied to DB info entry
+.TP
+.BI \--without-time
+time of creation will not be copied to DB info entry
+.TP
+.BI \--without-info
+DB info entry will not be created.
+This may be useful if 00-database-info headword
+is expected from stdin (dictunformat outputs it).
 .SH CREDITS
 .B dictfmt
 was written by Rik Faith (faith@cs.unc.edu) as part of the dict-misc
