@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.87 2003/09/01 12:57:52 cheusov Exp $
+# $Id: Makefile.in,v 1.88 2003/09/04 17:56:17 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -43,6 +43,11 @@ libexecdir=     @libexecdir@
 sbindir=        @sbindir@
 includedir=     @includedir@
 datadir=        @datadir@
+
+
+local_regex=    @local_regex@
+local_libmaa=   @local_libmaa@
+local_zlib=     @local_zlib@
 
 DESTDIR=
 
@@ -75,19 +80,14 @@ LDFLAGS=        @LDFLAGS@
 XTRACFLAGS=     @WCFLAGS@ @XTRACFLAGS@ @DEFS@ @CPPFLAGS@ -I.
 XTRALDFLAGS=    @WLDFLAGS@ @XTRALDFLAGS@
 LDLIBS=		@LIBS@
-
-DICTFMT_LDFLAGS=  @DICTFMT_LDFLAGS@
-DICTZIP_LDFLAGS=  @DICTZIP_LDFLAGS@
-DICT_LDFLAGS=     @DICT_LDFLAGS@
-DICTD_LDFLAGS=    @DICTD_LDFLAGS@
-
+LIBOBJS=        @LIBOBJS@
+LIBSOBJS=       $(LIBOBJS:.o=.os)
 EXES=	 	dict dictd dictzip dictfmt
 
 ifdef USE_PLUGIN
 	PLUGINS=    dictdplugin_judy.so 
 	LIBRARIES=  libdictdplugin.a
 	INCLUDES=   dictdplugin.h
-all             :: plugins
 
 .PHONY : samples install.samples uninstall.samples
 samples         : dictdplugin_exit.so dictdplugin_popen.so man_popen.dict
@@ -119,25 +119,28 @@ TMPS=           servscan.c servparse.c servparse.h \
 
 @SET_MAKE@
 
-all $(EXES) $(PLUGINS) dictdplugin_popen.so dictdplugin_exit.so ::
-	@for subdir in `echo $(subdirs)`; do \
-		echo making in $$subdir; \
-	 	if [ "$$subdir" = "zlib" ]; then \
-			(cd $$subdir \
-			&& $(MAKE) CC="$(CC)" CFLAGS="$(CFLAGS)" libz.a) \
-			|| exit 1; \
-		elif [ "$$subdir" = "regex" ]; then \
-			(cd $$subdir \
-			&& $(MAKE) CC="$(CC) $(CFLAGS)" lib) \
-			|| exit 1; \
-		else \
-			(cd $$subdir && $(MAKE)) || exit 1; \
-		fi; \
-	done
+all: $(EXES) $(LIBRARIES) plugins
 
-all:: $(EXES) $(LIBRARIES) plugins
+ifeq (1,$(local_libmaa))
+$(PLUGINS) dictdplugin_popen.so dictdplugin_exit.so $(EXES) : local_libmaa
+local_libmaa :
+	( cd $(srcdir)/libmaa && $(MAKE) ) && touch local_libmaa
+endif
 
+ifeq (1,$(local_regex))
+$(PLUGINS) dictdplugin_popen.so dictdplugin_exit.so $(EXES) : local_regex
+local_regex :
+	( cd $(srcdir)/regex && $(MAKE) CC="$(CC) $(CFLAGS)" lib ) && \
+		touch local_regex
+endif
 
+ifeq (1,$(local_zlib))
+$(PLUGINS) dictdplugin_popen.so dictdplugin_exit.so $(EXES) : local_zlib
+local_zlib :
+	( cd $(srcdir)/zlib && \
+	$(MAKE) CC="$(CC)" CFLAGS="$(CFLAGS)" libz.a ) && \
+		touch local_zlib
+endif
 
 ALLCFLAGS=$(XTRACFLAGS) $(CFLAGS)
 ALLLDFLAGS=$(XTRALDFLAGS) $(LDFLAGS) $(LDLIBS)
@@ -152,22 +155,26 @@ ALLLDFLAGS=$(XTRALDFLAGS) $(LDFLAGS) $(LDLIBS)
 	$(CXX) -fPIC -c $(ALLCFLAGS) $(SCFLAGS) $< -o $@
 
 %: %.o
-	$(CC) -o $@ $^ $(OBJS) $(ALLLDFLAGS)
+	$(CC) -o $@ $(filter-out local_regex local_zlib local_libmaa, $^) \
+		$(OBJS) $(ALLLDFLAGS)
 
 include $(srcdir)/deps
 
 dictd.o : servparse.h
 
-$(PLUGINS) dictdplugin_popen.so dictdplugin_exit.so :: libdictdplugin.a @LIBOBJS@
+$(PLUGINS) dictdplugin_popen.so dictdplugin_exit.so : \
+	libdictdplugin.a $(LIBSOBJS)
 
 lib%.a : %.o
 	$(AR) rc $@ $^
 
-dictdplugin_judy.so :: data.os str.os heap.os dictdplugin_judy.os
-	$(CC) $^ $(ALLLDFLAGS) -lJudy -shared -o $@
-
 %.so : %.os
-	$(CC) $^ $(ALLLDFLAGS) -shared -o $@
+	$(CC) -o $@ $(filter-out local_regex local_zlib local_libmaa, $^) \
+		$(ALLLDFLAGS) -shared
+
+dictdplugin_judy.so : data.os str.os heap.os dictdplugin_judy.os
+	$(CC) $(filter-out local_regex local_zlib local_libmaa, $^) \
+		 $(ALLLDFLAGS) -lJudy -shared -o $@
 
 .PHONY: plugins
 plugins: $(PLUGINS)
@@ -180,17 +187,10 @@ man_popen.dict : dictdplugin-config dictfmt_plugin dictfmt
    } | ./dictfmt_plugin dictdplugin_popen.so -s \
       'Example man dict based on example POPEN plugin' man_popen
 
-dict :: dict.o $(CLIOBJS) @LIBOBJS@ parse.o
-	$(CC) -o $@ $^ $(OBJS) $(ALLLDFLAGS) $(DICT_LDFLAGS)
-
-dictd :: dictd.o $(NETOBJS) $(SRCHOBJS) @LIBOBJS@ parse.o
-	$(CC) -o $@ $^ $(OBJS) $(ALLLDFLAGS) $(DICTD_LDFLAGS)
-
-dictzip :: dictzip.o data.o @LIBOBJS@
-	$(CC) -o $@ $^ $(OBJS) $(ALLLDFLAGS) $(DICTZIP_LDFLAGS)
-
-dictfmt :: dictfmt.o str.o @LIBOBJS@
-	$(CC) -o $@ $^ $(OBJS) $(ALLLDFLAGS) $(DICTFMT_LDFLAGS)
+dict    : $(CLIOBJS) $(LIBOBJS) parse.o
+dictd   : $(NETOBJS) $(SRCHOBJS) $(LIBOBJS) parse.o
+dictzip : data.o $(LIBOBJS)
+dictfmt : str.o $(LIBOBJS)
 
 servscan.c: servscan.l
 	$(LEX) $(LFLAGS) -o$@ $<
@@ -407,6 +407,7 @@ distclean: recursive-clean
 	rm -f regex/regex.h; \
 	rm -f config.h config.cache config.status stamp-h.in stamp-h; \
 	rm -f Makefile doc/Makefile dictdplugin-config include_regex.h
+	rm -f local_*
 
 cvsclean: distclean
 	rm -f configure libmaa/configure
