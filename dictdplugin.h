@@ -1,6 +1,22 @@
 #ifndef _PLUGIN_H_
 #define _PLUGIN_H_
 
+#undef __BEGIN_DECLS 
+#undef __END_DECLS 
+
+#ifdef __cplusplus 
+# define __BEGIN_DECLS extern "C" { 
+# define __END_DECLS } 
+#else 
+# define __BEGIN_DECLS
+# define __END_DECLS
+#endif 
+
+
+__BEGIN_DECLS
+
+extern const char * zzz;
+
 #define DICT_ENTRY_PLUGIN         "00-database-plugin"
 #define DICT_ENTRY_PLUGIN_DATA    "00-database-plugin-data"
 
@@ -10,14 +26,14 @@
 #define DICT_PLUGINFUN_SEARCH    "dictdb_search"
 #define DICT_PLUGINFUN_CLOSE     "dictdb_close"
 
-#define DICT_EXACT        1	/* Exact */
-#define DICT_PREFIX       2	/* Prefix */
-#define DICT_SUBSTRING    3	/* Substring */
-#define DICT_SUFFIX       4	/* Suffix */
-#define DICT_RE           5	/* POSIX 1003.2 (modern) regular expressions */
-#define DICT_REGEXP       6	/* old (basic) regular expresions */
-#define DICT_SOUNDEX      7	/* Soundex */
-#define DICT_LEVENSHTEIN  8	/* Levenshtein */
+#define DICT_EXACT        1     /* Exact */ 
+#define DICT_PREFIX       2     /* Prefix */ 
+#define DICT_SUBSTRING    3     /* Substring */ 
+#define DICT_SUFFIX       4     /* Suffix */ 
+#define DICT_RE           5     /* POSIX 1003.2 (modern) regular expressions */ 
+#define DICT_REGEXP       6     /* old (basic) regular expresions */ 
+#define DICT_SOUNDEX      7     /* Soundex */ 
+#define DICT_LEVENSHTEIN  8     /* Levenshtein */ 
 
 /*
   The following mask is added to the search strategy
@@ -31,7 +47,7 @@
 */
 
 typedef struct dictPluginInitData {
-   int id;           /* PLUGIN_DATA_XXX constant */
+   int id;           /* DICT_PLUGIN_INITDATA_XXX constant */
    int size;
    const void *data;
 } dictPluginInitData;
@@ -48,8 +64,8 @@ typedef int (*dictdb_open_type)
       );
 
 enum {
-   PLUGIN_INIT_DATA_DICT, /* data obtained from .dict file */
-   PLUGIN_INIT_DATA_AUTH
+   DICT_PLUGIN_INITDATA_DICT, /* data obtained from .dict file */
+   DICT_PLUGIN_INITDATA_AUTH
 
    /* this list can be enlarged*/
 };
@@ -70,8 +86,8 @@ typedef int (*dictdb_close_type) (
    );
 
 enum {
-   PLUGIN_RESULT_NOTFOUND,
-   PLUGIN_RESULT_FOUND,         /* definitions/matches have been found */
+   DICT_PLUGIN_RESULT_NOTFOUND,
+   DICT_PLUGIN_RESULT_FOUND,         /* definitions/matches have been found */
 
    /* this list can be enlarged */
 };
@@ -98,5 +114,7 @@ typedef int (*dictdb_search_type) (
    const char * const* *definitions,/* out: definitions */
    const int * *definitions_sizes,  /* out: sizes of definitions */
    int *definitions_count);         /* out: a number of found definitions */
+
+__END_DECLS
 
 #endif // _PLUGIN_H_

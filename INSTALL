@@ -95,7 +95,7 @@ ADVANCED
     (/usr/local/etc for example), edit Makefile.in and change the line
     reading:
 
-        conf=    @etcdir@/
+        conf=    @sysconfdir@/
 
     to read:
 

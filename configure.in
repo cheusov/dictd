@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.23 2002/09/12 13:08:06 cheusov Exp $
+dnl $Id: configure.in,v 1.24 2002/09/16 12:48:39 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -31,13 +31,13 @@ dnl     XCFLAGS and XLDFLAGS are for X11
 dnl     YCFLAGS is for yacc
 dnl     LCFLAGS is for lex
 
-AC_PREREQ(2.1)
-AC_REVISION($Revision: 1.23 $)
-AC_INIT(dictd.c)
+AC_PREREQ(2.52)
+AC_REVISION($Revision: 1.24 $)
+AC_INIT
+AC_CONFIG_SRCDIR([dictd.c])
 AC_CONFIG_HEADER(config.h)
 
-ac_default_prefix=/usr
-etcdir=/etc
+DICT_VERSION=1.8.0
 
 echo Configuring for dict
 echo .
@@ -52,6 +52,8 @@ fi
 
 AC_CANONICAL_HOST
 AC_PROG_CC
+dnl AC_PROG_CXX
+
 AC_ISC_POSIX
 
 REALCC="$CC"
@@ -165,19 +167,23 @@ if test "x${withval}" = xyes; then
 fi
 ])
 
-AC_ARG_WITH(etcdir,
-[ --with-etcdir=PATH       directory containing server configuration file],
-etcdir=$withval)
-
 dnl Checks for programs.
 echo Checking for programs
 
+AC_PROG_AWK
 AC_PROG_INSTALL
 AC_PROG_LEX
 AC_PROG_YACC
 AC_PROG_RANLIB
+AC_PROG_MAKE_SET
 dnl AC_PROG_LIBTOOL
 dnl AC_LIBTOOL_DLOPEN
+
+AC_CHECK_PROG(AR,ar,ar)
+
+dnl AC_PROG_LIBTOOL
+dnl AC_LIBTOOL_DLOPEN
+
 AC_CHECK_PROGS(NROFF,gnroff nroff)
 AC_CHECK_PROGS(TROFF,groff troff)
 AC_CHECK_PROGS(COL,col cat)
@@ -198,6 +204,9 @@ if test "$local_libmaa" = 1; then
         REALLIBS="$REALLIBS -Llibmaa -lmaa"
         XTRACFLAGS="$XTRACFLAGS -Ilibmaa"
         subdirs="$subdirs libmaa"
+
+	AC_CONFIG_SUBDIRS(libmaa)
+
         allsubdirs="$allsubdirs libmaa"
         AC_MSG_RESULT(yes)
     else
@@ -216,6 +225,9 @@ if test "$local_zlib" = 1; then
         REALLIBS="$REALLIBS -Lzlib -lz"
         XTRACFLAGS="$XTRACFLAGS -Izlib"
         allsubdirs="$allsubdirs zlib"
+
+	AC_CONFIG_SUBDIRS(zlib)
+
         AC_MSG_RESULT(yes)
     else
         AC_MSG_RESULT(no)
@@ -241,6 +253,9 @@ if test "$local_dmalloc" = 1; then
         XTRACFLAGS="$XTRACFLAGS -DDMALLOC_FUNC_CHECK -Idmalloc"
         XTRAHEADERS="$XTRAHEADERS dmalloc/dmalloc.h"
         allsubdirs="$allsubdirs dmalloc"
+
+	AC_CONFIG_SUBDIRS(dmalloc)
+
         subdirs="$subdirs dmalloc"
         AC_MSG_RESULT(yes)
     else
@@ -253,6 +268,11 @@ echo Checking for header files
 
 AC_HEADER_STDC
 AC_HEADER_TIME
+AC_CHECK_HEADERS(ltdl.h,
+   [AC_DEFINE(HAVE_LTDL_H, 1,
+       [Define if you have the <ltdl.h> header file.])],
+   [AC_MSG_ERROR([Install ltdl library and appropriate header files])])
+
 AC_CHECK_HEADERS(unistd.h strings.h limits.h)
 AC_CHECK_HEADERS(sys/resource.h sys/time.h sys/param.h sys/wait.h)
 
@@ -275,8 +295,7 @@ echo Making output files
 CC="$REALCC"
 LIBS="$REALLIBS"
 
-AC_CONFIG_SUBDIRS($subdirs)
-
+AC_SUBST(DICT_VERSION)
 AC_SUBST(WCFLAGS)
 AC_SUBST(SCFLAGS)
 AC_SUBST(WLDFLAGS)
@@ -284,8 +303,9 @@ AC_SUBST(XTRACFLAGS)
 AC_SUBST(XTRALDFLAGS)
 AC_SUBST(XTRAHEADERS)
 AC_SUBST(allsubdirs)
-AC_SUBST(etcdir)
-AC_OUTPUT(Makefile doc/Makefile)
+AC_CONFIG_FILES([Makefile doc/Makefile])
+AC_CONFIG_FILES([dictdplugin-config], [chmod +x dictdplugin-config])
+AC_OUTPUT
 
 date > stamp-h.in
 date > stamp-h

@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.7 1998/07/05 22:10:04 faith Exp $
+# $Id: Makefile.in,v 1.8 2002/09/16 12:48:39 cheusov Exp $
 # 
 
 
@@ -53,15 +53,15 @@ all: rfc.txt
 rfc.txt: rfc.ms toc.ms
 	@echo "Building table of contents, pass 1"
 	@echo "" > rfc.toc
-	@$(NROFF) -ms toc.ms | awk '/STARTTOC/ { p = 1 } \
+	@$(NROFF) -ms toc.ms | @AWK@ '/STARTTOC/ { p = 1 } \
 		/\..\..\../ { if (p == 1) print }' > rfc.toc.new
 	@cp rfc.toc.new rfc.toc
 	@echo "Building table of contents, pass 2"
-	@$(NROFF) -ms toc.ms | awk '/STARTTOC/ { p = 1 } \
+	@$(NROFF) -ms toc.ms | @AWK@ '/STARTTOC/ { p = 1 } \
 		/\..\..\../ { if (p == 1) print }' > rfc.toc.new
 	@cp rfc.toc.new rfc.toc
 	@echo "Building table of contents, pass 3 (verification)"
-	@$(NROFF) -ms toc.ms | awk '/STARTTOC/ { p = 1 } \
+	@$(NROFF) -ms toc.ms | @AWK@ '/STARTTOC/ { p = 1 } \
 		/\..\..\../ { if (p == 1) print }' > rfc.toc.new
 	@cmp -s rfc.toc.new rfc.toc || echo "WARNING: Contents Changed!"
 	@echo "Building document..."
@@ -70,15 +70,15 @@ rfc.txt: rfc.ms toc.ms
 dicf.txt: dicf.ms dicftoc.ms
 	@echo "Building table of contents, pass 1"
 	@echo "" > dicf.toc
-	@$(NROFF) -ms dicftoc.ms | awk '/STARTTOC/ { p = 1 } \
+	@$(NROFF) -ms dicftoc.ms | @AWK@ '/STARTTOC/ { p = 1 } \
 		/\..\..\../ { if (p == 1) print }' > dicf.toc.new
 	@cp dicf.toc.new dicf.toc
 	@echo "Building table of contents, pass 2"
-	@$(NROFF) -ms dicftoc.ms | awk '/STARTTOC/ { p = 1 } \
+	@$(NROFF) -ms dicftoc.ms | @AWK@ '/STARTTOC/ { p = 1 } \
 		/\..\..\../ { if (p == 1) print }' > dicf.toc.new
 	@cp dicf.toc.new dicf.toc
 	@echo "Building table of contents, pass 3 (verification)"
-	@$(NROFF) -ms dicftoc.ms | awk '/STARTTOC/ { p = 1 } \
+	@$(NROFF) -ms dicftoc.ms | @AWK@ '/STARTTOC/ { p = 1 } \
 		/\..\..\../ { if (p == 1) print }' > dicf.toc.new
 	@cmp -s dicf.toc.new dicf.toc || echo "WARNING: Contents Changed!"
 	@echo "Building document..."

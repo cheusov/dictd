@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.49 2002/09/12 13:08:06 cheusov Exp $
+ * $Id: dictd.c,v 1.50 2002/09/16 12:48:39 cheusov Exp $
  * 
  */
 
@@ -316,7 +316,7 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
    lst_List list = lst_create();
    char     *pt, *buf;
    
-   if (!dict_search ( list, entryName, db, DICT_EXACT )) {
+   if (0 >= dict_search ( list, entryName, db, DICT_EXACT )) {
       lst_destroy( list );
       return NULL;
    }
@@ -488,7 +488,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.49 2002/09/12 13:08:06 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.50 2002/09/16 12:48:39 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;

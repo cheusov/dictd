@@ -26,7 +26,7 @@
 #include "maa.h"
 #include "zlib.h"
 #include "codes.h"
-#include "plugin.h"
+#include "dictdplugin.h"
 
 #include "net.h"
 #include <arpa/inet.h>

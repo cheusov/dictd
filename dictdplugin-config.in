@@ -1,0 +1,41 @@
+#/bin/sh
+
+usage () {
+    cat <<EOF
+This script is a part of dictd package.
+
+Usage: dictd-config [OPTIONS]
+Options:
+  [--help]
+  [--version]
+  [--libdir]
+  [--cflags]
+EOF
+}
+
+while test $# -ne 0; do
+    case $1 in
+	--help)
+	    usage
+	    exit;;
+	--version)
+	    echo @DICT_VERSION@
+	    exit;;
+	--libs)
+	    prefix=@prefix@
+	    exec_prefix=@exec_prefix@
+	    echo -L@libdir@
+	    exit;;
+	--cflags)
+	    prefix=@prefix@
+	    exec_prefix=@exec_prefix@
+	    echo -I@includedir@
+	    exit;;
+	*)
+	    echo "invalid argument $1"
+	    exit 2
+    esac
+    shift
+done
+
+usage

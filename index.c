@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.32 2002/09/12 13:08:06 cheusov Exp $
+ * $Id: index.c,v 1.33 2002/09/16 12:48:39 cheusov Exp $
  * 
  */
 
@@ -1188,10 +1188,10 @@ static int dict_search_plugin (
       PRINTF (DBG_SEARCH, (":E: Plugin failed: %s\n", err_msg ? err_msg : ""));
    }else{
       switch (ret){
-      case PLUGIN_RESULT_FOUND:
+      case DICT_PLUGIN_RESULT_FOUND:
 	 PRINTF (DBG_SEARCH, (":S:     found %i definitions\n", defs_count));
 	 break;
-      case PLUGIN_RESULT_NOTFOUND:
+      case DICT_PLUGIN_RESULT_NOTFOUND:
 	 PRINTF (DBG_SEARCH, (":S:     not found\n"));
 	 return 0;
       default:
@@ -1227,6 +1227,9 @@ static int dict_search_plugin (
    return 0;
 }
 
+static const char *utf8_err_msg = "\
+error: The request is not a valid UTF-8 string";
+
 static int dict_search_database_ (
    lst_List l,
    const char *const word,
@@ -1234,6 +1237,7 @@ static int dict_search_database_ (
    int strategy )
 {
    char       *buf = NULL;
+   dictWord   *dw  = NULL;
 
    buf = alloca( strlen( word ) + 1 );
 
@@ -1242,7 +1246,16 @@ static int dict_search_database_ (
 	  word, buf, database -> index -> flag_allchars))
       {
 	 PRINTF(DBG_SEARCH, ("tolower_... ERROR!!!\n"));
-	 return 0;
+
+	 dw = xmalloc (sizeof (dictWord));
+	 memset (dw, 0, sizeof (dictWord));
+	 dw -> database = database;
+	 dw -> def      = xstrdup (utf8_err_msg);
+	 dw -> def_size = -1;
+
+	 lst_append (l, dw);
+
+	 return -1;
       }
    }else{
       tolower_alnumspace_8bit (
@@ -1617,7 +1630,7 @@ int dict_plugin_open (dictIndex *i, dictDatabase *db)
 
 	 PRINTF(DBG_INIT, (":I:     initializing plugin\n"));
 
-	 init_data.id   = PLUGIN_INIT_DATA_DICT;
+	 init_data.id   = DICT_PLUGIN_INITDATA_DICT;
 	 init_data.data = plugin_data;
 	 init_data.size = -1;
 

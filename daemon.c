@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.36 2002/09/12 13:08:06 cheusov Exp $
+ * $Id: daemon.c,v 1.37 2002/09/16 12:48:39 cheusov Exp $
  * 
  */
 
@@ -26,7 +26,7 @@
 #include <setjmp.h>
 #include "md5.h"
 #include "regex.h"
-#include "plugin.h"
+#include "dictdplugin.h"
 
 #ifndef HAVE_INET_ATON
 #define inet_aton(a,b) (b)->s_addr = inet_addr(a)
@@ -731,6 +731,7 @@ static void daemon_define( const char *cmdline, int argc, char **argv )
    char           *word;
    const char     *databaseName;
    int            none = 1;
+   int            matches_count = 0;
    int            extension = (argv[0][0] == 'd' && argv[0][1] == '\0');
 
    if (extension) {
@@ -754,9 +755,17 @@ static void daemon_define( const char *cmdline, int argc, char **argv )
    reset_databases();
    while ((db = next_database(databaseName))) {
       none = 0;
-      matches += dict_search ( list, word, db, DICT_EXACT );
-      if (matches > 0 && *databaseName != '*')               break; 
-      else if (*databaseName == '*' || *databaseName == '!') continue;
+      matches_count = dict_search ( list, word, db, DICT_EXACT );
+      matches += abs(matches_count);
+
+      if (matches_count < 0)
+	 break;
+
+      if (matches > 0 && *databaseName != '*')
+	 break; 
+      else if (*databaseName == '*' || *databaseName == '!')
+	 continue;
+
       goto nomatch;
    }
 
@@ -798,6 +807,7 @@ static void daemon_match( const char *cmdline, int argc, char **argv )
    const char     *strategy;
    int            strategyNumber;
    int            none = 1;
+   int            matches_count = 0;
    int            extension = (argv[0][0] == 'm' && argv[0][1] == '\0');
 
    if (extension) {
@@ -829,11 +839,18 @@ static void daemon_match( const char *cmdline, int argc, char **argv )
    reset_databases();
    while ((db = next_database(databaseName))) {
       none = 0;
-      matches += dict_search (
+      matches_count = dict_search (
 	 list, word, db, strategyNumber | DICT_MATCH_MASK);
+      matches += abs(matches_count);
 
-      if (matches > 0 && *databaseName != '*')               break;
-      else if (*databaseName == '*' || *databaseName == '!') continue;
+      if (matches_count < 0)
+	 break;
+
+      if (matches > 0 && *databaseName != '*')
+	 break;
+      else if (*databaseName == '*' || *databaseName == '!')
+	 continue;
+
       goto nomatch;
    }
 
