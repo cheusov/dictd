@@ -17,12 +17,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.44 2000/12/31 21:16:40 faith Exp $
+# $Id: Makefile.in,v 1.45 2001/01/12 09:24:29 faith Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
 # Numbers are for the original author(s) only.
-DICT_VERSION=1.5.4
+DICT_VERSION=1.5.5
 
 ifneq (,)
 This makefile requires GNU Make.
