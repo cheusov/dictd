@@ -27,7 +27,7 @@
 dictfmt \- formats a DICT protocol dictionary database
 .SH SYNOPSIS
 .nf
-.BI dictfmt "  -c5|-e|-f|-h|-j|-p [options]  basename"
+.BI dictfmt "  -c5|-t|-e|-f|-h|-j|-p [options]  basename"
 .fi
 .SH DESCRIPTION
 .B dictfmt
@@ -58,7 +58,7 @@ the
 source package.)    
 
 FILE may be in any of the several formats described by 
-the format options \-c5, \-e, \-f, \-h, \-j, or \-p.  Exactly one of 
+the format options \-c5, \-t, \-e, \-f, \-h, \-j, or \-p.  Exactly one of 
 these options must be given.
 
 Headers are prepended to the .dict file giving the URL of the site
@@ -85,6 +85,12 @@ All text until the next
 is considered the definition.  Any leading `@'
 characters are stripped out, but the file is otherwise unchanged. This
 option was written to format the CIA WORLD FACTBOOK 1995.
+.TP
+.BI \-t
+\-c5, \-\-without\-info and \-\-without\-headword options are implied.
+Use this option, if an input database comes from
+.I dictunformat
+utility.
 .TP
 .BI \-e 
 .I
@@ -189,10 +195,14 @@ This option was written to format Jay Kominek's elements database.
 .TP
 .BI \-u " url"
 Specifies the URL of the site from which the raw database was obtained.
+If this option is specified, 00-database-url/00databaseurl headword and
+appropriate definition will be ignored.
 .TP
 .BI \-s " name"
 Specifies the name and, optionally, the version and date, of the
 database.  (If this contains spaces, it must be quoted.)
+If this option is specified, 00-database-short/00databaseshort headword and
+appropriate definition will be ignored.
 .TP
 .BI \-L 
 display license and copyright information
@@ -201,7 +211,7 @@ display license and copyright information
 display version information
 .TP
 .BI \-D 
-output debuugging information
+output debugging information
 .TP
 .BI \--help
 display a help message
@@ -251,5 +261,6 @@ This manual page was written by Robert D. Hilliard
 .BR dict (1),
 .BR dictd (8),
 .BR dictzip (1),
+.BR dictunformat (1),
 .BR http://www.dict.org,
 .B RFC 2229

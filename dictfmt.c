@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.20 2003/06/10 13:42:13 cheusov Exp $
+ * $Id: dictfmt.c,v 1.21 2003/06/10 15:25:56 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -453,6 +453,7 @@ static void help( FILE *out_stream )
      "usage: dictfmt [-jfephDLV] [-c5] -u url -s name basename",
      "-c5       headwords are preceded by a line containing at least \n\
                 5 underscore (_) characters",
+     "-t        implies -c5, --without-headword and --without-info options",
      "-e        file is in html format",
      "-f        headwords start in col 0, definitions start in col 8",
      "-j        headwords are set off by colons",
@@ -479,8 +480,8 @@ static void help( FILE *out_stream )
 "--without-url        URL will not be copied to DB info entry",
 "--without-time       time of creation will not be copied to DB info entry",
 "--without-info       DB info entry will not be created.\n\
-           This may be useful if 00-database-info headword\n\
-           is expected from stdin (dictunformat outputs it).",
+                     This may be useful if 00-database-info headword\n\
+                     is expected from stdin (dictunformat outputs it).",
       0 };
    const char        **p = help_msg;
 
@@ -666,7 +667,7 @@ int main( int argc, char **argv )
       { "silent",               0, 0, 'q' },
    };
 
-   while ((c = getopt_long( argc, argv, "qVLjfephDu:s:c:",
+   while ((c = getopt_long( argc, argv, "qVLjfephDu:s:c:t",
                                     longopts, NULL )) != EOF)
       switch (c) {
       case 'q': quiet_mode = 1;            break;
@@ -697,6 +698,11 @@ int main( int argc, char **argv )
       case 507: without_url    = 1;           break;
       case 508: without_time   = 1;           break;
       case 509: without_info   = 1;           break;
+      case 't':
+	 without_info = 1;
+	 without_hw   = 1;
+	 type = CIA1995;
+	 break;
       default:
          help (stderr);
 	 exit(1);
