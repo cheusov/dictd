@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: defs.h,v 1.6 2003/11/03 00:28:52 cheusov Exp $
+ * $Id: defs.h,v 1.7 2004/01/05 12:25:10 cheusov Exp $
  */
 
 #ifndef _DEFS_H_
@@ -48,6 +48,7 @@
 #define DICT_FLAG_8BIT           DICT_ENTRY_PREFIX"-8bit"
 #define DICT_FLAG_ALLCHARS       DICT_ENTRY_PREFIX"-allchars"
 #define DICT_FLAG_VIRTUAL        DICT_ENTRY_PREFIX"-virtual"
+#define DICT_FLAG_ALPHABET       DICT_ENTRY_PREFIX"-alphabet"
 
 #define DICT_ENTRY_PLUGIN        DICT_ENTRY_PREFIX"-plugin"
 #define DICT_ENTRY_PLUGIN_DATA   DICT_ENTRY_PREFIX"-plugin-data"
@@ -197,6 +198,8 @@ typedef struct dictDatabase {
    int        *strategy_disabled; /* disable_strategy keyword*/
 
    lst_List   *virtual_db_list;
+
+   char *alphabet;
 
    int invisible;    /* non-zero for invisible databases */
 

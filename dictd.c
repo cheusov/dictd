@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.100 2003/12/08 17:14:47 cheusov Exp $
+ * $Id: dictd.c,v 1.101 2004/01/05 12:25:10 cheusov Exp $
  * 
  */
 
@@ -596,6 +596,33 @@ void dict_disable_strat (dictDatabase *db, const char* strategy)
    }
 }
 
+static void init_database_alphabet (dictDatabase *db)
+{
+   int ret;
+   lst_List l;
+   const dictWord *dw;
+   char *data;
+
+   if (!db -> normal_db)
+      return;
+
+   l = lst_create ();
+
+   ret = dict_search_database_ (l, DICT_FLAG_ALPHABET, db, DICT_EXACT);
+
+   if (ret){
+      dw = (const dictWord *) lst_top (l);
+      data = dict_data_obtain (db, dw);
+      db -> alphabet = data;
+
+      data = strchr (db -> alphabet, '\n');
+      if (data)
+	 *data = 0;
+   }
+
+   dict_destroy_list (l);
+}
+
 static int init_database( const void *datum )
 {
    dictDatabase *db = (dictDatabase *)datum;
@@ -639,6 +666,13 @@ static int init_database( const void *datum )
    }
 
    db->data         = dict_data_open( db->dataFilename, 0 );
+
+   init_database_alphabet (db);
+   if (db -> alphabet){
+      PRINTF (DBG_INIT, (":I:   alphabet: %s\n", db -> alphabet));
+   }else{
+      PRINTF (DBG_INIT, (":I:   alphabet: (NULL)\n"));
+   }
 
    if (db->dataFilename){
       PRINTF(DBG_INIT,
@@ -709,6 +743,8 @@ static int close_database (const void *datum)
       xfree ((void *) db -> pluginFilename);
    if (db -> strategy_disabled)
       xfree ((void *) db -> strategy_disabled);
+   if (db -> alphabet)
+      xfree ((void *) db -> alphabet);
 
    return 0;
 }
@@ -860,7 +896,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.100 2003/12/08 17:14:47 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.101 2004/01/05 12:25:10 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;

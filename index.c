@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.83 2003/12/24 20:19:57 cheusov Exp $
+ * $Id: index.c,v 1.84 2004/01/05 12:25:10 cheusov Exp $
  * 
  */
 
@@ -1121,10 +1121,110 @@ static int dict_search_soundex( lst_List l,
 
 */
 
-static int dict_search_levenshtein( lst_List l,
-				    const char *word,
-				    const dictDatabase *database,
-				    dictIndex *dbindex)
+#define CHECK                                         \
+   if ((pt = dict_index_search(buf, dbindex))           \
+       && !compare(buf, dbindex, pt, dbindex->end)) {            \
+      if (!set_member(s,buf)) {                       \
+	 ++count;                                     \
+	 set_insert(s,str_find(buf));                 \
+	 datum = dict_word_create(pt, database, dbindex);\
+	 lst_append(l, datum);                        \
+         PRINTF(DBG_LEV,("  %s added\n",buf));        \
+      }                                               \
+   }
+
+#define DICT_SEARCH_LEVENSHTEIN_8BIT__DEL_TRANS \
+				/* Deletions */ \
+   for (i = 0; i < len; i++) {                  \
+      p = buf;                                  \
+      for (j = 0; j < len; j++)                 \
+	 if (i != j) *p++ = word[j];            \
+      *p = '\0';                                \
+      CHECK;                                    \
+   }                                            \
+                                                \
+                                /* Transpositions */ \
+   strcpy( buf, word );         \
+   for (i = 1; i < len; i++) {  \
+      tmp = buf[i-1];           \
+      buf[i-1] = buf[i];        \
+      buf[i] = tmp;             \
+                                \
+      CHECK;                    \
+                                \
+      tmp = buf[i-1];           \
+      buf[i-1] = buf[i];        \
+      buf[i] = tmp;             \
+   }
+
+static int dict_search_levenshtein_8bit_with_alphabet (
+   lst_List l,
+   const char *word,
+   const dictDatabase *database,
+   dictIndex *dbindex)
+{
+   int        len   = strlen(word);
+   char       *buf  = alloca(len+2);
+   char       *p    = buf;
+   int        count = 0;
+   set_Set    s     = set_create(NULL,NULL);
+   int        i, j, k;
+   const char *pt;
+   char       tmp;
+   dictWord   *datum;
+   size_t alphabet_len = strlen (database -> alphabet);
+   char new_char;
+
+   assert (dbindex);
+
+   DICT_SEARCH_LEVENSHTEIN_8BIT__DEL_TRANS
+
+				/* Insertions */
+   for (i = 0; i < len; i++) {
+      for (k = 0; k < alphabet_len; k++) {
+	 p = buf;
+         for (j = 0; j < len; j++) {
+            *p++ = word[j];
+            if (i == j)
+	       *p++ = database -> alphabet [k];
+         }
+         *p = '\0';
+	 CHECK;
+      }
+   }
+                                /* Insertions at the beginning */
+   strcpy( buf + 1, word );
+   for (k = 0; k < alphabet_len; k++) {
+      buf[ 0 ] = database -> alphabet [k];
+      CHECK;
+   }
+
+                                  /* Substitutions */
+   strcpy( buf, word );
+   for (i = 0; i < len; i++) {
+      for (j = 0; j < alphabet_len; j++) {
+	 new_char = database -> alphabet [j];
+
+	 if (buf[i] != new_char){
+	    tmp = buf [i];
+	    buf [i] = new_char;
+	    CHECK;
+	    buf [i] = tmp;
+	 }
+      }
+   }
+
+   PRINTF(DBG_LEV,("  Got %d matches\n",count));
+   set_destroy(s);
+
+   return count;
+}
+
+static int dict_search_levenshtein_8bit_without_alphabet (
+   lst_List l,
+   const char *word,
+   const dictDatabase *database,
+   dictIndex *dbindex)
 {
    int        len   = strlen(word);
    char       *buf  = alloca(len+2);
@@ -1138,39 +1238,7 @@ static int dict_search_levenshtein( lst_List l,
 
    assert (dbindex);
 
-#define CHECK                                         \
-   if ((pt = dict_index_search(buf, dbindex))           \
-       && !compare(buf, dbindex, pt, dbindex->end)) {            \
-      if (!set_member(s,buf)) {                       \
-	 ++count;                                     \
-	 set_insert(s,str_find(buf));                 \
-	 datum = dict_word_create(pt, database, dbindex);\
-	 lst_append(l, datum);                        \
-         PRINTF(DBG_LEV,("  %s added\n",buf));        \
-      }                                               \
-   }
-
-				/* Deletions */
-   for (i = 0; i < len; i++) {
-      p = buf;
-      for (j = 0; j < len; j++)
-	 if (i != j) *p++ = word[j];
-      *p = '\0';
-      CHECK;
-   }
-                                /* Transpositions */
-   strcpy( buf, word );
-   for (i = 1; i < len; i++) {
-      tmp = buf[i-1];
-      buf[i-1] = buf[i];
-      buf[i] = tmp;
-
-      CHECK;
-
-      tmp = buf[i-1];
-      buf[i-1] = buf[i];
-      buf[i] = tmp;
-   }
+   DICT_SEARCH_LEVENSHTEIN_8BIT__DEL_TRANS
 
 				/* Insertions */
    for (i = 0; i < len; i++) {
@@ -1207,8 +1275,158 @@ static int dict_search_levenshtein( lst_List l,
 
    PRINTF(DBG_LEV,("  Got %d matches\n",count));
    set_destroy(s);
-   
+
    return count;
+}
+
+#if HAVE_UTF8
+static char *copy_utf8_string (
+   const char *src,
+   char *dest,
+   size_t len)
+{
+   size_t i;
+   const char *p;
+
+   for (i=0; i < len; ++i){
+      p = src + i * (MB_CUR_MAX + 1);
+
+      while (*p){
+	 *dest++ = *p++;
+      }
+   }
+
+   *dest = 0;
+   return dest;
+}
+
+static int dict_search_levenshtein_utf8_with_alphabet (
+   lst_List l,
+   const char *word,
+   const dictDatabase *database,
+   dictIndex *dbindex)
+{
+   int       size  = strlen (word);
+   int       len   = mbstowcs (NULL, word, 0);
+   char      *buf  = xmalloc (size + MB_CUR_MAX + 1);
+   char      *buf2 = xmalloc (len * (MB_CUR_MAX + 1));
+   char      *buf3;
+   mbstate_t ps;
+   int       count = 0;
+   const char *pt;
+   dictWord   *datum;
+
+   const char *p;
+   char *d;
+   char *d2;
+   size_t char_len;
+   int i;
+   set_Set    s    = set_create (NULL,NULL);
+
+   memset (&ps, 0, sizeof (ps));
+
+   PRINTF(DBG_LEV,("buf size = %d buf2 size %d\n", len + MB_CUR_MAX + 1, len * (MB_CUR_MAX + 1)));
+
+   i = 0;
+   for (p = word; *p; ){
+      char_len = mbrlen (p, MB_CUR_MAX, &ps);
+      assert (char_len > 0);
+
+      buf3 = buf2 + i * (MB_CUR_MAX + 1);
+      memcpy (buf3, p, char_len);
+      buf3 [char_len] = 0;
+
+      p += char_len;
+      ++i;
+   }
+
+   /* Transpositions */
+   for (i=1; i < len; ++i){
+      d = copy_utf8_string (buf2, buf, i - 1);
+      d = copy_utf8_string (buf2 + (MB_CUR_MAX + 1) * i, d, 1);
+      d = copy_utf8_string (buf2 + (MB_CUR_MAX + 1) * (i - 1), d, 1);
+      d = copy_utf8_string (buf2 + (MB_CUR_MAX + 1) * (i + 1), d, len - i - 1);
+
+      CHECK;
+      PRINTF(DBG_LEV,("query: `%s`\n", buf));
+   }
+
+   /* Deletions, Insertions and Substitutions */
+   for (i=0; i < len; ++i){
+      d = copy_utf8_string (buf2, buf, i);
+      p = database -> alphabet;
+
+      /* Deletions */
+      copy_utf8_string (buf2 + (MB_CUR_MAX + 1) * (i + 1), d, len - i - 1);
+      CHECK;
+      PRINTF(DBG_LEV,("query: `%s`\n", buf));
+
+      while (*p){
+	 char_len = mbrlen (p, MB_CUR_MAX, &ps);
+	 memcpy (d, p, char_len);
+	 p += char_len;
+
+	 /* Insertions */
+	 copy_utf8_string (buf2 + (MB_CUR_MAX + 1) * i, d + char_len, len - i);
+	 CHECK;
+	 PRINTF(DBG_LEV,("query: `%s`\n", buf));
+
+	 /* Substitutions */
+#if 1
+	 d2 = d + char_len;
+	 char_len = mbrlen (d2, MB_CUR_MAX, &ps);
+	 assert (char_len >= 0);
+
+	 while ((d2 [0] = d2 [char_len]) != 0){
+	    ++d2;
+	 }
+#else
+	 copy_utf8_string (buf2 + (MB_CUR_MAX + 1) * (i + 1), d + char_len, len - i - 1);
+#endif
+	 CHECK;
+	 PRINTF(DBG_LEV,("query: `%s`\n", buf));
+      }
+   }
+
+   set_destroy (s);
+
+   xfree (buf);
+   xfree (buf2);
+
+   return count;
+}
+#endif
+
+static int dict_search_levenshtein(
+   lst_List l,
+   const char *word,
+   const dictDatabase *database,
+   dictIndex *dbindex)
+{
+   assert (database);
+   assert (dbindex);
+
+#if HAVE_UTF8
+   if (dbindex -> flag_utf8){
+      if (database -> alphabet){
+	 return dict_search_levenshtein_utf8_with_alphabet (
+	    l, word, database, dbindex);
+      }else{
+	 return 0;
+      }
+   }else{
+#endif
+      if (database -> alphabet){
+	 return dict_search_levenshtein_8bit_with_alphabet (
+	    l, word, database, dbindex);
+      }else{
+	 return dict_search_levenshtein_8bit_without_alphabet (
+	    l, word, database, dbindex);
+      }
+#if HAVE_UTF8
+   }
+#endif
+
 }
 
 /*
