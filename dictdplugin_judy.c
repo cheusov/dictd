@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.13 2003/08/27 16:10:56 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.14 2003/08/31 17:31:47 cheusov Exp $
  * 
  */
 
@@ -114,6 +114,9 @@ typedef struct global_data_s {
 
    BOOL m_conf_allchars;
    BOOL m_conf_utf8;
+
+   BOOL m_flag_allchars;
+   BOOL m_flag_utf8;
 } global_data;
 
 int dictdb_close (void *dict_data);
@@ -256,7 +259,7 @@ static void set_strat (
 static void concat_dir_and_fn (
    char *dest, size_t dest_size, const char *dir, const char *fn)
 {
-   if (dest [0] != '/'){
+   if (fn [0] != '/'){
       strlcpy (dest, dir, dest_size);
 
       if (dest [strlen (dest) - 1] != '/')
@@ -271,6 +274,8 @@ static void concat_dir_and_fn (
 static int process_line (char *s, void *data)
 {
    char * value = NULL;
+   size_t len = 0;
+
    global_data *dict_data = (global_data *) data;
 
 //   fprintf (stderr, "line_to_be_processed='%s'\n", s);
@@ -291,6 +296,17 @@ static int process_line (char *s, void *data)
 //   fprintf (stderr, "line='%s'\n", (char *) s);
 
    *value++ = 0;
+
+   len = strlen (value);
+
+   if (len <= 0)
+      return 0;
+
+   if (value [0] == '"' && value [len - 1] == '"'){
+      value [len - 1] = 0;
+      ++value;
+      len -= 2;
+   }
 
    if (!strcmp(s, "allchars")){
       if (strcmp (value, "0") && strcmp (value, "")){
@@ -435,6 +451,20 @@ static void it_incr1 (
    unsigned long offs,
    unsigned long size)
 {
+   if (
+      !strcmp (word, "00-database-utf8") ||
+      !strcmp (word, "00databaseutf8"))
+   {
+      dict_data -> m_flag_utf8 = 1;
+   }
+
+   if (
+      !strcmp (word, "00-database-allchars") ||
+      !strcmp (word, "00databaseallchars"))
+   {
+      dict_data -> m_flag_allchars = 1;
+   }
+
    ++ *(PWord_t) value;
 }
 
@@ -503,7 +533,7 @@ static void read_index_file (
 
    fd = fopen (dict_data -> m_conf_index_fn, "r");
    if (!fd){
-      fprintf (stderr, "oops :((\n");
+//      fprintf (stderr, "oops :((\n");
       plugin_error (dict_data, strerror(errno));
       return;
    }
@@ -586,6 +616,20 @@ static void init_index_file (global_data *dict_data)
    read_index_file (dict_data, it_incr1);
    if (dict_data -> m_err_msg [0])
       return;
+
+   if (!dict_data -> m_conf_utf8 && dict_data -> m_flag_utf8){
+      plugin_error (
+	 dict_data,
+	 "'utf-8' flag in plugin configuration and database files differ");
+      return;
+   }
+
+   if (dict_data -> m_conf_allchars != dict_data -> m_flag_allchars){
+      plugin_error (
+	 dict_data,
+	 "'allchars' flag in the plugin configuration and database files differ");
+      return;
+   }
 
 //   debug_print (dict_data);
 
