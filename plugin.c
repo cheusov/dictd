@@ -15,7 +15,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: plugin.c,v 1.15 2004/03/19 18:46:06 cheusov Exp $
+ * $Id: plugin.c,v 1.16 2004/03/24 09:15:33 cheusov Exp $
  * 
  */
 
@@ -78,6 +78,7 @@ int dict_search_plugin (
       err_msg = database -> plugin -> dictdb_error (
 	 database -> plugin -> data);
 
+      fprintf (stderr, ":E: Plugin failed: %s\n", (err_msg ? err_msg : ""));
       PRINTF (DBG_SEARCH, (":E: Plugin failed: %s\n", err_msg ? err_msg : ""));
    }else{
       switch (ret){
