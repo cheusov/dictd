@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.88 2004/01/16 19:30:29 cheusov Exp $
+ * $Id: index.c,v 1.89 2004/03/22 17:17:06 cheusov Exp $
  * 
  */
 
@@ -111,7 +111,7 @@ static void dict_make_global_alphabet (void)
    int ch;
 
    for (i=0; i < charcount; ++i){
-      global_alphabet_8bit [i] = ch = index2chartab [c(i)];
+      global_alphabet_8bit [i] = ch = c(i);
 
       if (ch < 128)
 	 global_alphabet_ascii [j++] = ch;
@@ -120,7 +120,12 @@ static void dict_make_global_alphabet (void)
    global_alphabet_8bit  [charcount] = 0;
    global_alphabet_ascii [j] = 0;
 
-//   fprintf (stderr, "global_alphabet = '%s'\n", global_alphabet);
+   PRINTF(DBG_SEARCH, (
+	  "global_alphabet_8bit  = '%s'\n",
+	  global_alphabet_8bit));
+   PRINTF(DBG_SEARCH, (
+	  "global_alphabet_ascii = '%s'\n",
+	  global_alphabet_ascii));
 }
 
 static void dict_table_init(void)
