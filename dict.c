@@ -1,10 +1,10 @@
 /* dict.c -- 
  * Created: Fri Mar 28 19:16:29 1997 by faith@dict.org
- * Revised: Thu Nov  9 16:41:14 2000 by faith@dict.org
+ * Revised: Sat Dec  2 09:25:28 2000 by faith@dict.org
  * Copyright 1997, 1998, 1999, 2000 Rickard E. Faith (faith@dict.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dict.c,v 1.22 2000/11/09 21:43:01 faith Exp $
+ * $Id: dict.c,v 1.23 2000/12/22 11:03:28 faith Exp $
  * 
  */
 
@@ -197,22 +197,6 @@ static void client_print_matches( lst_List l, int html, int flag,
       }
    }
 
-   if (flag) {
-      if (html) fprintf( dict_output, "<H2>" );
-      if (count > 100) {
-	 fprintf( dict_output,
-		  "%d match%s found -- too many to print\n",
-		  count, count == 1 ? "" : "es" );
-	 return;
-      } else if (count)
-	 fprintf( dict_output,
-		  "%d match%s found", count, count == 1 ? "" : "es" );
-      else
-	 fprintf( dict_output, "No matches found for \"%s\"", word );
-      if (html) fprintf( dict_output, "</H2>\n" );
-      else      fprintf( dict_output, "\n" );
-   }
-
    if (!l) return;
 
    last = NULL;
@@ -244,6 +228,7 @@ static void client_print_matches( lst_List l, int html, int flag,
 	 fprintf( dict_output, "  %s", arg_get(a,1) );
 	 pos += len + 2;
       }
+      arg_destroy(a);
    }
    fprintf( dict_output, "\n" );
 }
@@ -262,6 +247,7 @@ static void client_print_listed( lst_List l, int html )
 	 err_internal( __FUNCTION__,
 		       "SHOW command didn't return 2 args: \"%s\"\n", e );
       fprintf( dict_output, "  %-10.10s %s\n", arg_get(a,0), arg_get(a,1) );
+      arg_destroy(a);
    }
    if (html) fprintf( dict_output, "</PRE>\n" );
 }
@@ -816,12 +802,7 @@ static void process( int html )
 	 expected = cmd_reply.retcode;
 	 break;
       case CMD_WIND:
-	 if (cmd_reply.matches > 100) {
-	     fprintf(dict_output,
-		     "Your request would have returned %d definitions"
-		     " -- too many to print\n",
-		     cmd_reply.matches);
-	 } else if (cmd_reply.matches) {
+	  if (cmd_reply.matches) {
 	    if (!cmd_reply.data)
 	       err_internal( __FUNCTION__,
 			     "%d matches, but no list\n", cmd_reply.matches );
@@ -943,7 +924,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.22 2000/11/09 21:43:01 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.23 2000/12/22 11:03:28 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
