@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.42 2004/01/06 11:52:19 cheusov Exp $
+ * $Id: dictfmt.c,v 1.43 2004/01/06 19:10:12 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -47,7 +47,7 @@
 #include <getopt.h>
 #endif
 
-#define FMT_MAXPOS  79
+#define FMT_MAXPOS  72
 #define FMT_INDENT  0
 
 #define JARGON    1
@@ -672,6 +672,9 @@ static void help( FILE *out_stream )
 "--without-info       DB info entry will not be created.\n\
                      This may be useful if 00-database-info headword\n\
                      is expected from stdin (dictunformat outputs it).",
+"--columns            Set the number of columns for wrapping text\n\
+                     before writing it to .dict file.\n\
+                     If it is zero, wrapping is off.",
       0 };
    const char        **p = help_msg;
 
@@ -875,6 +878,7 @@ int main( int argc, char **argv )
       { "without-url",          0, 0, 507 },
       { "without-time",         0, 0, 508 },
       { "without-info",         0, 0, 509 },
+      { "columns",              1, 0, 510 },
       { "quiet",                0, 0, 'q' },
       { "silent",               0, 0, 'q' },
       { "version",              0, 0, 'V' },
@@ -927,12 +931,21 @@ int main( int argc, char **argv )
       case 506: without_header = 1;           break;
       case 507: without_url    = 1;           break;
       case 508: without_time   = 1;           break;
-      case 509: without_info   = 1;           break;
+      case 509: without_info   = 1;             break;
+      case 510:
+	 fmt_maxpos = atoi (optarg);
+
+	 if (fmt_maxpos <= 0){
+	    fmt_maxpos = INT_MAX;
+	 }
+	 break;
+
       case 't':
 	 without_info = 1;
 	 without_hw   = 1;
 	 type = CIA1995;
 	 break;
+
       default:
          help (stderr);
 	 

@@ -251,6 +251,13 @@ time of creation will not be copied to DB info entry
 DB info entry will not be created.
 This may be useful if 00-database-info headword
 is expected from stdin (dictunformat outputs it).
+.TP
+.BI \--columns " columns"
+By default
+.BI dictfmt
+wraps strings read from stdin to 72 columns.
+This option changes this default. If it is set to zero or negative value,
+wrapping is off.
 .SH CREDITS
 .B dictfmt
 was written by Rik Faith (faith@cs.unc.edu) as part of the dict-misc
