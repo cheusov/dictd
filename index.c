@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.37 2002/10/14 07:01:38 cheusov Exp $
+ * $Id: index.c,v 1.38 2002/10/14 07:05:50 cheusov Exp $
  * 
  */
 
@@ -1288,6 +1288,7 @@ static int dict_search_suffix(
    lst_Position p;
    dictWord *dw;
    char *buf = NULL;
+   int count;
 
    if (database->index_suffix){
       buf = (char *) alloca (strlen (word));
@@ -1299,10 +1300,15 @@ static int dict_search_suffix(
 	 return 0; /* invalid utf8 string */
       }
 
+      count = lst_length (l);
+
       PRINTF(DBG_SEARCH, ("'%s'\n", buf));
       ret = dict_search_prefix ( l, buf, database, database->index_suffix);
+
       LST_ITERATE (l, p, dw) {
-	 stranagram (dw -> word, utf8_mode);
+	 if (count-- <= 0){
+	    stranagram (dw -> word, utf8_mode);
+	 }
       }
       return ret;
    }else{
