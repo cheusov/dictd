@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.93 2003/11/03 00:28:52 cheusov Exp $
+# $Id: Makefile.in,v 1.94 2003/11/05 01:25:10 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -430,7 +430,7 @@ distclean: recursive-clean
 	rm -f regex/regex.h; \
 	rm -f config.h config.cache config.status stamp-h.in stamp-h; \
 	rm -f Makefile doc/Makefile dictdplugin-config include_regex.h
-	rm -f local_*
+	rm -f local_* colorit dictl
 
 cvsclean: distclean
 	rm -f configure libmaa/configure
