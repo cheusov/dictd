@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: str.c,v 1.1 2003/08/08 14:50:22 cheusov Exp $
+ * $Id: str.c,v 1.2 2004/01/08 17:35:26 cheusov Exp $
  * 
  */
 
@@ -119,3 +119,25 @@ char *strlwr_8bit (char *str)
 
    return str;
 }
+
+#if HAVE_UTF8
+char *copy_utf8_string (
+   const char *src,
+   char *dest,
+   size_t len)
+{
+   size_t i;
+   const char *p;
+
+   for (i=0; i < len; ++i){
+      p = src + i * (MB_CUR_MAX + 1);
+
+      while (*p){
+	 *dest++ = *p++;
+      }
+   }
+
+   *dest = 0;
+   return dest;
+}
+#endif

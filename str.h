@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: str.h,v 1.1 2003/08/08 14:50:22 cheusov Exp $
+ * $Id: str.h,v 1.2 2004/01/08 17:35:26 cheusov Exp $
  * 
  */
 
@@ -28,3 +28,10 @@ extern int tolower_alnumspace (
    int mode_utf8);
 
 extern char *strlwr_8bit (char *str);
+
+#if HAVE_UTF8
+extern char *copy_utf8_string (
+   const char *MB_CUR_MAX_plus_1__bytes__blocks,
+   char *dest,
+   size_t len);
+#endif
