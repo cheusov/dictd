@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.c,v 1.42 2004/04/26 16:21:03 cheusov Exp $
+ * $Id: dict.c,v 1.43 2004/05/24 11:42:25 cheusov Exp $
  * 
  */
 
@@ -96,6 +96,7 @@ static void set_ex_status (int status)
 #define EXST_AUTH_DENIED             38
 #define EXST_INVALID_DB              39
 #define EXST_INVALID_STRATEGY        40
+#define EXST_CONNECTION_FAILED       41
 
 struct def {
    lst_List   data;
@@ -674,8 +675,9 @@ end:				/* Ready to send buffer, but are we
 	    }
 	 }
          client_close_pager();
-	 err_fatal( NULL,
-		    "Cannot connect to any servers (use -v to see why)\n" );
+	 fprintf (stderr,
+		  "Cannot connect to any servers (use -v to see why)\n");
+	 exit (EXST_CONNECTION_FAILED);
       }
       cmd_reply.host    = c->host;
       cmd_reply.service = c->service ? c->service : DICT_DEFAULT_SERVICE;
@@ -1104,7 +1106,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.42 2004/04/26 16:21:03 cheusov Exp $";
+   const char        *id = "$Id: dict.c,v 1.43 2004/05/24 11:42:25 cheusov Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
