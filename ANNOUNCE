@@ -1,5 +1,5 @@
-The DICT Development Group (www.dict.org) announces the dictd-1.4
-distirbution, containing client/server software implementing the
+The DICT Development Group (www.dict.org) announces the dictd-1.4.x
+distribution, containing client/server software implementing the
 Dictionary Server Protocol, as described in RFC 2229.
 
 The Dictionary Server Protocol (DICT) is a TCP transaction based
@@ -27,7 +27,7 @@ Below are approximate sizes for the databases, showing the number of
 headwords in each, and the space required to store the database:
 
   Database      Headwords         Index          Data  Uncompressed
-  web1913          185774       3445 kB         11 MB         30 MB
+  web1913          185399       3438 kB         11 MB         30 MB
   wn               121967       2427 kB       7142 kB         21 MB
   gazetteer         52994       1087 kB       1754 kB       8351 kB
   jargon             2135         38 kB        536 kB       1248 kB
@@ -43,7 +43,8 @@ The software has been developed under Linux 2.0.x and SunOS 4.1.x.  Porting
 to other Unix-like operating systems should be straightforward.
 
 Software and databases are available for anonymous ftp from:
-    ftp://ftp.cs.unc.edu/pub/users/faith/dict
+    ftp://ftp.cs.unc.edu/pub/users/faith/dict, and
+    ftp://ftp.dict.org/pub/dict
 
 For more information on the DICT project, please see:
     http://www.dict.org
