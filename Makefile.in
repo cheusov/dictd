@@ -1,6 +1,6 @@
 # Makefile.in -- Makefile for dict
 # Created: Wed Apr 24 14:14:09 1996 by faith@cs.unc.edu
-# Revised: Wed Dec 22 09:22:45 1999 by faith@acm.org
+# Revised: Wed Dec 22 09:43:19 1999 by faith@acm.org
 # Copyright 1996, 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.37 1999/12/22 14:26:44 faith Exp $
+# $Id: Makefile.in,v 1.38 1999/12/22 14:46:23 faith Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -159,8 +159,12 @@ install: $(EXES) install.dict install.dictzip install.dictd
 ChangeLog:
 	@(echo "***** Making new ChangeLog..."; \
 	rm -f ChangeLog; \
-	AWK=gawk rcs2log -i 2 -r -l . doc regex zlib \
-		| sed 's,/[^ ]*/libmaa/,libmaa/,g' > ChangeLog;)
+	AWK=gawk rcs2log -i 2 -r -d'1996-09-20<' . doc regex zlib libmaa \
+		| sed 's,/cvsroot/dict/dictd1/,,g' \
+		| sed 's,faith@[^>]*,faith@dict.org,g' \
+		| sed 's,yakowenk@.[^>]*,yakowenk@cs.unc.edu,g' \
+		| sed 's,nyland@.[^>]*,nyland@cs.unc.edu,g' \
+		> ChangeLog;)
 
 
 dist: ChangeLog
