@@ -8,7 +8,7 @@ Usage: dictd-config [OPTIONS]
 Options:
   [--help]
   [--version]
-  [--libdir]
+  [--libs]
   [--cflags]
   [--plugindir]   Directory where plugin should be installed and searched
   [--dictdir]     Directory where dictionaries should be installed and searched
