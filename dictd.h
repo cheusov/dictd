@@ -64,6 +64,9 @@ extern int        _dict_comparisons; /* GLOBAL VARIABLE */
 extern int        _dict_forks;	/* GLOBAL VARIABLE */
 extern const char *locale;
 
+extern const char *locale;
+extern       int   inetd;    /* 1 if --inetd is applied, 0 otherwise */
+
 /*
   If the filename doesn't start with / or .,
   it is prepended with DICT_DIR

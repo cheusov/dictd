@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.81 2003/04/07 13:24:11 cheusov Exp $
+ * $Id: dictd.c,v 1.82 2003/04/07 13:34:58 cheusov Exp $
  * 
  */
 
@@ -56,6 +56,7 @@ static char       *_dict_argvstart;
 static int        _dict_argvlen;
 
        int        _dict_forks;
+       int        inetd        = 0;
 const char        *locale      = "C";
 
 static const char *configFile  = DICT_CONFIG_PATH DICTD_CONFIG_NAME;
@@ -794,7 +795,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.81 2003/04/07 13:24:11 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.82 2003/04/07 13:34:58 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1441,19 +1442,24 @@ int main( int argc, char **argv, char **envp )
    fflush(stdout);
    fflush(stderr);
 
-   if (! inetd && detach) net_detach();
+   if (! inetd && detach)
+      net_detach();
 
                                 /* Re-open logs for logging */
    if (logFile)   log_file( "dictd", logFile );
    if (useSyslog) log_syslog( "dictd" );
    if (!detach)   log_stream( "dictd", stderr );
-   if ((logFile || useSyslog || !detach) && !logOptions) set_minimal();
+   if ((logFile || useSyslog || !detach) && !logOptions)
+      set_minimal();
 
    log_info(":I: %d starting %s %24.24s\n",
 	    getpid(), dict_get_banner(0), ctime(&startTime));
-   if (strcmp(locale, "C")) log_info(":I: using locale \"%s\"\n", locale);
+   if (strcmp(locale, "C"))
+      log_info(":I: using locale \"%s\"\n", locale);
 
-   if (dbg_test(DBG_VERBOSE)) dict_config_print( NULL, DictConfig );
+   if (dbg_test(DBG_VERBOSE))
+      dict_config_print( NULL, DictConfig );
+
    dict_init_databases( DictConfig );
 
    dict_initsetproctitle(argc, argv, envp);

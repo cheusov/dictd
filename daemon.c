@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.62 2003/04/07 13:24:03 cheusov Exp $
+ * $Id: daemon.c,v 1.63 2003/04/07 13:34:55 cheusov Exp $
  * 
  */
 
@@ -316,7 +316,9 @@ static int daemon_check_list( const char *user, lst_List acl )
    dictAccess   *a;
    int          retcode;
 
-   if (!acl) return DICT_ALLOW;
+   if (!acl)
+      return DICT_ALLOW;
+
    for (p = lst_init_position(acl); p; p = lst_next_position(p)) {
       a = lst_get_position(p);
       switch (a->type) {
@@ -1211,13 +1213,17 @@ static void daemon_show_server( const char *cmdline, int argc, char **argv )
    daemon_printf( "%d server information\n", CODE_SERVER_INFO );
    daemon_mime();
    daemon_printf( "%s\n", dict_get_banner(0) );
-   
-   daemon_printf( "On %s: up %s, %d fork%s (%0.1f/hour)\n",
-		  net_hostname(),
-		  dict_format_time( uptime ),
-		  _dict_forks,
-		  _dict_forks > 1 ? "s" : "",
-		  (_dict_forks/uptime)*3600.0 );
+
+   if (!inetd){
+      daemon_printf (
+	 "On %s: up %s, %d fork%s (%0.1f/hour)\n",
+	 net_hostname(),
+	 dict_format_time( uptime ),
+	 _dict_forks,
+	 _dict_forks > 1 ? "s" : "",
+	 (_dict_forks/uptime)*3600.0 );
+   }
+
    if (count_databases()) {
       daemon_printf( "\nDatabase      Headwords         Index"
 		     "          Data  Uncompressed\n" );
@@ -1404,9 +1410,10 @@ int _handleconn (int delay, int error);
 int dict_inetd(char ***argv0, int delay, int error )
 {
    if (setjmp(env)) return 0;
-   
+
    daemonPort = -1;
    daemonIP   = "inetd";
+
    daemonHostname = daemonIP;
    
    return _handleconn(delay, error);
