@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.34 2003/12/08 17:30:02 cheusov Exp $
+ * $Id: dictfmt.c,v 1.35 2003/12/30 14:05:50 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -92,6 +92,35 @@ static int ignore_hw_info      = 0;
 
 static const char *locale         = "C";
 
+static str_Pool alphabet_pool = NULL;
+
+static void init (const char *fn)
+{
+   maa_init (fn);
+
+   alphabet_pool = str_pool_create ();
+}
+
+static int print_alphabet (const void *symbol, void *arg)
+{
+   printf ("%s: %s\n", (char *) arg, (const char *) symbol);
+   return 0;
+}
+
+static void destroy (void)
+{
+   str_pool_destroy (alphabet_pool);
+   alphabet_pool = NULL;
+
+//   maa_shutdown ();
+}
+
+static void destroy_and_exit (int exit_status)
+{
+   destroy ();
+   exit (exit_status);
+}
+
 static void fmt_openindex( const char *filename )
 {
    char buffer[1024];
@@ -106,7 +135,8 @@ static void fmt_openindex( const char *filename )
 
    if (!(fmt_str = popen( buffer, "w" ))) {
       fprintf( stderr, "Cannot open %s for write\n", buffer );
-      exit(1);
+
+      destroy_and_exit (1);
    }
 }
 
@@ -347,12 +377,14 @@ static void write_hw_to_index (const char *word, int start, int end)
       new_word = malloc (len + 1);
       if (!new_word){
 	 perror ("malloc failed");
-	 exit (1);
+
+	 destroy_and_exit (1);
       }
 
       if (tolower_alnumspace (word, new_word, allchars_mode, utf8_mode)){
 	 fprintf (stderr, "'%s' is not a UTF-8 string", word);
-	 exit (1);
+
+	 destroy_and_exit (1);
       }
 
       word = trim_right (new_word);
@@ -379,6 +411,35 @@ static int contain_nonascii_symbol (const char *word)
    return 0;
 }
 
+static void update_alphabet (const char *word)
+{
+   char *p;
+   size_t len = 0;
+   mbstate_t ps;
+   char old_char;
+
+   if (!word)
+      return;
+
+   len = strlen (word);
+   p = (char *) alloca (len + 1);
+   tolower_alnumspace (word, p, allchars_mode, utf8_mode);
+
+   memset (&ps, 0, sizeof (ps));
+
+   while (*p){
+      len = mbrlen (p, MB_CUR_MAX, &ps);
+      assert ((int) len >= 0);
+
+      old_char = p [len];
+      p [len] = 0;
+      str_pool_find (alphabet_pool, p);
+      p [len] = old_char;
+
+      p += len;
+   }
+}
+
 static void fmt_newheadword( const char *word )
 {
    static char prev[1024] = "";
@@ -386,6 +447,8 @@ static void fmt_newheadword( const char *word )
    static int  end;
    char *      sep   = NULL;
    char *      p;
+
+   update_alphabet (word);
 
    if (
       word &&
@@ -434,7 +497,7 @@ static void fmt_newheadword( const char *word )
    if (locale [0] == 'C' && locale [1] == 0){
       if (contain_nonascii_symbol (word)){
 	 fprintf (stderr, "\n8-bit head word \"%s\"is encountered while \"C\" locale is used\n", word);
-	 exit (1);
+	 destroy_and_exit (1);
       }
    }
 
@@ -605,6 +668,34 @@ static void fmt_headword_for_url (void)
    ignore_hw_url = 1;
 }
 
+static void fmt_headword_for_alphabet (void)
+{
+   const char *key;
+   size_t len;
+   size_t sum_size = 0;
+   str_Position pos;
+   char *alphabet;
+
+   fmt_newheadword("00-database-alphabet");
+
+   STR_ITERATE (alphabet_pool, pos, key){
+      sum_size += strlen (key);
+   }
+
+   alphabet = xmalloc (sum_size + 1);
+   alphabet [0] = 0;
+
+   STR_ITERATE (alphabet_pool, pos, key){
+      strcat (alphabet, key);
+   }
+
+   fmt_string (alphabet);
+
+   xfree (alphabet);
+
+   fmt_newline ();
+}
+
 static void fmt_headword_for_shortname (void)
 {
    fmt_newheadword("00-database-short");
@@ -709,6 +800,7 @@ static void fmt_predefined_headwords_after ()
 {
    fmt_headword_for_url ();
    fmt_headword_for_shortname ();
+   fmt_headword_for_alphabet ();
 }
 
 int main( int argc, char **argv )
@@ -741,13 +833,21 @@ int main( int argc, char **argv )
       { "license",              0, 0, 'L' },
    };
 
+   init (argv[0]);
+
    while ((c = getopt_long( argc, argv, "qVLjvfephDu:s:c:t",
                                     longopts, NULL )) != EOF)
       switch (c) {
       case 'q': quiet_mode = 1;            break;
-      case 'L': license(); exit(1);        break;
-      case 'V': banner( stdout ); exit(1); break;
-      case 501: help( stdout ); exit(1);   break;         
+      case 'L': license();
+	 destroy_and_exit (1);
+	 break;
+      case 'V': banner( stdout );
+	 destroy_and_exit (1);
+	 break;
+      case 501: help( stdout );
+	 destroy_and_exit (1);
+	 break;         
       case 'j': type = JARGON;             break;
       case 'f': type = FOLDOC; fmt_maxpos=79; break;
       case 'e': type = EASTON;             break;
@@ -759,11 +859,15 @@ int main( int argc, char **argv )
       case 's': sname = optarg;            break;
       case 'c':                            
 	 switch (*optarg) {                
-	 case '5': type = CIA1995;             break;
-	 default:  fprintf( stderr,
-			    "Only CIA 1995 (-c5) currently supported\n" );
-	 exit(1);
+	 case '5': type = CIA1995;
+	    break;
+	 default:
+	    fprintf( stderr,
+		     "Only CIA 1995 (-c5) currently supported\n" );
+
+	    destroy_and_exit (1);
 	 }
+
 	 break;
       case 502: locale         = optarg;      break;
       case 503: allchars_mode  = 1;           break;
@@ -780,12 +884,14 @@ int main( int argc, char **argv )
 	 break;
       default:
          help (stderr);
-	 exit(1);
+	 
+	 destroy_and_exit (1);
       }
 
    if (optind + 1 != argc) {
       help (stderr);
-      exit(1);
+
+      destroy_and_exit (1);
    }
 
    set_utf8bit_mode (locale);
@@ -797,7 +903,8 @@ int main( int argc, char **argv )
 
    if (!setlocale(LC_ALL, locale)){
       fprintf (stderr, "invalid locale '%s'\n", locale);
-      exit (2);
+
+      destroy_and_exit (2);
    }
 
    if (
@@ -815,7 +922,8 @@ int main( int argc, char **argv )
    } else {
       if (!(str = fopen(dataname, "w"))) {
 	 fprintf(stderr, "Cannot open %s for write\n", dataname);
-	 exit(1);
+
+	 destroy_and_exit (1);
       }
    }
 
@@ -863,12 +971,14 @@ int main( int argc, char **argv )
 		     fprintf( stderr,
 			      "Unknown tag: %s (%c%c)\n",
 			      buffer2, s[1], s[2] );
-		     exit(1);
+
+		     destroy_and_exit (1);
 		  }
 		  break;
 	       default:
 		  fprintf( stderr, "Unknown tag: %s (%c)\n", buffer2, s[1] );
-		  exit(1);
+
+		  destroy_and_exit (1);
 	       }
 	       while (*s && *s != '>') s++;
 	       continue;
@@ -892,12 +1002,14 @@ int main( int argc, char **argv )
 		  memmove( buf, buffer+3, strlen(buffer+3)+1 );
 	       } else {
 		  fprintf( stderr, "No end: %s\n", buffer );
-		  exit(1);
+
+		  destroy_and_exit (1);
 	       }
 	       break;
 	    default:
 	       fprintf( stderr, "Unknown: %s\n", buffer );
-	       exit(1);
+
+	       destroy_and_exit (1);
 	    }
 	 } else {
 	    if (buffer[0] == ' ' && buffer[1] == ' ') fmt_newline();
@@ -1016,7 +1128,8 @@ int main( int argc, char **argv )
  	 break;
       default:
 	 fprintf(stderr, "Unknown input format type %d\n", type );
-	 exit(2);
+
+	 destroy_and_exit (2);
       }
       if (buf){
 	 fmt_string(buf);
@@ -1031,5 +1144,8 @@ int main( int argc, char **argv )
 
    fmt_closeindex();
    fclose(str);
+
+   destroy ();
+
    return 0;
 }
