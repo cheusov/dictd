@@ -187,7 +187,7 @@ int dictdb_open (
 
    assert (max_strat_num > 0);
    data -> m_strategies = new dictPluginData_strategy [max_strat_num];
-   memset (data -> m_strategies, 0, sizeof(data -> m_strategies) * max_strat_num);
+   memset (data -> m_strategies, 0, sizeof(dictPluginData_strategy) * max_strat_num);
 
    for (i=0; i < init_data_size; ++i){
       switch (init_data [i].id){
