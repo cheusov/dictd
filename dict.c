@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.c,v 1.28 2002/08/02 19:43:14 faith Exp $
+ * $Id: dict.c,v 1.29 2002/08/12 16:27:33 cheusov Exp $
  * 
  */
 
@@ -942,7 +942,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.28 2002/08/02 19:43:14 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.29 2002/08/12 16:27:33 cheusov Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -1086,6 +1086,7 @@ int main( int argc, char **argv )
    while ((c = getopt_long( argc, argv,
 			    "h:p:d:i:Ims:DSHau:c:Ck:VLvrP:",
 			    longopts, NULL )) != EOF)
+   {
       switch (c) {
       case 'h': host = optarg;                         break;
       case 'p': service = optarg;                      break;
@@ -1113,6 +1114,7 @@ int main( int argc, char **argv )
       case 501:	help( stdout );	exit(1);               break;	      
       default:  help( stderr ); exit(1);               break;
       }
+   }
 
    if (optind == argc && (!(function & ~(DEFINE|MATCH)))) {
       banner( stderr );

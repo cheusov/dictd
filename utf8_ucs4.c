@@ -144,12 +144,12 @@ static char *strxxx_utf8 (char *str, int (* xxx) (int))
 
 char *strlwr_utf8 (char *str)
 {
-    return strxxx_utf8 (str, tolower);
+    return strxxx_utf8 (str, towlower);
 }
 
 char *strupr_utf8 (char *str)
 {
-    return strxxx_utf8 (str, toupper);
+    return strxxx_utf8 (str, towupper);
 }
 
 size_t strlen_utf8 (const char *str)

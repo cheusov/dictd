@@ -17,12 +17,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.50 2002/08/05 14:58:49 cheusov Exp $
+# $Id: Makefile.in,v 1.51 2002/08/12 16:27:33 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
 # Numbers are for the original author(s) only.
-DICT_VERSION=1.7.1
+DICT_VERSION=1.8.0
 
 ifneq (,)
 This makefile requires GNU Make.
@@ -61,9 +61,10 @@ XTRACFLAGS=     @WCFLAGS@ @XTRACFLAGS@ @DEFS@ @CPPFLAGS@ -I. -Iregex
 XTRALDFLAGS=    @WLDFLAGS@ @XTRALDFLAGS@
 LDLIBS=		@LIBS@ -Lregex -lregex
 
-EXES=	 	dict dictd dictzip
+EXES=	 	dict dictd dictzip dictfmt
 
-HEADERS= 	./config.h @XTRAHEADERS@ dictzip.h dictd.h dict.h codes.h md5.h
+HEADERS= 	./config.h @XTRAHEADERS@ dictzip.h dictd.h dict.h \
+                codes.h md5.h utf8_ucs4.h
 
 SRCHOBJS=       index.o data.o utf8_ucs4.o
 NETOBJS=        daemon.o net.o servscan.o servparse.o md5.o
@@ -108,7 +109,10 @@ dictd:: dictd.c $(HEADERS) $(NETOBJS) $(SRCHOBJS)
 	$(CC) $(ALLFLAGS) -o $@ $< $(NETOBJS) $(SRCHOBJS) $(ZIPOBJS) $(LDLIBS)
 
 dictzip:: dictzip.c $(HEADERS) $(SRCHOBJS)
-	$(CC) $(ALLFLAGS) -o $@ $< $(SRCHOBJS) $(LDLIBS)
+	$(CC) $(ALLFLAGS) -o $@ $<  $(SRCHOBJS) $(LDLIBS)
+
+dictfmt:: dictfmt.c $(HEADERS) utf8_ucs4.o
+	$(CC) $(ALLFLAGS) -o $@ $< utf8_ucs4.o $(LDLIBS)
 
 servscan.c: servscan.l
 	$(LEX) $(LFLAGS) -o$@ $<
@@ -140,11 +144,13 @@ clientparse.c: clientparse.y
 clientparse.o: clientparse.c $(HEADERS)
 	$(CC) -c $(XTRACFLAGS) $(CFLAGS) $(SCFLAGS) $<
 
+.PHONY: install.dict install.dictzip install.dictfmt install.dictd
+
 install.dict: dict
 	if test ! -d $(bindir); then $(INSTALL) -d 755 $(bindir); fi
 	if test ! -d $(man1_prefix); then $(INSTALL) -d 755 $(man1_prefix); fi
 	$(INSTALL_PROGRAM) dict $(bindir)
-	$(INSTALL_DATA	dict.1 $(man1_prefix)/dict.1
+	$(INSTALL_DATA) dict.1 $(man1_prefix)/dict.1
 
 install.dictzip: dictzip
 	if test ! -d $(bindir); then $(INSTALL) -d 755 $(bindir); fi
@@ -152,25 +158,51 @@ install.dictzip: dictzip
 	$(INSTALL_PROGRAM) dictzip $(bindir)
 	$(INSTALL_DATA) dictzip.1 $(man1_prefix)/dictzip.1
 
+install.dictfmt: dictfmt
+	if test ! -d $(bindir); then $(INSTALL) -d 755 $(bindir); fi
+	if test ! -d $(man1_prefix); then $(INSTALL) -d 755 $(man1_prefix); fi
+	$(INSTALL_PROGRAM) dictfmt $(bindir)
+	$(INSTALL_DATA) dictfmt.1 $(man1_prefix)/dictfmt.1
+
 install.dictd: dictd
 	if test ! -d $(sbindir); then $(INSTALL) -d 755 $(sbindir); fi
 	if test ! -d $(man8_prefix); then install -d 755 $(man8_prefix); fi
 	$(INSTALL_PROGRAM) dictd $(sbindir)
 	$(INSTALL_DATA) dictd.8 $(man8_prefix)/dictd.8
 
-install: $(EXES) install.dict install.dictzip install.dictd
+.PHONY: install
+
+install: $(EXECS) install.dict install.dictzip install.dictd install.dictfmt
+
+.PHONY: uninstall.dict uninstall.dictzip uninstall.dictfmt uninstall.dictd
+
+uninstall.dict:
+	rm -f $(bindir)/dict $(man1_prefix)/dict.1
+
+uninstall.dictzip:
+	rm -f $(bindir)/dictzip $(man1_prefix)/dictzip.1
+
+uninstall.dictd:
+	rm -f $(sbindir)/dictd $(man8_prefix)/dictd.8
+
+uninstall.dictfmt:
+	rm -f $(bindir)/dictfmt $(man1_prefix)/dictfmt.1
+
+.PHONY: uninstall
+
+uninstall: uninstall.dict uninstall.dictd uninstall.dictfmt uninstall.dictzip
 
 .PHONY: ChangeLog
 ChangeLog:
 	@(echo "***** Making new ChangeLog..."; \
 	rm -f ChangeLog; \
 	AWK=gawk rcs2log -i 2 -r -d'1996-09-20<' . doc regex zlib libmaa \
-	| sed 's,/cvsroot/dict/dictd1/,,g' \
-	| sed 's,/cvs/dict/dictd1/,,g' \
-	| sed 's/cheusov[^>]*/Aleksey Cheusov <cheusov@scnsoft.com/' \
-	| sed 's,faith@[^>]*,faith@dict.org,g' \
-	| sed 's,hilliard...hilliard@.*,Bob Hilliard  <hilliard@debian.org>,g'\
-	| sed 's,tek...tek@.*,Julian Squires  <tek@wiw.org>,g' \
+	| sed 's,/cvsroot/dict/dictd1/,,g; \
+	       s,/cvs/dict/dictd1/,,g;\
+	       s/cheusov[^>]*/Aleksey Cheusov <cheusov@scnsoft.com/;\
+	       s,faith@[^>]*,faith@dict.org,g;\
+	       s,hilliard...hilliard@.*,Bob Hilliard  <hilliard@debian.org>,g; 
+	       s,tek...tek@.*,Julian Squires  <tek@wiw.org>,g' \
 	> ChangeLog;)
 
 

@@ -1,0 +1,202 @@
+.\" dictfmt.1 -- 
+.\" Created: Sat, 23 Dec 2000 13:56:42 -0500 by hilliard@debian.org
+.\" Copyright 2000 Robert D. Hilliard <hilliard@debian.org>
+.\" 
+.\" Permission is granted to make and distribute verbatim copies of this
+.\" manual provided the copyright notice and this permission notice are
+.\" preserved on all copies.
+.\" 
+.\" Permission is granted to copy and distribute modified versions of this
+.\" manual under the conditions for verbatim copying, provided that the
+.\" entire resulting derived work is distributed under the terms of a
+.\" permission notice identical to this one
+.\" 
+.\" Since the Linux kernel and libraries are constantly changing, this
+.\" manual page may be incorrect or out-of-date.  The author(s) assume no
+.\" responsibility for errors or omissions, or for damages resulting from
+.\" the use of the information contained herein.  The author(s) may not
+.\" have taken the same level of care in the production of this manual,
+.\" which is licensed free of charge, as they might when working
+.\" professionally.
+.\" 
+.\" Formatted or processed versions of this manual, if unaccompanied by
+.\" the source, must acknowledge the copyright and authors of this work.
+.\" 
+.TH DICTFMT 1 "25 December 2000" "" ""
+.SH NAME
+dictfmt \- formats a DICT protocol dictionary database
+.SH SYNOPSIS
+.nf
+.BI dictfmt "  -c5|-e|-f|-h|-j|-p  -u  url -s name  basename"
+.fi
+.SH DESCRIPTION
+.B dictfmt
+takes a file, 
+.I FILE,
+on stdin, and creates a dictionary database named 
+.I basename.dict,
+that conforms to the DICT protocol.  It also creates an index file named 
+.I basename.index.  (
+.IR basename  " is commonly chosen to correspond to the basename of"
+.I FILE
+, but this is not mandatory.)  
+
+Unless the database is extremely small, it is
+highly recommended that 
+.I basename.dict
+be compressed with
+.I /usr/bin/dictzip 
+to create 
+.I basename.dict.dz.
+(dictzip is included in
+the 
+.B dictd 
+package.)    
+.P
+FILE may be in any of the several formats described by 
+the format options \-c5,-e,\-f,\-h,\-j, or \-p.  Exactly one of 
+these options must be given.  
+.P
+Headers are prepended to the file giving the URL of the site from
+which the original database was obtained, and the name of the
+dictionary.  If the -u and/or -s options are omitted, the value
+"unknown" will be included in these headers, which is undesirable.  A
+header giving the date of conversion is also added.
+.SH OPTIONS
+.TP
+.BI \-c5 
+.I
+FILE 
+is formatted with 
+.B headwords 
+preceded by 5 or more underscore characters (_) and a blank line. 
+All text until the next 
+.B headword 
+is considered the definition.  If  the 
+.B headwords
+are all caps, they are changed to mixed case.  Any leading `@'
+characters are stripped out,  but the file is otherwise unchanged. This
+option was written to format the CIA WORLD FACTBOOK 1995.
+.TP
+.BI \-e 
+.I
+FILE 
+is in html format, with the 
+.B headword 
+tagged as bold.  (<B>headword - </B>)
+.RS
+This option was written to format EASTON'S 1897 BIBLE DICTIONARY.  The
+head of a typical entry from Easton is:
+.P
+<A NAME="T0000005">
+.br
+<B>Abagtha - </B>
+.br
+one of the seven eunuchs in Ahasuerus's court (Esther 1:10;
+2:21).
+
+This is converted to:
+.br
+Abagtha
+.br
+   one of the seven eunuchs in Ahasuerus's court (Esther 1:10;
+2:21).
+
+The 
+.B headword 
+`Abagtha' is indexed.
+
+.B NOTE: 
+This option should be used with caution.  It removes several
+html tags (enough to format Easton properly), but not all.  The
+Makefile for dict-misc uses a sed script to modify certain cross
+reference tags.  It may be necessary to pipe the input file through a
+sed script, or hack the source of dictfmt in order to properly format
+other html databases.
+.RE
+.TP
+.BI \-f 
+.I FILE 
+is formatted with the 
+.B headword
+starting in column 0, followed by a blank line, with the definition
+indented 8 spaces (or one tab character) on subsequent lines.  This
+option was written to format the FOLDOC.
+.TP
+.BI \-h 
+.I
+FILE 
+is formatted with the 
+.B headword
+starting in column 0, followed by a comma, with the definition
+continuing on the same line. 
+.RS
+This option was written to format HITCHCOCK'S  BIBLE
+NAMES DICTIONARY.  The 
+.B headword 
+is indexed; the text of the file is not changed. 
+.RE
+.TP
+.BI \-j 
+.I
+FILE 
+is formatted with 
+.B headwords 
+surrounded by colons, followed by the definition.
+.RS
+This option was written to format the JARGON FILE.  The colons
+surrounding the 
+.B headword
+are removed, and the
+.B headword
+is indexed.  
+
+.B NOTE:
+Recent versions of the jargon file insert three blanks before the
+first colon at each headword.  These must be removed before processing
+with dictfmt.  (sed scripts have been used for this purpose. ed, awk,
+or perl scripts are also possible.) 
+.RE
+.TP
+.BI \-p 
+.I
+FILE 
+is formatted with `%h' in column 0, followed by a blank, followed by the 
+.B headword
+, followed by a line containing `%d' in column 0.  The definition
+starts on the following line.
+..br
+This option was written to format Jay Kominek's elements database.  
+.TP
+.BI \-u " url"
+Specifies the URL of the site from which the raw database was obtained.
+.TP
+.BI \-s " name"
+Specifies the name and, optionally, the version and date, of the
+database.  (If this contains spaces, it must be quoted.)
+.TP
+.BI \-L 
+display license and copyright information
+.TP
+.BI \-V 
+display version information
+.TP
+.BI \-D 
+output debuugging information
+.TP
+.BI \--help
+display a help message
+.SH CREDITS
+.B dictfmt
+was written by Rik Faith (faith@cs.unc.edu) as part of the dict-misc
+package, and modified by Robert D. Hilliard <hilliard@debian.org> to
+be a stand-alone package.  It is distributed under the terms of the
+GNU General Public License.  If you need to distribute under other
+terms, write to the author.
+.P
+.SH "SEE ALSO"
+.BR dict (1),
+.BR dictd (8),
+.BR dictzip (1),
+.BR http://www.dict.org,
+.B RFC 2229

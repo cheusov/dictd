@@ -173,11 +173,11 @@ file at compile time (DICT_DAEMON_LIMIT).
 Specifies the locale used for searching.  If no locale is specified, the
 "C" locale is used.  The locale used for the server should be the same
 as that used for dictfmt when the database was built (specifically, the
-locale under which the index was sorted).  This is a temporary kludge to
-allow support of non-ASCII7 databases until full UTF-8 support is
-added.  Note that if your database is not in ASCII7 or UTF-8 format,
-then the dictd server will not be compliant to RFC 2229.  However, for
-many uses, this is sufficient until full UTF-8 support can be added.
+locale under which the index was sorted). The locale should be specified
+for both 8-bit and UTF-8 formats. If locale contains utf8 or utf-8
+substring, UTF-8 format is expected.
+Note that if your database is not in ASCII7 or UTF-8 format,
+then the dictd server will not be compliant to RFC 2229.
 .TP
 .BI \-l " option\fR or " \-\-log " option"
 Specify a logging option.  This is effective only if logging has been
