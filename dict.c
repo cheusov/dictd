@@ -4,7 +4,7 @@
  * Copyright 1997, 1998, 1999, 2000 Rickard E. Faith (faith@dict.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dict.c,v 1.24 2000/12/22 14:15:25 faith Exp $
+ * $Id: dict.c,v 1.25 2000/12/27 22:29:47 hilliard Exp $
  * 
  */
 
@@ -940,7 +940,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.24 2000/12/22 14:15:25 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.25 2000/12/27 22:29:47 hilliard Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -953,10 +953,10 @@ static const char *client_get_banner( void )
    return buffer;
 }
 
-static void banner( void )
+static void banner( FILE *out_stream )
 {
-   fprintf( stderr, "%s\n", client_get_banner() );
-   fprintf( stderr,
+   fprintf( out_stream , "%s\n", client_get_banner() );
+   fprintf( out_stream,
 	    "Copyright 1997, 1998 Rickard E. Faith (faith@cs.unc.edu)\n" );
 }
 
@@ -980,43 +980,43 @@ static void license( void )
    0 };
    const char        **p = license_msg;
    
-   banner();
-   while (*p) fprintf( stderr, "   %s\n", *p++ );
+   banner ( stdout );
+   while (*p) fprintf( stdout, "   %s\n", *p++ );
 }
     
-static void help( void )
+static void help( FILE *out_stream )
 {
    static const char *help_msg[] = {
-      "-h --host <server>      specify server",
-      "-p --port <service>     specify port",
-      "-d --database <dbname>  select a database to search",
-      "-m --match              match instead of define",
-      "-s --strategy           strategy for matching or defining",
-      "-c --config <file>      specify configuration file",
-      "-C --nocorrect          disable attempted spelling correction",
-      "-D --dbs                show available databases",
-      "-S --strats             show available search strategies",
-      "-H --serverhelp         show server help",
-      "-i --info <dbname>      show information about a database",
-      "-I --serverinfo         show information about the server",
-      "-a --noauth             disable authentication",
-      "-u --user <username>    username for authentication",
-      "-k --key <key>          shared secret for authentication",
-      "-V --version            display version information",
-      "-L --license            display copyright and license information",
-      "   --help               display this help",
-      "-v --verbose            be verbose",
-      "-r --raw                trace raw transaction",
-      "-P --pager program      specify program to use as pager (- for none)",
-      "   --debug <flag>       set debugging flag",
-      "   --html               output HTML format",
-      "   --pipesize <size>    specify buffer size for pipelining (256)",
-      "   --client <text>      additional text for client command",
+      "-h --host <server>        specify server",
+      "-p --port <service>       specify port",
+      "-d --database <dbname>    select a database to search",
+      "-m --match                match instead of define",
+      "-s --strategy <strategy>  strategy for matching or defining",
+      "-c --config <file>        specify configuration file",
+      "-C --nocorrect            disable attempted spelling correction",
+      "-D --dbs                  show available databases",
+      "-S --strats               show available search strategies",
+      "-H --serverhelp           show server help",
+      "-i --info <dbname>        show information about a database",
+      "-I --serverinfo           show information about the server",
+      "-a --noauth               disable authentication",
+      "-u --user <username>      username for authentication",
+      "-k --key <key>            shared secret for authentication",
+      "-V --version              display version information",
+      "-L --license              display copyright and license information",
+      "   --help                 display this help",
+      "-v --verbose              be verbose",
+      "-r --raw                  trace raw transaction",
+      "-P --pager program        specify program to use as pager (- for none)",
+      "   --debug <flag>         set debugging flag",
+      "   --html                 output HTML format",
+      "   --pipesize <size>      specify buffer size for pipelining (256)",
+      "   --client <text>        additional text for client command",
       0 };
    const char        **p = help_msg;
 
-   banner();
-   while (*p) fprintf( stderr, "%s\n", *p++ );
+   banner( out_stream );
+   while (*p) fprintf( out_stream, "%s\n", *p++ );
 }
 
 int main( int argc, char **argv )
@@ -1066,7 +1066,7 @@ int main( int argc, char **argv )
       { "raw",        0, 0, 'r' },
       { "pager",      1, 0, 'P' },
       { "debug",      1, 0, 502 },
-      { "html",       0, 0, 503 },
+      /*      { "html",       0, 0, 503 },*/
       { "pipesize",   1, 0, 504 },
       { "client",     1, 0, 505 },
       { 0,            0, 0,  0  }
@@ -1103,7 +1103,7 @@ int main( int argc, char **argv )
       case 'a': doauth = 0;                            break;
       case 'u': user = optarg;                         break;
       case 'k': key = optarg;                          break;
-      case 'V': banner(); exit(1);                     break;
+      case 'V': banner( stdout ); exit(1);             break;
       case 'L': license(); exit(1);                    break;
       case 'v': dbg_set( "verbose" );                  break;
       case 'r': dbg_set( "raw" );                      break;
@@ -1112,12 +1112,12 @@ int main( int argc, char **argv )
       case 504: client_pipesize = atoi(optarg);        break;
       case 503: ++html;                                break;
       case 502: dbg_set( optarg );                     break;
-      case 501:					      
-      default:  help(); exit(1);                      break;
+      case 501:	help( stdout );	exit(1);               break;	      
+      default:  help( stderr ); exit(1);               break;
       }
 
    if (optind == argc && (!(function & ~(DEFINE|MATCH)))) {
-      banner();
+      banner( stderr );
       fprintf( stderr, "Use --help for help\n" );
       exit(1);
    }

@@ -70,6 +70,8 @@ strategy.
 Specify a matching strategy.  By default, the server default match strategy
 is used.  This is usually "exact" for definitions, and some form of
 spelling-correction strategy for matches ("." from the DICT protocol).
+The available strategies are dependent on the server implemenation.  For
+a list of available strategies, see the \-S or \-\-strats option.
 .TP
 .BR \-C " or " \-\-nocorrect
 Usually, if a definition is requested and the word cannot be found,
@@ -129,8 +131,9 @@ Be very verbose: show the raw client/server interaction.
 Specify program to use as pager. Use "-" for none.
 .TP
 .B \-\-html
-Generate HTML tags in the output.  The HTML generated is not very useful.
-Support for this option needs to be rewritten.
+(This option has been disabled pending a rewrite of the code.)
+Generate HTML tags in the output.  The HTML generated is not very
+useful.  Support for this option needs to be rewritten.
 .TP
 .B \-\-pipesize
 Specify the buffer size for pipelineing commands.  The default is 256,
