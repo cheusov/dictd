@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.105 2004/03/18 19:43:31 cheusov Exp $
+ * $Id: dictd.c,v 1.106 2004/03/19 18:46:06 cheusov Exp $
  * 
  */
 
@@ -669,9 +669,9 @@ static int init_database( const void *datum )
 
    init_database_alphabet (db);
    if (db -> alphabet){
-      PRINTF (DBG_INIT, (":I:   alphabet: %s\n", db -> alphabet));
+      PRINTF (DBG_INIT, (":I:     alphabet: %s\n", db -> alphabet));
    }else{
-      PRINTF (DBG_INIT, (":I:   alphabet: (NULL)\n"));
+      PRINTF (DBG_INIT, (":I:     alphabet: (NULL)\n"));
    }
 
    if (db->dataFilename){
@@ -896,7 +896,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.105 2004/03/18 19:43:31 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.106 2004/03/19 18:46:06 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.21 2004/03/18 19:55:18 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.22 2004/03/19 18:46:06 cheusov Exp $
  * 
  */
 
@@ -52,6 +52,7 @@
 #endif
 
 /**********************************************************/
+
 //#define DONOT_USE_INTERNAL_HEAP /* internal heap may speed-up the plugin */
 
 #include "heap.h"

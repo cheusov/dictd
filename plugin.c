@@ -15,7 +15,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: plugin.c,v 1.14 2004/01/16 19:30:29 cheusov Exp $
+ * $Id: plugin.c,v 1.15 2004/03/19 18:46:06 cheusov Exp $
  * 
  */
 
@@ -555,7 +555,7 @@ int dict_plugin_init (dictDatabase *db)
    int ret = 0;
    lst_List list;
    const char *plugin_filename = NULL;
-  dictWord *dw;
+   dictWord *dw;
 
    dictPluginData init_data [3000];
    int init_data_size = 0;

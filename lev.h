@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: lev.h,v 1.1 2004/01/08 17:25:03 cheusov Exp $
+ * $Id: lev.h,v 1.2 2004/03/19 18:46:06 cheusov Exp $
  * 
  */
 
@@ -62,7 +62,7 @@ static int dict_search_lev_8bit (
 
    LEV_VARS
 
-   fprintf (stderr, "dict_search_lev_8bit\n");
+//   fprintf (stderr, "dict_search_lev_8bit\n");
    assert (alphabet);
 
    DICT_SEARCH_LEVENSHTEIN_8BIT__DEL_TRANS(buf, word, args)
@@ -133,7 +133,7 @@ static int dict_search_lev_utf8 (
 
    LEV_VARS
 
-   fprintf (stderr, "dict_search_lev_utf8\n");
+//   fprintf (stderr, "dict_search_lev_utf8\n");
    assert (alphabet);
 
    memset (&ps, 0, sizeof (ps));
