@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.38 2002/09/27 16:57:44 cheusov Exp $
+ * $Id: daemon.c,v 1.39 2002/10/11 18:13:48 cheusov Exp $
  * 
  */
 
@@ -31,6 +31,9 @@
 #ifndef HAVE_INET_ATON
 #define inet_aton(a,b) (b)->s_addr = inet_addr(a)
 #endif
+
+int default_define_strategy = DICT_EXACT;
+int default_match_strategy  = DICT_DEFAULT_STRATEGY;
 
 static int          _dict_defines, _dict_matches;
 static int          daemonS;
@@ -114,8 +117,8 @@ int lookup_strategy( const char *strategy )
    int i;
 
    if (strategy[0] == '.' && strategy[1] == '\0')
-      return DICT_DEFAULT_STRATEGY;
-   
+      return default_match_strategy;
+
    for (i = 0; i < STRATEGIES; i++) {
       if (!strcasecmp(strategy, strategyInfo[i].name))
          return strategyInfo[i].number;
@@ -710,7 +713,7 @@ static void daemon_define( const char *cmdline, int argc, char **argv )
 
    matches = dict_search_databases (
       list,
-      databaseName, word, DICT_EXACT);
+      databaseName, word, default_define_strategy);
 
    if (matches > 0) {
       int actual_matches = daemon_count_defs( list );

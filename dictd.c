@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.51 2002/09/27 16:57:44 cheusov Exp $
+ * $Id: dictd.c,v 1.52 2002/10/11 18:13:48 cheusov Exp $
  * 
  */
 
@@ -40,6 +40,9 @@
 #endif
 
 extern int        yy_flex_debug;
+
+extern int        default_define_strategy;
+extern int        default_match_strategy;
 
 extern int        utf8_mode;
 extern int        mmap_mode;
@@ -521,7 +524,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.51 2002/09/27 16:57:44 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.52 2002/10/11 18:13:48 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -593,6 +596,10 @@ static void help( void )
       "-f --force            force startup even if daemon running",
       "   --locale <locale>  specifies the locale used for searching.\n\
                       if no locale is specified, the \"C\" locale is used.",
+"   --match-strategy   set the default search strategy for 'match' queries.\n\
+                      the default is 'lev'.",
+"   --define-strategy  set the default search strategy for 'define' queries.\n\
+                      the default is 'exact'.",
 #ifdef HAVE_MMAP
 "   --no-mmap          do not use mmap() function and load files\n\
                       into memory instead.",
@@ -785,8 +792,11 @@ int main( int argc, char **argv, char **envp )
    const char         *locale      = "C";
    int                i;
 
-   const char         *strategy_arg= "exact";
-   int                 strategy;
+   const char *       strategy_arg = "exact";
+   int                strategy = lookup_strategy (strategy_arg);
+
+   const char *       define_strategy_arg = "???";
+   const char *       match_strategy_arg = "???";
 
    struct option      longopts[]   = {
       { "verbose",  0, 0, 'v' },
@@ -814,6 +824,8 @@ int main( int argc, char **argv, char **envp )
       { "no-mmap",          0, 0, 508 },
 #endif
       { "test-db",          1, 0, 509 },
+      { "define-strategy",  1, 0, 510 },
+      { "match-strategy",   1, 0, 511 },
       { 0,                  0, 0, 0  }
    };
 
@@ -872,16 +884,30 @@ int main( int argc, char **argv, char **envp )
       case 504: _dict_daemon_limit = atoi(optarg);        break;
       case 505: ++useSyslog; log_set_facility(optarg);    break;
       case 506: locale = optarg;                          break;
-      case 507: strategy_arg = optarg;                    break;
       case 508: mmap_mode = 0;                            break;
       case 509: database_arg = optarg;                    break;
+      case 507:
+	 strategy_arg = optarg;
+	 strategy = lookup_strategy(optarg);
+	 break;
+      case 510:
+	 define_strategy_arg = optarg;
+	 default_define_strategy = lookup_strategy(optarg);
+	 break;
+      case 511:
+	 match_strategy_arg = optarg;
+	 default_match_strategy = lookup_strategy(optarg);
+	 break;
       case 'h':
       default:  help(); exit(0);                          break;
       }
 
-   strategy = lookup_strategy (strategy_arg);
-   if (-1 == strategy){
-      fprintf (stderr, "'%s' is invalid strategy\n", strategy_arg);
+   if (
+      -1 == strategy ||
+      (strategy_arg = define_strategy_arg, -1 == default_define_strategy) ||
+      (strategy_arg = match_strategy_arg, -1 == default_match_strategy))
+   {
+      fprintf (stderr, "%s is not a valid search strategy\n", strategy_arg);
       fprintf (stderr, "available ones are:\n");
       for (i = 0; i < get_strategies_count (); ++i){
 	  fprintf (

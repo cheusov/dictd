@@ -1,3 +1,64 @@
+2002-09-27  Aleksey Cheusov  <vle@gmx.net>
+
+  * libmaa/config.h.in, libmaa/configure.in, libmaa/error.c, ChangeLog, config.h.in, configure.in, daemon.c, data.c, dictd.c, dictd.h, dictdplugin.c, dictdplugin_exit.c, dictdplugin.h, dictP.h, index.c, Makefile.in:
+  added: possibility to disable plugin support
+         by running ./configure --disable-plugin
+  fixed: problems with make -j. patch by
+         Andrzej Dopierala <undefine@aramin.one.pl>
+  fixed: problems with make ChangeLog
+  added: possibility to build 'dictd' on platforms not supporting mmap()
+  added: a lot of 'const' modifyers
+  removed: 'goto' statement ;) from daemon.c
+  added: --test-file argument to 'dictd'
+         '--ftime' and '--test-file' are synonyms
+  'dictd --test-file' and 'dictd --test' now search in ALL databases
+         but the first one only.
+  added: --test-db to 'dictd'
+         It sets the database name for --test and --test-file.
+  plugin function dictdb_open can return version == 1.
+         In this case before each 'dictdb_search' call, 'dictdb_set'
+         should be called. Not fully implemented.
+  added:  DICT_PLUGIN_INITDATA_DBNAME data id for initialising plugin
+         the databases names are passed to the plugins
+         by the call of 'dictdb_open'
+         This can be used to implement "virtual" databases such as
+         "English monolingual" containing Webster, FOLDOC, WordNet etc...
+  added: new plugin exit status DICT_PLUGIN_RESULT_EXIT
+         which allows to stop searching.
+         This is an easiest way to exclude some databases from '*' list.
+         Example:
+           1) Webster
+           2) Wordnet
+           3) ----- dictdplugin_exit.so plugin -----
+           4) man pages
+           5) RFC documents
+           6) HOWTOs
+           7) C++ functions
+           8) Perl functions
+         Using such database list, you will search
+         only Webster and Wordnet databases
+         by running 'dict apple'.
+         If you want to get RFC document e.g., specify database name explicitly.
+         Of course, plugin may exit with such exit status
+         not only unconditionally
+  added: dictdplugin_exit.so plugin
+         Stops searching unconditionally.
+  added: new plugin exit status DICT_PLUGIN_RESULT_PREPROCESSED
+         which allows to implement a preprocessor of the requested word.
+         Simple examples:
+           - Converting German umlauts to UE, OE etc.
+           - Converting Cyrillic YO character to YE
+         After plugin converts the requested word, all following databases
+         will be searched for converted one.
+         In order this to work, it is necessary to create .index files
+         without umlauts and Cyrillic YO characters.
+         Database list example:
+           1) ---- plugin converting German umlauts ------
+           2) ---- plugin converting Cyrillic YO to YE ---
+           3) German-English dictionary
+           4) Russian-English dictionary
+  fixed: bug in 'dict_search_plugin' function
+
 2002-09-18  Aleksey Cheusov  <vle@gmx.net>
 
   * dictfmt.c:
