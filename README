@@ -12,19 +12,20 @@ REPORTING BUGS
 MAILING LISTS
 =============
 
-    There are currently two mailing lists setup relating to this
-    software and The DICT Development Group.
+    The following mailing lists are publicly available:
 
-        dict-beta@dict.org        List for server development
+        * dict-announce: a low-volume mailing list for major DICT-related
+          announcements.
+    
+        * dict-beta: a high-volume discussion list for operators and
+          implementors of DICT client/server software.
 
-        dict-announce@dict.org    Ultra-low volume mailing list which will
-                                  have announcements of new software and
-                                  databases.  IF YOU RUN A SERVER, PLEASE
-                                  JOIN THIS LIST!
+    If you run a DICT server, please join (at minimum) the dict-announce
+    mailing list so that you can track new releases, bug fixes, and new
+    databases.
 
-    To subscribe to either of these lists, send email to majordomo@dict.org
-    with "subscribe dict-beta" or "subscribe dict-announce" in the BODY of
-    the message.
+    To join dict-announce, send email to dict-announce-subscribe@dict.org.
 
+    To join dict-beta, send email to dict-beta-subscribe@dict.org.
 
 [README file courtesy Jeff Blain <jblaine@linus.mitre.org>]
