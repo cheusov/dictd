@@ -127,14 +127,14 @@ Be verbose.
 Specify configuration file.  The default is
 .IR /etc/dictd.conf ,
 but may be changed in the
-.I dictd.h
-file at compile time (DICT_CONFIG_FILE).
+.I defs.h
+file at compile time (DICTD_CONFIG_FILE).
 .TP
 .BI \-p " port\fR or " \-\-port " port"
 Specifies the port (e.g., 2628).
 The default is 2628, as specified in the DICT Protocol RFC, but may be
 changed in the
-.I dictd.h
+.I defs.h
 file at compile time (DICT_DEFAULT_SERVICE).
 .TP
 .BR \-i " or " \-\-inetd
@@ -150,7 +150,7 @@ Specifies the number of pending socket connections which are queued by the
 operating system.  Some operating systems may silently limit this value to
 5 (older BSD systems) or 128 (Linux).  The default is 10 but may be changed
 in the
-.I dictd.h
+.I defs.h
 file at compile time (DICT_QUEUE_DEPTH).
 .TP
 .BI \-\-delay " seconds"
@@ -160,7 +160,7 @@ waiting for input and does not include the time the server spends searching
 the database.  Connections are closed without warning since no provision
 for premature connection termination is specified in the DICT protocol
 RFC.  The default is 600 seconds (10 minutes), but may be changed in the
-.I dictd.h
+.I defs.h
 file at compile time (DICT_DEFAULT_DELAY).
 .TP
 .BI \-\-facility " facility"
@@ -192,7 +192,7 @@ parameter should be adjusted to prevent the server machine from being
 overloaded by dict clients, but should not be set so low that many clients
 are denied useful connections. The default is 100, but may be changed in
 the
-.I dictd.h
+.I defs.h
 file at compile time (DICT_DAEMON_LIMIT).
 .TP
 .BI \-\-locale " locale"
@@ -611,7 +611,7 @@ Specifies the short name of the database (e.g., "1913 Webster's").  If the
 string begins with @, then it specifies the headword to look up in the
 dictionary to find the short name of the database.  The default is
 "@00-database-short", but this may be changed in the
-.I dictd.h
+.I defs.h
 file at compile time (DICT_SHORT_ENTRY_NAME).
 .TP
 .BI info " string"
@@ -619,7 +619,7 @@ Specifies the information about database.  If the
 string begins with @, then it specifies the headword to look up in the
 dictionary to find information.  The default is
 "@00-database-info", but this may be changed in the
-.I dictd.h
+.I defs.h
 file at compile time (DICT_INFO_ENTRY_NAME).
 .TP
 .BI invisible
