@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.6 2003/08/08 17:57:35 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.7 2003/08/08 18:42:19 cheusov Exp $
  * 
  */
 
@@ -1084,7 +1084,8 @@ static int match_soundex (
 
 #define CHECK \
    value = JudySLGet (dict_data -> m_judy_array, buf, 0);  \
-   if (value){                                             \
+   if (value && strcmp (prev_buf, buf)){                   \
+      strlcpy (prev_buf, buf, BUFSIZE);                    \
       ++cnt;                                               \
                                                            \
       dict_data -> m_mres = (const char **)                \
@@ -1117,6 +1118,7 @@ static int match_lev (
    char *p;
    char tmp;
    PPvoid_t value;
+   char prev_buf [BUFSIZE] = "";
 
    static char const c [] = "qwertyuiopasdfghjklzxcvbnm0123456789";
    static int const charcount = sizeof (c) - 1;
@@ -1127,19 +1129,9 @@ static int match_lev (
    if (len >= BUFSIZE)
       len = BUFSIZE - 10;
 
-				/* Deletions */
-   for (i = 0; i < len; i++) {
-      p = buf;
-      for (j = 0; j < len; j++)
-	 if (i != j)
-	    *p++ = word [j];
-
-      *p = '\0';
-      CHECK;
-   }
-
                                 /* Transpositions */
    strlcpy( buf, word, sizeof (buf) );
+   CHECK; /* checking word inself */
    for (i = 1; i < len; i++) {
       tmp = buf [i-1];
       buf [i-1] = buf [i];
@@ -1150,6 +1142,17 @@ static int match_lev (
       tmp = buf [i-1];
       buf [i-1] = buf [i];
       buf [i] = tmp;
+   }
+
+				/* Deletions */
+   for (i = 0; i < len; i++) {
+      p = buf;
+      for (j = 0; j < len; j++)
+	 if (i != j)
+	    *p++ = word [j];
+
+      *p = '\0';
+      CHECK;
    }
 
 				/* Insertions */
@@ -1197,18 +1200,6 @@ static int match_lev (
 
    *ret = DICT_PLUGIN_RESULT_FOUND;
 
-   return 0;
-}
-
-static int match_word (
-   global_data *dict_data,
-   const char *word,
-
-   int *ret,
-   const char * const* *result,
-   const int **result_sizes,
-   int *results_count)
-{
    return 0;
 }
 
@@ -1267,6 +1258,57 @@ static int match_regexp (
    *ret = DICT_PLUGIN_RESULT_FOUND;
 
    return 0;
+}
+
+static int match_word (
+   global_data *dict_data,
+   const char *word,
+
+   int *ret,
+   const char * const* *result,
+   const int **result_sizes,
+   int *results_count)
+{
+   static char const prefix_re [] = "(^|[[:space:][:punct:]])";
+   static char const suffix_re [] = "($|[[:space:][:punct:]])";
+
+   char buf [BUFSIZE];
+   char *p;
+
+   strcpy (buf, prefix_re);
+
+   p = buf + strlen (buf);
+   for (; *word; ++word){
+      switch (*word){
+      case '?':
+      case '(':
+      case ')':
+      case '|':
+      case '[':
+      case ']':
+      case '+':
+      case '*':
+      case '.':
+      case '^':
+      case '$':
+	 *p++ = '[';
+	 *p++ = *word;
+	 *p++ = ']';
+	 break;
+      case '\\':
+	 *p++ = '\\';
+	 *p++ = '\\';
+	 break;
+      default:
+	 *p++ = *word;
+      }
+   }
+
+   strcat (buf, suffix_re);
+
+   return match_regexp (
+      dict_data, buf, REG_EXTENDED,
+      ret, result, result_sizes, results_count);
 }
 
 int dictdb_search (
