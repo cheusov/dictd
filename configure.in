@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.69 2004/01/06 11:54:47 cheusov Exp $
+dnl $Id: configure.in,v 1.70 2004/01/07 15:12:05 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -36,7 +36,7 @@ define(VERSION, 1.9.11)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.69 $)
+AC_REVISION($Revision: 1.70 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -487,7 +487,7 @@ else
   esac
 
   echo -n " judy plugin:    "
-  if test "$_JUDYLIB" = "_"; then
+  if test "_$JUDYLIB" = "_"; then
     echo "disabled"
   else
     echo "enabled"
