@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.50 2003/01/19 13:18:51 cheusov Exp $
+ * $Id: index.c,v 1.51 2003/01/19 14:29:33 cheusov Exp $
  * 
  */
 
@@ -1743,6 +1743,9 @@ int dict_search (
 	 switch (res){
 	 case DICT_PLUGIN_RESULT_EXIT:
 	    return 0;
+	 case DICT_PLUGIN_RESULT_NOTFOUND:
+	    if (strncmp (word, DICT_ENTRY_PREFIX, DICT_ENTRY_PREFIX_LEN))
+	       return 0;
 	 default:
 	    break;
 	 }
