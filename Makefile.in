@@ -1,6 +1,6 @@
 # Makefile.in -- Makefile for dict
 # Created: Wed Apr 24 14:14:09 1996 by faith@cs.unc.edu
-# Revised: Fri Mar  7 11:09:21 1997 by faith@cs.unc.edu
+# Revised: Sat Mar  8 17:33:55 1997 by faith@cs.unc.edu
 # Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.6 1997/03/07 16:10:27 faith Exp $
+# $Id: Makefile.in,v 1.7 1997/03/08 22:36:15 faith Exp $
 #
 
 ifneq (,)
@@ -29,7 +29,7 @@ endif
 srcdir=		@srcdir@
 VPATH=		@srcdir@
 prefix=		@prefix@
-subdirs=        @subdirs@
+subdirs=        @allsubdirs@
 exec_prefix=	@exec_prefix@
 man1_prefix=	$(prefix)/man/man1
 
@@ -61,9 +61,15 @@ NETOBJS=        daemon.o net.o servscan.o servparse.o
 TMPS=           servscan.c servparse.c servparse.h
 
 all::
-	@for subdir in $(subdirs); do \
+	for subdir in $(subdirs); do \
 		echo making in $$subdir; \
-		(cd $$subdir && $(MAKE)) || exit 1; \
+	 	if [ "$$subdir" = "zlib" ]; then \
+			(cd $$subdir \
+			&& $(MAKE) CC="$(CC)" CFLAGS="$(CFLAGS)" libz.a) \
+			|| exit 1; \
+		else \
+			(cd $$subdir && $(MAKE)) || exit 1; \
+		fi \
 	done
 
 all:: $(EXES)
@@ -84,7 +90,7 @@ dictzip: dictzip.c $(HEADERS) $(SRCHOBJS)
 	$(CC) $(ALLFLAGS) -o $@ $< $(SRCHOBJS) $(LDLIBS)
 
 servscan.c: servscan.l
-	$(LEX) -b -p -p $(LFLAGS) -o$@ $<
+	$(LEX) $(LFLAGS) -o$@ $<
 
 servscan.o: servscan.c servparse.o servparse.h $(HEADERS)
 	$(CC) -c $(XTRACFLAGS) $(CFLAGS) -Wno-unused $<
@@ -113,7 +119,7 @@ recursive-clean: clean
 
 distclean: clean
 	@for subdir in $(subdirs); do \
-	 	if [ "$subdir" != "zlib" ]; then \
+	 	if [ "$$subdir" != "zlib" ]; then \
 			echo making $@ in $$subdir; \
 			(cd $$subdir && $(MAKE) $@) || exit 1; \
 		fi \

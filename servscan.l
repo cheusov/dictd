@@ -1,6 +1,6 @@
 /* servscan.l -- Scanner for dictd server configuration file
  * Created: Fri Feb 28 08:23:03 1997 by faith@cs.unc.edu
- * Revised: Fri Mar  7 11:05:04 1997 by faith@cs.unc.edu
+ * Revised: Sat Mar  8 17:31:04 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servscan.l,v 1.3 1997/03/08 22:09:40 faith Exp $
+ * $Id: servscan.l,v 1.4 1997/03/08 22:36:17 faith Exp $
  * 
  */
 
@@ -60,11 +60,11 @@ index                       RETURN(T_INDEX);
 filter                      RETURN(T_FILTER);
 prefilter                   RETURN(T_PREFILTER);
 postfilter                  RETURN(T_POSTFILTER);
-{string}                    { yylval.token.string
-				 = str_findn(yytext+1, yyleng-2);
+{word}                      { yylval.token.string = str_findn(yytext, yyleng);
                               RETURN(T_STRING);
                             }
-{word}                      { yylval.token.string = str_findn(yytext, yyleng);
+{string}                    { yylval.token.string
+				 = str_findn(yytext+1, yyleng-2);
                               RETURN(T_STRING);
                             }
 {NL}                        BEGIN(INITIAL);
