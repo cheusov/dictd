@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_dbi.c,v 1.2 2004/03/23 10:01:07 cheusov Exp $
+ * $Id: dictdplugin_dbi.c,v 1.3 2004/03/24 09:17:45 cheusov Exp $
  * 
  */
 
@@ -42,6 +42,8 @@
 
 //#define DONOT_USE_INTERNAL_HEAP /* internal heap may speed-up the plugin */
 
+//#define CONNECT_TO_SERVER_ONCE /* not implemented yet */
+
 #include "heap.h"
 
 typedef struct global_data_s {
@@ -54,16 +56,11 @@ typedef struct global_data_s {
    const char ** m_mres;
    int *m_mres_sizes;
 
-//   dictData *m_data;
-
    int m_strat_exact;
    int m_max_strategy_num;
    char **m_strategynum2query;
    char *m_define_query;
    hsh_HashTable m_strategy2strategynum;
-
-//   char m_conf_data_fn   [NAME_MAX+1];
-//   char m_default_db_dir [NAME_MAX+1];
 
    BOOL m_conf_allchars;
    BOOL m_conf_utf8;
@@ -72,7 +69,6 @@ typedef struct global_data_s {
 //   BOOL m_flag_utf8;
 
    dbi_conn   m_dbi_conn;
-   dbi_driver m_dbi_driver;
 
    char *m_dbi_driver_dir;
    char *m_dbi_driver_name;
@@ -119,9 +115,6 @@ static global_data * global_data_create (void)
    memset (d, 0, sizeof (*d));
 
    d -> m_strat_exact = -2;
-//   d -> m_strat_prefix    = -1;
-//   d -> m_strat_lev       = -1;
-//   d -> m_strat_word      = -1;
 
    return d;
 }
@@ -353,6 +346,67 @@ static int strcmp_ (const void *a, const void *b)
    return strcmp ((const char *) a, (const char *) b);
 }
 
+static void dbi_error (global_data *dict_data, dbi_conn conn)
+{
+   const char *dbi_err_msg = NULL;
+
+   if (conn){
+      dbi_conn_error (conn, &dbi_err_msg);
+      plugin_error (dict_data, dbi_err_msg);
+   }else{
+      plugin_error (dict_data, "DBI connection canot be opened");
+   }
+}
+
+static int init_dbi_conn (global_data *dict_data)
+{
+   dbi_conn *conn = &dict_data -> m_dbi_conn;
+   const char *driver   = dict_data -> m_dbi_driver_name;
+   const char *host     = dict_data -> m_dbi_option_host;
+   const char *db_name  = dict_data -> m_dbi_option_dbname;
+   const char *username = dict_data -> m_dbi_option_username;
+   const char *password = dict_data -> m_dbi_option_password;
+
+   if (
+      (NULL == (*conn = dbi_conn_new (driver))) ||
+      (host     && -1 == dbi_conn_set_option (*conn, "host", host)) ||
+      (username && -1 == dbi_conn_set_option (*conn, "username", username)) ||
+      (password && -1 == dbi_conn_set_option (*conn, "password", password)) ||
+      (db_name  && -1 == dbi_conn_set_option (*conn, "dbname", db_name)))
+   {
+      if (*conn){
+	 dbi_error (dict_data, *conn);
+      }else{
+	 plugin_error (dict_data, "cannot create dbi_conn");
+      }
+
+      return 12;
+   }
+
+   return 0;
+}
+
+/* returns zero if success */
+static int connect_to_sqldb (
+   global_data *dict_data)
+{
+#ifndef CONNECT_TO_SERVER_ONCE
+   int err;
+
+   err = init_dbi_conn (dict_data);
+   if (err)
+      return err;
+#endif
+
+   if (-1 == dbi_conn_connect (dict_data -> m_dbi_conn)){
+      dbi_error (dict_data, dict_data -> m_dbi_conn);
+
+      return 13;
+   }
+
+   return 0;
+}
+
 int dictdb_open (
    const dictPluginData *init_data,
    int init_data_size,
@@ -444,6 +498,18 @@ int dictdb_open (
    if (dict_data -> m_err_msg [0])
       return 7;
 
+#ifdef CONNECT_TO_SERVER_ONCE
+   //
+   err = init_dbi_conn (dict_data);
+   if (err)
+      return err;
+
+   //
+   err = connect_to_sqldb (dict_data);
+   if (err)
+      return err;
+#endif
+
    return 0;
 }
 
@@ -468,11 +534,16 @@ const char *dictdb_error (void *dict_data)
       return NULL;
 }
 
+#define DBI_CONN_CLOSE(conn)   \
+   if ((conn))                 \
+      dbi_conn_close ((conn)); \
+   (conn) = NULL;
+
 int dictdb_free (void * data)
 {
    int i;
    global_data *dict_data = (global_data *) data;
-/*   fprintf (stderr, "dictdb_free\n"); */
+//   fprintf (stderr, "dictdb_free\n");
 
    if (dict_data){
       free_minus1_array (dict_data -> m_mres_sizes);
@@ -487,97 +558,29 @@ int dictdb_free (void * data)
       dict_data -> m_mres = NULL;
    }
 
-//   dbi_conn_close (dict_data -> m_dbi_conn);
-//   dict_data -> m_dbi_conn = NULL;
+
+   DBI_CONN_CLOSE(dict_data -> m_dbi_conn);
 
    return 0;
 }
 
 /* returns zero if success */
-static int connect_to_sqldb (
-   dbi_conn *conn,
-   const char *driver, /* mysql | pgsql | ... */
-   const char *host,
-   const char *db_name,
-   const char *username,
-   const char *password,
-   const char *sql_query)
-{
-   *conn = dbi_conn_new (driver);
-   if (!*conn)
-      return -1;
-
-   if (host && dbi_conn_set_option (*conn, "host", host))
-      return -1;
-   if (username && dbi_conn_set_option (*conn, "username", username))
-      return -1;
-   if (password && dbi_conn_set_option (*conn, "password", password))
-      return -1;
-   if (db_name && dbi_conn_set_option (*conn, "dbname", db_name))
-      return -1;
-
-   if (dbi_conn_connect (*conn))
-      return -1;
-
-   return 0;
-}
-
-static void copy_list_to_dictdata (
-   lst_List src,
-   global_data *dest)
-{
-   int i=0;
-   int matches_count = 0;
-   const void *datum = NULL;
-   lst_Position pos;
-
-   matches_count = lst_length (src);
-
-   if (!matches_count)
-      return;
-
-   dest -> m_mres_count = matches_count;
-
-   dest -> m_mres = (const char **)
-      heap_alloc (
-	 dest -> m_heap2,
-	 matches_count * sizeof (dest -> m_mres [0]));
-
-   i = 0;
-   LST_ITERATE (src, pos, datum){
-      dest -> m_mres [i] = (const char *) datum;
-      ++i;
-   }
-}
-
-static void dbi_error (global_data *dict_data, dbi_conn conn)
-{
-   const char *dbi_err_msg = NULL;
-
-   if (conn){
-      dbi_conn_error (conn, &dbi_err_msg);
-      plugin_error (dict_data, dbi_err_msg);
-//      dbi_conn_close (conn);
-   }else{
-      plugin_error (dict_data, "DBI connection canot be opened");
-   }
-}
-
-/* returns zero if success */
-static int copy_sqlres_to_list (
+static int copy_sqlres (
    dbi_conn conn,
    const char *query,
-   lst_List list,
+//   lst_List list,
    global_data *dict_data)
 {
    dbi_result result;
    const char *headword = NULL;
    int number_of_fields = 0;
+   int number_of_rows   = 0;
+   int num;
 
+//   fprintf (stderr, "query: %s\n", query);
    result = dbi_conn_query (conn, query);
    if (!result){
       dbi_error (dict_data, conn);
-      dbi_result_free (result);
       return 8;
    }
 
@@ -590,15 +593,35 @@ static int copy_sqlres_to_list (
       return 4;
    }
 
+   number_of_rows = dbi_result_get_numrows (result);
+   if (!number_of_rows){
+      dbi_result_free (result);
+      return 0;
+   }
+
+   dict_data -> m_mres = (const char **)
+      heap_alloc (
+	 dict_data -> m_heap2,
+	 number_of_rows * sizeof (dict_data -> m_mres [0]));
+   memset (
+      dict_data -> m_mres,
+      0,
+      number_of_rows * sizeof (dict_data -> m_mres [0]));
+
+   dict_data -> m_mres_count = number_of_rows;
+   dict_data -> m_mres_sizes = alloc_minus1_array (number_of_rows);
+
+   num = 0;
    while (dbi_result_next_row (result)) {
       headword = dbi_result_get_string_idx (result, 1);
       if (!headword){
-	 plugin_error (dict_data, "dbi_result_get_string error");
+	 plugin_error (dict_data, "dbi_result_get_string_idx failed");
 	 dbi_result_free (result);
 	 return 5;
       }
 
-      lst_push (list, heap_strdup (dict_data -> m_heap, headword));
+      dict_data -> m_mres [num] = heap_strdup (dict_data -> m_heap, headword);
+      ++num;
    }
 
    dbi_result_free (result);
@@ -612,51 +635,52 @@ static int run_sql_query (
 {
    int err = 0;
 
-   lst_List headwords;
+//   dict_data -> m_dbi_driver = dbi_conn_get_driver (dict_data -> m_dbi_conn);
 
-   headwords = lst_create ();
-   if (!headwords){
-      plugin_error (dict_data, "cannot create lst_List");
-      return 6;
+#ifndef CONNECT_TO_SERVER_ONCE
+   if (connect_to_sqldb (dict_data)){
+      dbi_error (dict_data, dict_data -> m_dbi_conn);
+
+      DBI_CONN_CLOSE(dict_data -> m_dbi_conn);
+
+      return 14;
    }
+#endif
 
-   err = connect_to_sqldb (
-      &dict_data -> m_dbi_conn,
-      dict_data -> m_dbi_driver_name,
-      dict_data -> m_dbi_option_host,
-      dict_data -> m_dbi_option_dbname,
-      dict_data -> m_dbi_option_username,
-      dict_data -> m_dbi_option_password,
-      query);
+   err = copy_sqlres (
+      dict_data -> m_dbi_conn, query, dict_data);
 
    if (err){
+#ifdef CONNECT_TO_SERVER_ONCE
+//      fprintf (stderr, "copy_sqlres returned %i\n", err);
+//      fprintf (stderr, "  error message: `%s`\n", dict_data -> m_err_msg);
+
+      // try to restore connection
+      DBI_CONN_CLOSE(dict_data -> m_dbi_conn);
+
+      if (
+	 connect_to_sqldb (dict_data) ||
+	 copy_sqlres (
+	    dict_data -> m_dbi_conn, query, dict_data))
+      {
+	 dbi_error (dict_data, dict_data -> m_dbi_conn);
+
+	 DBI_CONN_CLOSE(dict_data -> m_dbi_conn);
+
+	 return 10;
+      }
+#else
       dbi_error (dict_data, dict_data -> m_dbi_conn);
 
-      if (dict_data -> m_dbi_conn)
-	 dbi_conn_close (dict_data -> m_dbi_conn);
+      DBI_CONN_CLOSE(dict_data -> m_dbi_conn);
 
-      lst_destroy (headwords);
-      return 9;
-   }
-
-   dict_data -> m_dbi_driver = dbi_conn_get_driver (dict_data -> m_dbi_conn);
-
-   if (copy_sqlres_to_list (dict_data -> m_dbi_conn, query, headwords, dict_data)){
-      dbi_error (dict_data, dict_data -> m_dbi_conn);
-
-      if (dict_data -> m_dbi_conn)
-	 dbi_conn_close (dict_data -> m_dbi_conn);
-
-      lst_destroy (headwords);
       return 10;
+#endif
    }
 
-   if (dict_data -> m_dbi_conn)
-      dbi_conn_close (dict_data -> m_dbi_conn);
-
-   copy_list_to_dictdata (headwords, dict_data);
-
-   lst_destroy (headwords);
+#ifndef CONNECT_TO_SERVER_ONCE
+   DBI_CONN_CLOSE(dict_data -> m_dbi_conn);
+#endif
 
    return 0;
 }
