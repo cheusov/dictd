@@ -1,7 +1,7 @@
 /* dictfmt.c -- 
  * Created: Sun Jul 20 20:17:11 1997 by faith@acm.org
- * Revised: Sun Jul  5 19:25:18 1998 by faith@acm.org
- * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
+ * Revised: Sat Sep 27 23:47:04 2003 by faith@acm.org
+ * Copyright 1997, 1998, 2003 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.26 2003/08/08 14:50:21 cheusov Exp $
+ * $Id: dictfmt.c,v 1.27 2003/09/28 03:52:47 faith Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -48,7 +48,7 @@
 #endif
 
 #define FMT_MAXPOS  200
-#define FMT_INDENT  0
+#define FMT_INDENT  5
 
 #define JARGON    1
 #define FOLDOC    2
@@ -56,6 +56,7 @@
 #define PERIODIC  4
 #define HITCHCOCK 5
 #define CIA1995   6
+#define VERA      7
 
 #define BSIZE 10240
 
@@ -438,7 +439,7 @@ static void fmt_newheadword( const char *word, int flag )
    }
 
    fmt_indent = 0;
-
+   fmt_newline();
    fflush(stdout);
    end = ftell(str);
 
@@ -598,7 +599,6 @@ static void fmt_headword_for_url (void)
    fmt_newheadword("00-database-url",1);
    fmt_string( "     " );
    fmt_string( url );
-   fmt_newline();
 
    ignore_hw_url = 1;
 }
@@ -608,7 +608,6 @@ static void fmt_headword_for_shortname (void)
    fmt_newheadword("00-database-short",1);
    fmt_string( "     " );
    fmt_string( sname );
-   fmt_newline();
 
    ignore_hw_shortname = 1;
 }
@@ -736,7 +735,7 @@ int main( int argc, char **argv )
       { "silent",               0, 0, 'q' },
    };
 
-   while ((c = getopt_long( argc, argv, "qVLjfephDu:s:c:t",
+   while ((c = getopt_long( argc, argv, "qVLjvfephDu:s:c:t",
                                     longopts, NULL )) != EOF)
       switch (c) {
       case 'q': quiet_mode = 1;            break;
@@ -744,10 +743,11 @@ int main( int argc, char **argv )
       case 'V': banner( stdout ); exit(1); break;
       case 501: help( stdout ); exit(1);   break;         
       case 'j': type = JARGON;             break;
-      case 'f': type = FOLDOC;             break;
+      case 'f': type = FOLDOC; fmt_maxpos=79; break;
       case 'e': type = EASTON;             break;
       case 'p': type = PERIODIC;           break;
       case 'h': type = HITCHCOCK;          break;
+      case 'v': type = VERA; fmt_maxpos=75;break;
       case 'D': ++Debug;                   break;
       case 'u': url = optarg;              break;
       case 's': sname = optarg;            break;
@@ -937,6 +937,42 @@ int main( int argc, char **argv )
 	    break;
 	 }
 	 break;
+      case VERA:
+          switch (*buffer) {
+          case '@':
+              if (header && !strncmp(buffer, "@item ", 6)) {
+                  fmt_newheadword(buffer+6,8);
+              }
+              continue;
+          }
+          if (!header) {
+              fmt_string("This is a special GNU edition of V.E.R.A.,");
+              fmt_string("a list dealing with computational acronyms.");
+              fmt_newline();
+              fmt_string("Copyright 1993/2002 Oliver Heidelbach <ohei [at] snafu de>");
+              fmt_newline();
+              fmt_newline();
+              fmt_string(
+"Permission is granted to copy, distribute and/or modify this document"
+" under the terms of the GNU Free Documentation License, Version 1.1"
+" or any later version published by the Free Software Foundation;"
+" with no Invariant Sections, with no Front-Cover Texts, and with "
+" no Back-Cover Texts.");
+              fmt_newline();
+              fmt_newline();
+              fmt_string(
+"Within the above restrictions the distribution of this"
+" document is explicitly encouraged and I hope you'll find"
+" it of some value.");
+              fmt_newline();
+              fmt_newline();
+              fmt_string(
+"This dictionary has nothing to do with Systems Science Inc. "
+"or its products.");
+              fmt_newline();
+              ++header;
+          }
+          break;
       case FOLDOC:
 	 if (*buffer && *buffer != ' ' && *buffer != '\t') {
 	    if (header < 2) {
