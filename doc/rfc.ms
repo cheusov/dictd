@@ -1,8 +1,8 @@
 .\"
-.\" Revised: Fri Jul 11 20:40:42 1997 by faith@acm.org
+.\" Revised: Thu Jul 17 09:58:13 1997 by faith@acm.org
 .\" Distribution of this memo is unlimited.
 .\"
-.\" $Id: rfc.ms,v 1.16 1997/07/12 01:50:31 faith Exp $
+.\" $Id: rfc.ms,v 1.17 1997/07/18 20:36:50 faith Exp $
 .\" 
 .pl 10.0i
 .po 0
@@ -471,7 +471,7 @@ database description (the second column of the "SHOW DB" command).
 
 .RE
 .NH 3
-A Note on Virtual Datbases
+A Note on Virtual Databases
 .RS
 
 The ability to search all of the provided databases using a single
@@ -511,7 +511,7 @@ needlessly complicates the parsing and analysis that must be performed
 by the implementation.  Further, unless the classification system is
 extremely general, there is a risk that it would restrict the types of
 databases that can be used with the DICT protocol (although the
-protocol has been designed with human-langauge databases in mind, it
+protocol has been designed with human-language databases in mind, it
 is applicable to any read-only database application, especially those
 with a single semi-unique alphanumeric key and textual data).
 
@@ -541,7 +541,7 @@ servers may treat non-alphanumeric data differently.  We have found
 that a case-insensitive comparison which ignores non-alphanumeric
 characters and which folds whitespace is useful for English-language
 dictionaries.  Other comparisons may be more appropriate for other
-langauges or when using extended character sets.
+languages or when using extended character sets.
 
 The "prefix" strategy is similar to "exact", except that it only
 compares the first part of the word.
