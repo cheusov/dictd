@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.5 2003/08/08 15:26:29 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.6 2003/08/08 17:57:35 cheusov Exp $
  * 
  */
 
@@ -1082,6 +1082,25 @@ static int match_soundex (
    return 0;
 }
 
+#define CHECK \
+   value = JudySLGet (dict_data -> m_judy_array, buf, 0);  \
+   if (value){                                             \
+      ++cnt;                                               \
+                                                           \
+      dict_data -> m_mres = (const char **)                \
+	 xrealloc (                                        \
+	    dict_data -> m_mres,                           \
+	    cnt * sizeof (dict_data -> m_mres [0]));       \
+      dict_data -> m_mres [cnt - 1] =                      \
+	 heap_strdup (dict_data -> m_heap, buf);           \
+                                                           \
+      dict_data -> m_mres_sizes = (int *)                  \
+	 xrealloc (                                        \
+	    dict_data -> m_mres_sizes,                     \
+	    cnt * sizeof (dict_data -> m_mres_sizes [0])); \
+      dict_data -> m_mres_sizes [cnt - 1] = -1;            \
+   }
+
 static int match_lev (
    global_data *dict_data,
    const char *word,
@@ -1091,6 +1110,93 @@ static int match_lev (
    const int **result_sizes,
    int *results_count)
 {
+   int cnt = 0;
+   size_t len;
+   char buf [BUFSIZE];
+   int i, j, k;
+   char *p;
+   char tmp;
+   PPvoid_t value;
+
+   static char const c [] = "qwertyuiopasdfghjklzxcvbnm0123456789";
+   static int const charcount = sizeof (c) - 1;
+
+//   strlcpy (curr_word, word, sizeof (curr_word));
+
+   len = strlen (word);
+   if (len >= BUFSIZE)
+      len = BUFSIZE - 10;
+
+				/* Deletions */
+   for (i = 0; i < len; i++) {
+      p = buf;
+      for (j = 0; j < len; j++)
+	 if (i != j)
+	    *p++ = word [j];
+
+      *p = '\0';
+      CHECK;
+   }
+
+                                /* Transpositions */
+   strlcpy( buf, word, sizeof (buf) );
+   for (i = 1; i < len; i++) {
+      tmp = buf [i-1];
+      buf [i-1] = buf [i];
+      buf [i] = tmp;
+
+      CHECK;
+
+      tmp = buf [i-1];
+      buf [i-1] = buf [i];
+      buf [i] = tmp;
+   }
+
+				/* Insertions */
+   for (i = 0; i < len; i++) {
+      for (k = 0; k < charcount; k++) {
+	 p = buf;
+         for (j = 0; j < len; j++) {
+            *p++ = word [j];
+            if (i == j)
+	       *p++ = c [k];
+         }
+         *p = '\0';
+	 CHECK;
+      }
+   }
+
+                                /* Insertions at the beginning */
+   strlcpy (buf + 1, word, BUFSIZE - 1);
+   for (k = 0; k < charcount; k++) {
+      buf [0] = c [k];
+      CHECK;
+   }
+
+                                  /* Substitutions */
+   strlcpy (buf, word, BUFSIZE);
+   for (i = 0; i < len; i++) {
+      for (j = 0; j < charcount; j++) {
+	 if (buf [i] != c [j]){
+	    tmp = buf [i];
+	    buf [i] = c [j];
+
+	    CHECK;
+
+	    buf [i] = tmp;
+	 }
+      }
+   }
+
+   dict_data -> m_mres_count = cnt;
+
+   *result       = dict_data -> m_mres;
+   *result_sizes = dict_data -> m_mres_sizes;
+
+   *results_count = cnt;
+
+   *ret = DICT_PLUGIN_RESULT_FOUND;
+
    return 0;
 }
 
@@ -1303,11 +1409,6 @@ int dictdb_search (
 	       NULL, NULL);
 
 	 dict_data -> m_mres_sizes [i] = -1;
-//	 fprintf (
-//	    stderr,
-//	    "offs=%i size=%i\n",
-//	    ((int *)*result_curr) [i + i + 0],
-//	    ((int *)*result_curr) [i + i + 1]);
       }
 
       *result        = dict_data -> m_mres;
