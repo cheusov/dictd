@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.97 2004/01/06 11:53:32 cheusov Exp $
+# $Id: Makefile.in,v 1.98 2004/03/10 18:58:25 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -381,26 +381,32 @@ ChangeLog:
 	> ChangeLog;)
 
 dist:
-	@( CVSROOT=`cat CVS/Root`; \
-	export CVSROOT; \
-	VERSION=$(DICT_VERSION) ; \
-	VERSION_CVS=`echo $${VERSION} | tr . -`; \
-	export VERSION VERSION_CVS; \
-	make ChangeLog; \
-	cp ChangeLog /tmp/dictd.ChangeLog.$${VERSION}; \
-	echo "***** Exporting files for dictd-$${VERSION}..."; \
-	cd /tmp; \
-	rm -rf /tmp/dictd-$${VERSION}; \
-	cvs export -fd dictd-$${VERSION} -r dictd-$${VERSION_CVS} dictd1; \
-	cd dictd-$${VERSION}; \
-	mv /tmp/dictd.ChangeLog.$${VERSION} ChangeLog; \
-	make -f Makefile.conf; \
-	rm -rf autom4te.cache libmaa/autom4te.cache \
-	chmod -R a+rX,g-w .; \
-	cd ..; \
-	echo "***** Taring and zipping dictd-$${VERSION}.tar.gz..."; \
-	tar cvvf dictd-$${VERSION}.tar dictd-$${VERSION}; \
-	gzip -9f dictd-$${VERSION}.tar; \
+	@( CVSROOT=`cat CVS/Root` && \
+	export CVSROOT && \
+	VERSION=$(DICT_VERSION) && \
+	VERSION_CVS=`echo $${VERSION} | tr . -` && \
+	export VERSION VERSION_CVS && \
+	make ChangeLog && \
+	cp ChangeLog /tmp/dictd.ChangeLog.$${VERSION} && \
+	echo "***** Exporting files for dictd-$${VERSION}..." && \
+	cd /tmp && \
+	rm -rf /tmp/dictd-$${VERSION} && \
+	cvs export -fd dictd-$${VERSION} -r dictd-$${VERSION_CVS} dictd1 && \
+	cd dictd-$${VERSION} && \
+	mv /tmp/dictd.ChangeLog.$${VERSION} ChangeLog && \
+	flex -oclientscan.c clientscan.l && \
+	flex -oservscan.c servscan.l && \
+	bison --yacc -tdv servparse.y && \
+		mv y.tab.h servparse.h && \
+		mv y.tab.c servparse.c && \
+		rm -f y.output && \
+	make -f Makefile.conf && \
+	rm -rf autom4te.cache libmaa/autom4te.cache && \
+	chmod -R a+rX,g-w . && \
+	cd .. && \
+	echo "***** Taring and zipping dictd-$${VERSION}.tar.gz..." && \
+	tar cvvf dictd-$${VERSION}.tar dictd-$${VERSION} && \
+	gzip -9f dictd-$${VERSION}.tar && \
 	echo "***** Done making /tmp/dictd-$${VERSION}.tar.gz")
 
 .PHONY: clean distclean tags
