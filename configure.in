@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.44 2003/04/07 14:45:55 cheusov Exp $
+dnl $Id: configure.in,v 1.45 2003/04/09 17:09:04 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -36,7 +36,7 @@ define(VERSION, 1.9.8)
 
 
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.44 $)
+AC_REVISION($Revision: 1.45 $)
 
 AC_INIT(dict, VERSION, "dict-beta@dict.org")
 
@@ -309,7 +309,7 @@ AC_CHECK_HEADERS(unistd.h strings.h limits.h)
 AC_CHECK_HEADERS(sys/resource.h sys/time.h sys/param.h sys/wait.h)
 AC_CHECK_HEADERS(wctype.h wchar.h)
 
-AC_CHECK_TYPES([wint_t, mbstate_t])
+AC_CHECK_TYPES([wint_t, mbstate_t, wchar_t], , , [#include <wchar.h>])
 
 echo .
 echo Checking for system constants
@@ -339,6 +339,7 @@ AC_CHECK_FUNCS(socket strcasecmp strchr strrchr strstr uname)
 AC_CHECK_FUNCS(iswspace iswalnum towlower)
 #AC_REPLACE_FUNCS(wcrtomb wctomb mbrlen mbrtowc mbstowcs mbtowc)
 AC_CHECK_FUNCS(wcrtomb wctomb mbrlen mbrtowc mbstowcs mbtowc)
+#AC_CHECK_FUNCS(dlopen)
 
 AC_REPLACE_FUNCS(snprintf vsnprintf)
 

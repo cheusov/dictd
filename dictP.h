@@ -19,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.8 2003/03/27 09:40:51 cheusov Exp $
+ * $Id: dictP.h,v 1.9 2003/04/09 17:09:05 cheusov Exp $
  * 
  */
 
@@ -102,16 +102,16 @@ extern int vsnprintf(char *str, size_t size, const char *format, va_list ap);
 typedef unsigned int wint_t;
 #endif
 
-#if !HAVE_WCHAR_T && HAVE_WCHAR_H
+#if HAVE_WCHAR_T && HAVE_WCHAR_H
 #include <wchar.h>
 #else
 typedef unsigned int wchar_t;
 #endif
 
-#if !HAVE_MBSTATE_T
-#if !HAVE_ISWALNUM && !HAVE_ISWSPACE && !HAVE_TOWLOWER
-#define mbstate_t char
-#endif
+#if HAVE_MBSTATE_T && HAVE_WCHAR_H
+#include <wchar.h>
+#else
+typedef char mbstate_t;
 #endif
 
 #if !HAVE_WCRTOMB
