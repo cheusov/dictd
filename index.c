@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.39 2002/11/18 19:15:07 cheusov Exp $
+ * $Id: index.c,v 1.40 2002/12/02 14:20:56 cheusov Exp $
  * 
  */
 
@@ -1542,7 +1542,7 @@ static int plugin_initdata_set_data (
    dictWord *dw;
 
    if (data_size <= 0)
-      err_fatal (__FUNCTION__, "too small initial array");
+      err_fatal (__FUNCTION__, "invalid initial array size");
 
    list = lst_create ();
 

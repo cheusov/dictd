@@ -231,6 +231,7 @@ typedef struct dictWord {
    unsigned long start;
    unsigned long end;
 
+/* Used for plugins */
    const char    *def;
    int            def_size;
 } dictWord;
