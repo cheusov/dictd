@@ -5,7 +5,8 @@ export LC_ALL
 
 exec awk '
 BEGIN {
-	NL_size = 1 # 2 for \r\n
+	NL_size   = 1 # 2 for \r\n
+	separator = ";   "
 }
 
 function usage (){
@@ -14,7 +15,12 @@ dictunformat takes a dictionary index file\n\
  as the parameter and a dictionary database file\n\
  on stdin and outputs text which may be used\n\
  to create DICT database by \"dictfmt -c5\"\n\
-usage: dictunformat <index_filename>\n\
+\n\
+usage: dictunformat [OPTIONS] <index_filename>\n\
+  OPTIONS:\n\
+    --help                       display this screen\n\
+    --headword-separator <sep>   set headword separator.\n\
+                                 the default is `;   `\n\
 "
 }
 
@@ -114,17 +120,42 @@ BEGIN {
 			usage()
 			exit 0
 		}
+		if (ARGV [i] == "--headword-separator"){
+			if (i + 2 == ARGC){
+				print "missing parameter " ARGV [i] > "/dev/stderr"
+				print "run \"dictunformat --help\" for help" > "/dev/stderr"
+				exit 1
+			}
+			separator = ARGV [i+1]
+
+			ARGV [i]   = ""
+			ARGV [i+1] = ""
+
+			++i
+
+			continue
+		}
+		if (ARGV [i] ~ /^--headword-separator=/){
+			separator = ARGV [i]
+			sub(/^.*=/, "", separator)
+			ARGV [i] = ""
+
+			continue
+		}
 		if (ARGV [i] == "--"){
 			ARGV [i] = ""
+
+			++i
+
 			break
 		}
-		if (ARGV [i] ~ /^-/){
-			print "unknown argument " ARGV [i] > "/dev/stderr"
-			print "run \"dictunformat --help\" for help" > "/dev/stderr"
-			exit 1
+		if (ARGV [i] ~ /^[^-]/ || ARGV [i] == "-"){
+			break
 		}
 
-		break
+		print "unknown argument " ARGV [i] > "/dev/stderr"
+		print "run \"dictunformat --help\" for help" > "/dev/stderr"
+		exit 1
 	}
 
 	if (i + 2 != ARGC){
@@ -146,11 +177,12 @@ BEGIN {
 	FS = "\t"
 	while ((ret = getline < index_fn) > 0 && NF == 3){
 		offset    = b64_decode($2)
-#		len       = b64_decode($3)
 		head_word = $1
 
-#		print offset, head_word
-		offs2word [offset] = head_word
+		if (offset in offs2word)
+			offs2word [offset] = offs2word [offset] SUBSEP head_word
+		else
+			offs2word [offset] = head_word
 	}
 
 	if (ret < 0){
@@ -177,15 +209,15 @@ BEGIN {
 	if (offset in offs2word){
 		hw = offs2word [offset]
 		hw_is_skipped = (hw in skipped)
-
-		if (!hw_is_skipped)
-			printf "_____\n\n%s\n", hw
+		if (!hw_is_skipped){
+				gsub(SUBSEP, separator, hw)
+				printf "_____\n\n%s\n", hw
+		}
 	}
 
 	if (!hw_is_skipped)
 		print $0
 
-#	print offset, length($0)
 	offset += length($0) + NL_size
 }
 ' "$@" -
