@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.1 1997/03/01 04:23:24 faith Exp $
+ * $Id: daemon.c,v 1.2 1997/03/01 05:21:14 faith Exp $
  * 
  */
 
@@ -70,7 +70,7 @@ static void daemon_log( int s, const char *hostname, int port,
    len = strlen( buf );
 
    for (pt = buf; *pt; pt++)
-      if (!isprint(*pt)) *pt = '*';
+      if (*pt != '\n' && !isprint(*pt)) *pt = '*';
 
    fprintf( stderr, "%s", buf );
 }

@@ -17,15 +17,16 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.1 1997/03/01 04:23:27 faith Exp $
+ * $Id: index.c,v 1.2 1997/03/01 05:21:20 faith Exp $
  * 
  */
 
 #include "dict.h"
 #include <sys/stat.h>
 #include <sys/mman.h>
-#include <ctype.h>
 #include <fcntl.h>
+#include <ctype.h>
+
 #define FIND_NEXT(pt,end) while (pt < end && *pt++ != '\n');
 #define DEBUG 0
 
@@ -339,7 +340,7 @@ dictIndex *dict_index_open( const char *filename )
 		       "Cannot stat index file \"%s\"\n", filename );
    i->size = sb.st_size;
 
-   i->start = mmap( NULL, i->size, PROT_READ, MAP_FILE|MAP_SHARED, i->fd, 0 );
+   i->start = mmap( NULL, i->size, PROT_READ, MAP_SHARED, i->fd, 0 );
    if ((void *)i->start == (void *)(-1))
       err_fatal_errno( __FUNCTION__,
 		       "Cannot mmap index file \"%s\"\b", filename );

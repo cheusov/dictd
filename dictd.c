@@ -4,7 +4,7 @@
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.1 1997/03/01 04:23:26 faith Exp $
+ * $Id: dictd.c,v 1.2 1997/03/01 05:21:16 faith Exp $
  * 
  */
 
@@ -16,6 +16,7 @@
 #include <errno.h>
 #include <netdb.h>
 #include <sys/utsname.h>
+#include <getopt.h>
 
 #include "maa.h"
 #include "net.h"
@@ -34,6 +35,10 @@ void dict_set_config( dictConfig *dc ) {
 dictConfig *dict_get_config( void ) {
    return DictConfig;
 }
+
+#ifndef MAXHOSTNAMELEN
+#define MAXHOSTNAMELEN 64
+#endif
 
 static void dict_set_hostname( void )
 {
@@ -183,8 +188,8 @@ static const char *id_string( const char *id )
    static char buffer[BUFFERSIZE];
    arg_List a = arg_argify( id );
 
-   if (arg_count(a) >= 3)
-      sprintf( buffer, "%s (%s)", arg_get( a, 2 ), arg_get( a, 3 ) );
+   if (arg_count(a) >= 2)
+      sprintf( buffer, "%s", arg_get( a, 2 ) );
    else
       buffer[0] = '\0';
    arg_destroy( a );
@@ -194,7 +199,7 @@ static const char *id_string( const char *id )
 const char *dict_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dictd.c,v 1.1 1997/03/01 04:23:26 faith Exp $";
+   const char        *id = "$Id: dictd.c,v 1.2 1997/03/01 05:21:16 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -276,6 +281,7 @@ int main( int argc, char **argv )
       { "help",    0, 0, 'h' },
       { "license", 0, 0, 'L' },
       { "test",    1, 0, 't' },
+      { 0,         0, 0,  0  }
    };
 
    maa_init(argv[0]);

@@ -17,11 +17,12 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictzip.c,v 1.6 1997/03/01 04:48:29 faith Exp $
+ * $Id: dictzip.c,v 1.7 1997/03/01 05:21:18 faith Exp $
  * 
  */
 
 #include "dict.h"
+#include <getopt.h>
 #include <sys/stat.h>
 
 void dict_data_print_header( FILE *str, dictData *header )
@@ -310,7 +311,7 @@ static const char *id_string( const char *id )
 
 static void banner( void )
 {
-   const char *id = "$Id: dictzip.c,v 1.6 1997/03/01 04:48:29 faith Exp $";
+   const char *id = "$Id: dictzip.c,v 1.7 1997/03/01 05:21:18 faith Exp $";
    
    fprintf( stderr, "%s %s\n", err_program_name(), id_string( id ) );
    fprintf( stderr, "Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)\n" );

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: data.c,v 1.1 1997/03/01 04:23:25 faith Exp $
+ * $Id: data.c,v 1.2 1997/03/01 05:21:15 faith Exp $
  * 
  */
 
@@ -228,7 +228,7 @@ dictData *dict_data_open( const char *filename, int computeCRC )
 		       "Cannot stat index file \"%s\"\n", filename );
    h->size = sb.st_size;
 
-   h->start = mmap( NULL, h->size, PROT_READ, MAP_FILE|MAP_SHARED, h->fd, 0 );
+   h->start = mmap( NULL, h->size, PROT_READ, MAP_SHARED, h->fd, 0 );
    if ((void *)h->start == (void *)(-1))
       err_fatal_errno( __FUNCTION__,
 		       "Cannot mmap index file \"%s\"\b", filename );
