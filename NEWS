@@ -1,0 +1,412 @@
+Version 1.9.11, Aleksey Cheusov
+
+  dictd:
+    - dictd is compiled successfully on Solaris, MacOS-X(cc).
+      A lot of warning and error messages appeared
+      on 64-bit Opteron and Alpha were fixed.
+
+    - fixed: 'suffix' strategy doesn't ignore characters other than
+       alphanumeric and spaces. Affected versions: 1.9.1-1.9.10
+    - A multi-lined short name of the database is truncated before sending
+      to the client
+
+    - patch by Michael Bunk <bunk at imn.htwk-leipzig.de} fixing:
+       - a typo giving the incomprehensible failure message.
+         Affected versions: 1.7.1-1.9.10
+
+       - a typo resulting in 'dict --server-info' showing
+           same compressed/uncompressed database sizes
+         Affected versions: 1.9.1-1.9.10
+
+       - broken AUTH command.
+         Affected versions: 1.9.4-1.9.10
+
+    - added: keyword "disable_strategy for disabling a specified strategy
+             for a particular database.
+             Strategies disabled by 'disable_strategy' keyword
+             are not passed to plugins.
+
+    - info/name keywords in 'database_virtual' section can handle
+      entry name beginning with @ symbol in a similar way
+      as 'database' and 'database_plugin' do.
+
+    - dictd --pp <prog> sets a preprocessor for configuration file.
+
+      If you run DICT server having a lot of dictionaries, you can preprocess
+      configuration file using m4 (or cpp). This significantly reduces
+      the size of configuration file.
+
+      See dictd.8 and example_complex.conf.
+
+  plugins:
+    - the default directory for databases
+      is passed to plugins (DICT_PLUGIN_INITDATA_DEFDBDIR)
+
+    - plugin support is ported to systems having dlXXX API in libc (FreeBSD).
+
+    - added: Judy-based plugin implementing fast "exact" and especially "lev"
+      strategies. http://sf.net/projects/judy
+
+      See example_complex.conf for the sample of usage.
+
+      "prefix" strategy is also supported but
+      for short queries it may be very slow. If you need not this,
+      disable it by "disable_strategy" keyword.
+
+
+  dict:
+    - clientparse.y will accept "pager' as the pager.
+      Thanks to Kirk Hilliard.
+
+  dictfmt:
+    - fixed: dictfmt -f doesn't work correctly if the first two lines are empty
+      Affected versions of dictfmt:  1.6.1-1.9.10
+    - fixed: --headword-separator doesn't work with -f, -p and -v formats
+
+  dictl - wrapper script for "dict" that permits using utf-8 encoded
+       dictionaries on a terminal that is not utf-8 aware.
+       See dictl.1 for documentation.
+
+  colorit - a script for colorizing the text input which can be used
+       as dict pager. It is currently very simple but allows to make
+       dict's output a bit nicer.
+       See colorit.1 for documentation.
+
+  documentation update
+
+  other fixes and improvements
+
+Version 1.9.10, by Aleksey Cheusov, 22 Jul 2003 19:37:22 +0300
+
+  dictd-1.9.10 has been released.
+  It is available for download from
+  http://sf.net/projects/dict
+
+
+  Major changes:
+  - 'filter' option is fully implemented
+
+  - Documentation update
+
+  - fixes:
+  - 'lev' strategy (pple' query doesn't match the word 'apple')
+  Affected version: 1.4.9 - 1.9.9
+
+  - 're' and 'regex' strategies
+  ('^apple|orange' and '^apple\|orange' doesn't match a word 'orange')
+  Affected versions: 1.4.9-1.9.9
+
+  - incorrect spaces trimming
+  Affected versions: 1.9.1-1.9.9
+
+  - 'dictd' can be built with a regex engines
+  other than local Henry Spencer's one.
+  A system-wide regexec/regcomp are used by default.
+  The first reason for this is that Henry Spencer's' implementation
+  is not a fastest one. The second reason is that it doesn't support utf-8.
+
+  - added: dictfmt -t. This simplifies rebuilding
+  databases using 'dictunformat' utility.
+
+  - System-wide wcXXX and mbXXX functions are used if present.
+
+  - predefined DICT servers dict.org and alt0.dict.org 
+  are not used by default by 'dict' client
+
+Version 1.9.9, by Aleksey Cheusov, 14 Apr 2003 19:30:54 +0300
+
+  dictd-1.9.9 has been released and it is available for download from
+  http://sf.net/projects/dict
+
+  Major changes:
+  - dictd can be run from inetd.
+
+  - cygwin improvements
+
+  - dlopen is used instead of lt_dlopen on platforms where it is
+  available (concerns to plugins)
+
+  - bug fixes
+
+Version 1.9.8, by Aleksey Cheusov, 27 Mar 2003 15:33:34 +0200
+
+  dictd-1.9.8 has been released and is available for download from
+  http://sf.net/projects/dict
+
+  Major changes:
+  - dictd can be compiled on CYGWIN without utf-8 support.
+  If anyone manages to run dictd on Windows as a service, let me know.
+
+  - UTF-8 support is optional. It is disabled on platforms which don't
+  support 'iswalnum', 'iswspace' or 'towlower' functions.
+
+  - fixes:
+  - 'dictdb_free' plugin function is not called
+  (affected versions: 1.9.1-1.9.7)
+  - incorrect dzip format detection
+  (affected versions: 1.4.9-1.9.7 (all?))
+  - possible crash while reading too long COMMENT or FNAME fields of
+  the dzip'ed file (dictzip doesn't create them)
+  (affected versions: 1.4.9-1.9.7 (all?))
+
+Version 1.9.7, by Aleksey Cheusov, 09 Mar 2003 20:03:42 +0200
+
+  dictd-1.9.7 is released
+
+  Download it from http://sourceforge.net/projects/dict.
+
+  Major changes:
+
+  - 'database_virtual' keyword in the configuration file
+  specifies 'virtual' dictionary without database files.
+
+  - 'database_plugin' keyword in the configuration file
+  specifies plugin without database files.
+
+  - 'info' keyword in the 'database specification'
+  specifies the information about database. @ prefix is also supported
+  and specifies an entry name.
+
+  - dictd --add-strategy
+  allows to implement (with a help of plugins)
+  new strategies not available in 'dictd'.
+  For example, 'revert' strategy may be implemented.
+  By using '--with-strategy' and '--add-strategy' options
+  it is possible to create DICT server with the set of strategies
+  you need.
+
+  - 'invisible' keyword in the configuration file
+  allows to hide several databases.
+  This may be useful if you use virtual databases.
+
+  - 'string' in the configuration file can be continued between lines.
+
+  - ./configure --with-nec-socks5
+  With this option applied, programs will be linked with
+  the NEC socks5 library
+
+Version 1.9.6, by Aleksey Cheusov, 02 Mar 2003 14:19:37 +0200
+
+  A bug fixing release is available for download
+  from http://sf.net/projects/dict
+
+  Changes:
+
+  critical fix: dictd may crash on BMH search
+  (substring, suffix and word strategies) because
+  it accesses memory outside mmap'ed region.
+
+  Affected versions: 1.4.9-1.9.5
+
+Version 1.9.5, by Aleksey Cheusov, 23 Feb 2003 20:28:32 +0200
+
+  If the 'name' keyword is used in database section, and
+  it doesn't begin with '@', dictd may crash on SIGHUP.
+  Affected versions: 1.9.1-1.9.4.
+
+  The following is the patch. This patch is the only difference between
+  dictd-1.9.4 and dictd-1.9.5 releases.
+
+
+  You can download dictd-1.9.5 from http://sf.net/projects/dict
+
+
+  diff -ruN dictd-1.9.4/dictd.c dictd1/dictd.c 
+  --- dictd-1.9.4/dictd.c Mon Feb 10 21:24:25 2003 
+  +++ dictd1/dictd.c      Sun Feb 23 19:13:43 2003 
+  @@ -572,6 +572,9 @@
+         db->databaseShort = get_entry_info( db, DICT_SHORT_ENTRY_NAME );
+      else if (*db->databaseShort == '@')
+         db->databaseShort = get_entry_info( db, db->databaseShort + 1 );
+  +   else 
+  +      db->databaseShort = xstrdup (db->databaseShort); 
+  + 
+      if (!db->databaseShort)
+         db->databaseShort = xstrdup (db->databaseName);
+
+Version 1.9.4, by Aleksey Cheusov, 20 Feb 2003 17:01:30 +0200
+
+  dict-1.9.4 is released.
+  It is available for download from
+  http://sourceforge.net/projects/dict
+
+
+  Major changes:
+
+  - Documentation update by Bob Hilliard
+
+  - 'snprintf' and 'vsnprintf' functions are used instead of
+  'sprintf' and 'vsprintf' on platforms where they are available.
+
+  - dictd fails if it is run with "C" locale
+  and discovers 8-bit/utf-8 dictionaries.
+
+  dictfmt/dictfmt_index2suffix/dictfmt_index2word/dictfmt_virtual fails
+  if they are run with "C" locale
+  and discover 8-bit/utf-8 input.
+
+  - 'make samples' bug fixed
+  - 'dict --serverinfo' bug fixed
+  - 'dictd --test-match' bug fixed
+
+Version 1.9.3, by Aleksey Cheusov, 24 Jan 2003 12:53:48 +0200
+
+  dictd-1.9.3 has been released.
+  It is available for download from http://sourceforge.net/projects/dict
+
+  Major changes:
+    - fix for dictd.
+      It crashes on exiting/reloading configuration file
+      if access section in the configuration file is empty.
+      Affected versions: 1.8.0, 1.9.1, 1.9.2
+
+Version 1.9.2, by Aleksey Cheusov, 16 Jan 2003 15:42:29 +0200
+
+  dictd-1.9.2 has been released
+  It is available from http://sourceforge.net/projects/dict
+
+
+  Major changes:
+  - fix for dictzip's segfault
+  - dictunformat utility
+  - additional  dictfmt arguments:
+    --without-header
+    --without-url
+    --without-time
+  - error message is returned by 'dictd' for invalid utf-8 requests
+    IMHO it is better than return code 501 specified by RFC
+  - DESTDIR env. variable is used for installing/uninstalling
+    This simplifies building RPMs.
+
+Version 1.9.1, by Aleksey Cheusov, 17 Dec 2002 17:32:40 +0200
+
+  dictd-1.9.1 is available for download
+  from http://sourceforge.net/projects/dict/
+
+  Major changes:
+  - Virtual dictionaries support
+  - New search strategy 'word'
+  - Configuration file reloading by SIGHUP
+  - A lot of plugin enhancements and two plugin examples.
+     You can also disable plugin support explicitly by running
+     ./configure --disable-plugin
+  - bugs fixing
+
+Version 1.8.0, by Aleksey Cheusov, 15 Sep 2002 20:54:30 -0400
+
+  - better 8bit, UTF-8, and i18n support
+  - dictfmt is now part of the dictd tarball
+  - dictd supports plugins
+  - dictd will use system libz when possible
+
+Version 1.7.1
+  (broken support for 8bit dictionaries)
+
+Version 1.7.0, by Rick Faith, 3 May 2002 10:02:11 -0400
+
+  I've released dictd 1.7.0.  It's the same as 1.6.93, except:
+     1) The locale for dictd defaults to "C".  So if you've been using
+        LC_ALL, you probably need to use the new --locale option.  I know
+        this is a kludge and that dictd must move to Unicode/UTF-8/UCS-4.
+     2) The dict pager is closed on fatal errors.  This may help prevent
+        the screen corruption under Debian when dict is used with less
+        and there is a fatal error.  Please let me know.
+        3) Log output no longer filters the 8th bit.
+
+  I've also updated the databases on www.dict.org to the most recent ones
+  in use by Debian, and I've put those in ftp.dict.org:/pub/dict/pre.  I'm
+  still using web1913 and wn instead of gcide.  However, gcide is
+  available for testing if you use "dict -ugcide -kgcide -dgcide" [this
+  may be removed in the future, but try it out now; note that older client
+  may not pass authenticate unless you also specify -h].  Please don't
+  hard code a "user gcide gcide" in any example or distributed .dictrc
+  files.  Thanks.
+
+Version 1.6.93-testonly
+  (no information available)
+
+Version 1.5.5
+  (no information available)
+
+Version 1.5.3
+  (no information available)
+
+Version 1.5.0, by Rick Faith, 22 Dec 1999 10:43:37 -0500
+
+  dictd-1.5.0 has been released.  This is a bug fix release that should cover 
+  most of the common problems that have been reported.  Testing on
+  Sparc/Linux still needs to be done.  The IRIX port is not useful.
+
+  This files contains the sources to the dict client, the dictd server, and
+  the dictzip compression program.  Starting with version 2.0.0, sources to
+  these programs will be in different files.
+
+  Sources are available from:
+
+  ftp://ftp.dict.org/pub/dict/dictd-1.5.0.tar.gz
+
+  and from the SourceForge repository, via http:
+
+  http://www.sourceforge.net/project/?form_grp=605
+
+  or via anonymous cvs (see the appropriate link on the page above).
+
+  We have moved the core software development effort to SourceForge, since it 
+  provides a publicly accessible cvs repository and bug tracking.  Feel free
+*  to submit bugs via the SourceForge interface or via dict-beta@dict.org.
+
+Version 1.4.9
+  (no information available)
+
+Version 1.4.8
+  (no information available)
+
+Version 1.4.5, by Rick Faith, 23 Feb 1998 20:00:23 -0500
+
+  The DICT Development Group (www.dict.org) announces the dictd-1.4.x
+  distribution, containing client/server software implementing the
+  Dictionary Server Protocol, as described in RFC 2229.
+
+  The Dictionary Server Protocol (DICT) is a TCP transaction based
+  query/response protocol that allows a client to access dictionary
+  definitions from a set of natural language dictionary databases.
+
+  dict(1) is a client which can access DICT servers from the command line.
+
+  dictd(8) is a server which supports the DICT protocol.
+
+  dictzip(1) is a compression program which creates compressed files in the
+  gzip format (see RFC 1952).  However, unlike gzip(1), dictzip(1) compresses
+  the file in pieces and stores an index to the pieces in the gzip header.
+  This allows random access to the file at the granularity of the compressed
+  pieces (currently about 64kB) while maintaining good compression ratios
+  (within 5% of the expected ratio for dictionary data).  dictd(8) uses files
+  stored in this format.
+
+Version 1.4.3
+  (no information available)
+
+DICT protocol, 29 Oct 1997 19:34:58 -0500
+
+  A new Request for Comments is now available in online RFC libraries.
+
+  RFC 2229:
+
+  Title:      A Dictionary Server Protocol
+  Author(s):  R. Faith, B. Martin
+  Status:     Informational
+  Date:       October 1997
+  Mailbox:    faith@cs.unc.edu, bamartin@miranda.org
+  Pages:      30
+  Characters: 59551
+  Updates/Obsoletes:    None
+
+  URL:        ftp://ds.internic.net/rfc/rfc2229.txt
+
+ The Dictionary Server Protocol (DICT) is a TCP transaction based
+ query/response protocol that allows a client to access dictionary
+ definitions from a set of natural language dictionary databases.
+ 
+ This memo provides information for the Internet community.  It does
+ not specify an Internet standard of any kind.  Distribution of this
+ memo is unlimited.
