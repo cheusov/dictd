@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.117 2004/10/12 13:51:30 cheusov Exp $
+ * $Id: dictd.c,v 1.118 2004/10/12 14:39:03 cheusov Exp $
  * 
  */
 
@@ -647,9 +647,52 @@ static void init_database_alphabet (dictDatabase *db)
    dict_destroy_list (l);
 }
 
+static void init_database_default_strategy (dictDatabase *db)
+{
+   int ret;
+   lst_List l;
+   const dictWord *dw;
+   char *data;
+   int def_strat = -1;
+   char *p;
+
+   if (!db -> normal_db)
+      return;
+
+   if (db -> default_strategy > 0){
+      /* already set by `default_strategy' directive*/
+      return;
+   }
+
+   l = lst_create ();
+
+   ret = dict_search_database_ (l, DICT_FLAG_DEFAULT_STRAT, db, DICT_STRAT_EXACT);
+
+   if (ret){
+      dw = (const dictWord *) lst_top (l);
+      data = dict_data_obtain (db, dw);
+
+      for (p=data; *p && isalpha ((unsigned char) *p); ++p){
+      }
+      *p = '\0';
+
+      def_strat = lookup_strategy (data);
+      if (-1 == def_strat){
+	 PRINTF (DBG_INIT, (":I:     `%s' is not supported by dictd\n", data));
+      }else{
+	 db -> default_strategy = def_strat;
+      }
+
+      xfree (data);
+   }
+
+   dict_destroy_list (l);
+}
+
 static int init_database( const void *datum )
 {
    dictDatabase *db = (dictDatabase *)datum;
+   const char *strat_name = NULL;
 
    PRINTF (DBG_INIT, (":I: Initializing '%s'\n", db->databaseName));
 
@@ -696,6 +739,20 @@ static int init_database( const void *datum )
       PRINTF (DBG_INIT, (":I:     alphabet: %s\n", db -> alphabet));
    }else{
       PRINTF (DBG_INIT, (":I:     alphabet: (NULL)\n"));
+   }
+
+   if (db -> default_strategy){
+      strat_name = get_strategy (db -> default_strategy) -> name;
+      PRINTF (DBG_INIT, (":I:     default_strategy (from conf file): %s\n",
+			 strat_name));
+   }else{
+      init_database_default_strategy (db);
+      if (db -> default_strategy){
+	 strat_name = get_strategy (db -> default_strategy) -> name;
+	 PRINTF (DBG_INIT, (":I:     default_strategy (from db): %s\n", strat_name));
+      }else{
+	 db -> default_strategy = default_strategy;
+      }
    }
 
    if (db->dataFilename){
@@ -923,7 +980,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.117 2004/10/12 13:51:30 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.118 2004/10/12 14:39:03 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;

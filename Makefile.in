@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.101 2004/06/06 13:59:14 cheusov Exp $
+# $Id: Makefile.in,v 1.102 2004/10/12 14:39:03 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -90,7 +90,7 @@ all: $(EXES) $(LIBRARIES)
 
 ifdef USE_PLUGIN
 
-#PLUGINS := dictdplugin_man.so
+PLUGINS := dictdplugin_man.so
 
 ifdef JUDYLIB
 PLUGINS := $(PLUGINS) dictdplugin_judy.so
@@ -193,6 +193,8 @@ lib%.a : %.o
 
 dictdplugin_man.so : data.os str.os heap.os dictdplugin_man.os \
                       plugins_common.os
+	$(CC) $(filter-out local_regex local_zlib local_libmaa, $^) \
+		 $(ALLLDFLAGS) -shared -o $@
 
 dictdplugin_judy.so : data.os str.os heap.os dictdplugin_judy.os \
                       plugins_common.os
@@ -490,3 +492,4 @@ Makefile: Makefile.in config.status
 
 config.status: configure
 	./config.status --recheck
+

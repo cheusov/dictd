@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: defs.h,v 1.7 2004/01/05 12:25:10 cheusov Exp $
+ * $Id: defs.h,v 1.8 2004/10/12 14:39:03 cheusov Exp $
  */
 
 #ifndef _DEFS_H_
@@ -49,6 +49,7 @@
 #define DICT_FLAG_ALLCHARS       DICT_ENTRY_PREFIX"-allchars"
 #define DICT_FLAG_VIRTUAL        DICT_ENTRY_PREFIX"-virtual"
 #define DICT_FLAG_ALPHABET       DICT_ENTRY_PREFIX"-alphabet"
+#define DICT_FLAG_DEFAULT_STRAT  DICT_ENTRY_PREFIX"-default-strategy"
 
 #define DICT_ENTRY_PLUGIN        DICT_ENTRY_PREFIX"-plugin"
 #define DICT_ENTRY_PLUGIN_DATA   DICT_ENTRY_PREFIX"-plugin-data"
@@ -207,6 +208,8 @@ typedef struct dictDatabase {
    int virtual_db;   /* non-zero for virtual databases */
    int plugin_db;    /* non-zero for plugin entry */
    int normal_db;    /* non-zero for normal database */
+
+   int default_strategy;    /* default search strategy for `.' */
 
    /* database_virtual members */
    const char *database_list;  /* comma-separated list of database names */

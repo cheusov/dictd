@@ -258,7 +258,13 @@ logging has been enabled with the \-s or \-L option, or with a debugging
 option.)
 .TP
 .BI \-\-default-strategy " strategy"
-Set the default strategy for MATCH search type. The default is 'lev'.
+Set the server's default search strategy for MATCH search type.
+The default is 'lev'. It is also possible to set default strategy per database.
+See
+.I default_strategy
+keyword in
+.I Database specification
+section.
 .TP
 .BI \-\-without-strategy " strat1,strat2,..."
 Disable specified strategies.
@@ -288,7 +294,6 @@ self test -- set search type to MATCH. The default is DEFINE.
 By default, dictd creates (in memory) additional index
 to make the search faster.
 This option disables this behaviour and makes startup faster.
-Use of this option make sense on CYGWIN, but normally you should not use it.
 .TP
 .B \-\-without-mmap
 do not use the mmap() function and read entire files into memory instead.
@@ -680,6 +685,17 @@ Disables the specified strategy for database.
 This may be useful for slow dictionaries (plugins)
 or for dictionaries included to virtual ones.
 For an example see file example_complex.conf.
+.TP
+.BI default_strategy " string"
+Specifies the strategy which will be used
+if the database is accessed using the strategy '.'.
+I.e. this directive is the way to set the preferred search strategy
+per database. For example, instead of strategy
+.I lev
+, the strategy
+.I word
+may be prefered for databases mainly containing
+the multiword phrases but the single words.
 
 .RE
 .TP
@@ -725,22 +741,32 @@ Specifies data for initializing plugin.
 .BI name " string"
 Specifies the short name of the database.
 See
-.I database specification
+.I Database Specification
+for more information.
 .TP
 .BI info " string"
 Specifies the information about database.
 See
-.I database specification
+.I Database Specification
+for more information.
 .TP
 .BI invisible
 Makes dictionary invisible to the clients.
 See
-.I database specification
+.I Database Specification
+for more information.
 .TP
 .BI disable_strategy " string"
 Disables the specified strategy for database.
 See
-.I database specification
+.I Database Specification
+for more information.
+.TP
+.BI default_strategy " string"
+Sets the default search strategy for database.
+See
+.I Database Specification
+for more information.
 .TP
 .B NOTE:
 Another way to configure plugin is to create

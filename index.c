@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.91 2004/10/12 12:55:14 cheusov Exp $
+ * $Id: index.c,v 1.92 2004/10/12 14:39:03 cheusov Exp $
  * 
  */
 
@@ -1347,6 +1347,10 @@ int dict_search_database_ (
 
    assert (database);
    assert (database -> index);
+
+   if (strategy == DICT_STRAT_DOT){
+      strategy = database -> default_strategy;
+   }
 
    buf = alloca( strlen( word ) + 1 );
 

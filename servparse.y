@@ -17,12 +17,13 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.19 2003/10/11 16:51:36 cheusov Exp $
+ * $Id: servparse.y,v 1.20 2004/10/12 14:39:03 cheusov Exp $
  * 
  */
 
 %{
 #include "dictd.h"
+#include "strategy.h"
 #define YYDEBUG 1
 #define YYERROR_VERBOSE
 
@@ -53,6 +54,7 @@ static dictDatabase *db;
 %token <token> TOKEN_INVISIBLE TOKEN_DISABLE_STRAT
 %token <token> TOKEN_DATABASE_VIRTUAL TOKEN_DATABASE_LIST
 %token <token> TOKEN_DATABASE_PLUGIN TOKEN_PLUGIN
+%token <token> TOKEN_DEFAULT_STRAT
 
 %type  <token>  Site
 %type  <access> AccessSpec
@@ -192,7 +194,7 @@ Database : TOKEN_DATABASE TOKEN_STRING
 	      db = xmalloc(sizeof(struct dictDatabase));
 	      memset( db, 0, sizeof(struct dictDatabase));
 	      db->databaseName = $2.string;
-	      db->plugin_db   = 1;
+	      db->plugin_db    = 1;
 	   }
            '{' SpecList_plugin '}' { $$ = db; }
            |
@@ -211,41 +213,81 @@ SpecList_virtual : Spec_virtual
          | SpecList_virtual Spec_virtual
          ;
 
-Spec_virtual : TOKEN_NAME TOKEN_STRING       { SET(databaseShort,$1,$2); }
-     | TOKEN_INFO TOKEN_STRING               { SET(databaseInfo,$1,$2); }
+Spec_virtual : Spec__name
+     | Spec__info
      | TOKEN_DATABASE_LIST TOKEN_STRING      { SET(database_list,$1,$2);}
-     | TOKEN_INVISIBLE               { db->invisible = 1; }
-     | TOKEN_DISABLE_STRAT TOKEN_STRING { dict_disable_strat (db, $2.string); }
-     | Access                    { db->acl = $1; }
+     | Spec__invisible
+     | Spec__disable_strat
+     | Spec__access
      ;
 
 SpecList_plugin : Spec_plugin
          | SpecList_plugin Spec_plugin
          ;
 
-Spec_plugin : TOKEN_NAME TOKEN_STRING       { SET(databaseShort,$1,$2); }
-     | TOKEN_INFO TOKEN_STRING               { SET(databaseInfo,$1,$2); }
+Spec_plugin : Spec__name
+     | Spec__info
      | TOKEN_PLUGIN TOKEN_STRING      { SET(pluginFilename,$1,$2);}
      | TOKEN_DATA TOKEN_STRING        { SET(plugin_data,$1,$2);}
-     | TOKEN_INVISIBLE               { db->invisible = 1; }
-     | TOKEN_DISABLE_STRAT TOKEN_STRING { dict_disable_strat (db, $2.string); }
-     | Access                    { db->acl = $1; }
+     | Spec__invisible
+     | Spec__disable_strat
+     | Spec__access
      ;
 
 SpecList : Spec
          | SpecList Spec
          ;
 
-Spec : TOKEN_DATA TOKEN_STRING              { SET(dataFilename,$1,$2); }
-     | TOKEN_INDEX TOKEN_STRING             { SET(indexFilename,$1,$2); }
-     | TOKEN_INDEX_SUFFIX TOKEN_STRING      { SET(indexsuffixFilename,$1,$2); }
-     | TOKEN_INDEX_WORD TOKEN_STRING        { SET(indexwordFilename,$1,$2); }
-     | TOKEN_FILTER TOKEN_STRING     { SET(filter,$1,$2); }
-     | TOKEN_PREFILTER TOKEN_STRING  { SET(prefilter,$1,$2); }
-     | TOKEN_POSTFILTER TOKEN_STRING { SET(postfilter,$1,$2); }
-     | TOKEN_NAME TOKEN_STRING       { SET(databaseShort,$1,$2); }
-     | TOKEN_INFO TOKEN_STRING               { SET(databaseInfo,$1,$2); }
-     | TOKEN_INVISIBLE           { db->invisible = 1; }
-     | TOKEN_DISABLE_STRAT TOKEN_STRING { dict_disable_strat (db, $2.string); }
-     | Access                { db->acl = $1; }
+Spec : Spec__data
+     | Spec__index
+     | Spec__index_suffix
+     | Spec__index_word
+     | Spec__filter
+     | Spec__prefilter
+     | Spec__postfilter
+     | Spec__name
+     | Spec__info
+     | Spec__invisible
+     | Spec__disable_strat
+     | Spec__default_strat
+     | Spec__access
      ;
+
+Spec__access : Access
+     {  db->acl = $1;  };
+
+Spec__data : TOKEN_DATA TOKEN_STRING
+     {	SET(dataFilename,$1,$2);  };
+
+Spec__index : TOKEN_INDEX TOKEN_STRING
+     {  SET(indexFilename,$1,$2);  };
+
+Spec__index_suffix : TOKEN_INDEX_SUFFIX TOKEN_STRING
+     {  SET(indexsuffixFilename,$1,$2); };
+
+Spec__index_word : TOKEN_INDEX_WORD TOKEN_STRING
+     {  SET(indexwordFilename,$1,$2);  };
+
+Spec__filter : TOKEN_FILTER TOKEN_STRING
+     {  SET(filter,$1,$2);  };
+
+Spec__prefilter : TOKEN_PREFILTER TOKEN_STRING
+     {  SET(prefilter,$1,$2);  };
+
+Spec__postfilter : TOKEN_POSTFILTER TOKEN_STRING
+     {  SET(postfilter,$1,$2);  };
+
+Spec__name : TOKEN_NAME TOKEN_STRING
+     {  SET(databaseShort,$1,$2);  };
+
+Spec__info : TOKEN_INFO TOKEN_STRING
+     {  SET(databaseInfo,$1,$2);  };
+
+Spec__invisible : TOKEN_INVISIBLE 
+     {  db->invisible = 1;  };
+
+Spec__disable_strat : TOKEN_DISABLE_STRAT TOKEN_STRING
+     {  dict_disable_strat (db, $2.string);  };
+
+Spec__default_strat : TOKEN_DEFAULT_STRAT TOKEN_STRING
+     {  db -> default_strategy = lookup_strategy_ex ($2.string);  };
