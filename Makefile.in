@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.61 2003/01/03 19:43:35 cheusov Exp $
+# $Id: Makefile.in,v 1.62 2003/01/09 13:30:35 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -43,6 +43,8 @@ libexecdir=     @libexecdir@
 sbindir=        @sbindir@
 includedir=     @includedir@
 datadir=        @datadir@
+
+DESTDIR=
 
 SHELL=		/bin/sh
 
@@ -84,15 +86,15 @@ all             :: plugins
 samples         : dictdplugin_exit.so dictdplugin_popen.so man_popen.dict
 install.samples : samples
 	{ \
-    if test ! -d $(libexecdir); then $(INSTALL) -d 755 $(libexecdir); fi; \
-    if test ! -d $(datadir); then $(INSTALL) -d 755 $(datadir); fi; \
-    $(INSTALL_DATA) dictdplugin_exit.so dictdplugin_popen.so $(libexecdir); \
-    $(INSTALL_DATA) man_popen.{dict,index} $(datadir); \
-    $(INSTALL_SCRIPT) search_man $(libexecdir); \
+    if test ! -d $(DESTDIR)$(libexecdir); then $(INSTALL) -d 755 $(DESTDIR)$(libexecdir); fi; \
+    if test ! -d $(DESTDIR)$(datadir); then $(INSTALL) -d 755 $(DESTDIR)$(datadir); fi; \
+    $(INSTALL_DATA) dictdplugin_exit.so dictdplugin_popen.so $(DESTDIR)$(libexecdir); \
+    $(INSTALL_DATA) man_popen.{dict,index} $(DESTDIR)$(datadir); \
+    $(INSTALL_SCRIPT) search_man $(DESTDIR)$(libexecdir); \
     } || true
 
 uninstall.samples :
-	rm -f $(datadir)/man_popen.{dict,index} $(libexecdir)/{search_man,dictdplugin_exit.so,dictdplugin_popen.so}
+	rm -f $(DESTDIR)$(datadir)/man_popen.{dict,index} $(DESTDIR)$(libexecdir)/{search_man,dictdplugin_exit.so,dictdplugin_popen.so}
 
 endif
 
@@ -203,49 +205,49 @@ clientparse.o: clientparse.c $(HEADERS)
         install.libs install.includes
 
 install.dict: dict
-	if test ! -d $(bindir); then $(INSTALL) -d 755 $(bindir); fi; \
-	if test ! -d $(man1_prefix); then $(INSTALL) -d 755 $(man1_prefix); fi; \
-	$(INSTALL_PROGRAM) dict $(bindir); \
-	$(INSTALL_DATA) dict.1 $(man1_prefix)/dict.1
+	if test ! -d $(DESTDIR)$(bindir); then $(INSTALL) -d 755 $(DESTDIR)$(bindir); fi; \
+	if test ! -d $(DESTDIR)$(man1_prefix); then $(INSTALL) -d 755 $(DESTDIR)$(man1_prefix); fi; \
+	$(INSTALL_PROGRAM) dict $(DESTDIR)$(bindir); \
+	$(INSTALL_DATA) dict.1 $(DESTDIR)$(man1_prefix)/dict.1
 
 install.dictzip: dictzip
-	if test ! -d $(bindir); then $(INSTALL) -d 755 $(bindir); fi; \
-	if test ! -d $(man1_prefix); then $(INSTALL) -d 755 $(man1_prefix); fi; \
-	$(INSTALL_PROGRAM) dictzip $(bindir); \
-	$(INSTALL_DATA) dictzip.1 $(man1_prefix)/dictzip.1
+	if test ! -d $(DESTDIR)$(bindir); then $(INSTALL) -d 755 $(DESTDIR)$(bindir); fi; \
+	if test ! -d $(DESTDIR)$(man1_prefix); then $(INSTALL) -d 755 $(DESTDIR)$(man1_prefix); fi; \
+	$(INSTALL_PROGRAM) dictzip $(DESTDIR)$(bindir); \
+	$(INSTALL_DATA) dictzip.1 $(DESTDIR)$(man1_prefix)/dictzip.1
 
 install.dictfmt: dictfmt dictfmt_index2word dictfmt_index2suffix dictfmt_plugin
-	if test ! -d $(bindir); then $(INSTALL) -d 755 $(bindir); fi; \
-	if test ! -d $(man1_prefix); then $(INSTALL) -d 755 $(man1_prefix); fi; \
-	$(INSTALL_PROGRAM) dictfmt $(bindir); \
-	$(INSTALL_SCRIPT) dictfmt_index2suffix $(bindir); \
-	$(INSTALL_SCRIPT) dictfmt_index2word $(bindir); \
-	$(INSTALL_SCRIPT) dictfmt_virtual $(bindir); \
-	$(INSTALL_SCRIPT) dictunformat $(bindir); \
-	$(INSTALL_DATA) dictfmt.1 $(man1_prefix)/dictfmt.1; \
+	if test ! -d $(DESTDIR)$(bindir); then $(INSTALL) -d 755 $(DESTDIR)$(bindir); fi; \
+	if test ! -d $(DESTDIR)$(man1_prefix); then $(INSTALL) -d 755 $(DESTDIR)$(man1_prefix); fi; \
+	$(INSTALL_PROGRAM) dictfmt $(DESTDIR)$(bindir); \
+	$(INSTALL_SCRIPT) dictfmt_index2suffix $(DESTDIR)$(bindir); \
+	$(INSTALL_SCRIPT) dictfmt_index2word $(DESTDIR)$(bindir); \
+	$(INSTALL_SCRIPT) dictfmt_virtual $(DESTDIR)$(bindir); \
+	$(INSTALL_SCRIPT) dictunformat $(DESTDIR)$(bindir); \
+	$(INSTALL_DATA) dictfmt.1 $(DESTDIR)$(man1_prefix)/dictfmt.1; \
 	test _$(USE_PLUGIN) = _1 && \
-	    $(INSTALL_SCRIPT) dictfmt_plugin $(bindir) || true
+	    $(INSTALL_SCRIPT) dictfmt_plugin $(DESTDIR)$(bindir) || true
 
 install.dictd: dictd
-	if test ! -d $(sbindir); then $(INSTALL) -d 755 $(sbindir); fi; \
-	if test ! -d $(man8_prefix); then install -d 755 $(man8_prefix); fi; \
-	$(INSTALL_PROGRAM) dictd $(sbindir); \
-	$(INSTALL_DATA) dictd.8 $(man8_prefix)/dictd.8
+	if test ! -d $(DESTDIR)$(sbindir); then $(INSTALL) -d 755 $(DESTDIR)$(sbindir); fi; \
+	if test ! -d $(DESTDIR)$(man8_prefix); then $(INSTALL) -d 755 $(DESTDIR)$(man8_prefix); fi; \
+	$(INSTALL_PROGRAM) dictd $(DESTDIR)$(sbindir); \
+	$(INSTALL_DATA) dictd.8 $(DESTDIR)$(man8_prefix)/dictd.8
 
 install.libs: $(LIBRARIES)
 	test _$(USE_PLUGIN) = _1 && \
-	{ if test ! -d $(libdir); then $(INSTALL) -d 755 $(libdir); fi; \
-	$(INSTALL_DATA) $(LIBRARIES) $(libdir); } || true
+	{ if test ! -d $(DESTDIR)$(libdir); then $(INSTALL) -d 755 $(DESTDIR)$(libdir); fi; \
+	$(INSTALL_DATA) $(LIBRARIES) $(DESTDIR)$(libdir); } || true
 
 install.includes:
 	test _$(USE_PLUGIN) = _1 && \
-	{ if test ! -d $(includedir); then $(INSTALL) -d 755 $(includedir); fi; \
-    $(INSTALL_DATA) $(INCLUDES) $(includedir); } || true
+	{ if test ! -d $(DESTDIR)$(includedir); then $(INSTALL) -d 755 $(DESTDIR)$(includedir); fi; \
+    $(INSTALL_DATA) $(INCLUDES) $(DESTDIR)$(includedir); } || true
 
 install.plugins:
 	test _$(USE_PLUGIN) = _1 && \
-	{ if test ! -d $(libexecdir); then $(INSTALL) -d 755 $(libexecdir); fi; \
-    $(INSTALL_DATA) $(PLUGINS) $(libexecdir); } || true
+	{ if test ! -d $(DESTDIR)$(libexecdir); then $(INSTALL) -d 755 $(DESTDIR)$(libexecdir); fi; \
+    $(INSTALL_DATA) $(PLUGINS) $(DESTDIR)$(libexecdir); } || true
 
 .PHONY: install
 
@@ -253,42 +255,42 @@ install: \
 install.dict install.dictzip install.dictd install.dictfmt \
 install.libs install.includes install.plugins
 ifeq ($(USE_PLUGIN), 1)
-	$(INSTALL_SCRIPT) dictdplugin-config $(bindir)
+	$(INSTALL_SCRIPT) dictdplugin-config $(DESTDIR)$(bindir)
 endif
 
 .PHONY: uninstall.dict uninstall.dictzip uninstall.dictfmt uninstall.dictd \
         uninstall.libs uninstall.includes
 
 uninstall.dict:
-	rm -f $(bindir)/dict $(man1_prefix)/dict.1
+	rm -f $(DESTDIR)$(bindir)/dict $(DESTDIR)$(man1_prefix)/dict.1
 
 uninstall.dictzip:
-	rm -f $(bindir)/dictzip $(man1_prefix)/dictzip.1
+	rm -f $(DESTDIR)$(bindir)/dictzip $(DESTDIR)$(man1_prefix)/dictzip.1
 
 uninstall.dictd:
-	rm -f $(sbindir)/dictd $(man8_prefix)/dictd.8
+	rm -f $(DESTDIR)$(sbindir)/dictd $(DESTDIR)$(man8_prefix)/dictd.8
 
 uninstall.dictfmt:
-	rm -f $(bindir)/dictfmt $(man1_prefix)/dictfmt.1 \
-	$(bindir)/dictfmt_index2suffix \
-	$(bindir)/dictfmt_index2word \
-	$(bindir)/dictfmt_virtual \
-	$(bindir)/dictunformat; \
-	test _$(USE_PLUGIN) = _1 && rm -f $(bindir)/dictfmt_plugin || true
+	rm -f $(DESTDIR)$(bindir)/dictfmt $(DESTDIR)$(man1_prefix)/dictfmt.1 \
+	$(DESTDIR)$(bindir)/dictfmt_index2suffix \
+	$(DESTDIR)$(bindir)/dictfmt_index2word \
+	$(DESTDIR)$(bindir)/dictfmt_virtual \
+	$(DESTDIR)$(bindir)/dictunformat; \
+	test _$(USE_PLUGIN) = _1 && rm -f $(DESTDIR)$(bindir)/dictfmt_plugin || true
 
 uninstall.includes:
 ifeq ($(USE_PLUGIN), 1)
-	rm -f $(addprefix $(includedir)/, $(INCLUDES))
+	rm -f $(addprefix $(DESTDIR)$(includedir)/, $(INCLUDES))
 endif
 
 uninstall.libs:
 ifeq ($(USE_PLUGIN), 1)
-	rm -f $(addprefix $(libdir)/, $(LIBRARIES))
+	rm -f $(addprefix $(DESTDIR)$(libdir)/, $(LIBRARIES))
 endif
 
 uninstall.plugins:
 ifeq ($(USE_PLUGIN), 1)
-	rm -f $(addprefix $(libexecdir), $(PLUGINS))
+	rm -f $(addprefix $(DESTDIR)$(libexecdir), $(PLUGINS))
 endif
 
 .PHONY: uninstall
@@ -297,7 +299,7 @@ uninstall: \
 uninstall.dict uninstall.dictd uninstall.dictfmt uninstall.dictzip \
 uninstall.libs uninstall.includes uninstall.plugins
 ifeq ($(USE_PLUGIN), 1)
-	rm -f $(bindir)/dictdplugin-config
+	rm -f $(DESTDIR)$(bindir)/dictdplugin-config
 endif
 
 .PHONY: ChangeLog
