@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.119 2004/11/07 12:07:33 cheusov Exp $
+ * $Id: dictd.c,v 1.120 2005/03/28 09:55:27 cheusov Exp $
  * 
  */
 
@@ -49,19 +49,61 @@
 #define GID_NOGROUP 65534
 #endif
 
+
+
+
+
 extern int        yy_flex_debug;
 
 static int        _dict_daemon;
 static int        _dict_reaps;
-static int        _dict_daemon_limit        = DICT_DAEMON_LIMIT;
-static int        _dict_markTime;
+
 static char      *_dict_argvstart;
 static int        _dict_argvlen;
 
        int        _dict_forks;
+
+
+
+int default_strategy_set; /* 1 if set by command line option */
+
+
+int                logOptions   = 0;
+
+const char         *logFile     = NULL;
+int logFile_set; /* 1 if set by command line option */
+
+const char         *daemon_service     = DICT_DEFAULT_SERVICE;
+int daemon_service_set; /* 1 if set by command line option */
+
+int        _dict_daemon_limit        = DICT_DAEMON_LIMIT;
+int _dict_daemon_limit_set; /* 1 if set by command line option */
+
+int        _dict_markTime = 0;
+int _dict_markTime_set; /* 1 if set by command line option */
+
 const char        *locale       = "C";
+int locale_set; /* 1 if set by command line option */
+
+int         client_delay        = DICT_DEFAULT_DELAY;
+int client_delay_set; /* 1 if set by command line option */
+
+int                depth        = DICT_QUEUE_DEPTH;
+int depth_set; /* 1 if set by command line option */
+
+int                useSyslog    = 0;
+int syslog_facility_set; /* 1 if set by command line option */
+
 const char        *preprocessor = NULL;
+
 const char        *bind_to      = NULL;
+int bind_to_set; /* 1 if set by command line option */
+
+
+
+
+
+
 int                inetd        = 0;
 
 int                need_reload_config    = 0;
@@ -980,7 +1022,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.119 2004/11/07 12:07:33 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.120 2005/03/28 09:55:27 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1093,7 +1135,7 @@ static void help( void )
       printf( "%s\n", *p++ );
 }
 
-static void set_minimal( void )
+void set_minimal( void )
 {
    flg_set(flg_name(LOG_FOUND));
    flg_set(flg_name(LOG_NOTFOUND));
@@ -1433,15 +1475,9 @@ int main (int argc, char **argv, char **envp)
    int                c;
    time_t             startTime;
    int                alen         = sizeof(csin);
-   const char         *service     = DICT_DEFAULT_SERVICE;
    int                detach       = 1;
    const char         *testWord    = NULL;
    const char         *testFile    = NULL;
-   const char         *logFile     = NULL;
-   int                delay        = DICT_DEFAULT_DELAY;
-   int                depth        = DICT_QUEUE_DEPTH;
-   int                useSyslog    = 0;
-   int                logOptions   = 0;
    int                forceStartup = 0;
    int                i;
 
@@ -1531,12 +1567,21 @@ int main (int argc, char **argv, char **envp)
       case 'v': dbg_set( "verbose" );                     break;
       case 'V': banner(); exit(1);                        break;
       case 'd': dbg_set( optarg );                        break;
-      case 'p': service = str_copy(optarg);               break;
+      case 'p':
+	 daemon_service     = str_copy(optarg);
+	 daemon_service_set = 1;
+	 break;
       case 'c': configFile = str_copy(optarg);            break;
       case 't': testWord = str_copy(optarg);              break;
-      case 'L': logFile = str_copy(optarg);               break;
+      case 'L':
+	 logFile     = str_copy(optarg);
+	 logFile_set = 1;
+	 break;
       case 's': ++useSyslog;                              break;
-      case 'm': _dict_markTime = 60*atoi(optarg);         break;
+      case 'm':
+	 _dict_markTime     = 60*atoi(optarg);
+	 _dict_markTime_set = 1;
+	 break;
       case 'f': ++forceStartup;                           break;
       case 'i':
 	 inetd         = 1;
@@ -1549,11 +1594,27 @@ int main (int argc, char **argv, char **envp)
 	 break;
       case 500: license(); exit(1);                       break;
       case 501: testFile = str_copy(optarg);              break;
-      case 502: delay = atoi(optarg);                     break;
-      case 503: depth = atoi(optarg);                     break;
-      case 504: _dict_daemon_limit = atoi(optarg);        break;
-      case 505: ++useSyslog; log_set_facility(optarg);    break;
-      case 506: locale = str_copy(optarg);                break;
+      case 502:
+	 client_delay     = atoi(optarg);
+	 client_delay_set = 1;
+	 break;
+      case 503:
+	 depth     = atoi(optarg);
+	 depth_set = 1;
+	 break;
+      case 504:
+	 _dict_daemon_limit     = atoi(optarg);
+	 _dict_daemon_limit_set = 1;
+	 break;
+      case 505:
+	 ++useSyslog;
+	 log_set_facility (optarg);
+	 syslog_facility_set = 1;
+	 break;
+      case 506:
+	 locale     = str_copy (optarg);
+	 locale_set = 1;
+	 break;
       case 508: mmap_mode = 0;                            break;
       case 509: database_arg = str_copy(optarg);          break;
       case 507:
@@ -1562,7 +1623,8 @@ int main (int argc, char **argv, char **envp)
 	 break;
       case 511:
 	 default_strategy_arg = str_copy (optarg);
-	 default_strategy = lookup_strategy_ex (default_strategy_arg);
+	 default_strategy     = lookup_strategy_ex (default_strategy_arg);
+	 default_strategy_set = 1;
 	 break;
       case 512:
 	 match_mode = 1;
@@ -1591,7 +1653,10 @@ int main (int argc, char **argv, char **envp)
 	 break;
       case 517: optStart_mode = 0;                        break;
       case 518: preprocessor = str_copy (optarg);         break;
-      case 519: bind_to      = str_copy (optarg);         break;
+      case 519:
+	 bind_to     = str_copy (optarg);
+	 bind_to_set = 1;
+	 break;
       case 520:
 	 database_arg = str_copy(optarg);
 	 show_info_mode = 1;
@@ -1627,6 +1692,11 @@ int main (int argc, char **argv, char **envp)
    if (flg_test(LOG_TIMESTAMP)) log_option( LOG_OPTION_FULL );
    else                         log_option( LOG_OPTION_NO_FULL );
 
+   if (!access(configFile,R_OK)) {
+      prs_file_pp (preprocessor, configFile );
+      postprocess_filenames (DictConfig);
+   }
+
    if (! inetd && detach)
       net_detach();
 
@@ -1643,15 +1713,10 @@ int main (int argc, char **argv, char **envp)
    log_info(":I: %d starting %s %24.24s\n",
 	    getpid(), dict_get_banner(0), ctime(&startTime));
 
-   set_locale_and_flags (locale);
-
    tim_start( "dictd" );
    alarm(_dict_markTime);
 
-   if (!access(configFile,R_OK)) {
-      prs_file_pp (preprocessor, configFile );
-      postprocess_filenames (DictConfig);
-   }
+   set_locale_and_flags (locale);
 
    sanity(configFile);
 
@@ -1700,11 +1765,11 @@ int main (int argc, char **argv, char **envp)
    dict_initsetproctitle(argc, argv, envp);
 
    if (inetd) {
-      dict_inetd(&argv,delay,0);
+      dict_inetd(&argv, client_delay, 0);
       exit(0);
    }
 
-   masterSocket = net_open_tcp( bind_to, service, depth );
+   masterSocket = net_open_tcp( bind_to, daemon_service, depth );
 
 
    for (;;) {
@@ -1713,7 +1778,7 @@ int main (int argc, char **argv, char **envp)
 			 _dict_forks - _dict_reaps,
 			 _dict_forks );
       if (flg_test(LOG_SERVER))
-         log_info( ":I: %d accepting on %s\n", getpid(), service );
+         log_info( ":I: %d accepting on %s\n", getpid(), daemon_service );
       if ((childSocket = accept(masterSocket,
 				(struct sockaddr *)&csin, &alen)) < 0) {
 	 if (errno == EINTR){
@@ -1746,7 +1811,7 @@ int main (int argc, char **argv, char **envp)
       }
 
       if (_dict_daemon || dbg_test(DBG_NOFORK)) {
-	 dict_daemon(childSocket,&csin,&argv,delay,0);
+	 dict_daemon(childSocket,&csin,&argv,client_delay,0);
       } else {
 	 if (_dict_forks - _dict_reaps < _dict_daemon_limit) {
 	    if (!start_daemon()) { /* child */
@@ -1754,14 +1819,14 @@ int main (int argc, char **argv, char **envp)
 
 	       alarm(0);
 	       dict_daemon (
-		  childSocket, &csin, &argv, delay,
+		  childSocket, &csin, &argv, client_delay,
 		  databases_loaded ? 0 : 2);
 	       exit(0);
 	    } else {		   /* parent */
 	       close(childSocket);
 	    }
 	 } else {
-	    dict_daemon(childSocket,&csin,&argv,delay,1);
+	    dict_daemon(childSocket,&csin,&argv,client_delay,1);
 	 }
       }
    }

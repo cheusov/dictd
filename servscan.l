@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servscan.l,v 1.23 2004/10/12 14:39:03 cheusov Exp $
+ * $Id: servscan.l,v 1.24 2005/03/28 09:55:27 cheusov Exp $
  * 
  */
 
@@ -75,6 +75,7 @@ static int escape_string (char *s, int len)
 
 %}
 %s OTHER
+integer                     [[:digit:]]+
 comment                     #.*
 word                        ([[:alnum:]_/\-\.\*][[:alnum:]_/\-\.\*]*)
 string                      \"(([^\"\n])|\"\"|\\\n|\\\")*\"
@@ -112,14 +113,34 @@ plugin                      RETURN(TOKEN_PLUGIN);
 disable_strategy            RETURN(TOKEN_DISABLE_STRAT);
 default_strategy            RETURN(TOKEN_DEFAULT_STRAT);
 
+global                      RETURN(TOKEN_GLOBAL);
+port                        RETURN(TOKEN_PORT);
+delay                       RETURN(TOKEN_DELAY);
+depth                       RETURN(TOKEN_DEPTH);
+limit                       RETURN(TOKEN_LIMIT);
+timestamp                   RETURN(TOKEN_TIMESTAMP);
+log_option                  RETURN(TOKEN_LOG_OPTION);
+debug_option                RETURN(TOKEN_DEBUG_OPTION);
+locale                      RETURN(TOKEN_LOCALE);
+add_strategy                RETURN(TOKEN_ADD_STRAT);
+listen_to                   RETURN(TOKEN_LISTEN_TO);
+syslog                      RETURN(TOKEN_SYSLOG);
+syslog_facility             RETURN(TOKEN_SYSLOG_FACILITY);
+log_file                    RETURN(TOKEN_LOG_FILE);
+fast_start                  RETURN(TOKEN_FAST_START);
+without_mmap                RETURN(TOKEN_WITHOUT_MMAP);
+
+{integer}                   { yylval.token.integer = atoi(yytext);
+                              RETURN(TOKEN_NUMBER);
+                            }
 {word}                      { yylval.token.string = str_findn(yytext, yyleng);
                               RETURN(TOKEN_STRING);
                             }
 {string}                    {
 				yylval.token.string =
-					str_findn (
-						yytext+1,
-						escape_string (yytext+1, yyleng-2));
+				   str_findn (
+				      yytext+1,
+				      escape_string (yytext+1, yyleng-2));
 				RETURN(TOKEN_STRING);
                             }
 {NL}                        BEGIN(INITIAL);

@@ -35,11 +35,11 @@ Version 1.9.15, by Aleksey Cheusov, Thu, 23 Dec 2004 21:16:03 +0200
         NOTE: `-dinit' option may show you a reason why dictd doesn't start.
               If you are in trouble, apply it first (and -L or -s of course)!
 
-    - dictd works correctly even on platforms which do not support
+    - dictd works correctly even on platforms which do not provide
         `iswalnum', `iswspace' and `towlower' functions.
         Dictd with utf-8 databases was slightly tested on FreeBSD4.{9,10}
 
-    -fixed: logging is directed when --inetd is applied
+    -fixed: logging is directed to stderr when --inetd is applied
 
     - `AC_FUNC_MMAP' is replaced for `AC_CHECK_FUNC(mmap)' in configure.in
       As a result `mmap/munmap' functions will be used on CYGWIN and INTERIX

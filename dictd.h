@@ -41,6 +41,31 @@
 #include <arpa/inet.h>
 */
 
+extern const char *daemon_service;
+extern int client_delay;
+extern int depth;
+extern int _dict_daemon_limit;
+extern int _dict_markTime;
+extern const char *logFile;
+extern int logOptions;
+extern const char *bind_to;
+extern int useSyslog;
+extern const char *logFile;
+
+extern int daemon_service_set;
+extern int logFile_set;
+extern int _dict_markTime_set;
+extern int client_delay_set;
+extern int depth_set;
+extern int _dict_daemon_limit_set;
+extern int syslog_facility_set;
+extern int locale_set;
+extern int default_strategy_set;
+extern int bind_to_set;
+
+
+
+
 extern void       dict_disable_strat (dictDatabase *db, const char* strat);
 
 extern void       dict_dump_list( lst_List list );
@@ -54,6 +79,8 @@ extern void       dict_plugin_close (dictDatabase *db);
 #endif
 
 /* dictd.c */
+
+extern void set_minimal (void);
 
 extern void       dict_initsetproctitle( int argc, char **argv, char **envp );
 extern void       dict_setproctitle( const char *format, ... );
@@ -83,8 +110,8 @@ extern const char *postprocess_plugin_filename (const char *fn);
 /* daemon.c */
 
 extern int  dict_daemon( int s, struct sockaddr_in *csin, char ***argv0,
-			 int delay, int error );
-extern int  dict_inetd( char ***argv0, int delay, int error );
+			 int delay_, int error );
+extern int  dict_inetd( char ***argv0, int delay_, int error );
 extern void daemon_terminate( int sig, const char *name );
 
 /* */

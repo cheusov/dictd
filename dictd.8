@@ -134,11 +134,11 @@ Specify configuration file.  The default is
 file at compile time (DICTD_CONFIG_FILE).
 .TP
 .BI \-p " port\fR or " \-\-port " port"
-Specifies the port (e.g., 2628).
-The default is 2628, as specified in the DICT Protocol RFC, but may be
-changed in the
-.I defs.h
-file at compile time (DICT_DEFAULT_SERVICE).
+Overrides the keyword
+.B port
+in
+.I Global Settings Specification
+section of configuration file.
 .TP
 .BR \-i " or " \-\-inetd
 Communicate on standard input/output, suitable for use from inetd.
@@ -157,36 +157,25 @@ from distribution. By default configuration file is parsed without
 preprocessor.
 .TP
 .BI \-\-depth " length"
-Specify the queue length for
-.BR listen (2).
-Specifies the number of pending socket connections which are queued by the
-operating system.  Some operating systems may silently limit this value to
-5 (older BSD systems) or 128 (Linux).  The default is 10 but may be changed
-in the
-.I defs.h
-file at compile time (DICT_QUEUE_DEPTH).
+Overrides the keyword
+.B depth
+in
+.I Global Settings Specification
+section of configuration file.
 .TP
 .BI \-\-delay " seconds"
-Specifies the number of seconds a client may be idle before the server will
-close the connection.  Idle time is defined to be the time the server is
-waiting for input and does not include the time the server spends searching
-the database.  Connections are closed without warning since no provision
-for premature connection termination is specified in the DICT protocol
-RFC.  The default is 600 seconds (10 minutes), but may be changed in the
-.I defs.h
-file at compile time (DICT_DEFAULT_DELAY).
+Overrides the keyword
+.B delay
+in
+.I Global Settings Specification
+section of configuration file.
 .TP
 .BI \-\-facility " facility"
-Specifies the syslog facility to use.  The use of this option implies the
-.B \-s
-option to turn on logging via syslog.  When the operating system
-libraries support SYSLOG_NAMES, the names used for this option should be
-those listed in
-.BR syslog.conf (5).
-Otherwise, the following names are used (assuming the particular
-facility is defined in the header files): auth, authpriv, cron, daemon,
-ftp, kern, lpr, mail, news, syslog, user, uucp, local0, local1, local2,
-local3, local4, local5, local6, and local7.
+The same as
+.B syslog_facility
+keyword in
+.I Global Settings Specification
+of configuration files.
 .TP
 .BR \-f " or " \-\-force
 Force the daemon to start even if an instance of the daemon is already
@@ -197,82 +186,67 @@ since, if one instance is bound to a port, the second one fails when it
 can not bind to the port.)
 .TP
 .BI \-\-limit " children"
-Specifies the number of daemons that may be running simultaneously.  Each
-daemon services a single connection.  If the limit is exceeded, a
-(serialized) connection will be made by the server process, and a response
-code 420 (server temporarily unavailable) will be sent to the client.  This
-parameter should be adjusted to prevent the server machine from being
-overloaded by dict clients, but should not be set so low that many clients
-are denied useful connections. The default is 100, but may be changed in
-the
-.I defs.h
-file at compile time (DICT_DAEMON_LIMIT).
+Overrides the keyword
+.B limit
+in
+.I Global Settings Specification
+section of configuration file.
 .TP
 .BI \-\-listen\-to " address"
-Binds socket to the specified address.
-If you want to allow connections to dict server from localhost only,
-apply 
-.B \-\-listen\-to 127.0.0.1
+Overrides the keyword
+.B listen\_to
+in
+.I Global Settings Specification
+section of configuration file.
 .TP
 .BI \-\-locale " locale"
-Specifies the locale used for searching.  If no locale is specified, the
-"C" locale is used.  The locale used for the server should be the same
-as that used for dictfmt when the database was built (specifically, the
-locale under which the index was sorted). The locale should be specified
-for both 8-bit and UTF-8 formats. If locale contains utf8 or utf-8
-substring, UTF-8 format is expected.
-Note that if your database is not in ASCII7 or UTF-8 format,
-then the dictd server will not be compliant to RFC 2229.
-.RS
-.P
-.BI NOTE 
-If utf-8 or 8-bit dictionaries are included in the configuration file,
-and the appropriate --locale has not been specified,
-.B dictd
-will fail to start.  This implies that
-.B dictd 
-will not run with both utf-8 and 8-bit dictionaries in the
-configuration file.
-.RE
+Overrides the keyword
+.B locale
+in
+.I Global Settings Specification
+section of configuration file.
 .TP
 .B \-s
-Log using the
-.BR syslog (3)
-facility.
+The same as
+.B syslog
+keyword in
+.I Global Settings Specification
+of configuration files.
 .TP
 .BI \-L " file\fR or " \-\-logfile " file"
-Specify the file for logging.  The filename specified is recomputed on
-each use using the
-.BR strftime (3)
-call.  For example, a filename ending in ".%Y%m%d" will write to log
-files ending in the year, month, and date that the log entry was
-written.
-.B NOTE:
-If
-.B dictd
-does not have write permission for this file, it will silently fail.
+The same as
+.B log_file
+keyword in
+.I Global Settings Specification
+of configuration files.
 .TP
 .BI \-m  " minutes \fR or "\-\-mark " minutes"
-How often a timestamp should be logged.  (This is effective only if
-logging has been enabled with the \-s or \-L option, or with a debugging
-option.)
+Overrides the keyword
+.B timestamp
+in
+.I Global Settings Specification
+section of configuration file.
 .TP
-.BI \-\-default-strategy " strategy"
-Set the server's default search strategy for MATCH search type.
-The default is 'lev'. It is also possible to set default strategy per database.
-See
-.I default_strategy
-keyword in
-.I Database specification
-section.
+.BI \-\-default\-strategy " strategy"
+Overrides the keyword
+.B default_strategy
+in
+.I Global Settings Specification
+section of configuration file.
 .TP
 .BI \-\-without-strategy " strat1,strat2,..."
-Disable specified strategies.
-By default all search strategies are enabled.
+The same as
+.B without_strategy
+keyword in
+.I Global Settings Specification
+of configuration files.
 .TP
-.BI \-\-add-strategy " strat:descr"
-Adds strategy 'strat' with the description 'descr'.
-A new search strategy may be implemented with a help of plugins.
+.BI \-\-add-strategy " strategy_name:description"
+The same as
+.B add_strategy
+keyword in
+.I Global Settings Specification
+of configuration files.
 .TP
 .BI \-\-test " word \fR or "\-t " word"
 self test -- lookup word
@@ -291,24 +265,253 @@ self test -- set dictionary to be searched. The default is '*'.
 self test -- set search type to MATCH. The default is DEFINE.
 .TP
 .BI \-\-fast-start
-By default, dictd creates (in memory) additional index
-to make the search faster.
-This option disables this behaviour and makes startup faster.
+The same as
+.B fast_start
+keyword in
+.I Global Settings Specification
+of configuration files.
 .TP
 .B \-\-without-mmap
-do not use the mmap() function and read entire files into memory instead.
-Use this option, if you know exactly what you are doing.
+The same as
+.B without_mmap
+keyword in
+.I Global Settings Specification
+of configuration files.
 .TP
-
 .BI \-l " option\fR or " \-\-log " option"
+The same as
+.B log_option
+keyword in
+.I Global Settings Specification
+of configuration files.
+.TP
+.BI \-d " option"
+The same as
+.B debug_option
+keyword in
+.I Global Settings Specification
+of configuration files.
+.RE
+.SH "CONFIGURATION FILE"
+.TP
+.B Introduction
+The configuration file defaults to
+.I /etc/dictd.conf 
+but can be specified on the command line with the
+.B \-c
+option (see above).
+.RS
+.P
+The configuration file is read into memory at startup, and is not
+referenced again by
+.B dictd
+unless a signal 1 
+.B (SIGHUP)
+is received, which will cause 
+.B dictd 
+to reread the configuration file.
+.P
+The file is divided into sections.  The Site Section should come
+first, followed by the Access Section, the Database Section, and the
+User Section.  The Database Section is required; the others are
+optional, but they must be in the order listed here.
+.RE
+.TP
+.B Syntax
+The following keywords are valid in a configuration file: access,
+allow, deny, group, database, data, index, filter, prefilter,
+postfilter, name, include, user, authonly, site.  Keywords are case
+sensitive.  String arguments that contain spaces should be surrounded
+by double quotes.  Without quoting, strings may contain alphanumeric
+characters and _, -, ., and *, but not spaces.  Strings can be
+continued between lines.  \\", \\\\, \\n, \\<NL> are treated as double
+quote, backslash, new line and no symbol respectively.  Comments start
+with # and extend to the end of the line.
+.TP
+.B Global Settings Section
+.RS
+.TP
+.BI "global {" " global settings specification " "}"
+Used to set global
+.B dictd
+setting such as log file, syslog faility, locale and so on.
+.RE
+.TP
+.B Site Section
+.RS
+.TP
+.BI site " string"
+Used to specify the filename for the site information file, a flat text
+file which will be displayed in response to the SHOW SERVER command.  This
+section, if present, must be first.
+.RE
+.TP
+.B Access Section
+.RS
+.TP
+.BI "access {" " access specification " "}"
+This section, the second if the Site Section is present, contains access
+restrictions for the server and all of the databases collectively.
+Per-database control is specified in the Database Section.
+.RE
+.TP
+.B Database Section
+.RS
+.TP
+.BI database " string " "{ " "database specification " "}"
+The string specifies the name of the database
+(e.g., wn or web1913).  (This is an arbitrary name selected by the
+administrator, and is not necessarily related to the file name or any
+name listed in the data file.  A short, easy to type name is often
+selected for easy use with 
+.BR "dict -d".)
+.B NOTE:
+If the files specified in the database specification do not exist on the
+system, dictd may silently fail.
+.TP
+.BI database_virtual " string " "{ " "virtual database specification " "}"
+This section specifies the virtual database.
+The string specifies the name of the database (e.g., en-ru or fren).
+.TP
+.BI database_plugin " string " "{ " "plugin specification " "}"
+This section specifies the plugin.
+The string specifies the name of the database.
+.TP
+.BI database_exit
+Excludes following databases from the '*' database.
+By default '*' means all databases available.
+Look at 'example_virtual.conf' file for example configuration.
+.B NOTE:
+If you use 'virtual' dictionaries, you should use this directive,
+otherwise you will search the same dictionary twice.
+.RE
+.TP
+.B User Section
+.RS
+.TP
+.BI user " string" " string"
+The first string specifies the username, and the second string specifies
+the shared secret for this username.  When the AUTH command is used, the
+client will provide the username and a hashed version of the shared
+secret.  If the shared secret matches, the user is said to have
+authenticated, and will have access to databases whose access
+specifications allow that user (by name, or by wildcard).  If present, this
+section must appear last in the configuration file.  There may be many user
+entries.  The shared secret should be kept secret, as anyone who has access
+to it can access the shared databases (assuming access is not denied by
+domain name).
+.RE
+.TP
+.B Access Specification
+.RS
+Access specifications may occur in the Access Section or in the Database
+Section.  The access specification will be described here.
+.P
+For allow, deny, and authonly, a star (*) may be used as a wild card that
+matches any number of characters.  A question mark (?) may be used as a
+wildcard that matches a single character.  For example, 10.0.0.* and *.edu
+are valid strings.
+.P
+Further, a range of IP addresses and an IP address followed by a netmask
+may be specified.  For example, 10.0.0.0:10.0.0.255, 10.0.0.0/24, and
+10.0.0.* all specify the same range of IP numbers.  Notation cannot be
+combined on the same line.  If the notation does not make sense, access
+will be denied by default.  Use the
+.I "--debug auth"
+option to debug related problems.
+.P
+Note that these specifications take only one string per specification
+line.  However, you can have multiple lines of each type.
+.P
+The syntax is as follows:
+.TP
+.BI allow " string"
+The string specifies a domain name or IP address which is allowed access
+to the server (in the Access Section) or to a database (in the Database
+Section).  Note that more than one string is not permitted for a single
+"allow" line, but more than one "allow" lines are permitted in the
+configuration file.
+.TP
+.BI deny " string"
+The string specifies a domain name or IP address which is denied access to
+the server (in the Access Section) or to a database (in the Database
+Section).  Note that if reverse DNS is not working, then only the IP number
+will be checked.  Therefore, it is essential to deny networks based on IP
+number, since a denial based on domain name may not always be checked.
+.TP
+.BI authonly " string"
+This form is only useful in the Access Section.  The string specifies a
+domain name or IP address which is allowed access to the server but not to
+any of the databases.  All commands are valid except DEFINE, MATCH, and
+SHOW DB.  More specifically AUTH is a valid command, and commands which
+access the databases are not allowed.
+.TP
+.BI user " string"
+This form is only useful in the Database Section.  The string specifies a
+username that is allowed to access this database after a successful AUTH
+command is executed.
+.RE
+.TP
+.B Global Settings Specification
+.RS
+This section describes the following parameters:
+.TP
+.BI port " string\_or\_number"
+Specifies the port or service name (e.g., 2628).
+The default is 2628, as specified in the DICT Protocol RFC, but may be
+changed in the
+.I defs.h
+file at compile time (DICT_DEFAULT_SERVICE).
+.TP
+.BI delay " number"
+Specifies the number of seconds a client may be idle before the server will
+close the connection.  Idle time is defined to be the time the server is
+waiting for input and does not include the time the server spends searching
+the database.  Connections are closed without warning since no provision
+for premature connection termination is specified in the DICT protocol
+RFC.  The default is 600 seconds (10 minutes), but may be changed in the
+.I defs.h
+file at compile time (DICT_DEFAULT_DELAY).
+.TP
+.BI depth " number"
+Specify the queue length for
+.BR listen (2).
+Specifies the number of pending socket connections which are queued by the
+operating system.  Some operating systems may silently limit this value to
+5 (older BSD systems) or 128 (Linux).  The default is 10 but may be changed
+in the
+.I defs.h
+file at compile time (DICT_QUEUE_DEPTH).
+.TP
+.BI limit " number"
+Specifies the number of daemons that may be running simultaneously.  Each
+daemon services a single connection.  If the limit is exceeded, a
+(serialized) connection will be made by the server process, and a response
+code 420 (server temporarily unavailable) will be sent to the client.  This
+parameter should be adjusted to prevent the server machine from being
+overloaded by dict clients, but should not be set so low that many clients
+are denied useful connections. The default is 100, but may be changed in
+the
+.I defs.h
+file at compile time (DICT_DAEMON_LIMIT).
+.TP
+.BI timestamp " number"
+How often a timestamp should be logged (int minutes).
+(This is effective only if
+logging has been enabled with the \-s or \-L option, or with a debugging
+option.)
+.TP
+.BI log_option " option"
 Specify a logging option.  This is effective only if logging has been
 enabled with the
 .BR \-s " or " \-L
-option, or logging to the console has been activated with a debugging
+option or in configuration file, or logging
+to the console has been activated with a debugging
 option (e.g.,
 .BR "\-\-debug nodetach" .
 Only one option may be set with each invocation of this option; however,
-multiple invocations of this option may be made in one dictd command
+multiple invocations of this option may be made in configuration file
+or dictd command
 line.  For instance:
 .br
 dictd -s --log stats --log found --log notfound
@@ -402,7 +605,7 @@ command, but this should be an option that is selectable on the client
 side.
 .RE
 .TP
-.BI \-d " option"
+.BI debug_option " string"
 Activate a debugging option.  There are several, all of which are only
 useful to developers.  They are documented here for completeness.  A list
 can be obtained interactively by using
@@ -453,157 +656,104 @@ Debugs
 in
 .IR index.c .
 .RE
-.SH "CONFIGURATION FILE"
 .TP
-.B Introduction
-The configuration file defaults to
-.I /etc/dictd.conf 
-but can be specified on the command line with the
-.B \-c
-option (see above).
+.BI locale " string"
+Specifies the locale used for searching.  If no locale is specified, the
+"C" locale is used.  The locale used for the server should be the same
+as that used for dictfmt when the database was built (specifically, the
+locale under which the index was sorted). The locale should be specified
+for both 8-bit and UTF-8 formats. If locale contains utf8 or utf-8
+substring, UTF-8 format is expected.
+Note that if your database is not in ASCII7 or UTF-8 format,
+then the dictd server will not be compliant to RFC 2229.
 .RS
 .P
-The configuration file is read into memory at startup, and is not
-referenced again by
+.BI NOTE 
+If utf-8 or 8-bit dictionaries are included in the configuration file,
+and the appropriate --locale has not been specified,
 .B dictd
-unless a signal 1 
-.B (SIGHUP)
-is received, which will cause 
+will fail to start.  This implies that
 .B dictd 
-to reread the configuration file.
-.P
-The file is divided into sections.  The Site Section should come
-first, followed by the Access Section, the Database Section, and the
-User Section.  The Database Section is required; the others are
-optional, but they must be in the order listed here.
-.RE
-.TP
-.B Syntax
-The following keywords are valid in a configuration file: access,
-allow, deny, group, database, data, index, filter, prefilter,
-postfilter, name, include, user, authonly, site.  Keywords are case
-sensitive.  String arguments that contain spaces should be surrounded
-by double quotes.  Without quoting, strings may contain alphanumeric
-characters and _, -, ., and *, but not spaces.  Strings can be
-continued between lines.  \\", \\\\, \\n, \\<NL> are treated as double
-quote, backslash, new line and no symbol respectively.  Comments start
-with # and extend to the end of the line.
-.TP
-.B Site Section
-.RS
-.TP
-.BI site " string"
-Used to specify the filename for the site information file, a flat text
-file which will be displayed in response to the SHOW SERVER command.  This
-section, if present, must be first.
-.RE
-.TP
-.B Access Section
-.RS
-.TP
-.BI "access {" " access specification " "}"
-This section, the second if the Site Section is present, contains access
-restrictions for the server and all of the databases collectively.
-Per-database control is specified in the Database Section.
-.RE
-.TP
-.B Database Section
-.RS
-.TP
-.BI database " string " "{ " "database specification " "}"
-The string specifies the name of the database
-(e.g., wn or web1913).  (This is an arbitrary name selected by the
-administrator, and is not necessarily related to the file name or any
-name listed in the data file.  A short, easy to type name is often
-selected for easy use with 
-.BR "dict -d".)
-
-.B NOTE:
-If the files specified in the database specification do not exist on the
-system, dictd may silently fail.
-.TP
-.BI database_virtual " string " "{ " "virtual database specification " "}"
-This section specifies the virtual database.
-The string specifies the name of the database (e.g., en-ru or fren).
-.TP
-.BI database_plugin " string " "{ " "plugin specification " "}"
-This section specifies the plugin.
-The string specifies the name of the database.
-.TP
-.BI database_exit
-Excludes following databases from the '*' database.
-By default '*' means all databases available.
-Look at 'example_virtual.conf' file for example configuration.
-
-.B NOTE:
-If you use 'virtual' dictionaries, you should use this directive,
-otherwise you will search the same dictionary twice.
-.RE
-.TP
-.B User Section
-.RS
-.TP
-.BI user " string" " string"
-The first string specifies the username, and the second string specifies
-the shared secret for this username.  When the AUTH command is used, the
-client will provide the username and a hashed version of the shared
-secret.  If the shared secret matches, the user is said to have
-authenticated, and will have access to databases whose access
-specifications allow that user (by name, or by wildcard).  If present, this
-section must appear last in the configuration file.  There may be many user
-entries.  The shared secret should be kept secret, as anyone who has access
-to it can access the shared databases (assuming access is not denied by
-domain name).
-.RE
-.TP
-.B Access Specification
-.RS
-Access specifications may occur in the Access Section or in the Database
-Section.  The access specification will be described here.
-.P
-For allow, deny, and authonly, a star (*) may be used as a wild card that
-matches any number of characters.  A question mark (?) may be used as a
-wildcard that matches a single character.  For example, 10.0.0.* and *.edu
-are valid strings.
-.P
-Further, a range of IP addresses and an IP address followed by a netmask
-may be specified.  For example, 10.0.0.0:10.0.0.255, 10.0.0.0/24, and
-10.0.0.* all specify the same range of IP numbers.  Notation cannot be
-combined on the same line.  If the notation does not make sense, access
-will be denied by default.  Use the
-.I "--debug auth"
-option to debug related problems.
-.P
-Note that these specifications take only one string per specification
-line.  However, you can have multiple lines of each type.
-.P
-The syntax is as follows:
-.TP
-.BI allow " string"
-The string specifies a domain name or IP address which is allowed access
-to the server (in the Access Section) or to a database (in the Database
-Section).  Note that more than one string is not permitted for a single
-"allow" line, but more than one "allow" lines are permitted in the
+will not run with both utf-8 and 8-bit dictionaries in the
 configuration file.
+.RE
 .TP
-.BI deny " string"
-The string specifies a domain name or IP address which is denied access to
-the server (in the Access Section) or to a database (in the Database
-Section).  Note that if reverse DNS is not working, then only the IP number
-will be checked.  Therefore, it is essential to deny networks based on IP
-number, since a denial based on domain name may not always be checked.
+.BI add_strategy " strategy_name" "" " description"
+Adds strategy
+.I strategy_name
+with the description
+.I description.
+This new search strategy may be implemented with a help of plugins.
+Both
+.I strategy_name
+and
+.I description
+are
+.I strings.
 .TP
-.BI authonly " string"
-This form is only useful in the Access Section.  The string specifies a
-domain name or IP address which is allowed access to the server but not to
-any of the databases.  All commands are valid except DEFINE, MATCH, and
-SHOW DB.  More specifically AUTH is a valid command, and commands which
-access the databases are not allowed.
+.BI default_strategy " string"
+Set the server's default search strategy for MATCH search type.
+The default is 'lev'. It is also possible to set default strategy per database.
+See
+.I default_strategy
+keyword in
+.I Database specification
+section.
 .TP
-.BI user " string"
-This form is only useful in the Database Section.  The string specifies a
-username that is allowed to access this database after a successful AUTH
-command is executed.
+.BI disable_strategy " string"
+Disable specified strategies.
+By default all implemented search strategies are enabled.
+It is also possible to disable strategies per database.
+See
+.I disable_strategy
+keyword in
+.I Database specification
+section.
+.TP
+.BI listen_to " string"
+Binds socket to the specified address.
+If you want to allow connections to dict server from localhost only,
+apply 
+.br
+.B listen_to 127.0.0.1
+.TP
+.BI syslog " string"
+Log using the
+.BR syslog (3)
+facility.
+.TP
+.BI syslog_facility " string"
+Specifies the syslog facility to use.  The use of this option implies the
+.B \-s
+option to turn on logging via syslog.  When the operating system
+libraries support SYSLOG_NAMES, the names used for this option should be
+those listed in
+.BR syslog.conf (5).
+Otherwise, the following names are used (assuming the particular
+facility is defined in the header files): auth, authpriv, cron, daemon,
+ftp, kern, lpr, mail, news, syslog, user, uucp, local0, local1, local2,
+local3, local4, local5, local6, and local7.
+.TP
+.BI log_file " string"
+Specify the file for logging.  The filename specified is recomputed on
+each use using the
+.BR strftime (3)
+call.  For example, a filename ending in ".%Y%m%d" will write to log
+files ending in the year, month, and date that the log entry was
+written.
+.B NOTE:
+If
+.B dictd
+does not have write permission for this file, it will silently fail.
+.TP
+.BI fast\_start
+By default, dictd creates (in memory) additional index
+to make the search faster.
+This option disables this behaviour and makes startup faster.
+.TP
+.BI without\_mmap
+do not use the mmap(2) function and read entire files into memory instead.
+Use this option, if you know exactly what you are doing.
 .RE
 .TP
 .B Database Specification
@@ -696,7 +846,6 @@ per database. For example, instead of strategy
 .I word
 may be prefered for databases mainly containing
 the multiword phrases but the single words.
-
 .RE
 .TP
 .B Virtual Database Specification
@@ -777,7 +926,6 @@ database files by dictfmt_plugin executable
 The text of the file "string" (usually a database specification)
 will be read as if it appeared at this location in the configuration file.
 Nested includes are not permitted.
-
 .SH "DETERMINATION OF ACCESS LEVEL"
 When a client connects, the global access specification is scanned, in
 order, until a specification matches.  If no access specification exists,
@@ -964,7 +1112,6 @@ file using, for example,
 will destroy the random access characteristics of the file.  Always
 compress data files using
 .BR dictzip (1).)
-
 .SH "SIGNALS"
 .P
 .B SIGHUP
@@ -991,7 +1138,6 @@ to unload databases,
 update files, and then send
 .B SUGHUP
 signal to load them again.
-
 .SH "ACKNOWLEDGEMENTS"
 Special thanks to Jean-loup Gailly and Mark Adler for writing the
 .B zlib
@@ -1046,17 +1192,14 @@ more information, and consult with your attorney to resolve these issues.
 The regular expression searches do not ignore non-whitespace,
 non-alphanumeric characters as do the other searches.  In practice, this
 isn't much of a problem.
-
 The 'lev' strategy doesn't work with utf8 dictionaries.
 .SH "WARNINGS"
 Conformance of regular expressions
 (used by 're' and 'regexp' search strategies)
 to ERE and BRE depends on
 library you build dictd with.
-
 Whether 're' and 'regex' strategies support utf8 depends on 
 library you build dictd with.
-
 .SH "FILES"
 .I /etc/dictd.conf
 .br

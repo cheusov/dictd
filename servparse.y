@@ -17,13 +17,16 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.20 2004/10/12 14:39:03 cheusov Exp $
+ * $Id: servparse.y,v 1.21 2005/03/28 09:55:27 cheusov Exp $
  * 
  */
 
 %{
 #include "dictd.h"
 #include "strategy.h"
+#include "index.h"
+#include "data.h"
+
 #define YYDEBUG 1
 #define YYERROR_VERBOSE
 
@@ -46,7 +49,9 @@ static dictDatabase *db;
 
 				/* Terminals */
 
-%token <token> '{' '}' TOKEN_ACCESS TOKEN_ALLOW TOKEN_DENY TOKEN_GROUP TOKEN_DATABASE TOKEN_DATA
+%token <token.integer> TOKEN_NUMBER
+%token <token> '{' '}' TOKEN_ACCESS TOKEN_ALLOW TOKEN_DENY 
+%token <token> TOKEN_GROUP TOKEN_DATABASE TOKEN_DATA
 %token <token> TOKEN_INDEX TOKEN_INDEX_SUFFIX TOKEN_INDEX_WORD
 %token <token> TOKEN_FILTER TOKEN_PREFILTER TOKEN_POSTFILTER TOKEN_NAME TOKEN_INFO
 %token <token> TOKEN_USER TOKEN_AUTHONLY TOKEN_SITE TOKEN_DATABASE_EXIT
@@ -56,68 +61,188 @@ static dictDatabase *db;
 %token <token> TOKEN_DATABASE_PLUGIN TOKEN_PLUGIN
 %token <token> TOKEN_DEFAULT_STRAT
 
+%token <token> TOKEN_GLOBAL
+%token <token> TOKEN_PORT
+%token <token> TOKEN_DELAY
+%token <token> TOKEN_DEPTH
+%token <token> TOKEN_LIMIT
+%token <token> TOKEN_TIMESTAMP
+%token <token> TOKEN_LOG_OPTION
+%token <token> TOKEN_DEBUG_OPTION
+%token <token> TOKEN_LOCALE
+%token <token> TOKEN_ADD_STRAT
+%token <token> TOKEN_LISTEN_TO
+%token <token> TOKEN_SYSLOG
+%token <token> TOKEN_SYSLOG_FACILITY
+%token <token> TOKEN_LOG_FILE
+%token <token> TOKEN_FAST_START
+%token <token> TOKEN_WITHOUT_MMAP
+
 %type  <token>  Site
 %type  <access> AccessSpec
 %type  <db>     Database
 %type  <list>   DatabaseList Access AccessSpecList
 %type  <hash>   UserList
+%type  <token>  Global
 
 %%
 
-Program : DatabaseList
+Program : Global DatabaseList
           { DictConfig = xmalloc(sizeof(struct dictConfig));
 	    memset( DictConfig, 0, sizeof(struct dictConfig) );
-	    DictConfig->dbl = $1;
-	  }
-        | Access DatabaseList
-          { DictConfig = xmalloc(sizeof(struct dictConfig));
-	    memset( DictConfig, 0, sizeof(struct dictConfig) );
-	    DictConfig->acl = $1;
 	    DictConfig->dbl = $2;
 	  }
-        | DatabaseList UserList
+        | Global Access DatabaseList
           { DictConfig = xmalloc(sizeof(struct dictConfig));
 	    memset( DictConfig, 0, sizeof(struct dictConfig) );
-	    DictConfig->dbl = $1;
-	    DictConfig->usl = $2;
+	    DictConfig->acl = $2;
+	    DictConfig->dbl = $3;
 	  }
-        | Access DatabaseList UserList
+        | Global DatabaseList UserList
           { DictConfig = xmalloc(sizeof(struct dictConfig));
 	    memset( DictConfig, 0, sizeof(struct dictConfig) );
-	    DictConfig->acl = $1;
 	    DictConfig->dbl = $2;
 	    DictConfig->usl = $3;
 	  }
-        | Site DatabaseList
+        | Global Access DatabaseList UserList
           { DictConfig = xmalloc(sizeof(struct dictConfig));
 	    memset( DictConfig, 0, sizeof(struct dictConfig) );
-	    DictConfig->site = $1.string;
-	    DictConfig->dbl  = $2;
+	    DictConfig->acl = $2;
+	    DictConfig->dbl = $3;
+	    DictConfig->usl = $4;
 	  }
-        | Site Access DatabaseList
+        | Global Site DatabaseList
           { DictConfig = xmalloc(sizeof(struct dictConfig));
 	    memset( DictConfig, 0, sizeof(struct dictConfig) );
-	    DictConfig->site = $1.string;
-	    DictConfig->acl  = $2;
+	    DictConfig->site = $2.string;
 	    DictConfig->dbl  = $3;
 	  }
-        | Site DatabaseList UserList
+        | Global Site Access DatabaseList
           { DictConfig = xmalloc(sizeof(struct dictConfig));
 	    memset( DictConfig, 0, sizeof(struct dictConfig) );
-	    DictConfig->site = $1.string;
-	    DictConfig->dbl  = $2;
-	    DictConfig->usl  = $3;
+	    DictConfig->site = $2.string;
+	    DictConfig->acl  = $3;
+	    DictConfig->dbl  = $4;
 	  }
-        | Site Access DatabaseList UserList
+        | Global Site DatabaseList UserList
           { DictConfig = xmalloc(sizeof(struct dictConfig));
 	    memset( DictConfig, 0, sizeof(struct dictConfig) );
-	    DictConfig->site = $1.string;
-	    DictConfig->acl  = $2;
+	    DictConfig->site = $2.string;
 	    DictConfig->dbl  = $3;
 	    DictConfig->usl  = $4;
 	  }
+        | Global Site Access DatabaseList UserList
+          { DictConfig = xmalloc(sizeof(struct dictConfig));
+	    memset( DictConfig, 0, sizeof(struct dictConfig) );
+	    DictConfig->site = $2.string;
+	    DictConfig->acl  = $3;
+	    DictConfig->dbl  = $4;
+	    DictConfig->usl  = $5;
+	  }
         ;
 
+
+Global : {}
+       | TOKEN_GLOBAL '{' GlobalSpecList '}' {}
+       ;
+
+GlobalSpecList :
+             | GlobalSpecList GlobalSpec
+             ;
+
+GlobalSpec : TOKEN_PORT             TOKEN_STRING
+     {
+	if (!daemon_service_set)
+	   daemon_service = str_copy($2.string);
+     }
+   | TOKEN_PORT             TOKEN_NUMBER
+     {
+	if (!daemon_service_set){
+	   char number [40] = "";
+	   snprintf (number, sizeof (number), "%d", $2);
+	   daemon_service = str_copy (number);
+	}
+     }
+   | TOKEN_DELAY            TOKEN_NUMBER
+     {
+	if (!client_delay_set)
+	   client_delay = $2;
+     }
+   | TOKEN_DEPTH            TOKEN_NUMBER
+     {
+	if (!depth_set)
+	   depth = $2;
+     }
+   | TOKEN_LIMIT            TOKEN_NUMBER
+     {
+	if (!_dict_daemon_limit_set)
+	   _dict_daemon_limit = $2;
+     }
+   | TOKEN_TIMESTAMP        TOKEN_NUMBER
+     {
+	if (!_dict_markTime_set)
+	   _dict_markTime = 60*$2;
+     }
+   | TOKEN_LOG_OPTION       TOKEN_STRING
+     {
+	 ++logOptions;
+	 flg_set ($2.string);
+	 if (flg_test (LOG_MIN))
+	    set_minimal ();
+     }
+   | TOKEN_DEBUG_OPTION     TOKEN_STRING
+     {
+	dbg_set ($2.string);
+     }
+   | TOKEN_LOCALE           TOKEN_STRING
+     {
+	if (!locale_set)
+	   locale = str_copy ($2.string);
+     }
+   | TOKEN_DEFAULT_STRAT        TOKEN_STRING
+     {
+	if (!default_strategy_set)
+	   default_strategy     = lookup_strategy_ex ($2.string);
+     }
+   | TOKEN_DISABLE_STRAT    TOKEN_STRING
+     {
+	dict_disable_strategies ($2.string);
+     }
+   | TOKEN_ADD_STRAT        TOKEN_STRING TOKEN_STRING
+     {
+	dict_add_strategy ($2.string, $3.string);
+     }
+   | TOKEN_LISTEN_TO        TOKEN_STRING
+     {
+	if (!bind_to_set)
+	   bind_to = str_copy ($2.string);
+     }
+   | TOKEN_SYSLOG
+     {
+	++useSyslog;
+     }
+   | TOKEN_SYSLOG_FACILITY  TOKEN_STRING
+     {
+	++useSyslog;
+	if (!syslog_facility_set){
+	   log_set_facility ($2.string);
+	}
+     }
+   | TOKEN_LOG_FILE         TOKEN_STRING
+     {
+	if (!logFile_set){
+	   logFile     = str_copy ($2.string);
+	}
+     }
+   | TOKEN_FAST_START
+     {
+	optStart_mode = 0;
+     }
+   | TOKEN_WITHOUT_MMAP
+     {
+	mmap_mode = 0;
+     }
+;
 
 Access : TOKEN_ACCESS '{' AccessSpecList '}' { $$ = $3; }
        ;
