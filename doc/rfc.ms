@@ -112,13 +112,13 @@ set.  More specifically, using the grammar conventions from [RFC822]:
      CRLF        =  CR LF
      WS          =  SPACE / HTAB
      atom        =  1*<any CHAR except SPACE and CTLs>
-     word        =  atom / quoted-string
-     quoted-string = <"> *(qtext/quoted-pair) <">; Regular qtext or
-                                                 ;   quoted chars.
-     qtext       =  <any CHAR excepting <">,     ; => may be folded
-                     "\\", CTLs>
+     word        =  atom / qstring / string
+     qstring     =  <"> *(qtextd/quoted-pair) <">
+                 /  <'> *(qtexts/quoted-pair) <'>
+     string      =  *(qtextd/quoted-pair)
+     qtextd      =  <any CHAR excepting <">, "\\", CTLs>
+     qtexts      =  <any CHAR excepting <'>, "\\", CTLs>
      quoted-pair =  "\\" CHAR                     ; may quote any char
-
      database    = atom
      strategy    = atom
 .fi
@@ -212,8 +212,11 @@ simplify interpretation of the response.
 Parameters are separeted from the numeric response code and from each other
 by a single space.  All numeric parameters are decimal, and may have
 leading zeros.  All string parameters are surrounded by double quotes
-(decimal code 34, '"').  If a double quote appears in the string, it is
-preceeded by a backslash (decimal code 92, "\\").
+(decimal code 34, '"').
+.\" "For emacs
+If a double quote appears in the string, it is preceeded by a backslash
+(decimal code 92, "\\").
+
 
 Response codes not specified in this standard may be used for any
 installation-specific additional commands also not specified.  These should
@@ -244,14 +247,33 @@ servers.
 .ti 0
  3.1. Initial Connection
 
-When a client initially connects to a DICT server, code 220 is sent
-announcing the server machine and DICT server version.  This information is
-free-form and is server-dependent.
+When a client initially connects to a DICT server, a code 220 is sent:
+.sp
+.nf
+220 machine version msgid
+.fi
+
+The code 220 is a free-form banner, usually with host name and DICT server
+version information.  The last sequence of characters in the banner is a
+msgid, in the format specified in [RFC822].  A simplified description is
+given below:
+
+.nf
+     msg-id      =  "<" spec ">"            ; Unique message id
+     spec        =  local-part "@" domain
+     local-part  =  word *("." word)
+     domain      =  word *("." word)
+.fi
+
+This message id will be used by the client when formulating the
+authentication string used in the AUTH command.
 
 .ti 0
 3.2. The DEFINE Command
 
 DEFINE database word
+.br
+DEFINE word
 
 .ti 0
 3.2.1. Description
@@ -259,7 +281,7 @@ DEFINE database word
 This command will look up the specified word in the specified database.  If
 the database name is a star (decimal code 42, "*"), then all of the
 databases will be search in the same order as that printed by the "SHOW DB"
-command.
+command.  This is the default behavior if a database is not specified.
 
 If the word was not found, then status code 552 is sent.
 
@@ -290,16 +312,20 @@ information is useful when debugging and tuning the server.
 3.2.2. Responses
 .nf
 550 Invalid database, use "SHOW DB" for list of databases
-552 No matches
+552 No match
 250 n definitions retrieved - definitions follow
 251 database name - text follows
-259 Command Complete (optional timing information here)
+259 ok (optional timing information here)
 .fi
 
 .ti 0
 3.3. The MATCH Command
 
 MATCH database strategy word
+.br
+MATCH strategy word
+.br
+MATCH word
 
 .ti 0
 3.3.1. Description
@@ -339,7 +365,7 @@ section on the DEFINE command.
 551 Invalid strategy, use "SHOW STRAT" for a list of strategies
 552 No matches
 253 n matches found - text follows
-259 Command Complete (optional timing information here)
+259 ok (optional timing information here)
 .fi
 
 .ti 0
@@ -372,6 +398,7 @@ databases did not exist.
 3.4.1.2. Responses
 .nf
 210 n databases present - text follows
+554 no databases present
 .fi
 
 .ti 0
@@ -379,7 +406,7 @@ databases did not exist.
 
 SHOW STRAT
 .br
-SHOW STRATEGIRES
+SHOW STRATEGIES
 
 .ti 0
 3.4.2.1. Description
@@ -395,6 +422,7 @@ sequence.
 3.4.2.2. Responses
 .nf
 211 n strategies available - text follows
+555 no strategies available
 .fi
 
 .ti 0
@@ -427,24 +455,12 @@ CLIENT
 
 This command allows the client to provide information about itself for
 possible logging and statistical purposes.  All clients are urged to send
-this command after connecting to the server.  The response to this command
-is a unique message id similar to the format specified in [RFC822].  A
-simplified description is given below:
-
-.nf
-     msg-id      =  "<" spec ">"            ; Unique message id
-     spec        =  local-part "@" domain
-     local-part  =  word *("." word)
-     domain      =  word *("." word)
-.fi
-
-This message id will be used by the client when formulating the
-authentication string used in the AUTH command.
+this command after connecting to the server.
 
 .ti 0
 3.5.2. Responses
 .nf
-230 msgid
+259 ok (optional timing information here)
 .fi
 
 .ti 0
@@ -514,7 +530,7 @@ textual response, terminated by a single period on a line by itself.
 .ti 0
 3.8.2. Responses
 .nf
-100 help text follows
+214 help text follows
 .fi
 
 .ti 0

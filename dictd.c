@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Wed Mar 26 13:29:42 1997 by faith@cs.unc.edu
+ * Revised: Fri Mar 28 23:35:21 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.13 1997/03/26 18:39:17 faith Exp $
+ * $Id: dictd.c,v 1.14 1997/03/31 01:53:29 faith Exp $
  * 
  */
 
@@ -12,8 +12,8 @@
 #include "servparse.h"
 
 extern int        yy_flex_debug;
-static int        _dict_forks;
 static int        _dict_child;
+       int        _dict_forks;
        dictConfig *DictConfig;
 
 static void reaper( int dummy )
@@ -42,11 +42,23 @@ static void handler( int sig )
    if (_dict_child) {
       daemon_terminate( sig, name );
    } else {
-      if (name) log_info( "Caught %s, exiting (%d comparisons, %d forks)\n",
-			  name, _dict_comparisons, _dict_forks );
-      else      log_info( "Caught signal %d,"
-			  " exiting (%d comparisons, %d forks\n",
-			  sig, _dict_comparisons, _dict_forks );
+      if (name) {
+	 log_info( "%s: c/f = %d/%d; %0.3fr %0.3fu %0.3fs\n",
+		   name,
+		   _dict_comparisons,
+		   _dict_forks,
+		   tim_get_real( "dictd" ),
+		   tim_get_user( "dictd" ),
+		   tim_get_system( "dictd" ) );
+      } else {
+	 log_info( "Signal %d: c/f = %d/%d; %0.3fr %0.3fu %0.3fs\n",
+		   sig,
+		   _dict_comparisons,
+		   _dict_forks,
+		   tim_get_real( "dictd" ),
+		   tim_get_user( "dictd" ),
+		   tim_get_system( "dictd" ) );
+      }
    }
    exit(sig+128);
 }
@@ -192,7 +204,7 @@ static const char *id_string( const char *id )
 const char *dict_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dictd.c,v 1.13 1997/03/26 18:39:17 faith Exp $";
+   const char        *id = "$Id: dictd.c,v 1.14 1997/03/31 01:53:29 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -390,7 +402,8 @@ int main( int argc, char **argv )
    if (logFile)   log_file( "dictd", logFile );
    if (useSyslog) log_syslog( "dictd", 0 );
    if (!detach)   log_stream( "dictd", stderr );
-   
+
+   tim_start( "dictd" );
    log_info("Starting\n");
    
    masterSocket = net_open_tcp( service, DICT_QUEUE_DEPTH );

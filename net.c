@@ -1,10 +1,10 @@
 /* net.c -- 
  * Created: Fri Feb 21 20:58:10 1997 by faith@cs.unc.edu
- * Revised: Tue Mar 11 23:12:46 1997 by faith@cs.unc.edu
+ * Revised: Fri Mar 28 19:33:03 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: net.c,v 1.8 1997/03/23 12:22:37 faith Exp $
+ * $Id: net.c,v 1.9 1997/03/31 01:53:31 faith Exp $
  * 
  */
 
@@ -31,6 +31,41 @@ const char *net_hostname( void )
    return netHostname;
 }
 
+int net_connect_tcp( const char *host, const char *service )
+{
+   struct hostent     *hostEntry;
+   struct servent     *serviceEntry;
+   struct protoent    *protocolEntry;
+   struct sockaddr_in ssin;
+   int                s;
+
+   memset( &ssin, 0, sizeof(ssin) );
+   ssin.sin_family = AF_INET;
+
+   if ((hostEntry = gethostbyname(host))) {
+      memcpy( &ssin.sin_addr.s_addr, hostEntry->h_addr, hostEntry->h_length );
+   } else if ((ssin.sin_addr.s_addr = inet_addr(host)) == INADDR_NONE)
+      err_fatal( __FUNCTION__, "Can't get \"%s\" host entry\n", host );
+   
+   if ((serviceEntry = getservbyname(service, "tcp"))) {
+      ssin.sin_port = serviceEntry->s_port;
+   } else if (!(ssin.sin_port = htons(atoi(service))))
+      err_fatal( __FUNCTION__, "Can't get \"%s\" service entry\n", service );
+
+   if (!(protocolEntry = getprotobyname("tcp")))
+      err_fatal( __FUNCTION__, "Can't get \"tcp\" protocol entry\n" );
+   
+   if ((s = socket(PF_INET, SOCK_STREAM, protocolEntry->p_proto)) < 0)
+      err_fatal_errno( __FUNCTION__, "Can't open socket on port %d\n",
+		       ntohs(ssin.sin_port) );
+
+   if (connect(s, (struct sockaddr *)&ssin, sizeof(ssin)) < 0)
+      err_fatal_errno( __FUNCTION__,
+		       "Can't connect to %s.%s\n", host, service );
+
+   return s;
+}
+
 int net_open_tcp( const char *service, int queueLength )
 {
    struct servent     *serviceEntry;
@@ -49,7 +84,7 @@ int net_open_tcp( const char *service, int queueLength )
       err_fatal( __FUNCTION__, "Can't get \"%s\" service entry\n", service );
 
    if (!(protocolEntry = getprotobyname("tcp")))
-      err_fatal( __FUNCTION__, "Can't get \"tcp\" service entry\n" );
+      err_fatal( __FUNCTION__, "Can't get \"tcp\" protocol entry\n" );
    
    if ((s = socket(PF_INET, SOCK_STREAM, protocolEntry->p_proto)) < 0)
       err_fatal_errno( __FUNCTION__, "Can't open socket on port %d\n",

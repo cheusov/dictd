@@ -1,6 +1,6 @@
-/* dict.h -- Header file for dict program
+/* dictd.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Wed Mar 26 13:28:08 1997 by faith@cs.unc.edu
+ * Revised: Fri Mar 28 23:08:30 1997 by faith@cs.unc.edu
  * Copyright 1994, 1995, 1996 Rickard E. Faith (faith@cs.unc.edu)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef _DICT_H_
-#define _DICT_H_
+#ifndef _DICTD_H_
+#define _DICTD_H_
 
 #include "dictP.h"
 #include "maa.h"
@@ -186,13 +186,15 @@ extern void       dict_destroy_list( lst_List list );
 
 extern const char *dict_get_hostname( void );
 extern const char *dict_get_banner( void );
+
 extern dictConfig *DictConfig;  /* GLOBAL VARIABLE */
 extern int        _dict_comparisons; /* GLOBAL VARIABLE */
+extern int        _dict_forks;	/* GLOBAL VARIABLE */
 
 /* daemon.c */
 
 extern int  dict_daemon( int s, struct sockaddr_in *csin, char ***argv0 );
-extern void daemon_terminate( int signal, const char *name );
+extern void daemon_terminate( int sig, const char *name );
 
 				/* dmalloc must be last */
 #ifdef DMALLOC_FUNC_CHECK
