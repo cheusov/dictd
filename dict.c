@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.c,v 1.31 2002/12/15 20:15:05 hilliard Exp $
+ * $Id: dict.c,v 1.32 2002/12/17 13:49:01 cheusov Exp $
  * 
  */
 
@@ -261,8 +261,12 @@ static void client_print_listed( lst_List l )
       if (arg_count(a) != 2)
 	 err_internal( __FUNCTION__,
 		       "SHOW command didn't return 2 args: \"%s\"\n", e );
-      if ( (len = strlen(arg_get(a,0))) > colWidth && len <= colMax)
+
+      len = strlen (arg_get (a,0));
+
+      if (len > colWidth && len <= colMax)
         colWidth = len;
+
       arg_destroy(a);
    }
    sprintf( format, " %%-%ds %%s\n", colWidth );
@@ -955,7 +959,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.31 2002/12/15 20:15:05 hilliard Exp $";
+   const char        *id = "$Id: dict.c,v 1.32 2002/12/17 13:49:01 cheusov Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;

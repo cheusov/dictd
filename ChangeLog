@@ -1,4 +1,26 @@
+2002-12-10  Aleksey Cheusov  <vle@gmx.net>
+
+  * dictd.h:
+  fixed: problems in building 'dictd' without plugin support
+
+  * configure.in:
+  fixed: Even if you run ./configure with --disable-plugin, ltdl.h is needed
+
+  * configure.in:
+  configure.in: version number 1.8.0 ==> 1.9.0
+
+2002-12-05  Aleksey Cheusov  <vle@gmx.net>
+
+  * search_man:
+  fixed: forgot to remove sending a debugging e-mail message
+
 2002-12-04  Aleksey Cheusov  <vle@gmx.net>
+
+  * example_virtual.conf:
+  fixed: typo
+
+  * ChangeLog:
+  ChangeLog is up to date
 
   * index.c:
   Plugin version == 1 is disabled. Version == 0 is allowed only.
