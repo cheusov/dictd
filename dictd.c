@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Tue May 27 16:56:52 1997 by faith@acm.org
+ * Revised: Mon Jun  2 19:51:10 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.20 1997/06/02 23:11:00 faith Exp $
+ * $Id: dictd.c,v 1.21 1997/06/03 00:00:02 faith Exp $
  * 
  */
 
@@ -354,7 +354,7 @@ static const char *id_string( const char *id )
 const char *dict_get_banner( void )
 {
    static char    *buffer= NULL;
-   const char     *id = "$Id: dictd.c,v 1.20 1997/06/02 23:11:00 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.21 1997/06/03 00:00:02 faith Exp $";
    struct utsname uts;
    
    if (buffer) return buffer;
@@ -505,6 +505,7 @@ int main( int argc, char **argv )
    else                         yy_flex_debug = 0;
 
    DictConfig = xmalloc(sizeof(struct dictConfig));
+   memset( DictConfig, 0, sizeof( struct dictConfig ) );
    prs_file_nocpp( configFile );
    dict_config_print( NULL, DictConfig );
    dict_init_databases( DictConfig );
