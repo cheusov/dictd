@@ -1,3 +1,67 @@
+2003-01-15  Aleksey Cheusov  <vle@gmx.net>
+
+  * configure.in:
+  version=1.9.2
+
+  * dictunformat:
+  'dictunformat' can handle databases containing more than one headwords
+      for a single definition
+  added: --headword-separator argument to 'dictunformat' utility
+
+2003-01-14  Aleksey Cheusov  <vle@gmx.net>
+
+  * wcrtomb.c:
+  added: wcrtomb.c
+
+  * utf8_ucs4.c, utf8_ucs4.h, wctomb.c, mbtowc.c, mbstowcs.c, mbrtowc.c, mbrlen.c, configure.in, Makefile.in:
+  multibyte character oriented functions are implemented in mb*.c and wc*.c
+    files and they are used by default instead of standard ones.
+    It seems glibc-2.1.3 has broken wcrtomb.
+
+2003-01-09  Aleksey Cheusov  <vle@gmx.net>
+
+  * index.c, dictunformat:
+  mbstate_t
+
+  * Makefile.in:
+  install/uninstall makefile's targets use DESTDIR environment variables.
+         This simplifies building RPMs.
+
+2003-01-08  Bob Hilliard  <hilliard@debian.org>
+
+  * dictzip.c, index.c:
+  Patched dictzip.c to revent segfault on excessively long command lines
+  Patched index.c so dictd will startup without error if config file
+  includes the /dev/null database
+
+2003-01-03  Aleksey Cheusov  <vle@gmx.net>
+
+  * index.c:
+  mbstate_t is not used
+
+  * data.c, dictd.c, dictfmt.c, index.c, ChangeLog, config.h.in, configure.in, daemon.c, Makefile.in:
+  functions from utf8_ucs4.c have been replaced with the standard ones.
+  a few changes in configure.in
+  DEFINE command returns an error message (MATCH command stops the search)
+    for invalid utf-8 query (This is a trick!!!)
+  dictfmt is linked with libmaa
+  added: the following options to dictfmt:
+         --without-header
+         --without-url
+         --without-time
+
+2002-12-25  Aleksey Cheusov  <vle@gmx.net>
+
+  * Makefile.in:
+  'dictunformat' is installed and uninstalled like 'dictfmt'
+
+  * dictunformat, index.c:
+  fixed: typo
+  added: dictunformat which is able to extract dictionary
+         from .dict and .index files.
+         This may be used to recreate database from 8-bit character sets
+         to utf-8 or to another format
+
 2002-12-17  Aleksey Cheusov  <vle@gmx.net>
 
   * ChangeLog:
