@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.25 2002/08/05 11:34:23 cheusov Exp $
+ * $Id: index.c,v 1.26 2002/08/05 11:48:26 cheusov Exp $
  * 
  */
 
@@ -599,7 +599,7 @@ static int dict_search_prefix( lst_List l,
    while (pt && pt < database->index->end) {
       switch (compare( word, pt, database->index->end )) {
 	 case -2:
-	    break;
+	    return count;
 	 case -1:
 	 case 0:
 	 case 1:
