@@ -25,6 +25,8 @@ size_t mbrlen (const char *s, size_t n, mbstate_t *ps)
 
    if (c == 0)
       return 0;
+   else if (MB_CUR_MAX == 1)
+      return 1;
    else if (c <= 0x7F)
       return 1;
    else if (c <= 0xBF)
