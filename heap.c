@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: heap.c,v 1.1 2003/08/11 15:54:22 cheusov Exp $
+ * $Id: heap.c,v 1.2 2003/08/11 17:06:27 cheusov Exp $
  * 
  */
 
@@ -155,4 +155,10 @@ void * heap_realloc (void *heap, void *p, size_t size)
    }else{
       return xrealloc (p, size);
    }
+}
+
+int heap_isempty (void *heap)
+{
+   heap_s *h = (heap_s *) heap;
+   return h -> allocation_count == 0;
 }

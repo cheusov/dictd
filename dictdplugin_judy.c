@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.11 2003/08/11 15:54:22 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.12 2003/08/11 17:06:27 cheusov Exp $
  * 
  */
 
@@ -28,13 +28,26 @@
 #include "include_regex.h"
 
 #include <maa.h>
+#include <Judy.h>
+
+#if STRING_H
 #include <string.h>
+#endif
+
 #include <stdio.h>
 #include <errno.h>
+
+#if HAVE_LIMITS_H
 #include <limits.h>
-#include <Judy.h>
+#endif
+
+#if WCTYPE_H
 #include <ctype.h>
+#endif
+
+#if HAVE_WCTYPE_H
 #include <wctype.h>
+#endif
 
 #define BUFSIZE 1024
 
@@ -43,7 +56,7 @@
 #endif
 
 /**********************************************************/
-#define USE_INTERNAL_HEAP /* this may potentially be useful */
+#define USE_INTERNAL_HEAP /* this may apeeds-up this plugin */
 
 #ifdef USE_INTERNAL_HEAP
 
@@ -58,6 +71,7 @@
 #define heap_strdup(heap, s) (xstrdup (s))
 #define heap_free(heap, p) (p ? xfree (p), NULL : NULL)
 #define heap_realloc(heap, p, size) (realloc (p, size))
+#define heap_isempty(heap) (1)
 
 #endif
 
@@ -737,14 +751,10 @@ int dictdb_free (void * data)
    return 0;
 }
 
+/* set dict_data -> m_mres_count  and dict_data -> m_mres */
 static int match_exact (
    global_data *dict_data,
-   const char *word,
-
-   int *ret,
-   const char * const* *result,
-   const int **result_sizes,
-   int *results_count)
+   const char *word)
 {
    int const * const *result_curr;
 
@@ -762,31 +772,18 @@ static int match_exact (
    dict_data -> m_mres = (const char **)
       heap_alloc (dict_data -> m_heap2, sizeof (dict_data -> m_mres [0]));
 
-   dict_data -> m_mres_sizes = (int *) alloc_minus1_array (1);
+   dict_data -> m_mres [0] =
+      heap_strdup (dict_data -> m_heap, word);
 
-   dict_data -> m_mres_count     = 1;
-   dict_data -> m_mres [0]       = heap_strdup (dict_data -> m_heap, word);
-
-   *result       = dict_data -> m_mres;
-   *result_sizes = dict_data -> m_mres_sizes;
-
-   *results_count = 1;
-
-   *ret = DICT_PLUGIN_RESULT_FOUND;
+   dict_data -> m_mres_count = 1;
 
    return 0;
 }
 
 static int match_substring (
    global_data *dict_data,
-   const char *word,
-
-   int *ret,
-   const char * const* *result,
-   const int **result_sizes,
-   int *results_count)
+   const char *word)
 {
-   int cnt = 0;
    PPvoid_t value;
 
    char curr_word [BUFSIZE];
@@ -797,40 +794,25 @@ static int match_substring (
       if (!strstr (curr_word, word))
 	 continue;
 
-      ++cnt;
+      ++dict_data -> m_mres_count;
 
       dict_data -> m_mres = (const char **)
 	 heap_realloc (
 	    dict_data -> m_heap2,
 	    dict_data -> m_mres,
-	    cnt * sizeof (dict_data -> m_mres [0]));
-      dict_data -> m_mres [cnt - 1] =
+	    dict_data -> m_mres_count * sizeof (dict_data -> m_mres [0]));
+
+      dict_data -> m_mres [dict_data -> m_mres_count - 1] =
 	 heap_strdup (dict_data -> m_heap, curr_word);
    }
-
-   dict_data -> m_mres_sizes = (int *) alloc_minus1_array (cnt);
-   dict_data -> m_mres_count = cnt;
-
-   *result       = dict_data -> m_mres;
-   *result_sizes = dict_data -> m_mres_sizes;
-
-   *results_count = cnt;
-
-   *ret = DICT_PLUGIN_RESULT_FOUND;
 
    return 0;
 }
 
 static int match_prefix (
    global_data *dict_data,
-   const char *word,
-
-   int *ret,
-   const char * const* *result,
-   const int **result_sizes,
-   int *results_count)
+   const char *word)
 {
-   int cnt = 0;
    PPvoid_t value;
    PPvoid_t value_last;
 
@@ -882,14 +864,15 @@ static int match_prefix (
 	 }
       }
 
-      ++cnt;
+      ++dict_data -> m_mres_count;
 
       dict_data -> m_mres = (const char **)
 	 heap_realloc (
 	    dict_data -> m_heap2,
 	    dict_data -> m_mres,
-	    cnt * sizeof (dict_data -> m_mres [0]));
-      dict_data -> m_mres [cnt - 1] =
+	    dict_data -> m_mres_count * sizeof (dict_data -> m_mres [0]));
+
+      dict_data -> m_mres [dict_data -> m_mres_count - 1] =
 	 heap_strdup (dict_data -> m_heap, curr_word);
 
       if (value == value_last){
@@ -897,29 +880,13 @@ static int match_prefix (
       }
    }
 
-   dict_data -> m_mres_sizes = (int *) alloc_minus1_array (cnt);
-   dict_data -> m_mres_count = cnt;
-
-   *result       = dict_data -> m_mres;
-   *result_sizes = dict_data -> m_mres_sizes;
-
-   *results_count = cnt;
-
-   *ret = DICT_PLUGIN_RESULT_FOUND;
-
    return 0;
 }
 
 static int match_suffix (
    global_data *dict_data,
-   const char *word,
-
-   int *ret,
-   const char * const* *result,
-   const int **result_sizes,
-   int *results_count)
+   const char *word)
 {
-   int cnt = 0;
    PPvoid_t value;
 
    char curr_word [BUFSIZE];
@@ -937,40 +904,25 @@ static int match_suffix (
       if (strncmp (word, curr_word + curr_len - len, len))
 	 continue;
 
-      ++cnt;
+      ++dict_data -> m_mres_count;
 
       dict_data -> m_mres = (const char **)
 	 heap_realloc (
 	    dict_data -> m_heap2,
 	    dict_data -> m_mres,
-	    cnt * sizeof (dict_data -> m_mres [0]));
-      dict_data -> m_mres [cnt - 1] =
+	    dict_data -> m_mres_count * sizeof (dict_data -> m_mres [0]));
+
+      dict_data -> m_mres [dict_data -> m_mres_count - 1] =
 	 heap_strdup (dict_data -> m_heap, curr_word);
    }
-
-   dict_data -> m_mres_sizes = (int *) alloc_minus1_array (cnt);
-   dict_data -> m_mres_count = cnt;
-
-   *result       = dict_data -> m_mres;
-   *result_sizes = dict_data -> m_mres_sizes;
-
-   *results_count = cnt;
-
-   *ret = DICT_PLUGIN_RESULT_FOUND;
 
    return 0;
 }
 
 static int match_soundex (
    global_data *dict_data,
-   const char *word,
-
-   int *ret,
-   const char * const* *result,
-   const int **result_sizes,
-   int *results_count)
+   const char *word)
 {
-   int cnt = 0;
    PPvoid_t value;
 
    char curr_word [BUFSIZE];
@@ -988,26 +940,17 @@ static int match_soundex (
       if (strcmp (soundex, soundex2))
 	 continue;
 
-      ++cnt;
+      ++dict_data -> m_mres_count;
 
       dict_data -> m_mres = (const char **)
 	 heap_realloc (
 	    dict_data -> m_heap2,
 	    dict_data -> m_mres,
-	    cnt * sizeof (dict_data -> m_mres [0]));
-      dict_data -> m_mres [cnt - 1] =
+	    dict_data -> m_mres_count * sizeof (dict_data -> m_mres [0]));
+
+      dict_data -> m_mres [dict_data -> m_mres_count - 1] =
 	 heap_strdup (dict_data -> m_heap, curr_word);
    }
-
-   dict_data -> m_mres_sizes = (int *) alloc_minus1_array (cnt);
-   dict_data -> m_mres_count = cnt;
-
-   *result       = dict_data -> m_mres;
-   *result_sizes = dict_data -> m_mres_sizes;
-
-   *results_count = cnt;
-
-   *ret = DICT_PLUGIN_RESULT_FOUND;
 
    return 0;
 }
@@ -1017,28 +960,24 @@ static int match_soundex (
       value = JudySLGet (dict_data -> m_judy_array, buf, 0);  \
       if (value && strcmp (prev_buf, buf)){                   \
          strlcpy (prev_buf, buf, BUFSIZE);                    \
-         ++cnt;                                               \
+                                                              \
+         ++dict_data -> m_mres_count;                         \
                                                               \
          dict_data -> m_mres = (const char **)                \
             heap_realloc (                                    \
                dict_data -> m_heap2,                          \
                dict_data -> m_mres,                           \
-               cnt * sizeof (dict_data -> m_mres [0]));       \
-         dict_data -> m_mres [cnt - 1] =                      \
+               dict_data -> m_mres_count                      \
+                  * sizeof (dict_data -> m_mres [0]));        \
+         dict_data -> m_mres [dict_data -> m_mres_count - 1] =\
             heap_strdup (dict_data -> m_heap, buf);           \
       }                                                       \
    }
 
 static int match_lev (
    global_data *dict_data,
-   const char *word,
-
-   int *ret,
-   const char * const* *result,
-   const int **result_sizes,
-   int *results_count)
+   const char *word)
 {
-   int cnt = 0;
    size_t len;
    char buf [BUFSIZE];
    int i, j, k;
@@ -1047,7 +986,7 @@ static int match_lev (
    PPvoid_t value;
    char prev_buf [BUFSIZE] = "";
 
-   static char const c [] = "qwertyuiopasdfghjklzxcvbnm0123456789";
+   static char const c [] = "qwertyuiopasdfghjklzxcvbnm0123456789"; /* fix this*/
    static int const charcount = sizeof (c) - 1;
 
 //   strlcpy (curr_word, word, sizeof (curr_word));
@@ -1118,16 +1057,6 @@ static int match_lev (
       }
    }
 
-   dict_data -> m_mres_sizes = (int *) alloc_minus1_array (cnt);
-   dict_data -> m_mres_count = cnt;
-
-   *result       = dict_data -> m_mres;
-   *result_sizes = dict_data -> m_mres_sizes;
-
-   *results_count = cnt;
-
-   *ret = DICT_PLUGIN_RESULT_FOUND;
-
    return 0;
 }
 
@@ -1135,14 +1064,8 @@ static int match_regexp (
    global_data *dict_data,
    const char *word,
 
-   int regex_flags,
-
-   int *ret,
-   const char * const* *result,
-   const int **result_sizes,
-   int *results_count)
+   int regex_flags)
 {
-   int      cnt = 0;
    PPvoid_t value;
    regex_t  re;
    int      err;
@@ -1161,42 +1084,28 @@ static int match_regexp (
       if (regexec(&re, curr_word, 0, NULL, 0))
 	 continue;
 
-      ++cnt;
+      ++dict_data -> m_mres_count;
 
       dict_data -> m_mres = (const char **)
 	 heap_realloc (
 	    dict_data -> m_heap2,
 	    dict_data -> m_mres,
-	    cnt * sizeof (dict_data -> m_mres [0]));
-      dict_data -> m_mres [cnt - 1] =
+	    dict_data -> m_mres_count * sizeof (dict_data -> m_mres [0]));
+
+      dict_data -> m_mres [dict_data -> m_mres_count - 1] =
 	 heap_strdup (dict_data -> m_heap, curr_word);
    }
 
-   dict_data -> m_mres_sizes = (int *) alloc_minus1_array (cnt);
-   dict_data -> m_mres_count = cnt;
-
    regfree (&re);
-
-   *result       = dict_data -> m_mres;
-   *result_sizes = dict_data -> m_mres_sizes;
-
-   *results_count = cnt;
-
-   *ret = DICT_PLUGIN_RESULT_FOUND;
 
    return 0;
 }
 
 static int match_word (
    global_data *dict_data,
-   const char *word,
-
-   int *ret,
-   const char * const* *result,
-   const int **result_sizes,
-   int *results_count)
+   const char *word)
 {
-   static char const prefix_re [] = "(^|[[:space:][:punct:]])";
+   static char const prefix_re [] = "(^|[[:space:][:punct:]])"; /* fix this */
    static char const suffix_re [] = "($|[[:space:][:punct:]])";
 
    char buf [BUFSIZE];
@@ -1236,20 +1145,14 @@ static int match_word (
       }
    }
 
+   *p++ = 0;
+
    strcat (buf, suffix_re);
+//   fprintf (stderr, "re=%s\n", buf);
 
    return match_regexp (
-      dict_data, buf, REG_EXTENDED,
-      ret, result, result_sizes, results_count);
+      dict_data, buf, REG_EXTENDED);
 }
-
-/*
-static int heap_get_allocation_count (void *heap)
-{
-   heap_s *h = (heap_s *) heap;
-   return h -> allocation_count;
-}
-*/
 
 int dictdb_search (
    void *data,
@@ -1267,6 +1170,7 @@ int dictdb_search (
    char word_copy2 [BUFSIZE];
 //   int cnt = 0;
 //   int i   = 0;
+   int exit_code = 0;
 
    global_data *dict_data = (global_data *) data;
 
@@ -1291,7 +1195,7 @@ int dictdb_search (
    assert (!dict_data -> m_mres);
    assert (!dict_data -> m_mres_sizes);
    assert (!dict_data -> m_mres_count);
-/*   assert (!heap_get_allocation_count (dict_data -> m_heap));*/
+   assert (heap_isempty (dict_data -> m_heap));
 
    strlcpy (word_copy2, word, sizeof (word_copy2));
 
@@ -1317,46 +1221,58 @@ int dictdb_search (
    }
 
    if (match_search_type){
+      /* MATCH command */
+
+      dict_data -> m_mres_count = 0;
+
       if (search_strategy == dict_data -> m_strat_exact){
-	 return match_exact (
-	    dict_data, word_copy2,
-	    ret, result, result_sizes, results_count);
+	 exit_code = match_exact (
+	    dict_data, word_copy2);
       }else if (search_strategy == dict_data -> m_strat_word){
-	 return match_word (
-	    dict_data, word_copy2,
-	    ret, result, result_sizes, results_count);
+	 exit_code = match_word (
+	    dict_data, word_copy2);
       }else if (search_strategy == dict_data -> m_strat_substring){
-	 return match_substring (
-	    dict_data, word_copy2,
-	    ret, result, result_sizes, results_count);
+	 exit_code = match_substring (
+	    dict_data, word_copy2);
       }else if (search_strategy == dict_data -> m_strat_prefix){
-	 return match_prefix (
-	    dict_data, word_copy2,
-	    ret, result, result_sizes, results_count);
+	 exit_code = match_prefix (
+	    dict_data, word_copy2);
       }else if (search_strategy == dict_data -> m_strat_suffix){
-	 return match_suffix (
-	    dict_data, word_copy2,
-	    ret, result, result_sizes, results_count);
+	 exit_code = match_suffix (
+	    dict_data, word_copy2);
       }else if (search_strategy == dict_data -> m_strat_re){
-	 return match_regexp (
-	    dict_data, word_copy2,
-	    REG_EXTENDED,
-	    ret, result, result_sizes, results_count);
+	 exit_code = match_regexp (
+	    dict_data, word_copy2, REG_EXTENDED);
       }else if (search_strategy == dict_data -> m_strat_regexp){
-	 return match_regexp (
-	    dict_data, word_copy2,
-	    0,
-	    ret, result, result_sizes, results_count);
+	 exit_code = match_regexp (
+	    dict_data, word_copy2, 0);
       }else if (search_strategy == dict_data -> m_strat_soundex){
-	 return match_soundex (
-	    dict_data, word_copy2,
-	    ret, result, result_sizes, results_count);
+	 exit_code = match_soundex (
+	    dict_data, word_copy2);
       }else if (search_strategy == dict_data -> m_strat_lev){
-	 return match_lev (
-	    dict_data, word_copy2,
-	    ret, result, result_sizes, results_count);
+	 exit_code = match_lev (
+	    dict_data, word_copy2);
       }
+
+      if (exit_code)
+	 return exit_code;
+
+      if (!dict_data -> m_mres_count)
+	 return 0;
+
+      dict_data -> m_mres_sizes =
+	 (int *) alloc_minus1_array (dict_data -> m_mres_count);
+
+      *result        = dict_data -> m_mres;
+      *result_sizes  = dict_data -> m_mres_sizes;
+      *results_count = dict_data -> m_mres_count;
+
+      *ret = DICT_PLUGIN_RESULT_FOUND;
+
+      return 0;
    }else{
+      /* DEFINE command */
+
       int const * const * offs_size;
       int const * const * offs_size_next;
       int cnt;
@@ -1378,7 +1294,7 @@ int dictdb_search (
 	 cnt = (const int *) *offs_size_next - (const int *) *offs_size;
 	 cnt /= 2;
       }else{
-	 cnt = 1;//dict_data -> m_offs_size_array + ;
+	 cnt = 1;/* fix this */;
       }
 
       dict_data -> m_mres =
@@ -1401,7 +1317,7 @@ int dictdb_search (
       *result_sizes  = dict_data -> m_mres_sizes;
       *results_count = cnt;
       *ret           = DICT_PLUGIN_RESULT_FOUND;
-   }
 
-   return 0;
+      return 0;
+   }
 }

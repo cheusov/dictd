@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: heap.h,v 1.1 2003/08/11 15:54:22 cheusov Exp $
+ * $Id: heap.h,v 1.2 2003/08/11 17:06:27 cheusov Exp $
  * 
  */
 
@@ -29,3 +29,4 @@ extern void * heap_alloc (void *heap, size_t size);
 extern char * heap_strdup (void *heap, const char *s);
 extern void heap_free (void *heap, void *p);
 extern void * heap_realloc (void *heap, void *p, size_t size);
+extern int heap_isempty (void *heap);
