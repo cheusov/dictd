@@ -1,6 +1,6 @@
 /* dict.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Fri Feb 28 22:28:15 1997 by faith@cs.unc.edu
+ * Revised: Fri Mar  7 11:03:19 1997 by faith@cs.unc.edu
  * Copyright 1994, 1995, 1996 Rickard E. Faith (faith@cs.unc.edu)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,12 +19,13 @@
  *
  */
 
-#ifndef _DICT_H_
-#define _DICT_H_
+#ifndef _DICTZIP_H_
+#define _DICTZIP_H_
 
+#include "dictP.h"
+#include "maa.h"
 #include "zlib.h"
-#include "maaP.h"
-#include <unistd.h>
+
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <errno.h>
@@ -256,5 +257,9 @@ extern const char *dict_get_banner( void );
 /* daemon.c */
 
 extern int dict_daemon( int s, struct sockaddr_in *csin );
+				/* dmalloc must be last */
+#ifdef DMALLOC_FUNC_CHECK
+# include "dmalloc.h"
+#endif
 
 #endif

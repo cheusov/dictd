@@ -1,6 +1,6 @@
 /* servscan.l -- Scanner for dictd server configuration file
  * Created: Fri Feb 28 08:23:03 1997 by faith@cs.unc.edu
- * Revised: Fri Feb 28 13:33:58 1997 by faith@cs.unc.edu
+ * Revised: Fri Mar  7 11:05:04 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,13 +17,13 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servscan.l,v 1.1 1997/03/01 04:23:30 faith Exp $
+ * $Id: servscan.l,v 1.2 1997/03/07 16:10:36 faith Exp $
  * 
  */
 
 %option stack debug
 %{
-#include "dict.h"
+#include "dictd.h"
 #include "servparse.h"
 extern int  yylex( void );
 extern int  yydebug;

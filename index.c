@@ -1,6 +1,6 @@
 /* index.c -- 
  * Created: Wed Oct  9 14:52:23 1996 by faith@cs.unc.edu
- * Revised: Fri Feb 28 21:56:58 1997 by faith@cs.unc.edu
+ * Revised: Fri Mar  7 10:52:26 1997 by faith@cs.unc.edu
  * Copyright 1996, 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,11 +17,11 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.2 1997/03/01 05:21:20 faith Exp $
+ * $Id: index.c,v 1.3 1997/03/07 16:10:34 faith Exp $
  * 
  */
 
-#include "dict.h"
+#include "dictzip.h"
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <fcntl.h>

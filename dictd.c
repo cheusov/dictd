@@ -1,26 +1,23 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Mon Mar  3 08:52:22 1997 by faith@cs.unc.edu
+ * Revised: Fri Mar  7 11:07:05 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.3 1997/03/07 13:57:59 faith Exp $
+ * $Id: dictd.c,v 1.4 1997/03/07 16:10:32 faith Exp $
  * 
  */
 
-#include <unistd.h>
-#include <signal.h>
-#include <sys/wait.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <errno.h>
 #include <netdb.h>
 #include <sys/utsname.h>
-#include <getopt.h>
-
-#include "maa.h"
+#include <signal.h>
+#include <sys/wait.h>
 #include "net.h"
-#include "dict.h"
+
+#include "dictd.h"
 #include "servparse.h"
 
 extern int yy_flex_debug;
@@ -199,7 +196,7 @@ static const char *id_string( const char *id )
 const char *dict_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dictd.c,v 1.3 1997/03/07 13:57:59 faith Exp $";
+   const char        *id = "$Id: dictd.c,v 1.4 1997/03/07 16:10:32 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;

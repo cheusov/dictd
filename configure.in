@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script for dict.
 dnl
 dnl Created: Wed Apr 24 14:11:05 1996 by faith@cs.unc.edu
-dnl Revised: Wed Sep 25 19:23:16 1996 by faith@cs.unc.edu
+dnl Revised: Fri Mar  7 10:59:06 1997 by faith@cs.unc.edu
 dnl Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)
 dnl
 dnl This program is free software; you can redistribute it and/or modify it
@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.1 1996/09/26 02:27:38 faith Exp $
+dnl $Id: configure.in,v 1.2 1997/03/07 16:10:28 faith Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -32,7 +32,7 @@ dnl     YCFLAGS is for yacc
 dnl     LCFLAGS is for lex
 
 AC_PREREQ(2.1)
-AC_REVISION($Revision: 1.1 $)
+AC_REVISION($Revision: 1.2 $)
 AC_INIT(dict.c)
 AC_CONFIG_HEADER(config.h)
 
@@ -56,6 +56,8 @@ else
 fi
 
 local_dmalloc=0
+local_libmaa=0
+local_zlib=0
 
 case "$host" in
 dnl did include: -Winline
@@ -87,6 +89,14 @@ needs_dmalloc=1
 local_dmalloc=1
 needs_xmalloc=0)
 
+AC_ARG_WITH(local-libmaa,
+[  --with-local-dmalloc    with libmaa built in local source tree],
+local_libmaa=1)
+
+AC_ARG_WITH(local-zlib,
+[  --with-local-zlib       with zlib built in local source tree],
+local_zlib=1)
+
 AC_ARG_WITH(checker,
 [  --with-checker          with Checker support (Linux only)],
 REALCC=checkergcc)
@@ -114,7 +124,37 @@ AC_PROG_RANLIB
 echo .
 echo Checking for libraries
 
-subdirs="libmaa"
+if test "$local_libmaa" = 0; then
+    AC_CHECK_LIB(libmaa,maa_init,REALLIBS="$REALLIBS -lmaa",local_libmaa=1)
+fi
+
+if test "$local_libmaa" = 1; then
+    AC_MSG_CHECKING(for libmaa in local source tree)
+    if test -d libmaa; then
+        REALLIBS="$REALLIBS -L./libmaa -lmaa"
+        XTRACFLAGS="$XTRACFLAGS -I./libmaa"
+        subdirs="$subdirs libmaa"
+        AC_MSG_RESULT(./libmaa)
+    else
+        AC_MSG_ERROR(Libmaa not found, cannot continue)
+    fi
+fi
+
+if test "$local_zlib" = 0; then
+    AC_CHECK_LIB(zlib,zlibVersion,REALLIBS="$REALLIBS -lzlib",local_zlib=1)
+fi
+
+if test "$local_zlib" = 1; then
+    AC_MSG_CHECKING(for zlib in local source tree)
+    if test -d zlib; then
+        REALLIBS="$REALLIBS -L./zlib -lz"
+        XTRACFLAGS="$XTRACFLAGS -I./zlib"
+        subdirs="$subdirs zlib"
+        AC_MSG_RESULT(./zlib)
+    else
+        AC_MSG_ERROR(Zlib not found, cannot continue)
+    fi
+fi
 
 if test "$local_dmalloc" = 0 -a "$needs_dmalloc" = 1; then
     AC_CHECK_LIB(dmalloc,main,

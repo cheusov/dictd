@@ -1,6 +1,6 @@
 /* data.c -- 
  * Created: Tue Jul 16 12:45:41 1996 by r.faith@ieee.org
- * Revised: Fri Feb 28 16:29:31 1997 by faith@cs.unc.edu
+ * Revised: Fri Mar  7 10:52:27 1997 by faith@cs.unc.edu
  * Copyright 1996, 1997 Rickard E. Faith (r.faith@ieee.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,11 +17,11 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: data.c,v 1.2 1997/03/01 05:21:15 faith Exp $
+ * $Id: data.c,v 1.3 1997/03/07 16:10:29 faith Exp $
  * 
  */
 
-#include "dict.h"
+#include "dictzip.h"
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <ctype.h>

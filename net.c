@@ -1,10 +1,10 @@
 /* net.c -- 
  * Created: Fri Feb 21 20:58:10 1997 by faith@cs.unc.edu
- * Revised: Sat Feb 22 00:46:34 1997 by faith@cs.unc.edu
+ * Revised: Fri Mar  7 10:52:24 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: net.c,v 1.1 1997/03/01 04:23:28 faith Exp $
+ * $Id: net.c,v 1.2 1997/03/07 16:10:35 faith Exp $
  * 
  */
 
@@ -52,4 +52,3 @@ int net_open_tcp( const char *service, int queueLength )
    
    return s;
 }
-

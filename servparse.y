@@ -1,6 +1,6 @@
 /* servparse.y -- Parser for dictd server configuration file
  * Created: Fri Feb 28 08:31:38 1997 by faith@cs.unc.edu
- * Revised: Mon Mar  3 08:52:21 1997 by faith@cs.unc.edu
+ * Revised: Fri Mar  7 11:04:02 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,12 +17,12 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.2 1997/03/07 13:58:00 faith Exp $
+ * $Id: servparse.y,v 1.3 1997/03/07 16:10:35 faith Exp $
  * 
  */
 
 %{
-#include "dict.h"
+#include "dictd.h"
 #define YYDEBUG 1
 #define YYERROR_VERBOSE
 

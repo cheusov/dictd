@@ -1,6 +1,6 @@
 # Makefile.in -- Makefile for dict
 # Created: Wed Apr 24 14:14:09 1996 by faith@cs.unc.edu
-# Revised: Fri Feb 28 23:31:29 1997 by faith@cs.unc.edu
+# Revised: Fri Mar  7 11:09:21 1997 by faith@cs.unc.edu
 # Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.5 1997/03/01 04:48:27 faith Exp $
+# $Id: Makefile.in,v 1.6 1997/03/07 16:10:27 faith Exp $
 #
 
 ifneq (,)
@@ -29,7 +29,7 @@ endif
 srcdir=		@srcdir@
 VPATH=		@srcdir@
 prefix=		@prefix@
-subdirs=        @subdirs@ zlib
+subdirs=        @subdirs@
 exec_prefix=	@exec_prefix@
 man1_prefix=	$(prefix)/man/man1
 
@@ -47,13 +47,18 @@ YACC=		@YACC@
 
 CFLAGS=		@CFLAGS@
 LDFLAGS=        @LDFLAGS@
-XTRACFLAGS=     @WCFLAGS@ @XTRACFLAGS@ @DEFS@ @CPPFLAGS@ -I. -Ilibmaa -Izlib
-XTRALDFLAGS=    @WLDFLAGS@ @XTRALDFLAGS@ -Llibmaa -Lzlib
-LDLIBS=		@LIBS@ -lmaa -lz
+XTRACFLAGS=     @WCFLAGS@ @XTRACFLAGS@ @DEFS@ @CPPFLAGS@ -I.
+XTRALDFLAGS=    @WLDFLAGS@ @XTRALDFLAGS@
+LDLIBS=		@LIBS@
 
-HEADERS= 	./config.h @XTRAHEADERS@ dict.h
-EXES=	 	search dictzip # jargdump wndump # dictzip
-OBJS=           fmt.o
+EXES=	 	dictzip dictd
+
+HEADERS= 	./config.h @XTRAHEADERS@ dictzip.h dictd.h
+
+SRCHOBJS=       index.o data.o
+NETOBJS=        daemon.o net.o servscan.o servparse.o
+
+TMPS=           servscan.c servparse.c servparse.h
 
 all::
 	@for subdir in $(subdirs); do \
@@ -61,34 +66,22 @@ all::
 		(cd $$subdir && $(MAKE)) || exit 1; \
 	done
 
-all:: dictd
-
-#all:: $(EXES)
+all:: $(EXES)
 
 %.o: %.c
 	$(CC) -c $(XTRACFLAGS) $(CFLAGS) $<
-
-#%: %.o
-#	$(CC) $(XTRALDFLAGS) $(LDFLAGS) -o $@ $< $(LDLIBS)
 
 ALLFLAGS=$(XTRACFLAGS) $(CFLAGS) $(XTRALDFLAGS) $(LDFLAGS)
 %: %.c
 	$(CC) $(ALLFLAGS) -o $@ $< $(OBJS) $(LDLIBS)
 
-$(EXES):  $(HEADERS) $(OBJS) libmaa/libmaa.a zlib/libz.a
 $(OBJS):  $(HEADERS)
 
-wordnet.dct wordnet.idx: wndump data/wordnet/data.*
-	./wndump < data/wordnet/data.*
+dictd:  dictd.c $(HEADERS) $(NETOBJS) $(SRCHOBJS)
+	$(CC) $(ALLFLAGS) -o $@ $< $(NETOBJS) $(SRCHOBJS) $(ZIPOBJS) $(LDLIBS)
 
-jargon.dct jargon.idx: jargdump data/jarg400.txt
-	./jargdump < data/jarg400.txt
-
-dictd: dictd.c net.o servscan.o servparse.o index.o data.o daemon.o $(HEADERS)
-	$(CC) $(ALLFLAGS) -o $@ $< net.o servscan.o servparse.o index.o data.o  daemon.o $(LDLIBS)
-
-dictzip: dictzip.c data.o $(HEADERS)
-	$(CC) $(ALLFLAGS) -o $@ $< data.o $(LDLIBS)
+dictzip: dictzip.c $(HEADERS) $(SRCHOBJS)
+	$(CC) $(ALLFLAGS) -o $@ $< $(SRCHOBJS) $(LDLIBS)
 
 servscan.c: servscan.l
 	$(LEX) -b -p -p $(LFLAGS) -o$@ $<
@@ -105,13 +98,12 @@ servparse.c: servparse.y
 servparse.o: servparse.c $(HEADERS)
 	$(CC) -c $(XTRACFLAGS) $(CFLAGS) -Wno-implicit $<
 
-
 .PHONY: clean distclean tags
 clean:
 	-rm -f *.o *.s *~ core a.out config.log $(EXES) $(TMPS)
 	-rm -f *.log *.aux *.toc *.dvi *.ps
 	-rm -f *.cfg *.dtk .inslog tca.map
-	-rm -f *.dct *.idx
+	-rm -f *.dct *.idx y.output
 
 recursive-clean: clean
 	@for subdir in $(subdirs); do \
@@ -121,8 +113,10 @@ recursive-clean: clean
 
 distclean: clean
 	@for subdir in $(subdirs); do \
-		echo making $@ in $$subdir; \
-		(cd $$subdir && $(MAKE) $@) || exit 1; \
+	 	if [ "$subdir" != "zlib" ]; then \
+			echo making $@ in $$subdir; \
+			(cd $$subdir && $(MAKE) $@) || exit 1; \
+		fi \
 	done
 	-rm -f config.h config.cache config.status stamp-h.in stamp-h
 	-rm -f configure Makefile

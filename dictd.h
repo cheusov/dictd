@@ -1,0 +1,266 @@
+/* dict.h -- Header file for dict program
+ * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
+ * Revised: Fri Mar  7 11:03:18 1997 by faith@cs.unc.edu
+ * Copyright 1994, 1995, 1996 Rickard E. Faith (faith@cs.unc.edu)
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 1, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
+
+#ifndef _DICT_H_
+#define _DICT_H_
+
+#include "dictP.h"
+#include "maa.h"
+#include "zlib.h"
+
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <errno.h>
+#include <netdb.h>
+
+
+				/* Configurable things */
+
+#define DICT_DEFAULT_SERVICE    "2627"
+#define DICT_QUEUE_DEPTH        10
+#define DICT_CONFIG_FILE        "/etc/dict.conf"
+
+				/* End of configurable things */
+
+#define BUFFERSIZE 10240
+#define DBG_VERBOSE     (0<<30|1<< 0) /* Verbose                           */
+#define DBG_ZIP         (0<<30|1<< 1) /* Zip                               */
+#define DBG_UNZIP       (0<<30|1<< 2) /* Unzip                             */
+#define DBG_SEARCH      (0<<30|1<< 3) /* Search                            */
+#define DBG_SCAN        (0<<30|1<< 4) /* Config file scan                  */
+#define DBG_PARSE       (0<<30|1<< 5) /* Config file parse                 */
+#define DBG_INIT        (0<<30|1<< 6) /* Database initialization           */
+
+#define HEADER_CRC 0		/* Conflicts with gzip 1.2.4               */
+
+/* Use of the FEXTRA fields.  The FEXTRA area can be 0xffff bytes long, 2
+   bytes of which are used for the subfield ID, and 2 bytes of which are
+   used for the subfield length.  This leaves 0xfffb bytes (0x7ffd 2-byte
+   entries or 0x3ffe 4-byte entries.  Given that the zip output buffer must
+   be 10% + 12 bytes larger than the input buffer, we can store 58969 bytes
+   per entry, or about 1.8GB if the 2-byte entries are used.  If this
+   becomes a limiting factor, another format version can be selected and
+   defined for 4-byte entries. */
+
+
+				/* Output buffer must be greater than or
+                                   equal to 110% of input buffer size, plus
+                                   12 bytes. */
+#define OUT_BUFFER_SIZE 0xffffL
+
+#define IN_BUFFER_SIZE ((unsigned long)((double)(OUT_BUFFER_SIZE - 12) * 0.89))
+
+#define PREFILTER_IN_BUFFER_SIZE (IN_BUFFER_SIZE * 0.89)
+
+
+/* For gzip-compatible header, as defined in RFC 1952 */
+
+				/* Magic for GZIP (rfc1952)                */
+#define GZ_MAGIC1     0x1f	/* First magic byte                        */
+#define GZ_MAGIC2     0x8b	/* Second magic byte                       */
+
+				/* FLaGs (bitmapped), from rfc1952         */
+#define GZ_FTEXT      0x01	/* Set for ASCII text                      */
+#define GZ_FHCRC      0x02	/* Header CRC16                            */
+#define GZ_FEXTRA     0x04	/* Optional field (random access index)    */
+#define GZ_FNAME      0x08	/* Original name                           */
+#define GZ_COMMENT    0x10	/* Zero-terminated, human-readable comment */
+#define GZ_MAX           2	/* Maximum compression                     */
+#define GZ_FAST          4	/* Fasted compression                      */
+
+				/* These are from rfc1952                  */
+#define GZ_OS_FAT        0	/* FAT filesystem (MS-DOS, OS/2, NT/Win32) */
+#define GZ_OS_AMIGA      1	/* Amiga                                   */
+#define GZ_OS_VMS        2	/* VMS (or OpenVMS)                        */
+#define GZ_OS_UNIX       3      /* Unix                                    */
+#define GZ_OS_VMCMS      4      /* VM/CMS                                  */
+#define GZ_OS_ATARI      5      /* Atari TOS                               */
+#define GZ_OS_HPFS       6      /* HPFS filesystem (OS/2, NT)              */
+#define GZ_OS_MAC        7      /* Macintosh                               */
+#define GZ_OS_Z          8      /* Z-System                                */
+#define GZ_OS_CPM        9      /* CP/M                                    */
+#define GZ_OS_TOPS20    10      /* TOPS-20                                 */
+#define GZ_OS_NTFS      11      /* NTFS filesystem (NT)                    */
+#define GZ_OS_QDOS      12      /* QDOS                                    */
+#define GZ_OS_ACORN     13      /* Acorn RISCOS                            */
+#define GZ_OS_UNKNOWN  255      /* unknown                                 */
+
+#define GZ_RND_S1       'R'	/* First magic for random access format    */
+#define GZ_RND_S2       'A'	/* Second magic for random access format   */
+
+#define GZ_ID1           0	/* GZ_MAGIC1                               */
+#define GZ_ID2           1	/* GZ_MAGIC2                               */
+#define GZ_CM            2	/* Compression Method (Z_DEFALTED)         */
+#define GZ_FLG	         3	/* FLaGs (see above)                       */
+#define GZ_MTIME         4	/* Modification TIME                       */
+#define GZ_XFL           8	/* eXtra FLags (GZ_MAX or GZ_FAST)         */
+#define GZ_OS            9	/* Operating System                        */
+#define GZ_XLEN         10	/* eXtra LENgth (16bit)                    */
+#define GZ_FEXTRA_START 12	/* Start of extra fields                   */
+#define GZ_SI1          12	/* Subfield ID1                            */
+#define GZ_SI2          13      /* Subfield ID2                            */
+#define GZ_SUBLEN       14	/* Subfield length (16bit)                 */
+#define GZ_VERSION      16      /* Version for subfield format             */
+#define GZ_CHUNKLEN     18	/* Chunk length (16bit)                    */
+#define GZ_CHUNKCNT     20	/* Number of chunks (16bit)                */
+#define GZ_RNDDATA      22	/* Random access data (16bit)              */
+
+extern void fmt_newline( void );
+extern void fmt_new( const char *word );
+extern void fmt_string( const char *string );
+extern void fmt_flush( void );
+extern void fmt_line( const char *line );
+extern void fmt_def( const char *pos, int entry );
+extern void fmt_open( const char *basename );
+extern void fmt_close( void );
+
+#define DICT_UNKNOWN    0
+#define DICT_TEXT       1
+#define DICT_GZIP       2
+#define DICT_DZIP       3
+
+typedef struct dictData {
+   int           fd;		/* file descriptor */
+   const char    *start;	/* start of mmap'd area */
+   const char    *end;		/* end of mmap'd area */
+   unsigned long size;		/* size of mmap */
+   
+   int           type;
+   const char    *filename;
+   z_stream      zStream;
+   int           initialized;
+   
+   int           headerLength;
+   int           method;
+   int           flags;
+   time_t        mtime;
+   int           extraFlags;
+   int           os;
+   int           version;
+   int           chunkLength;
+   int           chunkCount;
+   int           *chunks;
+   unsigned long *offsets;	/* Sum-scan of chunks. */
+   const char    *origFilename;
+   const char    *comment;
+   unsigned long crc;
+   unsigned long length;
+   unsigned long compressedLength;
+} dictData;
+
+typedef struct dictIndex {
+   int           fd;		/* file descriptor */
+   const char    *start;	/* start of mmap'd area */
+   const char    *end;		/* end of mmap'd area */
+   unsigned long size;		/* size of mmap */
+} dictIndex;
+
+typedef struct dictDatabase {
+   const char *databaseName;
+   const char *databaseShort;
+   const char *dataFilename;
+   const char *indexFilename;
+   const char *filter;
+   const char *prefilter;
+   const char *postfilter;
+   lst_List   acl;
+   
+   dictData   *data;
+   dictIndex  *index;
+} dictDatabase;
+
+#define DICT_DENY  0
+#define DICT_ALLOW 1
+#define DICT_USER  0
+#define DICT_GROUP 1
+#define DICT_ADDR  2
+#define DICT_NAME  3
+
+typedef struct dictAccess {
+   int        allow;		/* 1 = allow; 0 = deny */
+   int        type;		/* user, group, hostaddr, hostname */
+   const char *spec;
+} dictAccess;
+
+typedef struct dictConfig {
+   lst_List   acl;
+   lst_List   dbl;
+} dictConfig;
+
+#define DICT_EXACT        1
+#define DICT_PREFIX       2
+#define DICT_SUBSTRING    3
+#define DICT_REGEXP       4
+#define DICT_SOUNDEX      5
+#define DICT_LEVENSHTEIN  6
+
+
+typedef struct dictWord {
+   const char    *word;
+   unsigned long start;
+   unsigned long end;
+   dictDatabase  *database;
+} dictWord;
+
+typedef struct dictToken {
+   const char   *string;
+   int          integer;
+   src_Type     src;
+} dictToken;
+
+extern dictData *dict_data_open( const char *filename, int computeCRC );
+extern void     dict_data_close( dictData *data );
+extern void     dict_data_print_header( FILE *str, dictData *data );
+extern int      dict_data_zip( const char *inFilename, const char *outFilename,
+			       const char *preFilter, const char *postFilter );
+extern char     *dict_data_read( dictData *data,
+				 unsigned long start, unsigned long end,
+				 const char *preFilter,
+				 const char *postFilter );
+extern int      dict_data_filter( char *buffer, int *len, int maxLength,
+				  const char *filter );
+
+
+extern const char *dict_index_search( const char *word, dictIndex *idx );
+extern lst_List   dict_search_database( const char *word,
+					dictDatabase *database, int strategy );
+extern dictIndex  *dict_index_open( const char *filename );
+extern void       dict_index_close( dictIndex *i );
+extern void       dict_dump_list( lst_List list );
+extern void       dict_destroy_list( lst_List list );
+
+/* dictd.c */
+
+extern void       dict_set_config( dictConfig *dc );
+extern dictConfig *dict_get_config( void );
+extern const char *dict_get_hostname( void );
+extern const char *dict_get_banner( void );
+
+/* daemon.c */
+
+extern int dict_daemon( int s, struct sockaddr_in *csin );
+
+				/* dmalloc must be last */
+#ifdef DMALLOC_FUNC_CHECK
+# include "dmalloc.h"
+#endif
+
+#endif
