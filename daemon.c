@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.71 2004/01/07 19:49:59 cheusov Exp $
+ * $Id: daemon.c,v 1.72 2004/01/08 17:25:03 cheusov Exp $
  * 
  */
 
@@ -853,6 +853,7 @@ static dictDatabase *next_database (
       if (*databasePosition) {
 	 do {
 	    db = lst_get_position( *databasePosition );
+
 	    *databasePosition = lst_next_position( *databasePosition );
 	 } while ( db && (!db->available || db->invisible));
       }
@@ -861,14 +862,19 @@ static dictDatabase *next_database (
       while (*databasePosition) {
          db = lst_get_position( *databasePosition );
 	 *databasePosition = lst_next_position( *databasePosition );
-         if (db && !db -> invisible && db->available &&
-	     !strcmp(db -> databaseName,name))
-	 {
-	    return db;
+
+         if (db){
+	    if (
+	       !db -> invisible && db->available &&
+	       !strcmp(db -> databaseName,name))
+	    {
+	       return db;
+	    }
 	 }else{
 	    return NULL;
 	 }
       }
+
       return NULL;
    }
 }

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.17 2003/10/22 03:32:49 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.18 2004/01/08 17:25:03 cheusov Exp $
  * 
  */
 
@@ -497,7 +497,7 @@ static void read_index_file (
 	    buf, buf,
 	    dict_data -> m_conf_allchars, dict_data -> m_conf_utf8))
       {
-	 plugin_error (dict_data, "tolower_alnumspace failed");
+	 plugin_error (dict_data, "tolower_alnumspace failed while reading .index file");
 	 fclose (fd);
 	 return;
       }
@@ -817,106 +817,42 @@ static int match_prefix (
    return 0;
 }
 
-#define CHECK \
-   if (buf [0]){                                              \
-      value = JudySLGet (dict_data -> m_judy_array, buf, 0);  \
-      if (value && strcmp (prev_buf, buf)){                   \
-         strlcpy (prev_buf, buf, BUFSIZE);                    \
+#define CHECK(word, dict_data) \
+   if ((word) [0]){                                              \
+      value = JudySLGet ((dict_data) -> m_judy_array, (word), 0);\
+      if (value && strcmp (prev_buf, (word))){                   \
+         strlcpy (prev_buf, (word), BUFSIZE);                    \
                                                               \
-         ++dict_data -> m_mres_count;                         \
+         ++(dict_data) -> m_mres_count;                       \
                                                               \
-         dict_data -> m_mres = (const char **)                \
+         (dict_data) -> m_mres = (const char **)              \
             heap_realloc (                                    \
-               dict_data -> m_heap2,                          \
-               dict_data -> m_mres,                           \
-               dict_data -> m_mres_count                      \
-                  * sizeof (dict_data -> m_mres [0]));        \
-         dict_data -> m_mres [dict_data -> m_mres_count - 1] =\
-            heap_strdup (dict_data -> m_heap, buf);           \
+               (dict_data) -> m_heap2,                        \
+               (dict_data) -> m_mres,                         \
+               (dict_data) -> m_mres_count                    \
+                  * sizeof ((dict_data) -> m_mres [0]));      \
+         (dict_data) -> m_mres [(dict_data) -> m_mres_count - 1] = \
+            heap_strdup ((dict_data) -> m_heap, (word));      \
       }                                                       \
    }
+
+#define LEV_VARS \
+   PPvoid_t value; \
+   char prev_buf [BUFSIZE] = ""; \
+   char tmp;
+
+#define LEV_ARGS global_data
+
+static char const global_alphabet [] =
+   "qwertyuiopasdfghjklzxcvbnm0123456789";
+
+#include "lev.h"
 
 static int match_lev (
    global_data *dict_data,
    const char *word)
 {
-   size_t len;
-   char buf [BUFSIZE];
-   int i, j, k;
-   char *p;
-   char tmp;
-   PPvoid_t value;
-   char prev_buf [BUFSIZE] = "";
-
-   static char const c [] = "qwertyuiopasdfghjklzxcvbnm0123456789"; /* fix this*/
-   static int const charcount = sizeof (c) - 1;
-
-   len = strlen (word);
-   if (len >= BUFSIZE)
-      len = BUFSIZE - 10;
-
-                                /* Transpositions */
-   strlcpy( buf, word, sizeof (buf) );
-   CHECK; /* checking word inself */
-   for (i = 1; i < len; i++) {
-      tmp = buf [i-1];
-      buf [i-1] = buf [i];
-      buf [i] = tmp;
-
-      CHECK;
-
-      tmp = buf [i-1];
-      buf [i-1] = buf [i];
-      buf [i] = tmp;
-   }
-
-				/* Deletions */
-   for (i = 0; i < len; i++) {
-      p = buf;
-      for (j = 0; j < len; j++)
-	 if (i != j)
-	    *p++ = word [j];
-
-      *p = '\0';
-      CHECK;
-   }
-
-				/* Insertions */
-   for (i = 0; i < len; i++) {
-      for (k = 0; k < charcount; k++) {
-	 p = buf;
-         for (j = 0; j < len; j++) {
-            *p++ = word [j];
-            if (i == j)
-	       *p++ = c [k];
-         }
-         *p = '\0';
-	 CHECK;
-      }
-   }
-
-                                /* Insertions at the beginning */
-   strlcpy (buf + 1, word, BUFSIZE - 1);
-   for (k = 0; k < charcount; k++) {
-      buf [0] = c [k];
-      CHECK;
-   }
-
-                                  /* Substitutions */
-   strlcpy (buf, word, BUFSIZE);
-   for (i = 0; i < len; i++) {
-      for (j = 0; j < charcount; j++) {
-	 if (buf [i] != c [j]){
-	    tmp = buf [i];
-	    buf [i] = c [j];
-
-	    CHECK;
-
-	    buf [i] = tmp;
-	 }
-      }
-   }
-
+   dict_search_lev (word, global_alphabet, dict_data -> m_flag_utf8, dict_data);
    return 0;
 }
 
@@ -971,7 +907,7 @@ int dictdb_search (
 	 word_copy2, word_copy2,
 	 dict_data -> m_conf_allchars, dict_data -> m_conf_utf8))
    {
-      plugin_error (dict_data, "tolower_alnumspace failed");
+      plugin_error (dict_data, "tolower_alnumspace in dictdb_search failed");
       return 1;
    }
 
