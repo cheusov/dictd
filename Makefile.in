@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.82 2003/08/08 14:50:21 cheusov Exp $
+# $Id: Makefile.in,v 1.83 2003/08/10 13:13:20 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -74,7 +74,7 @@ SCFLAGS=        @SCFLAGS@
 LDFLAGS=        @LDFLAGS@
 XTRACFLAGS=     @WCFLAGS@ @XTRACFLAGS@ @DEFS@ @CPPFLAGS@ -I.
 XTRALDFLAGS=    @WLDFLAGS@ @XTRALDFLAGS@
-LDLIBS=		    @LIBS@
+LDLIBS=		@LIBS@
 
 DICTFMT_LDFLAGS=  @DICTFMT_LDFLAGS@
 DICTZIP_LDFLAGS=  @DICTZIP_LDFLAGS@

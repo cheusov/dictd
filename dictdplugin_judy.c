@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.8 2003/08/08 18:48:22 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.9 2003/08/10 13:13:20 cheusov Exp $
  * 
  */
 
@@ -91,6 +91,8 @@ static void heap_destroy (void **heap)
 
    xfree (h -> ptr);
    xfree (h);
+
+   str_destroy ();
 
    *heap = NULL;
 }
@@ -181,7 +183,6 @@ typedef struct global_data_s {
    char m_err_msg  [BUFSIZE];
 
    void *m_heap;
-   void *m_heap2;
 
 //   char * m_res;
 //   int m_res_size;
@@ -787,6 +788,9 @@ int dictdb_free (void * data)
       dict_data -> m_mres = NULL;
 
       dict_data -> m_err_msg [0] = 0;
+
+//      xfree (dict_data -> m_data);
+//      dict_data -> m_data = NULL;
    }
 
    return 0;
@@ -1223,6 +1227,7 @@ static int match_regexp (
 
    if ((err = regcomp (&re, word, REG_ICASE | REG_NOSUB | regex_flags))) {
       regerror (err, &re, dict_data -> m_err_msg, sizeof (dict_data -> m_err_msg));
+      regfree (&re);
       return 0;
    }
 
@@ -1249,6 +1254,8 @@ static int match_regexp (
    }
 
    dict_data -> m_mres_count = cnt;
+
+   regfree (&re);
 
    *result       = dict_data -> m_mres;
    *result_sizes = dict_data -> m_mres_sizes;
@@ -1316,6 +1323,12 @@ static int match_word (
       ret, result, result_sizes, results_count);
 }
 
+static int heap_get_allocation_count (void *heap)
+{
+   heap_s *h = (heap_s *) heap;
+   return h -> allocation_count;
+}
+
 int dictdb_search (
    void *data,
    const char *word, int word_size,
@@ -1355,6 +1368,8 @@ int dictdb_search (
 
    assert (!dict_data -> m_mres);
    assert (!dict_data -> m_mres_sizes);
+   assert (!dict_data -> m_mres_count);
+   assert (!heap_get_allocation_count (dict_data -> m_heap));
 
    strlcpy (word_copy2, word, sizeof (word_copy2));
 
@@ -1447,6 +1462,8 @@ int dictdb_search (
 	 (int *) heap_alloc (
 	    dict_data -> m_heap,
 	    cnt * sizeof (dict_data -> m_mres_sizes [0]));
+
+      dict_data -> m_mres_count = cnt;
 
       for (i = 0; i < cnt; ++i){
 	 dict_data -> m_mres [i] =
