@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.43 2002/10/28 13:23:48 cheusov Exp $
+ * $Id: daemon.c,v 1.44 2002/11/19 11:20:45 cheusov Exp $
  * 
  */
 
@@ -882,6 +882,18 @@ static int count_databases( void )
    return count;
 }
 
+static void destroy_word_list (lst_List l)
+{
+   char *word;
+
+   while (lst_length (l)){
+      word = lst_pop (l);
+      if (word)
+	 xfree (word);
+   }
+   lst_destroy (l);
+}
+
 int dict_search_databases (
    lst_List *l,
    lst_Position databasePosition, /* NULL for global database list */
@@ -889,9 +901,13 @@ int dict_search_databases (
 {
    int matches       = -1;
    int matches_count = 0;
+   int mc;
+
    dictDatabase *db;
    dictWord *dw;
    char *p;
+
+   lst_Position preprocessed_words_pos;
 
    lst_List preprocessed_words;
    int i;
@@ -904,19 +920,42 @@ int dict_search_databases (
       databasePosition = first_database_pos ();
 
    preprocessed_words = lst_create ();
+   lst_append (preprocessed_words, xstrdup(word));
 
    while ((db = next_database (&databasePosition, databaseName))) {
-      if (db -> virtual_db_list){
-	 assert (lst_init_position (db -> virtual_db_list));
+      result = DICT_PLUGIN_RESULT_NOTFOUND;
 
-	 matches_count = dict_search_databases (
-	    l, lst_init_position (db -> virtual_db_list),
-	    "*", word, strategy);
-      }else{
-	 matches_count = dict_search (
-	    l, word, db, strategy,
-	    &result, &extra_result, &extra_result_size);
+      mc = 0;
+      preprocessed_words_pos = lst_init_position (preprocessed_words);
+      while (preprocessed_words_pos){
+	 word = lst_get_position (preprocessed_words_pos);
+	 if (word){
+	    if (db -> virtual_db_list){
+	       assert (lst_init_position (db -> virtual_db_list));
+
+	       matches_count = dict_search_databases (
+		  l, lst_init_position (db -> virtual_db_list),
+		  "*", word, strategy);
+	    }else{
+	       matches_count = dict_search (
+		  l, word, db, strategy,
+		  &result, &extra_result, &extra_result_size);
+
+	       if (result == DICT_PLUGIN_RESULT_PREPROCESS){
+		  xfree (lst_get_position (preprocessed_words_pos));
+		  lst_set_position (preprocessed_words_pos, NULL);
+	       }
+	    }
+	    if (matches_count < 0)
+	       break;
+
+	    mc += matches_count;
+	 }
+
+	 preprocessed_words_pos = lst_next_position (preprocessed_words_pos);
       }
+
+      matches_count = mc;
 
       if (matches < 0)
 	 matches = 0;
@@ -926,13 +965,13 @@ int dict_search_databases (
 	    dw = lst_pop (l);
 	    switch (dw -> def_size){
 	    case -1:
-	       word = xstrdup (dw -> word);
-	       lst_append (preprocessed_words, word);
+	       p = xstrdup (dw -> word);
+	       lst_append (preprocessed_words, p);
 	       break;
 	    case 0:
 	       break;
 	    default:
-	       word = p = xmalloc (1 + dw -> def_size);
+	       p = xmalloc (1 + dw -> def_size);
 	       memcpy (p, dw -> def, dw -> def_size);
 	       p [dw -> def_size] = 0;
 
@@ -941,31 +980,26 @@ int dict_search_databases (
 
 	    dict_destroy_datum (dw);
 	 }
+      }else{
+	 matches += abs(matches_count);
 
-	 continue;
+	 if (matches_count < 0)
+	    break;
+
+	 if (result == DICT_PLUGIN_RESULT_EXIT)
+	    break;
+
+	 if (matches > 0 && *databaseName != '*')
+	    break;
+	 else if (*databaseName == '*' || *databaseName == '!')
+	    continue;
+
+	 matches = 0;
+	 break;
       }
-
-      matches += abs(matches_count);
-
-      if (matches_count < 0)
-	 break;
-
-      if (result == DICT_PLUGIN_RESULT_EXIT)
-	 break;
-
-      if (matches > 0 && *databaseName != '*')
-	 break;
-      else if (*databaseName == '*' || *databaseName == '!')
-	 continue;
-
-      matches = 0;
-      break;
    }
 
-   while (lst_top (preprocessed_words)){
-      xfree (lst_pop (preprocessed_words));
-   }
-   lst_destroy (preprocessed_words);
+   destroy_word_list (preprocessed_words);
 
    return matches;
 }
