@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.c,v 1.40 2003/12/08 17:14:46 cheusov Exp $
+ * $Id: dict.c,v 1.41 2004/04/23 14:33:36 cheusov Exp $
  * 
  */
 
@@ -73,6 +73,28 @@ unsigned long client_bytes;
 unsigned long client_pipesize = PIPESIZE;
 char          *client_text    = NULL;
 
+int ex_status = 0;
+static void set_ex_status (int status)
+{
+   if (!ex_status)
+      ex_status = status;
+}
+
+#define EXST_UNEXPECTED              20
+#define EXST_TEMPORARY_ANAVAILABLE   21
+#define EXST_SHUTTING_DOWN           22
+#define EXST_SYNTAX_ERROR            23
+#define EXST_ILLEGAL_PARAM           24
+#define EXST_COMMAND_NOT_IMPLEMENTED 25
+#define EXST_PARAM_NOT_IMPLEMENTED   26
+#define EXST_ACCESS_DENIED           27
+#define EXST_AUTH_DENIED             28
+#define EXST_INVALID_DB              29
+#define EXST_INVALID_STRATEGY        30
+#define EXST_NO_MATCH                31
+#define EXST_NO_DATABASES            32
+#define EXST_NO_STRATEGIES           33
+
 struct def {
    lst_List   data;
    const char *word;
@@ -123,6 +145,102 @@ static void client_crlf( char *d, const char *s )
       *d++ = '\n';
    }
    *d = '\0';
+}
+
+static void unexpected_status_code (
+   int expected_status, int act_status,
+   const char *message)
+{
+   switch (act_status){
+   case CODE_TEMPORARILY_UNAVAILABLE:
+      if (expected_status)
+	 fprintf (stderr,
+		  "%s\n",
+		  (message ? message : "Server temporarily unavailable"));
+      exit (EXST_TEMPORARY_ANAVAILABLE);
+
+   case CODE_SHUTTING_DOWN:
+      if (expected_status)
+	 fprintf (stderr,
+		  "%s\n", (message ? message : "Server shutting down"));
+      exit (EXST_SHUTTING_DOWN);
+
+   case CODE_SYNTAX_ERROR:
+      if (expected_status)
+	 fprintf (stderr,
+		  "%s\n", (message ? message : "Command not recognized"));
+      exit (EXST_SYNTAX_ERROR);
+
+   case CODE_ILLEGAL_PARAM:
+      if (expected_status)
+	 fprintf (stderr,
+		  "%s\n", (message ? message : "Illegal parameters"));
+      exit (CODE_ILLEGAL_PARAM);
+
+   case CODE_COMMAND_NOT_IMPLEMENTED:
+      if (expected_status)
+	 fprintf (stderr,
+		  "%s\n", (message ? message : "Command not implemented"));
+      exit (EXST_COMMAND_NOT_IMPLEMENTED);
+
+   case CODE_PARAM_NOT_IMPLEMENTED:
+      if (expected_status)
+	 fprintf (stderr,
+		  "%s\n", (message ? message : "Parameter not implemented"));
+      exit (EXST_PARAM_NOT_IMPLEMENTED);
+
+   case CODE_ACCESS_DENIED:
+      if (expected_status)
+	 fprintf (stderr,
+		  "%s\n", (message ? message : "Access denied"));
+      exit (EXST_ACCESS_DENIED);
+
+   case CODE_AUTH_DENIED:
+      if (expected_status)
+	 fprintf (stderr,
+		  "%s\n", (message ? message : "Authentication denied"));
+      exit (EXST_AUTH_DENIED);
+
+   case CODE_INVALID_DB:
+      if (expected_status)
+	 fprintf (stderr,
+		  "%s\n", (message ? message : "Invalid database"));
+      exit (EXST_INVALID_DB);
+
+   case CODE_INVALID_STRATEGY:
+      if (expected_status)
+	 fprintf (stderr,
+		  "%s\n", (message ? message : "Invalid strategy"));
+      exit (EXST_INVALID_STRATEGY);
+
+   case CODE_NO_MATCH:
+      if (expected_status)
+	 fprintf (stderr,
+		  "%s\n", (message ? message : "No matches found"));
+      exit (EXST_NO_MATCH);
+
+   case CODE_NO_DATABASES:
+      if (expected_status)
+	 fprintf (stderr,
+		  "%s\n", (message ? message : "No databases"));
+      exit (EXST_NO_DATABASES);
+
+   case CODE_NO_STRATEGIES:
+      if (expected_status)
+	 fprintf (stderr,
+		  "%s\n", (message ? message : "No strategies"));
+      exit (EXST_NO_STRATEGIES);
+
+   default:
+//      if (expected_status)
+	 fprintf (stderr,
+		  "Unexpected status code %d (%s), wanted %d\n",
+		  act_status,
+		  (message ? message : "no message"),
+		  expected_status);
+
+      exit (EXST_UNEXPECTED);
+   }
 }
 
 static void client_open_pager( void )
@@ -211,6 +329,7 @@ static void client_print_matches( lst_List l, int flag, const char *word )
    } else {
        if (flag)
            fprintf( dict_output, "No matches found for \"%s\"\n", word );
+       set_ex_status (CODE_NO_MATCH);
        return;
    }
 
@@ -652,10 +771,14 @@ static void process( void )
 	    client_free_text( cmd_reply.data );
 	    cmd_reply.data = NULL;
 	    cmd_reply.matches = 0;
+
 	 } else {
 	    fprintf( dict_output,
 		     "No definitions found for \"%s\"\n", c->word );
 	 }
+
+	 set_ex_status (CODE_NO_MATCH);
+
 	 expected = cmd_reply.retcode;
 	 break;
       case CMD_CONNECT:
@@ -682,6 +805,8 @@ static void process( void )
 	 if (cmd_reply.retcode != expected && dbg_test(DBG_VERBOSE))
 	    fprintf( dict_output, "Client command gave unexpected status code %d (%s)\n",
 		    cmd_reply.retcode, message ? message : "no message" );
+
+//	 set_ex_status (cmd_reply.retcode);
 
 	 expected = cmd_reply.retcode;
 	 break;
@@ -768,11 +893,15 @@ static void process( void )
 		   ("No match found for \"%s\" in %s\n",c->word,c->database));
 	    break;
 	 case CODE_INVALID_DB:
-	    printf( "%s is not a valid database, use -D for a list\n",
+	    fprintf(stderr, "%s is not a valid database, use -D for a list\n",
 		    c->database );
+	    set_ex_status (CODE_INVALID_DB);
 	    break;
 	 case CODE_NO_DATABASES:
 	    fprintf( dict_output, "There are no databases currently available\n" );
+
+	    set_ex_status (CODE_NO_DATABASES);
+
 	    break;
 	 default:
 	    expected = CODE_OK;
@@ -793,28 +922,50 @@ static void process( void )
 						    &message,
 						    NULL,NULL,NULL,NULL,NULL );
 	    break;
+	 case CODE_TEMPORARILY_UNAVAILABLE:
+	    fprintf (stderr,
+		    "Server temporarily unavailable\n");
+
+	    set_ex_status (CODE_TEMPORARILY_UNAVAILABLE);
+
+	    break;
 	 case CODE_NO_MATCH:
 	    PRINTF(DBG_VERBOSE,
 		   ("No match found in %s for \"%s\" using %s\n",
 		    c->database,c->word,c->strategy));
+
+	    set_ex_status (CODE_NO_MATCH);
+
 	    break;
 	 case CODE_INVALID_DB:
 	    fprintf( dict_output,
 		     "%s is not a valid database, use -D for a list\n",
 		     c->database );
+
+	    set_ex_status (CODE_INVALID_DB);
+
 	    break;
 	 case CODE_INVALID_STRATEGY:
 	    fprintf( dict_output,
 		     "%s is not a valid search strategy, use -S for a list\n",
 		     c->strategy );
+
+	    set_ex_status (CODE_INVALID_STRATEGY);
+
 	    break;
 	 case CODE_NO_DATABASES:
 	    fprintf( dict_output,
 		     "There are no databases currently available\n" );
+
+	    set_ex_status (CODE_NO_DATABASES);
+
 	    break;
 	 case CODE_NO_STRATEGIES:
 	    fprintf( dict_output,
 		     "There are no search strategies currently available\n" );
+
+	    set_ex_status (CODE_NO_STRATEGIES);
+
 	    break;
 	 default:
 	    expected = CODE_OK;
@@ -870,6 +1021,8 @@ static void process( void )
 	 } else {
 	    fprintf( dict_output, "No matches found for \"%s\"", c->word );
 	    fprintf( dict_output, "\n" );
+
+	    set_ex_status (CODE_NO_MATCH);
 	 }
 	 expected = cmd_reply.retcode;
 	 break;
@@ -884,11 +1037,7 @@ static void process( void )
       }
       if (cmd_reply.s && cmd_reply.retcode != expected) {
          client_close_pager();
-	 err_fatal( NULL,
-		    "Unexpected status code %d (%s), wanted %d\n",
-		    cmd_reply.retcode,
-		    message ? message : "no message",
-		    expected );
+	 unexpected_status_code (expected, cmd_reply.retcode, message);
       }
       PRINTF(DBG_RAW,("* Processed %d\n",c->command));
       xfree(c);
@@ -965,7 +1114,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.40 2003/12/08 17:14:46 cheusov Exp $";
+   const char        *id = "$Id: dict.c,v 1.41 2004/04/23 14:33:36 cheusov Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -1408,6 +1557,10 @@ int main( int argc, char **argv )
 	       tim_get_system( "total" ),
 	       client_bytes / tim_get_real( "total" ) );
    }
-   
+
+   if (ex_status){
+      unexpected_status_code (0, ex_status, NULL);
+   }
+
    return 0;
 }
