@@ -1,9 +1,49 @@
-2002-08-13  Aleksey Cheusov <vle@gmx.net>
+2002-08-23  Aleksey Cheusov  <Aleksey Cheusov <vle@gmx.net>
+
+  * dictfmt.c:
+  added: --without-hw parameter to 'dictfmt'
+
+  * dictfmt.c:
+  added: --headword-separator parameters to 'dictfmt'.
+    allows several headwords to have the same definition.
+    Example: autumn%%%fall if dictfmt is run with --headword-separator %%%
+
+  * dictd.c, dictfmt.c:
+  added: locale verification both in 'dictfmt' and 'dictd'
+
+2002-08-22  Aleksey Cheusov  <Aleksey Cheusov <vle@gmx.net>
+
+  * dictfmt.c:
+  'dictfmt' now removes ending spaces for the head words
+
+  * zlib/zlib.html, zlib/zlib.rc, zlib/zutil.c, zlib/zutil.h, zlib/zlib.3, zlib/zlib.def, zlib/zlib.h, zlib/inftrees.h, zlib/infutil.c, zlib/infutil.h, zlib/maketree.c, zlib/minigzip.c, zlib/trees.c, zlib/uncompr.c, zlib/zconf.h, zlib/adler32.c, zlib/algorithm.doc, zlib/compress.c, zlib/crc32.c, zlib/deflate.c, zlib/deflate.h, zlib/example.c, zlib/FAQ, zlib/gzio.c, zlib/infblock.c, zlib/infblock.h, zlib/infcodes.c, zlib/infcodes.h, zlib/inffast.c, zlib/inffast.h, zlib/inflate.c, zlib/inftrees.c, zlib/Makefile, zlib/Makefile.b32, zlib/Makefile.bor, zlib/Makefile.dj2, zlib/Makefile.in, zlib/Makefile.msc, zlib/Makefile.sas, zlib/Makefile.tc, zlib/Makefile.wat, zlib/README, zlib/README.DICT, zlib/ChangeLog:
+  downgrade to zlib-1.1.3 + double-free() patch
+
+2002-08-21  Aleksey Cheusov  <Aleksey Cheusov <vle@gmx.net>
+
+  * dict.c:
+  fixed: possible crash of 'dict' client
+
+  * dictfmt.c:
+  unnecessary /*LEAVE FIRST CHARACTER IN UPPER CASE BUT DOWNCASE THE REST*/
+    has been removed from dictfmt.c
+
+  * configure.in:
+  I removed local_zlib=1 line in configure.in
+    With this line
+    both --with[out]-local-zlib arguments supplied to 'configure' will
+    be ignored and local BUGGY zlib library will always be used.
+    Now external zlib library will be used by default.
+
+2002-08-13  Aleksey Cheusov  <Aleksey Cheusov <vle@gmx.net>
+
+  * ChangeLog, Makefile.in:
+  changed: ChangeLog
 
   * Makefile.in:
   added: dictfmt_index2suffix in 'install' and 'uninstall' Makefile's targets
 
-2002-08-12  Aleksey Cheusov <vle@gmx.net>
+2002-08-12  Aleksey Cheusov  <Aleksey Cheusov <vle@gmx.net>
 
   * dictfmt_index2suffix, utf8_ucs4.c, dict.c, dictd.8, dictfmt.1, dictfmt.c, Makefile.in:
   added: dictfmt.1, dictfmt_index2suffix, patched version of dictfmt.c
@@ -13,7 +53,7 @@
 
   Now dictfmt is a part of dictd distribution
 
-2002-08-05  Aleksey Cheusov <vle@gmx.net>
+2002-08-05  Aleksey Cheusov  <Aleksey Cheusov <vle@gmx.net>
 
   * ChangeLog: *** empty log message ***
 
