@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.78 2003/07/15 17:47:38 cheusov Exp $
+# $Id: Makefile.in,v 1.79 2003/07/22 12:52:27 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -347,7 +347,7 @@ ChangeLog:
 	AWK=@AWK@ rcs2log -i 2 -r -d'1996-09-20<' . doc regex zlib libmaa \
 	| sed 's,/cvsroot/dict/dictd1/,,g; \
 	       s,/cvs/dict/dictd1/,,g;\
-	       s,cheusov@[^>]*,vle@gmx.net,g;\
+	       s,cheusov..<cheusov@[^>]*,Aleksey Cheusov <vle@gmx.net,g;\
 	       s,faith@[^>]*,faith@dict.org,g;\
 	       s,hilliard...hilliard@.*,Bob Hilliard  <hilliard@debian.org>,g; \
 	       s,tek...tek@.*,Julian Squires  <tek@wiw.org>,g; \
