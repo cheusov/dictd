@@ -28,7 +28,9 @@ INSTALLATION
 
     [If using the Cygwin tools under Win98, please edit regex/mkh and
     remove the line that sets the PATH.  The dict client has been tested
-    under Cygwin+Win98, but the dictd server has not.]
+    under Cygwin+Win98. As of version 1.9.9, dictd can also be run on cygwin
+    from inetd. It has been tested on NT4/sp6 + cygwin-1.3.6 and
+    W2K + cygwin-1.3.22]
 
     NOTE: If you use an old version of flex, you may get errors.  Try
     upgrading flex.
