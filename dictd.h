@@ -196,7 +196,7 @@ typedef struct dictIndex {
 typedef struct dictDatabase {
    const char *databaseName;
    const char *databaseShort;
-   const char *databaseInfoPointer;
+   const char *databaseInfo;
    const char *dataFilename;
    const char *indexFilename;
    const char *indexsuffixFilename;
@@ -214,8 +214,13 @@ typedef struct dictDatabase {
 
    lst_List   *virtual_db_list;
 
-   int        exit;      /* non-zero for dictionary_exit entry */
-   int        invisible; /* non-zero if database is not visible for clients */
+   int exit;         /* non-zero for dictionary_exit entry */
+   int invisible;    /* non-zero for invisible databases */
+   int virtual_db;   /* non-zero for virtual databases */
+
+   /* database_virtual members*/
+   char *database_list;  /* comma-separated list of database names */
+
 } dictDatabase;
 
 #define DICT_DENY     0

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.52 2003/02/23 11:38:51 cheusov Exp $
+ * $Id: daemon.c,v 1.53 2003/02/23 12:58:58 cheusov Exp $
  * 
  */
 
@@ -1114,7 +1114,8 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
    dictWord     *dw;
    const dictDatabase *db;
    lst_List     list;
-   
+   const char  *info_entry_name = DICT_INFO_ENTRY_NAME;
+
    lst_Position databasePosition = first_database_pos ();
 
    if (argc != 3) {
@@ -1131,10 +1132,22 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
 
    list = lst_create();
    while ((db = next_database(&databasePosition, argv[2] ))) {
+      if (db -> databaseInfo && db -> databaseInfo [0] != '@'){
+	 daemon_printf( "%d information for %s\n",
+			CODE_DATABASE_INFO, argv[2] );
+	 daemon_mime();
+	 daemon_text(db -> databaseInfo);
+	 daemon_text("\n");
+	 daemon_ok( CODE_OK, "ok", NULL );
+	 return;
+      }
+
+      if (db -> databaseInfo && db -> databaseInfo [0] == '@')
+	 info_entry_name = db -> databaseInfo;
+
       if (dict_search (
 	 list,
-	 db->databaseInfoPointer ?
-	 db->databaseInfoPointer : DICT_INFO_ENTRY_NAME,
+	 info_entry_name,
 	 db,
 	 DICT_EXACT,
 	 NULL, NULL, NULL))

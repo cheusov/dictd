@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.15 2003/02/23 11:38:52 cheusov Exp $
+ * $Id: servparse.y,v 1.16 2003/02/23 12:58:59 cheusov Exp $
  * 
  */
 
@@ -51,6 +51,7 @@ static dictDatabase *db;
 %token <token> T_USER T_AUTHONLY T_SITE T_DATABASE_EXIT
 %token <token> T_STRING
 %token <token> T_INVISIBLE
+%token <token> T_DATABASE_VIRTUAL T_INFO T_DATABASE_LIST
 
 %type  <token>  Site
 %type  <access> AccessSpec
@@ -175,6 +176,15 @@ Database : T_DATABASE T_STRING
 	   }
            '{' SpecList '}' { $$ = db; }
            |
+           T_DATABASE_VIRTUAL T_STRING
+           {
+	      db = xmalloc(sizeof(struct dictDatabase));
+	      memset( db, 0, sizeof(struct dictDatabase));
+	      db->databaseName = $2.string;
+	      db->virtual_db   = 1;
+	   }
+           '{' SpecList_virtual '}' { $$ = db; }
+           |
 	   T_DATABASE_EXIT
 	   {
 	      db = xmalloc(sizeof(struct dictDatabase));
@@ -185,6 +195,17 @@ Database : T_DATABASE T_STRING
 	      $$ = db;
 	   }
          ;
+
+SpecList_virtual : Spec_virtual
+         | SpecList_virtual Spec_virtual
+         ;
+
+Spec_virtual : T_NAME T_STRING       { SET(databaseShort,$1,$2); }
+     | T_INFO T_STRING               { SET(databaseInfo,$1,$2); }
+     | T_DATABASE_LIST T_STRING      { SET(database_list,$1,$2);}
+     | T_INVISIBLE               { db->invisible = 1; }
+     | Access                    { db->acl = $1; }
+     ;
 
 SpecList : Spec
          | SpecList Spec
@@ -198,6 +219,7 @@ Spec : T_DATA T_STRING              { SET(dataFilename,$1,$2); }
      | T_PREFILTER T_STRING  { SET(prefilter,$1,$2); }
      | T_POSTFILTER T_STRING { SET(postfilter,$1,$2); }
      | T_NAME T_STRING       { SET(databaseShort,$1,$2); }
+     | T_INFO T_STRING               { SET(databaseInfo,$1,$2); }
      | T_INVISIBLE           { db->invisible = 1; }
      | Access                { db->acl = $1; }
      ;

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.68 2003/02/23 11:38:51 cheusov Exp $
+ * $Id: dictd.c,v 1.69 2003/02/23 12:58:59 cheusov Exp $
  * 
  */
 
@@ -451,78 +451,98 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
    return pt;
 }
 
+static lst_List string2virtual_db_list (char *s)
+{
+   lst_Position db_pos;
+   int len, i;
+   lst_List virtual_db_list;
+   char *p;
+
+   dictDatabase *global_db_list = NULL;
+
+   p   = s;
+   len = strlen (s);
+
+   virtual_db_list = lst_create ();
+
+   for (i = 0; i <= len; ++i){
+      if (s [i] == ',' || s [i] == '\n' || s [i] == '\0'){
+	 s [i] = '\0';
+
+	 if (*p){
+	    db_pos = lst_init_position (DictConfig->dbl);
+
+	    while (db_pos){
+	       global_db_list = lst_get_position (db_pos);
+
+	       if (!strcmp (global_db_list -> databaseName, p)){
+		  lst_append (virtual_db_list, global_db_list);
+		  break;
+	       }
+
+	       db_pos = lst_next_position (db_pos);
+	    }
+
+	    if (!db_pos){
+	       log_info( ":E: Unknown database '%s'\n", p );
+	       PRINTF(DBG_INIT, (":E: Unknown database '%s'\n", p));
+	       exit (2);
+	    }
+	 }
+
+	 p = s + i + 1;
+      }
+   }
+
+   return virtual_db_list;
+}
+
 static int init_virtual_db_list (const void *datum)
 {
    lst_List list;
    dictDatabase *db  = (dictDatabase *)datum;
-   dictDatabase *db2 = NULL;
    dictWord *dw;
    char *buf;
    int ret;
-   char *p;
-   int len, i;
-   lst_Position db_pos;
 
-   if (!db -> index)
-      return 0;
+   if (db -> database_list){
+      buf = xstrdup (db -> database_list);
+      db -> virtual_db_list = string2virtual_db_list (buf);
+      xfree (buf);
+/*
+      xfree (db -> database_list);
+      db -> database_list = NULL;
+*/
+   }else{
+      if (!db -> index)
+	 return 0;
 
-   list = lst_create();
-   ret = dict_search (
-      list, DICT_FLAG_VIRTUAL, db, DICT_EXACT,
-      NULL, NULL, NULL);
+      list = lst_create();
+      ret = dict_search (
+	 list, DICT_FLAG_VIRTUAL, db, DICT_EXACT,
+	 NULL, NULL, NULL);
 
-   switch (ret){
-   case 1: case 2:
-      db -> virtual_db_list = lst_create ();
+      switch (ret){
+      case 1: case 2:
+	 dw  = (dictWord *) lst_pop (list);
+	 buf = dict_data_obtain (db, dw);
+	 dict_destroy_datum (dw);
 
-      dw  = (dictWord *) lst_pop (list);
-      buf = dict_data_obtain (db, dw);
-      dict_destroy_datum (dw);
+	 db -> virtual_db_list = string2virtual_db_list (buf);
 
-      p   = buf;
-      len = strlen (buf);
-
-      for (i = 0; i <= len; ++i){
-	 if (buf [i] == '\n' || buf [i] == '\0'){
-	    buf [i] = '\0';
-
-	    if (*p){
-	       db_pos = lst_init_position (DictConfig->dbl);
-
-	       while (db_pos){
-		  db2 = lst_get_position (db_pos);
-
-		  if (!strcmp (db2 -> databaseName, p)){
-		     lst_append (db -> virtual_db_list, db2);
-		     break;
-		  }
-
-		  db_pos = lst_next_position (db_pos);
-	       }
-
-	       if (!db_pos){
-		  log_info( ":E: Unknown database '%s'\n", p );
-		  PRINTF(DBG_INIT, (":E: Unknown database '%s'\n", p));
-		  exit (2);
-	       }
-	    }
-
-	    p = buf + i + 1;
-	 }
+	 xfree (buf);
+	 break;
+      case 0:
+	 break;
+      default:
+	 err_fatal (
+	    __FUNCTION__,
+	    "index file contains more than one %s entry",
+	    DICT_FLAG_VIRTUAL);
       }
 
-      xfree (buf);
-      break;
-   case 0:
-      break;
-   default:
-      err_fatal (
-	 __FUNCTION__,
-	 "index file contains more than one %s entry",
-	 DICT_FLAG_VIRTUAL);
+      dict_destroy_list (list);
    }
-
-   dict_destroy_list (list);
 
    return 0;
 }
@@ -777,7 +797,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.68 2003/02/23 11:38:51 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.69 2003/02/23 12:58:59 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -926,6 +946,7 @@ static void release_root_privileges( void )
 static void sanity(const char *confFile)
 {
    int           fail = 0;
+   int           readable_error = 0;
    struct passwd *pw = NULL;
    struct group  *gr = NULL;
 
@@ -942,29 +963,63 @@ static void sanity(const char *confFile)
       lst_Position p;
       dictDatabase *e;
       LST_ITERATE(DictConfig->dbl, p, e) {
-           if (e->indexFilename && access(e->indexFilename, R_OK)) {
-              log_info(":E: %s is not readable (index file)\n",
-                       e->indexFilename);
-              ++fail;
-           }
-           if (e->dataFilename && access(e->dataFilename, R_OK)) {
-              log_info(":E: %s is not readable (data file)\n",
-                       e->dataFilename);
-              ++fail;
-           }
-       }
+	 if (e->indexFilename && access(e->indexFilename, R_OK)) {
+	    log_info(":E: %s is not readable (index file)\n",
+		     e->indexFilename);
+	    ++fail;
+	    readable_error = 1;
+	 }
+	 if (e->indexsuffixFilename && access(e->indexsuffixFilename, R_OK)) {
+	    log_info(":E: %s is not readable (index_suffix file)\n",
+		     e->indexsuffixFilename);
+	    ++fail;
+	    readable_error = 1;
+	 }
+	 if (e->indexwordFilename && access(e->indexwordFilename, R_OK)) {
+	    log_info(":E: %s is not readable (index_word file)\n",
+		     e->indexwordFilename);
+	    ++fail;
+	    readable_error = 1;
+	 }
+	 if (e->dataFilename && access(e->dataFilename, R_OK)) {
+	    log_info(":E: %s is not readable (data file)\n",
+		     e->dataFilename);
+	    ++fail;
+	    readable_error = 1;
+	 }
+	 if (e->virtual_db && !e->database_list){
+	    log_info(
+	       ":E: database list is not specified for virtual dictionary '%s'\n",
+	       e->databaseName);
+	    ++fail;
+	 }
+	 if (!e->virtual_db && !e->exit && !e->dataFilename){
+	    log_info(
+	       ":E: data filename is not specified for dictionary '%s'\n",
+	       e->databaseName);
+	    ++fail;
+	 }
+	 if (!e->virtual_db && !e->exit && !e->indexFilename){
+	    log_info(
+	       ":E: index filename is not specified for dictionary '%s'\n",
+	       e->databaseName);
+	    ++fail;
+	 }
+      }
    }
    if (fail) {
-      pw = getpwuid (geteuid ());
-      gr = getgrgid (getegid ());
+      if (readable_error){
+	 pw = getpwuid (geteuid ());
+	 gr = getgrgid (getegid ());
 
-      log_info(":E: for security, this program will not run as root.\n");
-      log_info(":E: if started as root, this program will change"
-               " to \"dictd\" or \"nobody\".\n");
-      log_info(":E: currently running as user %d/%s, group %d/%s\n",
-               geteuid(), pw && pw->pw_name ? pw->pw_name : "?",
-               getegid(), gr && gr->gr_name ? gr->gr_name : "?");
-      log_info(":E: config and db files must be readable by that user\n");
+	 log_info(":E: for security, this program will not run as root.\n");
+	 log_info(":E: if started as root, this program will change"
+		  " to \"dictd\" or \"nobody\".\n");
+	 log_info(":E: currently running as user %d/%s, group %d/%s\n",
+		  geteuid(), pw && pw->pw_name ? pw->pw_name : "?",
+		  getegid(), gr && gr->gr_name ? gr->gr_name : "?");
+	 log_info(":E: config and db files must be readable by that user\n");
+      }
       err_fatal(__FUNCTION__, ":E: terminating due to errors\n");
    }
 }
