@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.76 2003/03/03 17:24:28 cheusov Exp $
+ * $Id: dictd.c,v 1.77 2003/03/03 17:44:36 cheusov Exp $
  * 
  */
 
@@ -809,7 +809,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.76 2003/03/03 17:24:28 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.77 2003/03/03 17:44:36 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -890,6 +890,8 @@ static void help( void )
                       the default is 'lev'.",
 "   --without-strategy <strategies> disable strategies.\n\
                                    <strategies> is a comma-separated list.",
+"   --add-strategy <strat>:<descr>  adds new strategy <strat>\n\
+                                   with a description <descr>.",
 #ifdef HAVE_MMAP
 "   --no-mmap          do not use mmap() function and load files\n\
                       into memory instead.",
@@ -1273,8 +1275,10 @@ int main( int argc, char **argv, char **envp )
       case 516:
 	 new_strategy = optarg;
 	 new_strategy_descr = strchr (new_strategy, ':');
-	 if (!new_strategy_descr)
-	    exit (7);
+	 if (!new_strategy_descr){
+	    fprintf (stderr, "missing ':' symbol in --add-strategy option\n");
+	    exit (1);
+	 }
 
 	 *new_strategy_descr++ = 0;
 

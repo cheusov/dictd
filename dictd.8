@@ -227,6 +227,10 @@ Set the default strategy for MATCH search type. The default is 'lev'.
 Disable specified strategies.
 By default all search strategies are enabled.
 .TP
+.BI \-\-add-strategy " strat:descr"
+Adds strategy 'strat' with the description 'descr'.
+A new search strategy may be implemented with a help of plugins.
+.TP
 .B \-\-no-mmap
 do not use the mmap() function and read entire files into memory instead. 
 .TP
