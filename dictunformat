@@ -199,8 +199,10 @@ BEGIN {
 
 	skip("00-database-utf8")
 	skip("00-database-8bit")
+	skip("00-database-8bit-new")
 	skip("00-database-allchars")
 	skip("00-database-alphabet")
+	skip("00-database-default-strategy")
 
 	offset  = 0
 }

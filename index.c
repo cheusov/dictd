@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.95 2004/11/19 19:09:07 cheusov Exp $
+ * $Id: index.c,v 1.96 2004/11/19 19:42:12 cheusov Exp $
  * 
  */
 
@@ -1563,6 +1563,8 @@ dictIndex *dict_index_open(
    int         j;
    char        buf[2];
 
+   int         old_8bit_format = 0;
+
    int first_char;
    int first_char_uc;
 
@@ -1644,7 +1646,18 @@ dictIndex *dict_index_open(
 
       /* 8bit flag */
       i->flag_8bit =
-	 0 != dict_search_database_ (NULL, DICT_FLAG_8BIT, &db, DICT_STRAT_EXACT);
+	 0 != dict_search_database_ (NULL, DICT_FLAG_8BIT_NEW, &db, DICT_STRAT_EXACT);
+      old_8bit_format =
+	 0 != dict_search_database_ (NULL, DICT_FLAG_8BIT_OLD, &db, DICT_STRAT_EXACT);
+
+      if (old_8bit_format){
+	 log_info( ":E: index file '%s' was created using dictfmt <1.9.15\n"
+	           ":E:   and can not be used with dictd-1.9.15 or later\n"
+	           ":E:   Rebuild it like this:\n"
+	           ":E:   dictunformat db.index < db.dict | dictfmt -t --locale <8bit-locale> db-new\n", filename );
+	 exit (1);
+      }
+
       PRINTF(DBG_INIT, (":I:     \"%s\": flag_8bit=%i\n", filename, i->flag_8bit));
       if (i->flag_8bit && !bit8_mode){
 	 log_info( ":E: locale '%s' can not be used for 8-bit dictionaries. Exiting\n", locale );

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.53 2004/11/19 19:09:07 cheusov Exp $
+ * $Id: dictfmt.c,v 1.54 2004/11/19 19:42:12 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -870,7 +870,7 @@ static void fmt_headword_for_utf8 (void)
 static void fmt_headword_for_8bit (void)
 {
    if (bit8_mode){
-      fmt_newheadword("00-database-8bit");
+      fmt_newheadword("00-database-8bit-new");
       fmt_newline();
    }
 }
