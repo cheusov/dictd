@@ -569,6 +569,12 @@ dictionary to find the short name of the database.  The default is
 "@00-database-short", but this may be changed in the
 .I dictd.h
 file at compile time (DICT_SHORT_ENTRY_NAME).
+.TP
+.BI include " string"
+The text of the file "string" (usually a database specification)
+will be read as if it appeared at this location in the configuration file.
+Nested includes are not permitted.
+
 .SH "DETERMINATION OF ACCESS LEVEL"
 When a client connects, the global access specification is scanned, in
 order, until a specification matches.  If no access specification exists,
