@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.47 2003/01/03 19:59:09 cheusov Exp $
+ * $Id: index.c,v 1.48 2003/01/08 23:14:05 hilliard Exp $
  * 
  */
 
@@ -1837,11 +1837,13 @@ dictIndex *dict_index_open(
 
    if (mmap_mode){
 #ifdef HAVE_MMAP
-      i->start = mmap( NULL, i->size, PROT_READ, MAP_SHARED, i->fd, 0 );
-      if ((void *)i->start == (void *)(-1))
-	 err_fatal_errno (
-	    __FUNCTION__,
-	    "Cannot mmap index file \"%s\"\b", filename );
+      if (i->size) {
+         i->start = mmap( NULL, i->size, PROT_READ, MAP_SHARED, i->fd, 0 );
+         if ((void *)i->start == (void *)(-1))
+            err_fatal_errno (
+               __FUNCTION__,
+               "Cannot mmap index file \"%s\"\b", filename );
+      } else i->start = NULL;  /* allow for /dev/null dummy index */
 #else
       err_fatal (__FUNCTION__, "This should not happen");
 #endif
@@ -1928,7 +1930,8 @@ void dict_index_close( dictIndex *i )
    if (mmap_mode){
 #ifdef HAVE_MMAP
       if (i->fd >= 0) {
-	 munmap( (void *)i->start, i->size );
+         if(i->start)
+            munmap( (void *)i->start, i->size );
 	 close( i->fd );
 	 i->fd = 0;
       }

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictzip.c,v 1.19 2002/09/12 13:08:06 cheusov Exp $
+ * $Id: dictzip.c,v 1.20 2003/01/08 23:14:05 hilliard Exp $
  * 
  */
 
@@ -311,7 +311,7 @@ static const char *id_string( const char *id )
 
 static void banner( void )
 {
-   const char *id = "$Id: dictzip.c,v 1.19 2002/09/12 13:08:06 cheusov Exp $";
+   const char *id = "$Id: dictzip.c,v 1.20 2003/01/08 23:14:05 hilliard Exp $";
    
    fprintf( stderr, "%s %s\n", err_program_name(), id_string( id ) );
    fprintf( stderr,
@@ -487,7 +487,7 @@ int main( int argc, char **argv )
 	    }
 	    dict_data_close( header );
 	 } else {
-	    strcpy( filename, argv[i] );
+	    strncpy( filename, argv[i], BUFFERSIZE-1 );
 	    if ((pt = strrchr( filename, '.' ))) *pt = '\0';
 	    else
 	       err_fatal( __FUNCTION__, "Cannot truncate filename\n" );
@@ -511,7 +511,7 @@ int main( int argc, char **argv )
 	       err_fatal_errno( __FUNCTION__, "Cannot unlink %s\n", argv[i] );
 	 }
       } else {
-	 sprintf( buffer, "%s.dz", argv[i] );
+	 snprintf( buffer,BUFFERSIZE-1, "%s.dz", argv[i] );
 	 if (!dict_data_zip( argv[i], buffer, pre, post )) {
 	    if (!keepFlag && unlink( argv[i] ))
 		err_fatal_errno( __FUNCTION__, "Cannot unlink %s\n", argv[i] );
