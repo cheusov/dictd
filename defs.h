@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: defs.h,v 1.4 2003/10/01 17:09:05 cheusov Exp $
+ * $Id: defs.h,v 1.5 2003/10/22 03:31:39 cheusov Exp $
  */
 
 #ifndef _DEFS_H_
@@ -186,7 +186,7 @@ typedef struct dictDatabase {
    dictIndex  *index_suffix;
    dictIndex  *index_word;
 
-   int           *strategy_disabled; /* disable_strategy keyword*/
+   int        *strategy_disabled; /* disable_strategy keyword*/
 
    lst_List   *virtual_db_list;
 
