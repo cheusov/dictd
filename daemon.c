@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.49 2003/02/21 20:41:14 cheusov Exp $
+ * $Id: daemon.c,v 1.50 2003/02/21 20:48:09 cheusov Exp $
  * 
  */
 
@@ -1202,6 +1202,9 @@ static void daemon_show_server( const char *cmdline, int argc, char **argv )
 	 char data_size_uom  = 'k';
 	 int data_length     = 0;
 	 char data_length_uom= 'k';
+
+	 if (db -> invisible)
+	    continue;
 
 	 if (db->index){
 	    index_size = db->index->size/1024 > 10240 ?
