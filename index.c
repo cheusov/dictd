@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.44 2002/12/04 19:20:29 cheusov Exp $
+ * $Id: index.c,v 1.45 2002/12/25 18:24:54 cheusov Exp $
  * 
  */
 
@@ -2066,7 +2066,7 @@ int dict_plugin_open (dictIndex *i, const dictDatabase *db)
       dw = (dictWord *) lst_pop (list);
 
       plugin_filename = dict_plugin_filename (db, dw);
-      PRINTF(DBG_INIT, (":I:   Initinalizing plugin '%s'\n", plugin_filename));
+      PRINTF(DBG_INIT, (":I:   Initializing plugin '%s'\n", plugin_filename));
 
       dict_destroy_datum (dw);
       if (2 == ret)
