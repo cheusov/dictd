@@ -4,7 +4,7 @@
  * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.31 1998/01/16 03:30:22 faith Exp $
+ * $Id: dictd.c,v 1.32 1998/01/16 03:32:51 faith Exp $
  * 
  */
 
@@ -445,7 +445,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.31 1998/01/16 03:30:22 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.32 1998/01/16 03:32:51 faith Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -738,7 +738,7 @@ int main( int argc, char **argv, char **envp )
       net_detach();
       
       if ((str = fopen(DICTD_PID_FILE, "w"))) {
-	 fprintf( str, "%d\n", getpid() );
+	 fprintf( str, "%d\n", (int)getpid() );
 	 fclose( str );
       }
    }
