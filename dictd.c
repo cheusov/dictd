@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.116 2004/10/12 12:55:14 cheusov Exp $
+ * $Id: dictd.c,v 1.117 2004/10/12 13:51:30 cheusov Exp $
  * 
  */
 
@@ -55,7 +55,7 @@ static int        _dict_daemon;
 static int        _dict_reaps;
 static int        _dict_daemon_limit        = DICT_DAEMON_LIMIT;
 static int        _dict_markTime;
-static char       *_dict_argvstart;
+static char      *_dict_argvstart;
 static int        _dict_argvlen;
 
        int        _dict_forks;
@@ -923,7 +923,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.116 2004/10/12 12:55:14 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.117 2004/10/12 13:51:30 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1022,6 +1022,7 @@ static void help( void )
 "   --test-match                 show matched words but the definitions",
 "   --test-nooutput              produces no output",
 "   --test-idle                  does everything except search",
+"   --test-show-info <database>  shows information about specified database",
 "   --fast-start                 don't create additional index.",
 #ifdef HAVE_MMAP
 "   --without-mmap               do not use mmap() function and load files\n\
@@ -1230,6 +1231,7 @@ static const char *database_arg="*";
 
 static int idle_mode     = 0;
 static int nooutput_mode = 0;
+static int show_info_mode= 0;
 
 static void dict_test (
    const char *word,
@@ -1346,7 +1348,27 @@ static void dict_test_file (const char *filename, int strategy)
 */
 }
 
-int main( int argc, char **argv, char **envp )
+extern void daemon_show_info (
+   const char *cmdline, int argc, const char **argv);
+
+static void dict_test_show_info (const char *database)
+{
+   const char * argv [] = {"SHOW", "INFO", database};
+
+   dict_config_print( NULL, DictConfig );
+   dict_init_databases( DictConfig );
+   dict_make_dbs_available (DictConfig);
+
+   daemon_show_info ("", 3, argv);
+
+   dict_close_databases (DictConfig);
+
+   destroy ();
+
+   exit(0);
+}
+
+int main (int argc, char **argv, char **envp)
 {
    int                childSocket;
    int                masterSocket;
@@ -1411,6 +1433,7 @@ int main( int argc, char **argv, char **envp )
       { "fast-start",       0, 0, 517 },
       { "pp",               1, 0, 518 },
       { "listen-to",        1, 0, 519 },
+      { "test-show-info",   1, 0, 520 },
       { 0,                  0, 0, 0  }
    };
 
@@ -1440,6 +1463,8 @@ int main( int argc, char **argv, char **envp )
    dbg_register( DBG_NODETACH, "nodetach" );
    dbg_register( DBG_NOFORK,   "nofork" );
    dbg_register( DBG_ALT,      "alt" );
+
+   log_stream ("dictd", stderr);
 
    while ((c = getopt_long( argc, argv,
 			    "vVd:p:c:hL:t:l:sm:fi", longopts, NULL )) != EOF)
@@ -1510,11 +1535,17 @@ int main( int argc, char **argv, char **envp )
       case 517: optStart_mode = 0;                        break;
       case 518: preprocessor = str_copy (optarg);         break;
       case 519: bind_to      = str_copy (optarg);         break;
+      case 520:
+	 database_arg = str_copy(optarg);
+	 show_info_mode = 1;
+	 break;
       case 'h':
       default:  help(); exit(0);                          break;
       }
 
-   if (testWord || testFile || inetd)
+   log_stream (NULL, NULL);
+
+   if (testWord || testFile || inetd || show_info_mode)
       detach = 0;
 
    if (
@@ -1558,13 +1589,16 @@ int main( int argc, char **argv, char **envp )
       postprocess_filenames (DictConfig);
    }
 
-/*   log_stream( "dictd", stderr );*/
    sanity(configFile);
-/*   log_stream( "dictd", NULL );*/
 
    if (match_mode)
       strategy |= DICT_MATCH_MASK;
 
+
+   if (show_info_mode) {
+      dict_test_show_info (database_arg);
+      abort (); /* this should not happen */
+   }
 
    if (testWord) {		/* stand-alone test mode */
       dict_test_word (testWord, strategy);

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.77 2004/10/12 12:55:14 cheusov Exp $
+ * $Id: daemon.c,v 1.78 2004/10/12 13:51:30 cheusov Exp $
  * 
  */
 
@@ -43,26 +43,26 @@ static char         daemonStamp[256] = "";
 static jmp_buf      env;
 static int          daemonMime;
 
-static void daemon_define( const char *cmdline, int argc, char **argv );
-static void daemon_match( const char *cmdline, int argc, char **argv );
-static void daemon_show_db( const char *cmdline, int argc, char **argv );
-static void daemon_show_strat( const char *cmdline, int argc, char **argv );
-static void daemon_show_info( const char *cmdline, int argc, char **argv );
-static void daemon_show_server( const char *cmdline, int argc, char **argv );
-static void daemon_show( const char *cmdline, int argc, char **argv );
-static void daemon_option_mime( const char *cmdline, int argc, char **argv );
-static void daemon_option( const char *cmdline, int argc, char **argv );
-static void daemon_client( const char *cmdline, int argc, char **argv );
-static void daemon_auth( const char *cmdline, int argc, char **argv );
-static void daemon_status( const char *cmdline, int argc, char **argv );
-static void daemon_help( const char *cmdline, int argc, char **argv );
-static void daemon_quit( const char *cmdline, int argc, char **argv );
+static void daemon_define( const char *cmdline, int argc, const char **argv );
+static void daemon_match( const char *cmdline, int argc, const char **argv );
+static void daemon_show_db( const char *cmdline, int argc, const char **argv );
+static void daemon_show_strat( const char *cmdline, int argc, const char **argv );
+void daemon_show_info( const char *cmdline, int argc, const char **argv );
+static void daemon_show_server( const char *cmdline, int argc, const char **argv );
+static void daemon_show( const char *cmdline, int argc, const char **argv );
+static void daemon_option_mime( const char *cmdline, int argc, const char **argv );
+static void daemon_option( const char *cmdline, int argc, const char **argv );
+static void daemon_client( const char *cmdline, int argc, const char **argv );
+static void daemon_auth( const char *cmdline, int argc, const char **argv );
+static void daemon_status( const char *cmdline, int argc, const char **argv );
+static void daemon_help( const char *cmdline, int argc, const char **argv );
+static void daemon_quit( const char *cmdline, int argc, const char **argv );
 
 #define MAXARGCS 3
 static struct {
    int        argc;
    const char *name[MAXARGCS];
-   void       (*f)( const char *cmdline, int argc, char **argv );
+   void       (*f)( const char *cmdline, int argc, const char **argv );
 } commandInfo[] = {
    { 1, {"define"},             daemon_define },
    { 1, {"d"},                  daemon_define },
@@ -88,7 +88,7 @@ static struct {
 };
 #define COMMANDS (sizeof(commandInfo)/sizeof(commandInfo[0]))
 
-static void *(lookup_command)( int argc, char **argv )
+static void *(lookup_command)( int argc, const char **argv )
 {
    int i, j;
    int err;
@@ -494,11 +494,11 @@ static void daemon_mime( void )
    if (daemonMime) daemon_write( "\r\n", 2 );
 }
 
-static void daemon_text( const char *text )
+static void daemon_text( const char *text, int dot )
 {
    char *pt = alloca( 2*strlen(text) + 10 );
 
-   daemon_crlf(pt, text, 1);
+   daemon_crlf(pt, text, dot);
    daemon_write(pt, strlen(pt));
 }
 
@@ -616,7 +616,7 @@ static void daemon_dump_defs( lst_List list )
 	 buf[count] = '\0';
       }
 
-      daemon_text(buf);
+      daemon_text(buf, 1);
       xfree( buf );
    }
 }
@@ -689,12 +689,12 @@ static void daemon_banner( void )
 		  daemonStamp );
 }
 
-static void daemon_define( const char *cmdline, int argc, char **argv )
+static void daemon_define( const char *cmdline, int argc, const char **argv )
 {
    lst_List       list = lst_create();
    int            matches = 0;
-   char           *word;
-   const char     *databaseName;
+   const char    *word;
+   const char    *databaseName;
    int            extension = (argv[0][0] == 'd' && argv[0][1] == '\0');
    int            db_found = 0;
 
@@ -758,11 +758,11 @@ static void daemon_define( const char *cmdline, int argc, char **argv )
    daemon_ok( CODE_NO_MATCH, "no match", "c" );
 }
 
-static void daemon_match( const char *cmdline, int argc, char **argv )
+static void daemon_match( const char *cmdline, int argc, const char **argv )
 {
    lst_List       list = lst_create();
    int            matches = 0;
-   char           *word;
+   const char     *word;
    const char     *databaseName;
    const char     *strategy;
    int            strategyNumber;
@@ -1049,7 +1049,7 @@ int dict_search_databases (
    return error ? -matches : matches;
 }
 
-static void daemon_show_db( const char *cmdline, int argc, char **argv )
+static void daemon_show_db( const char *cmdline, int argc, const char **argv )
 {
    int          count;
    const dictDatabase *db;
@@ -1083,12 +1083,12 @@ static void daemon_show_db( const char *cmdline, int argc, char **argv )
    }
 }
 
-static void daemon_show_strat( const char *cmdline, int argc, char **argv )
+static void daemon_show_strat( const char *cmdline, int argc, const char **argv )
 {
    int i;
 
    int strat_count        = get_strategy_count ();
-   dictStrategy ** strats = get_strategies ();
+   dictStrategy const * const * strats = get_strategies ();
 
    if (argc != 2) {
       daemon_printf( "%d syntax error, illegal parameters\n",
@@ -1113,9 +1113,11 @@ static void daemon_show_strat( const char *cmdline, int argc, char **argv )
    }
 }
 
-static void daemon_show_info( const char *cmdline, int argc, char **argv )
+void daemon_show_info(
+   const char *cmdline,
+   int argc, const char **argv )
 {
-   char         *buf;
+   char         *buf=NULL;
    dictWord     *dw;
    const dictDatabase *db;
    lst_List     list;
@@ -1141,7 +1143,7 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
 	 daemon_printf( "%d information for %s\n",
 			CODE_DATABASE_INFO, argv[2] );
 	 daemon_mime();
-	 daemon_text(db -> databaseInfo);
+	 daemon_text(db -> databaseInfo, 1);
 	 daemon_ok( CODE_OK, "ok", NULL );
 	 return;
       }
@@ -1156,19 +1158,39 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
 	 DICT_STRAT_EXACT,
 	 NULL, NULL, NULL))
       {
-	 dw = lst_nth_get( list, 1 );
-	 buf = dict_data_obtain( db, dw );
+	 int i=1;
+	 int list_size = lst_length (list);
 
-#ifdef USE_PLUGIN
-	 call_dictdb_free (DictConfig->dbl);
-#endif
-
-	 dict_destroy_list( list );
 	 daemon_printf( "%d information for %s\n",
 			CODE_DATABASE_INFO, argv[2] );
 	 daemon_mime();
-	 daemon_text(buf);
+
+	 if (db -> virtual_db){
+	    daemon_printf ("The virtual dictionary `%s' includes the following:\n\n",
+			   db -> databaseName);
+	 }
+
+	 for (i=1; i <= list_size; ++i){
+	    dw = lst_nth_get( list, i );
+
+	    daemon_printf ("============ %s ============\n",
+			   dw -> database -> databaseName);
+
+	    buf = dict_data_obtain( dw -> database, dw );
+
+#ifdef USE_PLUGIN
+	    call_dictdb_free (DictConfig->dbl);
+#endif
+
+	    if (buf)
+	       daemon_text (buf, 0);
+	 }
+
+	 daemon_text ("\n", 1);
 	 daemon_ok( CODE_OK, "ok", NULL );
+
+	 dict_destroy_list (list);
+
 	 return;
       } else {
 #ifdef USE_PLUGIN
@@ -1179,7 +1201,7 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
 	 daemon_printf( "%d information for %s\n",
 			CODE_DATABASE_INFO, argv[2] );
 	 daemon_mime();
-	 daemon_text( "No information available\n" );
+	 daemon_text( "No information available\n" , 1);
 	 daemon_ok( CODE_OK, "ok", NULL );
 	 return;
       }
@@ -1214,7 +1236,9 @@ static int daemon_get_max_dbname_length ()
    return (int) max_len;
 }
 
-static void daemon_show_server( const char *cmdline, int argc, char **argv )
+static void daemon_show_server (
+   const char *cmdline,
+   int argc, const char **argv)
 {
    FILE          *str;
    char          buffer[1024];
@@ -1305,25 +1329,25 @@ static void daemon_show_server( const char *cmdline, int argc, char **argv )
    daemon_ok( CODE_OK, "ok", NULL );
 }
 
-static void daemon_show( const char *cmdline, int argc, char **argv )
+static void daemon_show( const char *cmdline, int argc, const char **argv )
 {
    daemon_printf( "%d syntax error, illegal parameters\n",
 		  CODE_ILLEGAL_PARAM );
 }
 
-static void daemon_option_mime( const char *cmdline, int argc, char **argv )
+static void daemon_option_mime( const char *cmdline, int argc, const char **argv )
 {
    ++daemonMime;
    daemon_ok( CODE_OK, "ok - using MIME headers", NULL );
 }
 
-static void daemon_option( const char *cmdline, int argc, char **argv )
+static void daemon_option( const char *cmdline, int argc, const char **argv )
 {
    daemon_printf( "%d syntax error, illegal parameters\n",
 		  CODE_ILLEGAL_PARAM );
 }
 
-static void daemon_client( const char *cmdline, int argc, char **argv )
+static void daemon_client( const char *cmdline, int argc, const char **argv )
 {
    const char *pt = strchr( cmdline, ' ' );
    
@@ -1334,7 +1358,7 @@ static void daemon_client( const char *cmdline, int argc, char **argv )
    daemon_ok( CODE_OK, "ok", NULL );
 }
 
-static void daemon_auth( const char *cmdline, int argc, char **argv )
+static void daemon_auth( const char *cmdline, int argc, const char **argv )
 {
    char              *buf;
    hsh_HashTable     h = DictConfig->usl;
@@ -1380,12 +1404,12 @@ static void daemon_auth( const char *cmdline, int argc, char **argv )
    }
 }
 
-static void daemon_status( const char *cmdline, int argc, char **argv )
+static void daemon_status( const char *cmdline, int argc, const char **argv )
 {
    daemon_ok( CODE_STATUS, "status", "t" );
 }
 
-static void daemon_help( const char *cmdline, int argc, char **argv )
+static void daemon_help( const char *cmdline, int argc, const char **argv )
 {
    daemon_printf( "%d help text follows\n", CODE_HELP );
    daemon_mime();
@@ -1416,11 +1440,11 @@ static void daemon_help( const char *cmdline, int argc, char **argv )
     "S                            -- STATUS\n"
     "H                            -- HELP\n"
     "Q                            -- QUIT\n"
-   );
+   , 1);
    daemon_ok( CODE_OK, "ok", NULL );
 }
 
-static void daemon_quit( const char *cmdline, int argc, char **argv )
+static void daemon_quit( const char *cmdline, int argc, const char **argv )
 {
    daemon_ok( CODE_GOODBYE, "bye", "t" );
    daemon_terminate( 0, "quit" );
@@ -1429,7 +1453,7 @@ static void daemon_quit( const char *cmdline, int argc, char **argv )
 /* The whole sub should be moved here, but I want to keep the diff small. */
 int _handleconn (int delay, int error);
 
-int dict_inetd(char ***argv0, int delay, int error )
+int dict_inetd (char ***argv0, int delay, int error)
 {
    if (setjmp(env)) return 0;
 
@@ -1470,9 +1494,9 @@ int _handleconn (int delay, int error) {
    int            count;
    arg_List       cmdline;
    int            argc;
-   char           **argv;
-   void           (*command)(const char *, int, char **);
-      
+   char         **argv;
+   void           (*command)(const char *, int, const char **);
+
    _dict_defines     = 0;
    _dict_matches     = 0;
    _dict_comparisons = 0;
@@ -1512,8 +1536,8 @@ int _handleconn (int delay, int error) {
       daemon_log( DICT_LOG_COMMAND, "%.80s\n", buf );
       cmdline = arg_argify(buf,0);
       arg_get_vector( cmdline, &argc, &argv );
-      if ((command = lookup_command(argc,argv))) {
-	 command(buf, argc, argv);
+      if ((command = lookup_command (argc, (const char **) argv))) {
+	 command(buf, argc, (const char **) argv);
       } else {
 	 daemon_printf( "%d unknown command\n", CODE_SYNTAX_ERROR );
       }
