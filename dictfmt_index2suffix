@@ -41,7 +41,6 @@ done
 
 if echo $arg_locale | egrep -i 'utf-?8' >/dev/null 2>&1; then
 	utf8_mode=1
-	arg_locale=C
 	export utf8_mode
 fi
 
@@ -49,8 +48,13 @@ export arg_locale
 
 #echo $arg_locale
 #echo $utf8_mode
+if test $BASH; then
+	exit_="echo \${PIPESTATUS[@]} | egrep '^0( 0)*$' >/dev/null"
+else
+	exit_='exit $?'
+fi
 
-awk -v "utf8_mode=$utf8_mode" '
+awk -v "locale=$arg_locale" -v "utf8_mode=$utf8_mode" '
 function charlen_utf8 (str){
 	if (str == ""){
 		return 0
@@ -79,6 +83,11 @@ BEGIN {
 
 3 != NF {
 	exit 2
+}
+
+locale == "C" && $1 ~ /[\x80-\xff]/ {
+	print "8-bit head word is encountered but \"C\" locale is used" > "/dev/stderr"
+	exit 4
 }
 
 {
@@ -113,3 +122,5 @@ else
 	export LC_ALL
 	sort -df
 fi
+
+eval $exit_
