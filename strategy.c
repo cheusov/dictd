@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: strategy.c,v 1.2 2003/03/19 16:43:28 cheusov Exp $
+ * $Id: strategy.c,v 1.3 2003/08/06 17:55:54 cheusov Exp $
  * 
  */
 
@@ -167,8 +167,7 @@ void dict_disable_strategies (const char *strats)
    const char *s = NULL;
    dictStrategy *si = NULL;
 
-   strncpy (buffer, strats, sizeof (buffer) - 1);
-   buffer [sizeof (buffer) - 1] = '\0';
+   strlcpy (buffer, strats, sizeof (buffer));
 
    for (i = 0; i < len; ++i){
       if (',' == buffer [i])

@@ -19,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.10 2003/04/10 18:52:32 cheusov Exp $
+ * $Id: dictP.h,v 1.11 2003/08/06 17:55:54 cheusov Exp $
  * 
  */
 
@@ -112,6 +112,10 @@ typedef unsigned int wchar_t;
 #include <wchar.h>
 #else
 typedef char mbstate_t;
+#endif
+
+#if !HAVE_STRLCPY
+extern size_t strlcpy (char *s, const char * wc, size_t size);
 #endif
 
 #if !HAVE_WCRTOMB

@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.79 2003/07/22 12:52:27 cheusov Exp $
+# $Id: Makefile.in,v 1.80 2003/08/06 17:55:54 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -74,7 +74,7 @@ SCFLAGS=        @SCFLAGS@
 LDFLAGS=        @LDFLAGS@
 XTRACFLAGS=     @WCFLAGS@ @XTRACFLAGS@ @DEFS@ @CPPFLAGS@ -I.
 XTRALDFLAGS=    @WLDFLAGS@ @XTRALDFLAGS@
-LDLIBS=		    @LIBOBJS@ @LIBS@
+LDLIBS=		    @LIBS@
 
 DICTFMT_LDFLAGS=  @DICTFMT_LDFLAGS@
 DICTZIP_LDFLAGS=  @DICTZIP_LDFLAGS@
@@ -106,7 +106,8 @@ uninstall.samples :
 endif
 
 HEADERS= 	./config.h @XTRAHEADERS@ dictzip.h dictd.h dict.h dictP.h \
-                codes.h md5.h strategy.h defs.h plugin.h data.h index.h parse.h
+                codes.h md5.h strategy.h defs.h plugin.h data.h index.h \
+                parse.h dictdplugin.h
 
 ifdef USE_PLUGIN
 SRCHOBJS=       index.o data.o dictdplugin.o plugin.o

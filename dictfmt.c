@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.24 2003/08/01 11:54:00 cheusov Exp $
+ * $Id: dictfmt.c,v 1.25 2003/08/06 17:55:54 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -518,8 +518,7 @@ static void fmt_newheadword( const char *word, int flag )
    }
 
    if (word) {
-      strncpy(prev, word, sizeof (prev) - 1);
-      prev [sizeof (prev) - 1] = 0;
+      strlcpy(prev, word, sizeof (prev));
 
       start = end;
       if (flag) {

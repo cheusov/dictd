@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictzip.c,v 1.22 2003/03/19 16:43:26 cheusov Exp $
+ * $Id: dictzip.c,v 1.23 2003/08/06 17:55:54 cheusov Exp $
  * 
  */
 
@@ -313,7 +313,7 @@ static const char *id_string( const char *id )
 
 static void banner( void )
 {
-   const char *id = "$Id: dictzip.c,v 1.22 2003/03/19 16:43:26 cheusov Exp $";
+   const char *id = "$Id: dictzip.c,v 1.23 2003/08/06 17:55:54 cheusov Exp $";
    
    fprintf( stderr, "%s %s\n", err_program_name(), id_string( id ) );
    fprintf( stderr,
@@ -489,7 +489,8 @@ int main( int argc, char **argv )
 	    }
 	    dict_data_close( header );
 	 } else {
-	    strncpy( filename, argv[i], BUFFERSIZE-1 );
+	    strlcpy( filename, argv[i], BUFFERSIZE );
+
 	    if ((pt = strrchr( filename, '.' ))) *pt = '\0';
 	    else
 	       err_fatal( __FUNCTION__, "Cannot truncate filename\n" );

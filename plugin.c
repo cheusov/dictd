@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: plugin.c,v 1.4 2003/08/06 16:27:14 cheusov Exp $
+ * $Id: plugin.c,v 1.5 2003/08/06 17:55:54 cheusov Exp $
  * 
  */
 
@@ -380,10 +380,8 @@ static char *dict_plugin_filename (
       strcpy (filename, DICT_PLUGIN_PATH);
       strcat (filename, p);
    }else{
-      strncpy (filename, p, sizeof (filename) - 1);
+      strlcpy (filename, p, sizeof (filename));
    }
-
-   filename [sizeof (filename) - 1] = 0;
 
    xfree (buf);
 
