@@ -1,3 +1,54 @@
+Version 1.9.14, by Aleksey Cheusov, 6  Jun 2004 16:20:07 +0300
+
+  dictd:
+    - fixed: SHOW INFO command sends incorrectlt formatted data
+      to the client if
+      the information about database was set using 'info' keyword.
+      Affected versions: 1.9.12-1.9.13
+
+    - 'dictd' opens a log file (-L option) before releasing root priviledges.
+      As a result log file can be created in /var/log directory.
+      Log file and syslog are opened once.
+
+      Error messages of sanity checks are written to log file (or syslog)
+      but the stderr.
+
+    - --listen-to <ip> option binds a socket to the specified address.
+      See dictd.8 for details.
+
+    - SIGUSR1  causes  dictd  to unload databases.
+      Then dictd returns 420 status (instead of 220).
+      See dictd.8 for details
+
+    - exit status of child processes is written to log
+      if '--log server' is specified.
+
+  dictfmt:
+    - fixed: 'dictfmt --locale <8bit-locale>' works incorrectly
+      and may assert(3) on platforms
+      having no 'mbrlen' function (FreeBSD-4).
+      Affected versions: 1.9.12-1.9.13
+
+    - -t option implies '--columns 0' to preserve original formatting
+
+    - Special 00-database-XXX headwords do not affect 00-database-alphabet,
+      i.e. only characters from "real" headwords
+      are added to alphabet.
+      This makes LEV search strategy a little faster,
+      especially search in dictionaries
+      containing non-Latin symbols only, for example, Cyrillic symbols.
+
+  dict:
+    - In case of error 'dict' exits with non-zero exit status.
+      See Section EXIT STATUS in dict.1 for details.
+
+  libmaa:
+    - argtest.c is reimplemented because it is buggy.
+      Affected 'dictd' versions: 1.4.9-1.9.13.
+      More tests for arg_argify function have been added
+      Testing script has also been reimplemeneted.
+      See ChangeLog for details.
+
 Version 1.9.13, by Aleksey Cheusov, 24 Mar 2004 11:32:53 +0200
 
   FIXED: if database has no 00-database-alphabet headword,
