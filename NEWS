@@ -62,7 +62,7 @@ Version 1.9.12, by Aleksey Cheusov, 10 Mar 2004 18:45:15 +0200
        SHOW SERVER command cuts off long database names
 
        crash on Solaris (and FreeBSD5 ?) due to
-         toupper('255') returning 376 if utf-8 locale is set.
+         toupper('255') returns 376 if utf-8 locale is set.
 
        LC_CTYPE and LC_COLLATE are set according to --locale.
          As a result date and time are logged using the C locale
