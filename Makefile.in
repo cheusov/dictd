@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.88 2003/09/04 17:56:17 cheusov Exp $
+# $Id: Makefile.in,v 1.89 2003/09/05 10:29:05 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -89,6 +89,8 @@ ifdef USE_PLUGIN
 	LIBRARIES=  libdictdplugin.a
 	INCLUDES=   dictdplugin.h
 
+all: $(EXES) $(LIBRARIES) plugins
+
 .PHONY : samples install.samples uninstall.samples
 samples         : dictdplugin_exit.so dictdplugin_popen.so man_popen.dict
 install.samples : samples
@@ -118,8 +120,6 @@ TMPS=           servscan.c servparse.c servparse.h \
 		clientscan.c clientparse.c clientparse.h
 
 @SET_MAKE@
-
-all: $(EXES) $(LIBRARIES) plugins
 
 ifeq (1,$(local_libmaa))
 $(PLUGINS) dictdplugin_popen.so dictdplugin_exit.so $(EXES) : local_libmaa
