@@ -1,7 +1,7 @@
 # Makefile.in -- Makefile for dict
-# Created: Wed Apr 24 14:14:09 1996 by faith@cs.unc.edu
-# Revised: Wed Dec 22 09:43:19 1999 by faith@acm.org
-# Copyright 1996, 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
+# Created: Wed Apr 24 14:14:09 1996 by faith@dict.org
+# Revised: Wed Dec 22 10:06:19 1999 by faith@dict.org
+# Copyright 1996, 1997, 1998, 1999 Rickard E. Faith (faith@dict.org)
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.38 1999/12/22 14:46:23 faith Exp $
+# $Id: Makefile.in,v 1.39 1999/12/22 15:06:41 faith Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -177,7 +177,7 @@ dist: ChangeLog
 	echo "***** Exporting files for dictd-$${VERSION}..."; \
 	cd /tmp; \
 	rm -rf /tmp/dictd-$${VERSION}; \
-	cvs export -fNd dictd-$${VERSION} -r HEAD dictd1; \
+	cvs export -fd dictd-$${VERSION} -r HEAD dictd1; \
 	cd dictd-$${VERSION}; \
 	make -f Makefile.conf; \
 	mv ../ChangeLog .; \
