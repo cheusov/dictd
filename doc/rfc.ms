@@ -8,17 +8,17 @@
 .ds RF FORMFEED[Page %]
 .ds CF
 .ds LH RFC Unassigned
-.ds RH 24 March 1997
+.ds RH 6 May 1997
 .ds CH Dictionary Server Protocol
 .hy 0
 .ad l
 .in 0
-.\"$Id: rfc.ms,v 1.6 1997/04/30 15:38:35 faith Exp $
+.\"$Id: rfc.ms,v 1.7 1997/05/07 05:38:17 faith Exp $
 Network Working Group                                           R. Faith
 Request for Comments: Unassigned          U. North Carolina, Chapel Hill
 Category: Standards Track                                      B. Martin
                                                          Yale University
-                                                           26 April 1997
+                                                              6 May 1997
 
 
 .ce
@@ -346,10 +346,6 @@ From name:
 before the definition is printed.  This provides source information for the
 user.
 
-[NOTE TO REVIEWERS: Should a fourth parameter provide the ability to send a
-URL refering to the dictionary?  Should the first two parameters be
-reversed?]
-
 The textual body of each definition is terminated with a CRLF period CRLF
 sequence.
 
@@ -462,15 +458,11 @@ SHOW DATABASES
 
 Displays the list of currently accessible databases in the form:
 .RS
-database description URL
+database description
 .RE
 .in 3
 The textual body of the database list is terminated with a CRLF period CRLF
 sequence.
-
-The URL field is optional.  If present, it should be a Uniform Resource
-Locator, as described in [RFC1738].  This URL can specify the location
-of further information about the indicated database.
 
 Note that some databases may be restricted due to client domain or lack of
 user authentication (see the CLIENT and AUTH commands).  Information about
