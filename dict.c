@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.c,v 1.36 2003/04/09 18:24:47 cheusov Exp $
+ * $Id: dict.c,v 1.37 2003/06/10 14:23:12 cheusov Exp $
  * 
  */
 
@@ -964,7 +964,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.36 2003/04/09 18:24:47 cheusov Exp $";
+   const char        *id = "$Id: dict.c,v 1.37 2003/06/10 14:23:12 cheusov Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -1312,9 +1312,16 @@ int main( int argc, char **argv )
 					  s->user,
 					  s->secret ) );
 	 }
+#ifdef USE_DICT_ORG
       }
       append_command(make_command(CMD_CONNECT,"dict.org",     NULL,user,key));
       append_command(make_command(CMD_CONNECT,"alt0.dict.org",NULL,user,key));
+#else
+      }else{
+	 fprintf (stderr, "'dict.conf' doesn't specify any dict server\n");
+	 exit (1);
+      }
+#endif
    }
    append_command( make_command( CMD_CLIENT, client_get_banner() ) );
    if (doauth) append_command( make_command( CMD_AUTH ) );

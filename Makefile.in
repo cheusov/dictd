@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.73 2003/04/30 17:04:04 cheusov Exp $
+# $Id: Makefile.in,v 1.74 2003/06/10 14:23:10 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -49,6 +49,7 @@ DESTDIR=
 SHELL=		/bin/sh
 
 USE_PLUGIN=@USE_PLUGIN@
+USE_DICT_ORG=@USE_DICT_ORG@
 EXEEXT=@EXEEXT@
 
 CONF_DIR=@sysconfdir@/
@@ -307,7 +308,8 @@ uninstall.dictfmt:
 	$(DESTDIR)$(bindir)/dictfmt_index2word \
 	$(DESTDIR)$(bindir)/dictfmt_virtual \
 	$(DESTDIR)$(bindir)/dictunformat; \
-	test _$(USE_PLUGIN) != _ && rm -f $(DESTDIR)$(bindir)/dictfmt_plugin || true
+	test _$(USE_PLUGIN) != _ && \
+		rm -f $(DESTDIR)$(bindir)/dictfmt_plugin || true
 
 uninstall.includes:
 ifdef USE_PLUGIN
