@@ -31,7 +31,11 @@
 #include "net.h"
 #include <arpa/inet.h>
 #include <errno.h>
+
+#ifdef USE_PLUGIN
 #include <ltdl.h>
+#endif
+
 #include <netdb.h>
 #include <netinet/in.h>
 #include <signal.h>
@@ -153,7 +157,10 @@ typedef struct dictData {
 } dictData;
 
 typedef struct dictPlugin {
+#ifdef USE_PLUGIN
    lt_dlhandle handle;
+#endif
+
    void *      data;
    /*   int         status;*/
 
