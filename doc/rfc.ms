@@ -14,7 +14,7 @@
 .ad l
 .in 0
 Network Working Group                                           R. Faith
-Request for Comments: Unassigned                                  UNC-CH
+Request for Comments: Unassigned          U. North Carolina, Chapel Hill
 Category: Standards Track                                  24 March 1997
 
 
@@ -184,7 +184,7 @@ progress of the previous command (based generally on [RFC640,RFC821]):
    1yz - Positive Preliminary reply (not used by DICT)
    2yz - Positive Completion reply
    3yz - Positive Intermediate reply (not used by DICT)
-   4yz - Transient Negative Completion reply
+   4yz - Transient Negative Completion reply (not used by DICT)
    5yz - Permanent Negative Completion reply
 .fi
 
@@ -247,7 +247,8 @@ servers.
 .ti 0
  3.1. Initial Connection
 
-When a client initially connects to a DICT server, a code 220 is sent:
+When a client initially connects to a DICT server, a code 220 is sent if
+the client's IP is allowed to connect:
 .sp
 .nf
 220 machine version msgid
@@ -267,6 +268,13 @@ given below:
 
 This message id will be used by the client when formulating the
 authentication string used in the AUTH command.
+
+If the client's IP is not allowed to connect, then a code 530 is sent
+instead:
+.sp
+.nf
+530 Access denied
+.fi
 
 .ti 0
 3.2. The DEFINE Command
@@ -339,7 +347,13 @@ generally the most useful.  Other strategies are server dependent.
 
 If the database name is a star (decimal code 42, "*"), then all of the
 databases will be searched in the same order as that printed by the "SHOW
-DB" command.
+DB" command.  This is the default behavior is the database is not
+specified.
+
+If the strategy is not specified, then the word will be matched using a
+server-dependent strategy, which should be the best strategy possible for
+interactive spell checking.  This is usually a derivative of the
+Levenshtein matching algorithm.
 
 If no matches are found in any of the searched databases, then status code
 552 will be returned.
@@ -383,10 +397,13 @@ SHOW DATABASES
 
 Displays the list of currently accessible databases in the form:
 .RS
-database description
+database description URL
 .RE
 The textual body of the database list is terminated with a CRLF period CRLF
 sequence.
+
+The URL field is optional.  If present, it should be a Uniform Resource
+Locator, as described in [RFC1738].
 
 Note that some databases may be restricted due to client domain or lack of
 user authentication (see the CLIENT and AUTH commands).  Information about
@@ -494,8 +511,8 @@ provided in a typical server.
 .ti 0
 3.6.2. Responses
 .nf
-231 Authentication successful
-530 Access denied
+230 Authentication successful
+531 Access denied
 .fi
 
 .ti 0
@@ -580,7 +597,12 @@ Delaware, August, 1982.
 .ti 3
 [RFC977] Kantor, B., Lapsley, P., "Network News Transfer Protocol: A
 Proposed Standard for the Stream-Based Transmission of News", RFC-977,
-UCSD/UCB, February, 1986.
+U.C. San Diego, U.C. Berkeley, February, 1986.
+
+.ti 3
+Berners-Lee, T., Masinter, L., and M. McCahill, "Uniform Resource Locators
+(URL)", RFC-1738, CERN, Xerox PARC, University of Minnesota, December 1994.
+
 
 .ti 3
 [RFC1939] Myers, J., Rose, M., "Post Office Protocol - Version 3",
