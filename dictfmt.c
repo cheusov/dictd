@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.44 2004/01/07 18:01:50 cheusov Exp $
+ * $Id: dictfmt.c,v 1.45 2004/01/13 18:04:14 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -750,6 +750,8 @@ static void fmt_headword_for_alphabet (void)
 static void fmt_headword_for_shortname (void)
 {
    fmt_newheadword("00-database-short");
+   fmt_string ("00-database-short");
+   fmt_newline ();
    fmt_string( "     " );
    fmt_string( sname );
    fmt_newline ();
