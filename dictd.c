@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.58 2002/12/03 14:04:01 cheusov Exp $
+ * $Id: dictd.c,v 1.59 2002/12/03 14:35:22 cheusov Exp $
  * 
  */
 
@@ -583,7 +583,17 @@ static int close_database (const void *datum)
 
    dict_data_close (db->data);
 
-   xfree ((void *) db -> databaseShort);
+   if (db -> databaseShort)
+      xfree ((void *) db -> databaseShort);
+
+   if (db -> indexFilename)
+      xfree ((void *) db -> indexFilename);
+   if (db -> dataFilename)
+      xfree ((void *) db -> dataFilename);
+   if (db -> indexwordFilename)
+      xfree ((void *) db -> indexwordFilename);
+   if (db -> indexsuffixFilename)
+      xfree ((void *) db -> indexsuffixFilename);
 
    return 0;
 }
@@ -652,6 +662,9 @@ static void dict_close_databases (dictConfig *c)
    }
    lst_destroy (c -> acl);
 
+   if (c -> site)
+      xfree ((void *) c -> site);
+
    xfree (c);
 }
 
@@ -708,7 +721,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.58 2002/12/03 14:04:01 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.59 2002/12/03 14:35:22 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
