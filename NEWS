@@ -1,7 +1,7 @@
-Version 1.9.14, by Aleksey Cheusov, 6  Jun 2004 16:20:07 +0300
+Version 1.9.14, by Aleksey Cheusov, Sun,  6 Jun 2004 21:18:19 +0300
 
   dictd:
-    - fixed: SHOW INFO command sends incorrectlt formatted data
+    - fixed: SHOW INFO command sends incorrectly formatted data
       to the client if
       the information about database was set using 'info' keyword.
       Affected versions: 1.9.12-1.9.13
@@ -39,14 +39,14 @@ Version 1.9.14, by Aleksey Cheusov, 6  Jun 2004 16:20:07 +0300
       containing non-Latin symbols only, for example, Cyrillic symbols.
 
   dict:
-    - In case of error 'dict' exits with non-zero exit status.
+    - In case of error 'dict' exits with non-zero status.
       See Section EXIT STATUS in dict.1 for details.
 
   libmaa:
-    - argtest.c is reimplemented because it is buggy.
+    - arg_argify function has been reimplemented because it is buggy.
       Affected 'dictd' versions: 1.4.9-1.9.13.
       More tests for arg_argify function have been added
-      Testing script has also been reimplemeneted.
+      Testing program has also been reimplemeneted.
       See ChangeLog for details.
 
 Version 1.9.13, by Aleksey Cheusov, 24 Mar 2004 11:32:53 +0200
