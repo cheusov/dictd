@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Sun Jun 22 13:27:46 1997 by faith@acm.org
+ * Revised: Mon Jul  7 15:57:09 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.24 1997/06/23 11:05:25 faith Exp $
+ * $Id: dictd.c,v 1.25 1997/07/07 20:08:45 faith Exp $
  * 
  */
 
@@ -12,11 +12,13 @@
 #include "servparse.h"
 
 #define PERSISTENT 0		/* DO *NOT* CHANGE!!!!!  Should be 0.
-
 				   I didn't have time to implement the
                                    persistent-daemon support.  It doesn't
                                    work.  Don't turn it on.  */
 
+#define MAXPROCTITLE 2048       /* Maximum amount of proc title we'll use. */
+#undef MIN
+#define MIN(a,b) ((a)<(b)?(a):(b))
 
 #if HAVE_SEMGET
 #if PERSISTENT
@@ -61,24 +63,23 @@ void dict_initsetproctitle( int argc, char **argv, char **envp )
       _dict_argvlen = envp[i-1] + strlen(envp[i-1]) - _dict_argvstart;
    else
       _dict_argvlen = argv[argc-1] + strlen(argv[argc-1]) - _dict_argvstart;
-
-   for (i = 1; i < argc; i++) argv[i] = NULL;
+   argv[1] = NULL;
 }
 
 void dict_setproctitle( const char *format, ... )
 {
    va_list ap;
    int     len;
-   char    buf[1024];
+   char    buf[MAXPROCTITLE];
 
    va_start( ap, format );
    vsprintf( buf, format, ap );
    va_end( ap );
-   if ((len = strlen(buf)) > 1024)
+   if ((len = strlen(buf)) > MAXPROCTITLE-1)
       err_fatal( __FUNCTION__, "buffer overflow (%d)\n", len );
-   buf[ _dict_argvlen - 2 ] = '\0';
-   memset( _dict_argvstart, 0, _dict_argvlen );
+   buf[ MIN(_dict_argvlen,MAXPROCTITLE) - 1 ] = '\0';
    strcpy( _dict_argvstart, buf );
+   memset( _dict_argvstart+len, ' ', _dict_argvlen-len );
 }
 
 const char *dict_format_time( double t )
@@ -90,7 +91,7 @@ const char *dict_format_time( double t )
 
    this = buf[current];
    if (++current >= 10) current = 0;
-   
+
    if (t < 600) {
       sprintf( this, "%0.3f", t );
    } else {
@@ -440,7 +441,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.24 1997/06/23 11:05:25 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.25 1997/07/07 20:08:45 faith Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -600,13 +601,15 @@ int main( int argc, char **argv, char **envp )
    while ((c = getopt_long( argc, argv,
 			    "vVd:p:c:hL:t:l:sm:f", longopts, NULL )) != EOF)
       switch (c) {
+                                /* Remember to copy optarg since we're
+                                   going to destroy argv soon... */
       case 'v': dbg_set( "verbose" );                     break;
       case 'V': banner(); exit(1);                        break;
       case 'd': dbg_set( optarg );                        break;
-      case 'p': service = optarg;                         break;
-      case 'c': configFile = optarg;                      break;
-      case 't': testWord = optarg;                        break;
-      case 'L': logFile = optarg;                         break;
+      case 'p': service = strdup(optarg);                 break;
+      case 'c': configFile = strdup(optarg);              break;
+      case 't': testWord = strdup(optarg);                break;
+      case 'L': logFile = strdup(optarg);                 break;
       case 's': ++useSyslog;                              break;
       case 'm': _dict_markTime = 60*atoi(optarg);         break;
       case 'f': ++forceStartup;                           break;
@@ -616,7 +619,7 @@ int main( int argc, char **argv, char **envp )
 	 if (flg_test(LOG_MIN)) set_minimal();
 	 break;
       case 500: license(); exit(1);                       break;
-      case 501: testFile = optarg;                        break;
+      case 501: testFile = strdup(optarg);                break;
       case 502: delay = atoi(optarg);                     break;
       case 503: depth = atoi(optarg);                     break;
       case 504: _dict_daemon_limit = atoi(optarg);        break;
@@ -766,12 +769,13 @@ int main( int argc, char **argv, char **envp )
    masterSocket = net_open_tcp( service, depth );
 
    for (;;) {
-      dict_setproctitle( "%s: %d/%d daemons current/total",
+      dict_setproctitle( "%s: %d/%d",
 			 dict_get_banner(1),
 			 _dict_daemon_count,
 			 _dict_forks );
 #if !PERSISTENT
-      if (flg_test(LOG_SERVER)) log_info( ":I: %d accepting\n", getpid() );
+      if (flg_test(LOG_SERVER))
+         log_info( ":I: %d accepting on %s\n", getpid(), service );
       if ((childSocket = accept(masterSocket,
 				(struct sockaddr *)&csin, &alen)) < 0) {
 	 if (errno == EINTR) continue;

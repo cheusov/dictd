@@ -1,8 +1,8 @@
 .\"
-.\" Revised: Fri Jun 27 22:02:48 1997 by faith@acm.org
+.\" Revised: Mon Jul  7 14:50:09 1997 by faith@acm.org
 .\" Distribution of this memo is unlimited.
 .\"
-.\" $Id: rfc.ms,v 1.13 1997/06/28 02:03:49 faith Exp $
+.\" $Id: rfc.ms,v 1.14 1997/07/07 20:08:51 faith Exp $
 .\" 
 .pl 10.0i
 .po 0
@@ -23,7 +23,7 @@
 .tl 'Network Working Group''R. Faith'
 .tl 'Request for Comments: Unassigned''U. North Carolina, Chapel Hill'
 .tl 'Category: Standards Track''B. Martin'
-.tl '''Yale University'
+.tl '''Miranda Productions'
 .tl '''\*(DA'
 
 
@@ -1318,17 +1318,20 @@ RFCs which were consulted during the preparation of this document.)
 
 .RE
 .NH 1
-Author's Address
+Author's Addresses
 .RS
 
 .DS
 Rickard E. Faith
 EMail: faith@cs.unc.edu (or faith@acm.org)
 .DE
-
 .DS
 Bret Martin
-EMail: martin-bret@cs.yale.edu
+EMail: bamartin@miranda.org
+.sp
+.fi
+The majority of this work was completed while Bret Martin was a
+student at Yale University.
 .DE
 
 .RE
