@@ -6,6 +6,14 @@
 #include <stdlib.h>
 #include <regex.h>
 
+#if defined(__sparc__) && !defined(__svr4__)
+#define USEBCOPY
+#endif
+
+#ifndef _POSIX2_RE_DUP_MAX
+#define _POSIX2_RE_DUP_MAX 255
+#endif
+
 #include "utils.h"
 #include "regex2.h"
 
