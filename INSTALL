@@ -20,7 +20,7 @@ INSTALLATION
         ./configure --disable-plugin
 
     NOTE: as of version 1.9.10, dictd can be built
-    with a regex engine you want. By default system-wide one is used.
+    with any regex engine you want. By default system-wide one is used.
     It is assumed that it is libc library.
 
       Example1 (to build dictd with TRE regex library):
