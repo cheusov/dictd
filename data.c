@@ -1,0 +1,365 @@
+/* data.c -- 
+ * Created: Tue Jul 16 12:45:41 1996 by r.faith@ieee.org
+ * Revised: Fri Feb 28 16:29:31 1997 by faith@cs.unc.edu
+ * Copyright 1996, 1997 Rickard E. Faith (r.faith@ieee.org)
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 1, or (at your option) any
+ * later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 675 Mass Ave, Cambridge, MA 02139, USA.
+ * 
+ * $Id: data.c,v 1.1 1997/03/01 04:23:25 faith Exp $
+ * 
+ */
+
+#include "dict.h"
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <ctype.h>
+#include <fcntl.h>
+
+int dict_data_filter( char *buffer, int *len, int maxLength,
+		      const char *filter )
+{
+   char *outBuffer = xmalloc( maxLength + 2 );
+   int  outLen;
+
+   if (!filter) return 0;
+   
+   outLen = pr_filter( filter, buffer, *len, outBuffer, maxLength + 1 );
+   if (outLen > maxLength )
+      err_fatal( __FUNCTION__,
+		 "Filter grew buffer from %d past limit of %d\n",
+		 *len, maxLength );
+   memcpy( buffer, outBuffer, outLen );
+   xfree( outBuffer );
+
+   PRINTF(DBG_UNZIP|DBG_ZIP,("Length was %d, now is %d\n",*len,outLen));
+
+   *len = outLen;
+   
+   return 0;
+}
+
+static int dict_read_header( const char *filename,
+			     dictData *header, int computeCRC )
+{
+   FILE          *str;
+   int           id1, id2, si1, si2;
+   char          buffer[BUFFERSIZE];
+   int           extraLength, subLength;
+   int           i;
+   char          *pt;
+   int           c;
+   struct stat   sb;
+   unsigned long crc   = crc32( 0L, Z_NULL, 0 );
+   int           count;
+   unsigned long offset;
+
+   if (!(str = fopen( filename, "r" )))
+      err_fatal_errno( __FUNCTION__,
+		       "Cannot open data file \"%s\" for read\n", filename );
+
+   header->filename     = str_find( filename );
+   header->headerLength = GZ_XLEN - 1;
+   header->type         = DICT_UNKNOWN;
+   
+   id1                  = getc( str );
+   id2                  = getc( str );
+
+   if (id1 != GZ_MAGIC1 || id2 != GZ_MAGIC2) {
+      header->type = DICT_TEXT;
+      fstat( fileno( str ), &sb );
+      header->compressedLength = header->length = sb.st_size;
+      header->origFilename     = str_find( filename );
+      header->mtime            = sb.st_mtime;
+      if (computeCRC) {
+	 rewind( str );
+	 while (!feof( str )) {
+	    if ((count = fread( buffer, 1, BUFFERSIZE, str ))) {
+	       crc = crc32( crc, buffer, count );
+	    }
+	 }
+      }
+      header->crc = crc;
+      return 0;
+   }
+   header->type = DICT_GZIP;
+   
+   header->method       = getc( str );
+   header->flags        = getc( str );
+   header->mtime        = getc( str ) <<  0;
+   header->mtime       |= getc( str ) <<  8;
+   header->mtime       |= getc( str ) << 16;
+   header->mtime       |= getc( str ) << 24;
+   header->extraFlags   = getc( str );
+   header->os           = getc( str );
+   
+   if (header->flags & GZ_FEXTRA) {
+      extraLength          = getc( str ) << 0;
+      extraLength         |= getc( str ) << 8;
+      header->headerLength += extraLength + 2;
+      si1                  = getc( str );
+      si2                  = getc( str );
+      
+      if (si1 == GZ_RND_S1 || si2 == GZ_RND_S2) {
+	 subLength            = getc( str ) << 0;
+	 subLength           |= getc( str ) << 8;
+	 header->version      = getc( str ) << 0;
+	 header->version     |= getc( str ) << 8;
+	 
+	 if (header->version != 1)
+	    err_internal( __FUNCTION__,
+			  "dzip header version %d not supported\n",
+			  header->version );
+   
+	 header->chunkLength  = getc( str ) << 0;
+	 header->chunkLength |= getc( str ) << 8;
+	 header->chunkCount   = getc( str ) << 0;
+	 header->chunkCount  |= getc( str ) << 8;
+	 
+	 if (header->chunkCount <= 0) {
+	    fclose( str );
+	    return 5;
+	 }
+	 header->chunks = xmalloc( sizeof( header->chunks[0] )
+				   * header->chunkCount );
+	 for (i = 0; i < header->chunkCount; i++) {
+	    header->chunks[i]  = getc( str ) << 0;
+	    header->chunks[i] |= getc( str ) << 8;
+	 }
+	 header->type = DICT_DZIP;
+      } else {
+	 fseek( str, header->headerLength, SEEK_SET );
+      }
+   }
+   
+   if (header->flags & GZ_FNAME) { /* FIXME! Add checking against header len */
+      pt = buffer;
+      while ((c = getc( str )) && c != EOF)
+	 *pt++ = c;
+      *pt = '\0';
+      header->origFilename = str_find( buffer );
+      header->headerLength += strlen( header->origFilename ) + 1;
+   } else {
+      header->origFilename = NULL;
+   }
+   
+   if (header->flags & GZ_COMMENT) { /* FIXME! Add checking for header len */
+      pt = buffer;
+      while ((c = getc( str )) && c != EOF)
+	 *pt++ = c;
+      *pt = '\0';
+      header->comment = str_find( buffer );
+      header->headerLength += strlen( header->comment ) + 1;
+   } else {
+      header->comment = NULL;
+   }
+
+   if (header->flags & GZ_FHCRC) {
+      getc( str );
+      getc( str );
+      header->headerLength += 2;
+   }
+
+   if (ftell( str ) != header->headerLength + 1)
+      err_internal( __FUNCTION__,
+		    "File position (%lu) != header length + 1 (%d)\n",
+		    ftell( str ), header->headerLength + 1 );
+
+   fseek( str, -8, SEEK_END );
+   header->crc     = getc( str ) <<  0;
+   header->crc    |= getc( str ) <<  8;
+   header->crc    |= getc( str ) << 16;
+   header->crc    |= getc( str ) << 24;
+   header->length  = getc( str ) <<  0;
+   header->length |= getc( str ) <<  8;
+   header->length |= getc( str ) << 16;
+   header->length |= getc( str ) << 24;
+   header->compressedLength = ftell( str );
+
+				/* Compute offsets */
+   header->offsets = xmalloc( sizeof( header->offsets[0] )
+			      * header->chunkCount );
+   for (offset = header->headerLength + 1, i = 0;
+	i < header->chunkCount;
+	i++) {
+      header->offsets[i] = offset;
+      offset += header->chunks[i];
+   }
+
+   fclose( str );
+   return 0;
+}
+
+dictData *dict_data_open( const char *filename, int computeCRC )
+{
+   dictData    *h = xmalloc( sizeof( struct dictData ) );
+   struct stat sb;
+
+   memset( h, 0, sizeof( struct dictData ) );
+   h->initialized = 0;
+
+   if (stat( filename, &sb ) || !S_ISREG(sb.st_mode)) {
+      err_warning( __FUNCTION__,
+		   "%s is not a regular file -- ignoring\n", filename );
+      return h;
+   }
+   
+   if (dict_read_header( filename, h, computeCRC )) {
+      err_fatal( __FUNCTION__,
+		 "\"%s\" not in text or dzip format\n", filename );
+   }
+   
+   if ((h->fd = open( filename, O_RDONLY )) < 0)
+      err_fatal_errno( __FUNCTION__,
+		       "Cannot open index file \"%s\"\n", filename );
+   if (fstat( h->fd, &sb ))
+      err_fatal_errno( __FUNCTION__,
+		       "Cannot stat index file \"%s\"\n", filename );
+   h->size = sb.st_size;
+
+   h->start = mmap( NULL, h->size, PROT_READ, MAP_FILE|MAP_SHARED, h->fd, 0 );
+   if ((void *)h->start == (void *)(-1))
+      err_fatal_errno( __FUNCTION__,
+		       "Cannot mmap index file \"%s\"\b", filename );
+
+   h->end = h->start + h->size;
+
+   
+   return h;
+}
+
+void dict_data_close( dictData *header )
+{
+   if (header->fd >= 0) {
+      munmap( (void *)header->start, header->size );
+      close( header->fd );
+      header->fd = 0;
+      header->start = header->end = NULL;
+   }
+
+   if (header->chunks)       xfree( header->chunks );
+   if (header->offsets)      xfree( header->offsets );
+
+   if (header->initialized) {
+      if (inflateEnd( &header->zStream ))
+	 err_internal( __FUNCTION__,
+		       "Cannot shut down inflation engine: %s\n",
+		       header->zStream.msg );
+   }
+
+   memset( header, 0, sizeof( struct dictData ) );
+   xfree( header );
+}
+
+char *dict_data_read( dictData *h, unsigned long start, unsigned long end,
+		      const char *preFilter, const char *postFilter )
+{
+   char          *buffer, *pt;
+   unsigned long size = end - start;
+   int           count;
+   char          inBuffer[IN_BUFFER_SIZE];
+   char          outBuffer[OUT_BUFFER_SIZE];
+   int           firstChunk, lastChunk;
+   int           firstOffset, lastOffset;
+   int           i;
+
+   if (end < start)
+      err_internal( __FUNCTION__,
+		    "Section ends (%lu) before starting (%lu)\n", end, start );
+   buffer = xmalloc( size + 1 );
+   
+   switch (h->type) {
+   case DICT_GZIP:
+      err_fatal( __FUNCTION__,
+		 "Cannot seek on pure gzip format files.\n"
+		 "Use plain text (for performance)"
+		 " or dzip format (for space savings).\n" );
+      break;
+   case DICT_TEXT:
+      memcpy( buffer, h->start + start, size );
+      buffer[size] = '\0';
+      break;
+   case DICT_DZIP:
+      if (!h->initialized) {
+	 ++h->initialized;
+	 h->zStream.zalloc    = NULL;
+	 h->zStream.zfree     = NULL;
+	 h->zStream.opaque    = NULL;
+	 h->zStream.next_in   = 0;
+	 h->zStream.avail_in  = 0;
+	 h->zStream.next_out  = NULL;
+	 h->zStream.avail_out = 0;
+	 if (inflateInit2( &h->zStream, -15 ) != Z_OK)
+	    err_internal( __FUNCTION__,
+			  "Cannot initialize inflation engine: %s\n",
+			  h->zStream.msg );
+      }
+      firstChunk  = start / h->chunkLength;
+      firstOffset = start - firstChunk * h->chunkLength;
+      lastChunk   = end / h->chunkLength;
+      lastOffset  = end - lastChunk * h->chunkLength;
+      PRINTF(DBG_UNZIP,
+	     ("start = %lu, end = %lu\n"
+	      "firstChunk = %d, firstOffset = %d,"
+	      " lastChunk = %d, lastOffset = %d\n",
+	      start, end, firstChunk, firstOffset, lastChunk, lastOffset ));
+      for (pt = buffer, i = firstChunk; i <= lastChunk; i++) {
+	 memcpy( outBuffer, h->start + h->offsets[i], h->chunks[i] );
+	 dict_data_filter( outBuffer, &count, OUT_BUFFER_SIZE, preFilter );
+	 
+	 h->zStream.next_in   = outBuffer;
+	 h->zStream.avail_in  = h->chunks[i];
+	 h->zStream.next_out  = inBuffer;
+	 h->zStream.avail_out = IN_BUFFER_SIZE;
+	 if (inflate( &h->zStream,  Z_PARTIAL_FLUSH ) != Z_OK)
+	    err_fatal( __FUNCTION__, "inflate: %s\n", h->zStream.msg );
+	 if (h->zStream.avail_in)
+	    err_internal( __FUNCTION__,
+			  "inflate did not flush (%d pending, %d avail)\n",
+			  h->zStream.avail_in, h->zStream.avail_out );
+	 
+	 count = IN_BUFFER_SIZE - h->zStream.avail_out;
+	 dict_data_filter( inBuffer, &count, IN_BUFFER_SIZE, postFilter );
+	 
+	 if (i == firstChunk) {
+	    if (i == lastChunk) {
+	       memcpy( pt, inBuffer + firstOffset, lastOffset-firstOffset);
+	       pt += lastOffset - firstOffset;
+	    } else {
+	       if (count != h->chunkLength )
+		  err_internal( __FUNCTION__,
+				"Length = %d instead of %d\n",
+				count, h->chunkLength );
+	       memcpy( pt, inBuffer + firstOffset,
+		       h->chunkLength - firstOffset );
+	       pt += h->chunkLength - firstOffset;
+	    }
+	 } else if (i == lastChunk) {
+	    memcpy( pt, inBuffer, lastOffset );
+	    pt += lastOffset;
+	 } else {
+	    assert( count == h->chunkLength );
+	    memcpy( pt, inBuffer, h->chunkLength );
+	    pt += h->chunkLength;
+	 }
+      }
+      *pt = '\0';
+      break;
+   case DICT_UNKNOWN:
+      err_fatal( __FUNCTION__, "Cannot read unknown file type\n" );
+      break;
+   }
+   
+   return buffer;
+}

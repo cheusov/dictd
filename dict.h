@@ -1,6 +1,6 @@
 /* dict.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Wed Oct  9 19:38:09 1996 by faith@cs.unc.edu
+ * Revised: Fri Feb 28 22:28:15 1997 by faith@cs.unc.edu
  * Copyright 1994, 1995, 1996 Rickard E. Faith (faith@cs.unc.edu)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,13 +24,29 @@
 
 #include "zlib.h"
 #include "maaP.h"
+#include <unistd.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <errno.h>
+#include <netdb.h>
+
+
+				/* Configurable things */
+
+#define DICT_DEFAULT_SERVICE    "2627"
+#define DICT_QUEUE_DEPTH        10
+#define DICT_CONFIG_FILE        "/etc/dict.conf"
+
+				/* End of configurable things */
 
 #define BUFFERSIZE 10240
 #define DBG_VERBOSE     (0<<30|1<< 0) /* Verbose                           */
 #define DBG_ZIP         (0<<30|1<< 1) /* Zip                               */
 #define DBG_UNZIP       (0<<30|1<< 2) /* Unzip                             */
 #define DBG_SEARCH      (0<<30|1<< 3) /* Search                            */
-
+#define DBG_SCAN        (0<<30|1<< 4) /* Config file scan                  */
+#define DBG_PARSE       (0<<30|1<< 5) /* Config file parse                 */
+#define DBG_INIT        (0<<30|1<< 6) /* Database initialization           */
 
 #define HEADER_CRC 0		/* Conflicts with gzip 1.2.4               */
 
@@ -121,9 +137,13 @@ extern void fmt_close( void );
 #define DICT_DZIP       3
 
 typedef struct dictData {
-   FILE          *str;
+   int           fd;		/* file descriptor */
+   const char    *start;	/* start of mmap'd area */
+   const char    *end;		/* end of mmap'd area */
+   unsigned long size;		/* size of mmap */
+   
    int           type;
-   char          *filename;
+   const char    *filename;
    z_stream      zStream;
    int           initialized;
    
@@ -137,35 +157,60 @@ typedef struct dictData {
    int           chunkLength;
    int           chunkCount;
    int           *chunks;
-   unsigned long *offsets;	/* Sun-scan of chunks. */
-   char          *origFilename;
-   char          *comment;
+   unsigned long *offsets;	/* Sum-scan of chunks. */
+   const char    *origFilename;
+   const char    *comment;
    unsigned long crc;
    unsigned long length;
    unsigned long compressedLength;
 } dictData;
 
 typedef struct dictIndex {
-   int           fd;
-   const char    *start;
-   const char    *end;
-   unsigned long size;
+   int           fd;		/* file descriptor */
+   const char    *start;	/* start of mmap'd area */
+   const char    *end;		/* end of mmap'd area */
+   unsigned long size;		/* size of mmap */
 } dictIndex;
 
 typedef struct dictDatabase {
    const char *databaseName;
+   const char *databaseShort;
    const char *dataFilename;
    const char *indexFilename;
+   const char *filter;
+   const char *prefilter;
+   const char *postfilter;
+   lst_List   acl;
    
    dictData   *data;
    dictIndex  *index;
 } dictDatabase;
 
+#define DICT_DENY  0
+#define DICT_ALLOW 1
+#define DICT_USER  0
+#define DICT_GROUP 1
+#define DICT_ADDR  2
+#define DICT_NAME  3
+
+typedef struct dictAccess {
+   int        allow;		/* 1 = allow; 0 = deny */
+   int        type;		/* user, group, hostaddr, hostname */
+   const char *spec;
+} dictAccess;
+
+typedef struct dictConfig {
+   lst_List   acl;
+   lst_List   dbl;
+} dictConfig;
+
 #define DICT_EXACT        1
-#define DICT_SUBSTRING    2
-#define DICT_REGEXPR      3
-#define DICT_SOUNDEX      4
-#define DICT_LEVENSHTEIN  5
+#define DICT_PREFIX       2
+#define DICT_SUBSTRING    3
+#define DICT_REGEXP       4
+#define DICT_SOUNDEX      5
+#define DICT_LEVENSHTEIN  6
+
 
 typedef struct dictWord {
    const char    *word;
@@ -173,6 +218,12 @@ typedef struct dictWord {
    unsigned long end;
    dictDatabase  *database;
 } dictWord;
+
+typedef struct dictToken {
+   const char   *string;
+   int          integer;
+   src_Type     src;
+} dictToken;
 
 extern dictData *dict_data_open( const char *filename, int computeCRC );
 extern void     dict_data_close( dictData *data );
@@ -192,5 +243,18 @@ extern lst_List   dict_search_database( const char *word,
 					dictDatabase *database, int strategy );
 extern dictIndex  *dict_index_open( const char *filename );
 extern void       dict_index_close( dictIndex *i );
+extern void       dict_dump_list( lst_List list );
+extern void       dict_destroy_list( lst_List list );
+
+/* dictd.c */
+
+extern void       dict_set_config( dictConfig *dc );
+extern dictConfig *dict_get_config( void );
+extern const char *dict_get_hostname( void );
+extern const char *dict_get_banner( void );
+
+/* daemon.c */
+
+extern int dict_daemon( int s, struct sockaddr_in *csin );
 
 #endif

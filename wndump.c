@@ -1,10 +1,10 @@
 /* wndump.c -- Dump WordNet datafiles
  * Created: Sun Sep 22 14:03:26 1996 by faith@cs.unc.edu
- * Revised: Wed Sep 25 22:06:44 1996 by faith@cs.unc.edu
+ * Revised: Fri Feb 28 20:12:17 1997 by faith@cs.unc.edu
  * Public Domain 1996 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  *
- * $Id: wndump.c,v 1.2 1996/09/26 02:27:43 faith Exp $
+ * $Id: wndump.c,v 1.3 1997/03/01 04:23:31 faith Exp $
  * 
  */
 
@@ -96,6 +96,9 @@ int main( int argc, char **argv )
 	      " derivative work.  No additional restrictions are claimed.\n",
 	      ++license, ctime(&t), PROGRAM_NAME, PROGRAM_VERSION );
       printf( "!info! ! %02d \n", ++license );
+      printf( "!short! ! 1 WordNet (r) 1.5 Database\n" );
+      printf( "!long! ! 1 WordNet (r): A Lexical Database for English from"
+	      " the Cognitive Science Laboratory at Princeton University" );
 
       while (fgets( buffer, BUFFERSIZE-1, stdin )) {
 	 if (!haveLicense) {
