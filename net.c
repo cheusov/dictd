@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: net.c,v 1.26 2004/05/30 12:46:06 cheusov Exp $
+ * $Id: net.c,v 1.27 2004/10/06 14:43:03 cheusov Exp $
  * 
  */
 
@@ -173,7 +173,13 @@ void net_detach( void )
    for (i=getdtablesize()-1; i >= 0; --i)
       close(i); /* close everything */
 
-#if !defined(__hpux__) && !defined(__CYGWIN__)
+#if defined(__hpux__) || defined(__CYGWIN__) || defined(__INTERIX) || defined(__OPENNT)
+#ifndef TIOCNOTTY
+#define NO_IOCTL_TIOCNOTTY
+#endif /* TIOCNOTTY */
+#endif /* strange platforms */
+
+#ifndef NO_IOCTL_TIOCNOTTY
    if ((fd = open("/dev/tty", O_RDWR)) >= 0) {
 				/* detach from controlling tty */
       ioctl(fd, TIOCNOTTY, 0);
