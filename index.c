@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.97 2005/03/29 16:12:52 cheusov Exp $
+ * $Id: index.c,v 1.98 2005/03/29 16:17:11 cheusov Exp $
  * 
  */
 
@@ -1558,7 +1558,6 @@ int dict_search (
 	    extra_result, extra_data, extra_data_size);
 
 	 if (count > old_count){
-	    fprintf (stderr, "drdrdr\n");
 	    replace_invisible_databases (
 	       lst_nth_position (l, old_count + 1),
 	       database);
