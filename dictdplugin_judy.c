@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.4 2003/08/08 15:12:12 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.5 2003/08/08 15:26:29 cheusov Exp $
  * 
  */
 
@@ -831,6 +831,54 @@ static int match_exact (
    return 0;
 }
 
+static int match_substring (
+   global_data *dict_data,
+   const char *word,
+
+   int *ret,
+   const char * const* *result,
+   const int **result_sizes,
+   int *results_count)
+{
+   int cnt = 0;
+   PPvoid_t value;
+
+   char curr_word [BUFSIZE];
+
+   curr_word [0] = 0;
+
+   JUDY_ITERATE_ALL (dict_data -> m_judy_array, value, curr_word){
+      if (!strstr (curr_word, word))
+	 continue;
+
+      ++cnt;
+
+      dict_data -> m_mres = (const char **)
+	 xrealloc (
+	    dict_data -> m_mres,
+	    cnt * sizeof (dict_data -> m_mres [0]));
+      dict_data -> m_mres [cnt - 1] =
+	 heap_strdup (dict_data -> m_heap, curr_word);
+
+      dict_data -> m_mres_sizes = (int *)
+	 xrealloc (
+	    dict_data -> m_mres_sizes,
+	    cnt * sizeof (dict_data -> m_mres_sizes [0]));
+      dict_data -> m_mres_sizes [cnt - 1] = -1;
+   }
+
+   dict_data -> m_mres_count = cnt;
+
+   *result       = dict_data -> m_mres;
+   *result_sizes = dict_data -> m_mres_sizes;
+
+   *results_count = cnt;
+
+   *ret = DICT_PLUGIN_RESULT_FOUND;
+
+   return 0;
+}
+
 static int match_prefix (
    global_data *dict_data,
    const char *word,
@@ -1183,6 +1231,10 @@ int dictdb_search (
 	    ret, result, result_sizes, results_count);
       }else if (search_strategy == dict_data -> m_strat_word){
 	 return match_word (
+	    dict_data, word_copy2,
+	    ret, result, result_sizes, results_count);
+      }else if (search_strategy == dict_data -> m_strat_substring){
+	 return match_substring (
 	    dict_data, word_copy2,
 	    ret, result, result_sizes, results_count);
       }else if (search_strategy == dict_data -> m_strat_prefix){
