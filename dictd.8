@@ -52,6 +52,16 @@ be run from
 .BR inetd (8).
 .P
 Databases are distributed separately from the server.
+.P
+By default, dictd assumes that index files consist of alphanumeric
+characters only, and are sorted alphabetically.  This default may be
+overridden by a header in the data file.  The only such features
+implemented at this time are the headers "00-database-allchars" which
+tells 
+.B dictd 
+that non-alphanumeric characters may be present in the index, and the
+header "00-database-utf8" which indicates that the database uses utf8
+encoding. 
 .SH "BACKGROUND"
 For many years, the Internet community has relied on the "webster" protocol
 for access to natural language definitions.  The webster protocol supports
@@ -110,8 +120,8 @@ but may be changed in the
 .I dictd.h
 file at compile time (DICT_CONFIG_FILE).
 .TP
-.BI \-p " service\fR or " \-\-port " service"
-Specifies the port (e.g., 2628) or service (e.g., dict) for connections.
+.BI \-p " port\fR or " \-\-port " port"
+Specifies the port (e.g., 2628).
 The default is 2628, as specified in the DICT Protocol RFC, but may be
 changed in the
 .I dictd.h
@@ -137,7 +147,7 @@ RFC.  The default is 600 seconds (10 minutes), but may be changed in the
 .I dictd.h
 file at compile time (DICT_DEFAULT_DELAY).
 .TP
-.B \-\-facility " facility"
+.BI \-\-facility " facility"
 Specifies the syslog facility to use.  The use of this option implies the
 .B \-s
 option to turn on logging via syslog.  When the operating system
@@ -178,6 +188,40 @@ for both 8-bit and UTF-8 formats. If locale contains utf8 or utf-8
 substring, UTF-8 format is expected.
 Note that if your database is not in ASCII7 or UTF-8 format,
 then the dictd server will not be compliant to RFC 2229.
+.TP
+.B \-s
+Log using the
+.BR syslog (3)
+facility.
+.TP
+.BI \-L " file\fR or " \-\-logfile " file"
+Specify the file for logging.  The filename specified is recomputed on
+each use using the
+.BR strftime (3)
+call.  For example, a filename ending in ".%Y%m%d" will write to log
+files ending in the year, month, and date that the log entry was
+written.
+.B NOTE:
+If
+.B dictd
+does not have write permission for this file, it will silently fail.
+.TP
+.BI \-m  " minutes \fR or "\-\-mark " minutes"
+How often a timestamp should be logged.  (This is effective only if
+logging has been enabled with the \-s or \-L option, or with a debugging
+option.)
+.TP
+.B \-\-no-mmap
+do not use the mmap() function and read entire files into memory instead. 
+.TP
+.BI \-t " word  or "\-\-test " word"
+self test -- lookup word
+.TP
+.BI \-\-ftest " file"
+self test -- lookup all words in file
+.TP
+.BI \-\-test-strategy " strategy"
+search strategy for --test and --ftest.  The default is `exact'
 .TP
 .BI \-l " option\fR or " \-\-log " option"
 Specify a logging option.  This is effective only if logging has been
@@ -280,28 +324,6 @@ options.  Clients may or may not send host information using the CLIENT
 command, but this should be an option that is selectable on the client
 side.
 .RE
-.TP
-.B \-s
-Log using the
-.BR syslog (3)
-facility.
-.TP
-.BI \-L " file\fR or " \-\-logfile " file"
-Specify the file for logging.  The filename specified is recomputed on
-each use using the
-.BR strftime (3)
-call.  For example, a filename ending in ".%Y%m%d" will write to log
-files ending in the year, month, and date that the log entry was
-written.
-.B NOTE:
-If
-.B dictd
-does not have write permission for this file, it will silently fail.
-.TP
-.BI \-m  " minutes \fR or "\-\-mark " minutes"
-How often a timestamp should be logged.  (This is effective only if
-logging has been enabled with the \-s or \-L option, or with a debugging
-option.)
 .TP
 .BI \-d " option"
 Activate a debugging option.  There are several, all of which are only
