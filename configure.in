@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.39 2003/02/20 19:29:20 cheusov Exp $
+dnl $Id: configure.in,v 1.40 2003/02/23 13:17:03 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -36,7 +36,7 @@ define(VERSION, 1.9.4)
 
 
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.39 $)
+AC_REVISION($Revision: 1.40 $)
 
 AC_INIT(dict, VERSION, "dict-beta@dict.org")
 
@@ -97,7 +97,7 @@ if test "x${withval}" = xyes; then
 fi
 ])
 
-AC_ARG_WITH(socks5,
+AC_ARG_WITH(nec-socks5,
 [  --with-nec-socks5       with NEC socks5 library],
 [
 if test "x${withval}" = xyes; then
