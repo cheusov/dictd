@@ -151,3 +151,62 @@ char *strupr_utf8 (char *str)
 {
     return strxxx_utf8 (str, toupper);
 }
+
+size_t strlen_utf8 (const char *str)
+{
+    int ret = 0;
+    int len = 0;
+    int c;
+
+    while (*str){
+	c = *(const unsigned char *)str;
+
+	if (c <= 0x7F)
+	    len = 1;
+	else if (c <= 0xBF)
+	    return (size_t) -1;
+	else if (c <= 0xDF)
+	    len = 2;
+	else if (c <= 0xEF)
+	    len = 3;
+	else if (c <= 0xF7)
+	    len = 4;
+	else if (c <= 0xFB)
+	    len = 5;
+	else if (c <= 0xFD)
+	    len = 6;
+	else
+	    return (size_t) -1;
+
+	ret += len;
+	str += len;
+    }
+
+    return ret;
+}
+
+size_t charlen_utf8 (const char *str)
+{
+    int c;
+
+    c = *(const unsigned char *)str;
+
+    if (c == 0)
+	return 0;
+    else if (c <= 0x7F)
+	return 1;
+    else if (c <= 0xBF)
+	return (size_t) -1;
+    else if (c <= 0xDF)
+	return 2;
+    else if (c <= 0xEF)
+	return 3;
+    else if (c <= 0xF7)
+	return 4;
+    else if (c <= 0xFB)
+	return 5;
+    else if (c <= 0xFD)
+	return 6;
+    else
+	return (size_t) -1;
+}

@@ -160,6 +160,7 @@ typedef struct dictDatabase {
    const char *databaseInfoPointer;
    const char *dataFilename;
    const char *indexFilename;
+   const char *indexsuffixFilename;
    const char *filter;
    const char *prefilter;
    const char *postfilter;
@@ -168,6 +169,7 @@ typedef struct dictDatabase {
    
    dictData   *data;
    dictIndex  *index;
+   dictIndex  *index_suffix;
 } dictDatabase;
 
 #define DICT_DENY     0

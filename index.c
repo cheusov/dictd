@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.26 2002/08/05 11:48:26 cheusov Exp $
+ * $Id: index.c,v 1.27 2002/08/05 11:54:03 cheusov Exp $
  * 
  */
 
@@ -415,7 +415,7 @@ static const char *linear_search( const char *word,
       case -2: return NULL;	/* less than and not prefix */
       case -1:			/* prefix */
       case  0: return pt;	/* exact */
-      case  1: break;		/* greater than */
+      case  1: break;           /* greater than */
       case  2: return NULL;     /* ERROR!!! */
       }
       FIND_NEXT(pt,end);
@@ -477,7 +477,10 @@ const char *dict_index_search( const char *word, dictIndex *idx )
    return start;
 }
 
-static dictWord *dict_word_create( const char *entry, dictDatabase *database )
+static dictWord *dict_word_create(
+    const char *entry,
+    dictDatabase *database,
+    dictIndex *dbindex)
 {
    int        firstTab  = 0;
    int        secondTab = 0;
@@ -489,7 +492,7 @@ static dictWord *dict_word_create( const char *entry, dictDatabase *database )
    const char *pt       = entry;
    char       *s, *d;
    
-   for (;pt < database->index->end && *pt != '\n'; pt++, offset++) {
+   for (;pt < dbindex->end && *pt != '\n'; pt++, offset++) {
       if (*pt == '\t') {
 	 switch (++state) {
 	 case 1: firstTab = offset;  break;
@@ -564,24 +567,25 @@ void dict_destroy_list( lst_List list )
 
 static int dict_search_exact( lst_List l,
 			      const char *word,
-			      dictDatabase *database )
+			      dictDatabase *database,
+			      dictIndex *dbindex)
 {
    const char *pt   = NULL;
    int        count = 0;
    dictWord   *datum;
    const char *previous = NULL;
 
-   pt   = dict_index_search( word, database->index );
+   pt   = dict_index_search( word, dbindex );
 
-   while (pt && pt < database->index->end) {
-      if (!compare( word, pt, database->index->end )) {
-	 if (!previous || altcompare(previous, pt, database->index->end)) {
+   while (pt && pt < dbindex->end) {
+      if (!compare( word, pt, dbindex->end )) {
+	 if (!previous || altcompare(previous, pt, dbindex->end)) {
 	    ++count;
-	    datum = dict_word_create( previous = pt, database );
+	    datum = dict_word_create( previous = pt, database, dbindex );
 	    lst_append( l, datum );
 	 }
       } else break;
-      FIND_NEXT( pt, database->index->end );
+      FIND_NEXT( pt, dbindex->end );
    }
 
    return count;
@@ -589,32 +593,34 @@ static int dict_search_exact( lst_List l,
 
 static int dict_search_prefix( lst_List l,
 			       const char *word,
-			       dictDatabase *database )
+			       dictDatabase *database,
+			       dictIndex *dbindex)
 {
-   const char *pt   = dict_index_search( word, database->index );
+   const char *pt   = dict_index_search( word, dbindex );
    int        count = 0;
    dictWord   *datum;
    const char *previous = NULL;
 
-   while (pt && pt < database->index->end) {
-      switch (compare( word, pt, database->index->end )) {
+   while (pt && pt < dbindex->end) {
+      switch (compare( word, pt, dbindex->end )) {
 	 case -2:
 	    return count;
 	 case -1:
 	 case 0:
-	 case 1:
-	    if (!previous || altcompare(previous, pt, database->index->end)) {
+	    if (!previous || altcompare(previous, pt, dbindex->end)) {
 	       ++count;
-	       datum = dict_word_create( previous = pt, database );
+	       datum = dict_word_create( previous = pt, database, dbindex );
 	       lst_append( l, datum );
 	    }
 	    break;
+	 case 1:
+	    return count;
 	 case 2:
 	    return count; /* ERROR!!! */
 	 default:
 	    assert (0);
       }
-      FIND_NEXT( pt, database->index->end );
+      FIND_NEXT( pt, dbindex->end );
    }
 
    return count;
@@ -623,11 +629,12 @@ static int dict_search_prefix( lst_List l,
 static int dict_search_brute( lst_List l,
 			      const unsigned char *word,
 			      dictDatabase *database,
+			      dictIndex *dbindex,
 			      int suffix,
 			      int patlen )
 {
-   const unsigned char *start = database->index->start;
-   const unsigned char *end   = database->index->end;
+   const unsigned char *start = dbindex->start;
+   const unsigned char *end   = dbindex->end;
    const unsigned char *p, *pt;
    int        count = 0;
    dictWord   *datum;
@@ -650,7 +657,7 @@ static int dict_search_brute( lst_List l,
 	       if (*pt == '\t') goto continue2;
 	    if (!previous || altcompare(previous, pt + 1, end)) {
 	       ++count;
-	       datum = dict_word_create( previous = pt + 1, database );
+	       datum = dict_word_create( previous = pt + 1, database, dbindex );
 #if 0
 	       fprintf( stderr, "Adding %d %s\n",
 			compare( word, p, end ),
@@ -677,10 +684,11 @@ static int dict_search_brute( lst_List l,
 static int dict_search_bmh( lst_List l,
 			    const unsigned char *word,
 			    dictDatabase *database,
+			    dictIndex *dbindex,
 			    int suffix )
 {
-   const unsigned char *start = database->index->start;
-   const unsigned char *end   = database->index->end;
+   const unsigned char *start = dbindex->start;
+   const unsigned char *end   = dbindex->end;
    int        patlen = strlen( word );
    int        skip[UCHAR_MAX + 1];
    int        i;
@@ -693,7 +701,7 @@ static int dict_search_bmh( lst_List l,
    const unsigned char *previous = NULL;
 
    if (patlen < BMH_THRESHOLD)
-      return dict_search_brute( l, word, database, suffix, patlen );
+      return dict_search_brute( l, word, database, dbindex, suffix, patlen );
 
    for (i = 0; i <= UCHAR_MAX; i++) {
       if (isspacealnum(i)) skip[i] = patlen;
@@ -724,12 +732,12 @@ static int dict_search_bmh( lst_List l,
 	 for (; pt > start && *pt != '\n'; --pt)
 	    if (*pt == '\t') goto continue2;
 	 if (pt > start) ++pt;
-	 if (!previous || altcompare(previous, pt, database->index->end)) {
+	 if (!previous || altcompare(previous, pt, dbindex->end)) {
 	    ++count;
-	    datum = dict_word_create( previous = pt, database );
+	    datum = dict_word_create( previous = pt, database, dbindex );
 #if 0
 	    fprintf( stderr, "Adding %d %s, word = %s\n",
-		     compare( word, p, database->index->end ),
+		     compare( word, p, dbindex->end ),
 		     datum->word,
 		     word );
 #endif
@@ -748,25 +756,28 @@ continue2:
 
 static int dict_search_substring( lst_List l,
 				  const char *word,
-				  dictDatabase *database )
+				  dictDatabase *database,
+				  dictIndex *dbindex)
 {
-   return dict_search_bmh( l, word, database, 0 );
+   return dict_search_bmh( l, word, database, dbindex, 0 );
 }
 
 static int dict_search_suffix( lst_List l,
 			       const char *word,
-			       dictDatabase *database )
+			       dictDatabase *database,
+			       dictIndex *dbindex)
 {
-   return dict_search_bmh( l, word, database, 1 );
+   return dict_search_bmh( l, word, database, dbindex, 1 );
 }
 
 static int dict_search_regexpr( lst_List l,
 				const char *word,
 				dictDatabase *database,
+				dictIndex *dbindex,
 				int type )
 {
-   const char    *start = database->index->start;
-   const char    *end = database->index->end;
+   const char    *start = dbindex->start;
+   const char    *end   = dbindex->end;
    const char    *p, *pt;
    int           count = 0;
    dictWord      *datum;
@@ -780,9 +791,9 @@ static int dict_search_regexpr( lst_List l,
 #if OPTSTART
    if (*word == '^' && isspacealnum(word[1])) {
       first = word[1];
-      end   = database->index->optStart[i2c(c2i(first)+1)];
-      start = database->index->optStart[first];
-      if (end < start) end = database->index->end;
+      end   = dbindex->optStart[i2c(c2i(first)+1)];
+      start = dbindex->optStart[first];
+      if (end < start) end = dbindex->end;
    }
 #endif
 
@@ -801,7 +812,7 @@ static int dict_search_regexpr( lst_List l,
       if (!regexec(&re, pt, 1, subs, REG_STARTEND)) {
 	 if (!previous || altcompare(previous, pt, end)) {
 	    ++count;
-	    datum = dict_word_create( previous = pt, database );
+	    datum = dict_word_create( previous = pt, database, dbindex );
 #if 0
 	    fprintf( stderr, "Adding %d %s\n",
 		     compare( word, pt, end ),
@@ -821,21 +832,24 @@ static int dict_search_regexpr( lst_List l,
 
 static int dict_search_re( lst_List l,
 			   const char *word,
-			   dictDatabase *database )
+			   dictDatabase *database,
+			   dictIndex    *dbindex)
 {
-   return dict_search_regexpr( l, word, database, REG_EXTENDED );
+   return dict_search_regexpr( l, word, database, dbindex, REG_EXTENDED );
 }
 
 static int dict_search_regexp( lst_List l,
 			       const char *word,
-			       dictDatabase *database )
+			       dictDatabase *database,
+			       dictIndex    *dbindex)
 {
-   return dict_search_regexpr( l, word, database, REG_BASIC );
+   return dict_search_regexpr( l, word, database, dbindex, REG_BASIC );
 }
 
 static int dict_search_soundex( lst_List l,
 				const char *word,
-				dictDatabase *database )
+				dictDatabase *database,
+				dictIndex    *dbindex)
 {
    const char *pt;
    const char *end;
@@ -850,12 +864,12 @@ static int dict_search_soundex( lst_List l,
    const char *previous = NULL;
 
 #if OPTSTART
-   pt  = database->index->optStart[ c ];
-   end = database->index->optStart[ i2c(c2i(c)+1) ];
-   if (end < pt) end = database->index->end;
+   pt  = dbindex->optStart[ c ];
+   end = dbindex->optStart[ i2c(c2i(c)+1) ];
+   if (end < pt) end = dbindex->end;
 #else
-   pt = database->index->start;
-   end = database->index->end;
+   pt  = dbindex->start;
+   end = dbindex->end;
 #endif
 
    strcpy( soundex, txt_soundex( word ) );
@@ -869,7 +883,7 @@ static int dict_search_soundex( lst_List l,
       *d = '\0';
       if (!strcmp(soundex, txt_soundex(buffer))) {
 	 if (!previous || altcompare(previous, pt, end)) {
-	    datum = dict_word_create( previous = pt, database );
+	    datum = dict_word_create( previous = pt, database, dbindex );
 	    lst_append( l, datum );
 	    ++count;
 	 }
@@ -898,7 +912,8 @@ static int dict_search_soundex( lst_List l,
 
 static int dict_search_levenshtein( lst_List l,
 				    const char *word,
-				    dictDatabase *database )
+				    dictDatabase *database,
+				    dictIndex *dbindex)
 {
    int        len   = strlen(word);
    char       *buf  = alloca(len+2);
@@ -911,12 +926,12 @@ static int dict_search_levenshtein( lst_List l,
    dictWord   *datum;
 
 #define CHECK                                         \
-   if ((pt = dict_index_search(buf, database->index)) \
-       && !compare(buf, pt, database->index->end)) {  \
+   if ((pt = dict_index_search(buf, dbindex))           \
+       && !compare(buf, pt, dbindex->end)) {            \
       if (!set_member(s,buf)) {                       \
 	 ++count;                                     \
 	 set_insert(s,str_find(buf));                 \
-	 datum = dict_word_create(pt, database);      \
+	 datum = dict_word_create(pt, database, dbindex);\
 	 lst_append(l, datum);                        \
          PRINTF(DBG_LEV,("  %s added\n",buf));        \
       }                                               \
@@ -975,6 +990,66 @@ static int dict_search_levenshtein( lst_List l,
    return count;
 }
 
+/*
+  makes anagram of the 8-bit string 'str'
+  if length == -1 then str is 0-terminated string
+*/
+static void stranagram_8bit (char *str, int length)
+{
+   char* i = str;
+   char* j;
+   char v;
+
+   if (length == -1)
+       length = strlen (str);
+
+   j = str + length - 1;
+
+   while (i < j){
+       v = *i;
+       *i = *j;
+       *j = v;
+
+       ++i;
+       --j;
+   }
+}
+
+/*
+  makes anagram of the utf-8 string 'str'
+  Returns non-zero if success, 0 otherwise
+*/
+static int stranagram_utf8 (char *str)
+{
+   size_t len;
+   char *p;
+
+   for (p = str; *p; ){
+      len = charlen_utf8 (p);
+      if (len == (size_t) -1)
+	 return 0; /* not a UTF-8 string */
+
+      if (len > 1)
+	  stranagram_8bit (p, len);
+
+      p += len;
+   }
+
+   stranagram_8bit (str, -1);
+   return 1;
+}
+
+/* makes anagram of utf-8 string 'str' */
+static int stranagram (char *str, int utf8_string)
+{
+   if (utf8_string){
+      return stranagram_utf8 (str);
+   }else{
+      stranagram_8bit (str, -1);
+      return 1;
+   }
+}
+
 int dict_search_database( lst_List l,
 			  const char *const word,
 			  dictDatabase *database,
@@ -1004,27 +1079,53 @@ int dict_search_database( lst_List l,
    }
    if (!database->index)
       database->index = dict_index_open( database->indexFilename );
+   if (!database->index_suffix && database->indexsuffixFilename)
+      database->index_suffix = dict_index_open( database->indexsuffixFilename );
 
    switch (strategy) {
-   case DICT_EXACT:       return dict_search_exact( l, buf, database );
-   case DICT_PREFIX:      return dict_search_prefix( l, buf, database );
+   case DICT_EXACT:
+      return dict_search_exact( l, buf, database, database->index );
+
+   case DICT_PREFIX:
+      return dict_search_prefix( l, buf, database, database->index );
+
    case DICT_SUBSTRING:
       if (utf8_mode){
-	 return dict_search_re( l, buf, database );
+	 return dict_search_re( l, buf, database, database->index );
       }else{
-	 return dict_search_substring( l, buf, database );
+	 return dict_search_substring( l, buf, database, database->index );
       }
+
    case DICT_SUFFIX:
-      if (utf8_mode){
-	 strcat (buf, "$");
-	 return dict_search_re( l, buf, database );
+      if (database->index_suffix){
+	 PRINTF(DBG_SEARCH, ("anagram: '%s' ==> ", buf));
+	 if (!stranagram (buf, utf8_mode)){
+	    PRINTF(DBG_SEARCH, ("failed building anagram\n"));
+	    return 0; /* invalid utf8 string */
+	 }
+
+	 PRINTF(DBG_SEARCH, ("'%s'\n", buf));
+	 return dict_search_prefix ( l, buf, database, database->index_suffix);
       }else{
-	 return dict_search_suffix( l, buf, database );
+	 if (utf8_mode){
+	    strcat (buf, "$");
+	    return dict_search_re( l, buf, database, database->index );
+	 }else{
+	     return dict_search_suffix( l, buf, database, database->index );
+	 }
       }
-   case DICT_RE:          return dict_search_re( l, word, database );
-   case DICT_REGEXP:      return dict_search_regexp( l, word, database );
-   case DICT_SOUNDEX:     return dict_search_soundex( l, buf, database );
-   case DICT_LEVENSHTEIN: return dict_search_levenshtein( l, buf, database);
+   case DICT_RE:
+      return dict_search_re( l, word, database, database->index );
+
+   case DICT_REGEXP:
+      return dict_search_regexp( l, word, database, database->index );
+
+   case DICT_SOUNDEX:
+      return dict_search_soundex( l, buf, database, database->index );
+
+   case DICT_LEVENSHTEIN:
+      return dict_search_levenshtein( l, buf, database, database->index);
+
    default:
       err_internal( __FUNCTION__, "Search strategy %d unknown\n", strategy );
    }
@@ -1032,13 +1133,18 @@ int dict_search_database( lst_List l,
 
 dictIndex *dict_index_open( const char *filename )
 {
-   dictIndex   *i = xmalloc( sizeof( struct dictIndex ) );
    struct stat sb;
    static int  tabInit = 0;
+   dictIndex   *i;
 #if OPTSTART
    int         j;
    char        buf[2];
 #endif
+
+   if (!filename)
+      return NULL;
+
+   i = xmalloc( sizeof( struct dictIndex ) );
 
    if (!tabInit) dict_table_init();
    tabInit = 1;

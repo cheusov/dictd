@@ -54,4 +54,17 @@ char *strlwr_8bit (char *str);
 */
 char *strupr_8bit (char *str);
 
+/*
+  The  strlen_utf8() function calculates the length of the UTF-8 string,
+  not including the terminating `\0' character.
+  Returns (size_t) -1, if failed.
+*/
+size_t strlen_utf8 (const char *str);
+
+/*
+  The  charlen_utf8() function calculates the length of the UTF-8 character
+  Returns (size_t) -1, if failed.
+*/
+size_t charlen_utf8 (const char *str);
+
 __END_DECLS
