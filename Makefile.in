@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.63 2003/01/14 16:47:54 cheusov Exp $
+# $Id: Makefile.in,v 1.64 2003/02/07 13:37:19 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -156,7 +156,7 @@ plugins: $(PLUGINS)
 
 man_popen.dict : dictdplugin-config dictfmt_plugin
 	{ \
-      echo `dictdplugin-config --plugindir`'/search_man'; \
+      echo `./dictdplugin-config --plugindir`'/search_man'; \
       echo "qwertyuioplkjhgfdsazxcvbnm 0987654321QWERTYUIOPLKJHGFDSAZXCVBNM"; \
    } | ./dictfmt_plugin dictdplugin_popen.so -s \
       'Example man dict based on example POPEN plugin' man_popen
