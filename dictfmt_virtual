@@ -1,5 +1,9 @@
 #!/bin/sh
 
+#
+# written by Aleksey Cheusov <vle@gmx.net>
+#
+
 usage (){
 	cat <<EOF
 This program is intended to create DICTD database files
@@ -47,7 +51,7 @@ if test "_$db_name" = "_" || test "_$db_list" = "_" || test $# -eq 0; then
 	exit 2
 fi
 
-db_base=$1
+db_base="$1"
 shift
 
 {
