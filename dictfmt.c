@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.45 2004/01/13 18:04:14 cheusov Exp $
+ * $Id: dictfmt.c,v 1.46 2004/01/27 00:33:54 hilliard Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -1163,16 +1163,15 @@ int main( int argc, char **argv )
           }
           break;
       case FOLDOC:
-	 if (header < 3){
+         if (*buffer && *buffer != ' ' && *buffer != '\t') {
            ++header;
-	    if (without_info)
-	       continue;
-	 }else{
-	    if (*buffer && *buffer != ' ' && *buffer != '\t') {
-	       fmt_newheadword(buffer);
-	       continue;
-	    }
-	 }
+           if (header >= 3) {
+             fmt_newheadword(buffer);
+             continue;
+           }
+         }
+         if (header < 3 && without_info)
+           continue;
 	 if (*buf == ' '){
 	    ++buf;
 	 }
