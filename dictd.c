@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.47 2002/08/05 12:07:03 cheusov Exp $
+ * $Id: dictd.c,v 1.48 2002/08/23 09:03:53 cheusov Exp $
  * 
  */
 
@@ -414,7 +414,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.47 2002/08/05 12:07:03 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.48 2002/08/23 09:03:53 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -725,7 +725,10 @@ int main( int argc, char **argv, char **envp )
    else                         log_option( LOG_OPTION_NO_FULL );
 
    set_utf8_mode (locale);
-   setlocale(LC_ALL, locale);
+   if (!setlocale(LC_ALL, locale)){
+	   fprintf (stderr, "ivalid locale '%s'\n", locale);
+	   exit (2);
+   }
 
    time(&startTime);
    tim_start( "dictd" );
