@@ -17,31 +17,21 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.60 2003/03/03 17:24:26 cheusov Exp $
+ * $Id: daemon.c,v 1.61 2003/03/19 16:43:12 cheusov Exp $
  * 
  */
 
 #include "dictd.h"
-#include <ctype.h>
-#include <setjmp.h>
-
+#include "index.h"
+#include "data.h"
 #include "md5.h"
 #include "regex.h"
 #include "dictdplugin.h"
 #include "strategy.h"
+#include "plugin.h"
 
-#ifndef HAVE_INET_ATON
-#define inet_aton(a,b) (b)->s_addr = inet_addr(a)
-#endif
-
-#ifndef HAVE_SNPRINTF
-extern int snprintf(char *str, size_t size, const char *format, ...);
-#endif
-
-#ifndef HAVE_VSNPRINTF
-extern int vsnprintf(char *str, size_t size, const char *format, va_list ap);
-#endif
-
+#include <ctype.h>
+#include <setjmp.h>
 
 static int          _dict_defines, _dict_matches;
 static int          daemonS;
@@ -721,17 +711,26 @@ static void daemon_define( const char *cmdline, int argc, char **argv )
 		     actual_matches );
       daemon_dump_defs( list );
       daemon_ok( CODE_OK, "ok", "c" );
+#ifdef USE_PLUGIN
+      call_dictdb_free (list);
+#endif
       dict_destroy_list( list );
       return;
    }
 
    if (!db_found) {
+#ifdef USE_PLUGIN
+      call_dictdb_free (list);
+#endif
       dict_destroy_list( list );
       daemon_printf( "%d invalid database, use SHOW DB for list\n",
 		     CODE_INVALID_DB );
       return;
    }
 
+#ifdef USE_PLUGIN
+   call_dictdb_free (list);
+#endif
    dict_destroy_list( list );
    daemon_log( DICT_LOG_NOMATCH,
 	       "%s exact \"%s\"\n", databaseName, word );
@@ -791,17 +790,26 @@ static void daemon_match( const char *cmdline, int argc, char **argv )
 		     CODE_MATCHES_FOUND, actual_matches );
       daemon_dump_matches( list );
       daemon_ok( CODE_OK, "ok", "c" );
+#ifdef USE_PLUGIN
+      call_dictdb_free (list);
+#endif
       dict_destroy_list( list );
       return;
    }
 
    if (!db_found) {
+#ifdef USE_PLUGIN
+      call_dictdb_free (list);
+#endif
       dict_destroy_list( list );
       daemon_printf( "%d invalid database, use SHOW DB for list\n",
 		     CODE_INVALID_DB );
       return;
    }
 
+#ifdef USE_PLUGIN
+   call_dictdb_free (list);
+#endif
    dict_destroy_list( list );
    daemon_log( DICT_LOG_NOMATCH,
 	       "%s %s \"%s\"\n", databaseName, strategy, word );

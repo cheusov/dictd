@@ -17,13 +17,19 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.79 2003/03/09 17:07:36 cheusov Exp $
+ * $Id: dictd.c,v 1.80 2003/03/19 16:43:19 cheusov Exp $
  * 
  */
 
 #include "dictd.h"
 #include "servparse.h"
 #include "strategy.h"
+#include "index.h"
+#include "data.h"
+
+#ifdef USE_PLUGIN
+#include "plugin.h"
+#endif
 
 #include <grp.h>                /* initgroups */
 #include <pwd.h>                /* getpwuid */
@@ -40,21 +46,7 @@
 #define GID_NOGROUP 65534
 #endif
 
-#ifndef HAVE_SNPRINTF
-extern int snprintf(char *str, size_t size, const char *format, ...);
-#endif
-
-#ifndef HAVE_VSNPRINTF
-extern int vsnprintf(char *str, size_t size, const char *format, va_list ap);
-#endif
-
 extern int        yy_flex_debug;
-
-extern int        default_strategy;
-
-extern int        utf8_mode;
-extern int        bit8_mode;
-extern int        mmap_mode;
 
 static int        _dict_daemon;
 static int        _dict_reaps;
@@ -549,7 +541,7 @@ static int init_plugin( const void *datum )
 {
 #ifdef USE_PLUGIN
    dictDatabase *db = (dictDatabase *)datum;
-   dict_plugin_open (db);
+   dict_plugin_init (db);
 #endif
 
    return 0;
@@ -618,7 +610,7 @@ static int close_plugin (const void *datum)
 {
 #ifdef USE_PLUGIN
    dictDatabase  *db = (dictDatabase *)datum;
-   dict_plugin_close (db);
+   dict_plugin_destroy (db);
 #endif
 
    return 0;
@@ -780,21 +772,12 @@ static int dump_def( const void *datum )
    return 0;
 }
 
-static int call_dictdb_free (const void *datum)
-{
-   const dictWord     *dw = (dictWord *)datum;
-   const dictDatabase *db = dw -> database;
-
-   if (db -> plugin)
-      db -> plugin -> dictdb_free (db -> plugin -> data);
-
-   return 0;
-}
-
 static void dict_dump_defs( lst_List list )
 {
    lst_iterate (list, dump_def);
-   lst_iterate (list, call_dictdb_free);
+#ifdef USE_PLUGIN
+   call_dictdb_free (list);
+#endif
 }
 
 static const char *id_string( const char *id )
@@ -810,7 +793,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.79 2003/03/09 17:07:36 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.80 2003/03/19 16:43:19 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1071,6 +1054,14 @@ static void set_utf8bit_mode (const char *loc)
    utf8_mode =
        strstr (locale_copy, "utf-8") ||
        strstr (locale_copy, "utf8");
+
+#if !HAVE_UTF8
+   if (utf8_mode){
+      err_fatal (
+	 __FUNCTION__,
+	 "utf-8 support is disabled at compile time\n");
+   }
+#endif
 
    bit8_mode = !utf8_mode && (locale_copy [0] != 'c' || locale_copy [1] != 0);
 

@@ -1,6 +1,3 @@
-#include <wchar.h>
-#include <assert.h>
-
 /*
   partial mbstowcs implementation:
   - doesn't change *ps
@@ -8,6 +5,15 @@
   - dest should always be NULL
   - src should NOT be NULL
 */
+
+#include "dictP.h"
+
+#if HAVE_WCHAR_H
+#include <wchar.h>
+#endif
+
+#include <assert.h>
+
 size_t mbstowcs (wchar_t *dest, const char *src, size_t n)
 {
    int ret = 0;

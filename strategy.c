@@ -17,14 +17,13 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: strategy.c,v 1.1 2003/03/03 17:24:31 cheusov Exp $
+ * $Id: strategy.c,v 1.2 2003/03/19 16:43:28 cheusov Exp $
  * 
  */
 
 #include "strategy.h"
 #include "dictdplugin.h"
 #include "maa.h"
-#include "config.h"
 #include "dictd.h"
 
 #include <stdlib.h>

@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.41 2003/03/09 15:53:53 cheusov Exp $
+dnl $Id: configure.in,v 1.42 2003/03/19 16:43:12 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -36,7 +36,7 @@ define(VERSION, 1.9.7)
 
 
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.41 $)
+AC_REVISION($Revision: 1.42 $)
 
 AC_INIT(dict, VERSION, "dict-beta@dict.org")
 
@@ -309,7 +309,9 @@ fi
 
 AC_CHECK_HEADERS(unistd.h strings.h limits.h)
 AC_CHECK_HEADERS(sys/resource.h sys/time.h sys/param.h sys/wait.h)
-AC_CHECK_HEADERS(wctype.h)
+AC_CHECK_HEADERS(wctype.h wchar.h)
+
+AC_CHECK_TYPES([wint_t, mbstate_t])
 
 echo .
 echo Checking for system constants
@@ -324,7 +326,7 @@ AC_FUNC_ALLOCA
 AC_FUNC_MMAP
 AC_FUNC_FORK
 AC_FUNC_MALLOC
-AC_FUNC_STAT
+#AC_FUNC_STAT
 AC_FUNC_STRCOLL
 AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
@@ -336,9 +338,9 @@ AC_CHECK_FUNCS(alarm gethostbyaddr gethostbyname gethostname gettimeofday)
 AC_CHECK_FUNCS(inet_ntoa memmove memset munmap regcomp setenv setlocale)
 AC_CHECK_FUNCS(socket strcasecmp strchr strrchr strstr uname)
 
-AC_CHECK_FUNCS(towlower)
-AC_CHECK_FUNCS(iswspace iswalnum)
+AC_CHECK_FUNCS(iswspace iswalnum towlower)
 #AC_REPLACE_FUNCS(wcrtomb wctomb mbrlen mbrtowc mbstowcs mbtowc)
+AC_CHECK_FUNCS(wcrtomb wctomb mbrlen mbrtowc mbstowcs mbtowc)
 
 AC_REPLACE_FUNCS(snprintf vsnprintf)
 

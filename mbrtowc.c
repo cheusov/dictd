@@ -1,6 +1,3 @@
-#include <wchar.h>
-#include <assert.h>
-
 /*
   partial mbrtowc implementation:
   - doesn't change *ps
@@ -8,6 +5,14 @@
   - s should NOT be NULL
   - pwc should NOT be NULL
 */
+
+#include "dictP.h"
+
+#if HAVE_WCHAR_H
+#include <wchar.h>
+#endif
+
+#include <assert.h>
 
 static const char * utf8_to_ucs4 (
    const char *ptr, wchar_t *result)

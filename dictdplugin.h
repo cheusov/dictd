@@ -1,5 +1,5 @@
-#ifndef _PLUGIN_H_
-#define _PLUGIN_H_
+#ifndef _DICTDPLUGIN_H_
+#define _DICTDPLUGIN_H_
 
 #undef __BEGIN_DECLS 
 #undef __END_DECLS 
@@ -152,4 +152,4 @@ typedef int (*dictdb_search_type) (
 
 __END_DECLS
 
-#endif // _PLUGIN_H_
+#endif /* _DICTDPLUGIN_H_ */

@@ -19,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.6 2002/09/27 16:57:44 cheusov Exp $
+ * $Id: dictP.h,v 1.7 2003/03/19 16:43:18 cheusov Exp $
  * 
  */
 
@@ -35,24 +35,21 @@
 #endif
 
 /* AIX requires this to be the first thing in the file.  */
-#ifdef __GNUC__
-# define alloca __builtin_alloca
+#if defined(__svr4__) && defined(__sgi__) && !HAVE_ALLOCA_H /* IRIX */
+# undef HAVE_ALLOCA_H
+# define HAVE_ALLOCA_H 1
+#endif
+
+#if HAVE_ALLOCA_H
+# include <alloca.h>
 #else
-# if defined(__svr4__) && defined(__sgi__) && !HAVE_ALLOCA_H /* IRIX */
-#  undef HAVE_ALLOCA_H
-#  define HAVE_ALLOCA_H 1
-# endif
-# if HAVE_ALLOCA_H
-#  include <alloca.h>
+# ifdef _AIX
+# pragma alloca
 # else
-#  ifdef _AIX
- #pragma alloca
-#  else
-#   ifndef alloca /* predefined by HP cc +Olibcalls */
-#   if !defined(__svr4__) && !defined(__sgi__)	/* not on IRIX */
-char *alloca ();
-#   endif
-#   endif
+#  ifndef alloca /* predefined by HP cc +Olibcalls */
+#  if !defined(__svr4__) && !defined(__sgi__)	/* not on IRIX */
+    char *alloca ();
+#  endif
 #  endif
 # endif
 #endif
@@ -84,6 +81,61 @@ extern long strtol( const char *, char **, int );
 
 #if !HAVE_STRTOUL
 extern unsigned long int strtoul( const char *, char **, int );
+#endif
+
+#if !HAVE_SNPRINTF
+extern int snprintf(char *str, size_t size, const char *format, ...);
+#endif
+
+#if !HAVE_VSNPRINTF
+#include <stdarg.h>
+extern int vsnprintf(char *str, size_t size, const char *format, va_list ap);
+#endif
+
+#if !HAVE_INET_ATON
+#define inet_aton(a,b) (b)->s_addr = inet_addr(a)
+#endif
+
+#if HAVE_WINT_T && HAVE_WCHAR_H
+#include <wchar.h>
+#else
+#typedef unsigned int wint_t;
+#endif
+
+#if !HAVE_WCHAR_T && HAVE_WCHAR_H
+#include <wchar.h>
+#else
+#typedef unsigned int wchar_t;
+#endif
+
+#if !HAVE_MBSTATE_T
+#if !HAVE_ISWALNUM && !HAVE_ISWSPACE && !HAVE_TOWLOWER
+#define mbstate_t char
+#endif
+#endif
+
+#if !HAVE_WCRTOMB
+extern size_t wcrtomb (char *s, wchar_t wc, mbstate_t *ps);
+#endif
+
+#if !HAVE_WCTOMB
+extern int wctomb (char *s, wchar_t wc);
+#endif
+
+#if !HAVE_MBRLEN
+extern size_t mbrlen (const char *s, size_t n, mbstate_t *ps);
+#endif
+
+#if !HAVE_MBRTOWC
+extern size_t mbrtowc (wchar_t *pwc, const char *s, size_t n, mbstate_t *ps);
+#endif
+
+#if !HAVE_MBSTOWCS
+extern size_t mbstowcs (wchar_t *dest, const char *src, size_t n);
+#endif
+
+#if !HAVE_MBTOWC
+extern int mbtowc (wchar_t *pwc, const char *s, size_t n);
 #endif
 
 /* Get time functions */
@@ -163,4 +215,12 @@ situations that we know about. */
 #define max(a,b) ((a)>(b)?(a):(b))
 #endif
 
+#if HAVE_ISWALNUM && HAVE_ISWSPACE && HAVE_TOWLOWER
+#ifdef HAVE_UTF8
+#undef HAVE_UTF8
 #endif
+
+#define HAVE_UTF8 1
+#endif
+
+#endif /* _DICTP_H_ */

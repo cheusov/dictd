@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.68 2003/03/03 19:14:35 cheusov Exp $
+# $Id: Makefile.in,v 1.69 2003/03/19 16:43:11 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -77,7 +77,6 @@ LDLIBS=		    @LIBOBJS@ @LIBS@ -Lregex -lregex
 EXES=	 	dict dictd dictzip dictfmt
 
 ifeq ($(USE_PLUGIN), 1)
-
 	PLUGINS=    
 	LIBRARIES=  libdictdplugin.a
 	INCLUDES=   dictdplugin.h
@@ -99,10 +98,15 @@ uninstall.samples :
 
 endif
 
-HEADERS= 	./config.h @XTRAHEADERS@ dictzip.h dictd.h dict.h \
-                codes.h md5.h
+HEADERS= 	./config.h @XTRAHEADERS@ dictzip.h dictd.h dict.h dictP.h \
+                codes.h md5.h strategy.h defs.h plugin.h data.h index.h
 
+ifeq ($(USE_PLUGIN), 1)
+SRCHOBJS=       index.o data.o dictdplugin.o plugin.o
+else
 SRCHOBJS=       index.o data.o dictdplugin.o
+endif
+
 NETOBJS=        daemon.o strategy.o net.o servscan.o servparse.o md5.o
 CLIOBJS=        net.o clientscan.o clientparse.o md5.o
 

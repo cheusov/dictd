@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.16 2003/02/10 19:08:33 cheusov Exp $
+ * $Id: dictfmt.c,v 1.17 2003/03/19 16:43:26 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -34,19 +34,15 @@
 #include <string.h>
 #include <time.h>
 #include <ctype.h>
+
+#if HAVE_WCTYPE_H
 #include <wctype.h>
+#endif
+
 #include <locale.h>
 
 #if HAVE_GETOPT_H
 #include <getopt.h>
-#endif
-
-#ifndef HAVE_SNPRINTF
-extern int snprintf(char *str, size_t size, const char *format, ...);
-#endif
-
-#ifndef HAVE_VSNPRINTF
-extern int vsnprintf(char *str, size_t size, const char *format, va_list ap);
 #endif
 
 #define FMT_MAXPOS 65
@@ -178,6 +174,7 @@ static void fmt_string( const char *s )
    free(sdup);
 }
 
+#if HAVE_UTF8
 static int tolower_alnumspace_utf8 (const char *src, char *dest)
 {
    wchar_t      ucs4_char;
@@ -206,6 +203,7 @@ static int tolower_alnumspace_utf8 (const char *src, char *dest)
 
    return (src != NULL);
 }
+#endif
 
 static void tolower_alnumspace_8bit (const char *src, char *dest)
 {
@@ -243,6 +241,7 @@ static void write_hw_to_index (const char *word, int start, int end)
 	 exit (1);
       }
 
+#if HAVE_UTF8
       if (utf8_mode){
 	 if (!tolower_alnumspace_utf8 (word, new_word)){
 	    fprintf (stderr, "'%s' is not a UTF-8 string", word);
@@ -251,6 +250,9 @@ static void write_hw_to_index (const char *word, int start, int end)
       }else{
 	 tolower_alnumspace_8bit (word, new_word);
       }
+#else
+      tolower_alnumspace_8bit (word, new_word);
+#endif
 
       while (len > 0 && isspace ((unsigned char) word [len - 1])){
 	 new_word [--len] = 0;
@@ -438,6 +440,14 @@ static void set_utf8bit_mode (const char *loc)
    utf8_mode =
       NULL != strstr (locale_copy, "utf-8") ||
       NULL != strstr (locale_copy, "utf8");
+
+#if !HAVE_UTF8
+   if (utf8_mode){
+      err_fatal (
+	 __FUNCTION__,
+	 "utf-8 support is disabled at compile time\n");
+   }
+#endif
 
    bit8_mode = !utf8_mode && (locale_copy [0] != 'c' || locale_copy [1] != 0);
 

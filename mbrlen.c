@@ -1,13 +1,20 @@
-#include <wchar.h>
-#include <assert.h>
-
 /*
   partial mbrlen implementation:
   - doesn't change *ps
   - ignores n
   - s should not be NULL
   - tests first char only
- */
+*/
+
+#include "dictP.h"
+
+#if HAVE_WCHAR_H
+#include <wchar.h>
+#endif
+
+#include <assert.h>
+#include <stddef.h>
+
 size_t mbrlen (const char *s, size_t n, mbstate_t *ps)
 {
    int c;

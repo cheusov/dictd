@@ -1,4 +1,4 @@
-/*
+/* strategy.h -- 
  * Created: Sun Mar  2 17:16:13 2003 by Aleksey Cheusov <vle@gmx.net>
  * Copyright 1994-2003 Rickard E. Faith (faith@dict.org)
  *
@@ -16,14 +16,13 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+ * $Id: strategy.h,v 1.2 2003/03/19 16:43:28 cheusov Exp $
  */
 
 #ifndef _STRATEGY_H_
 #define _STRATEGY_H_
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+#include "dictP.h"
 
 #define DICT_DEFAULT_STRATEGY    DICT_LEVENSHTEIN
 
@@ -39,9 +38,9 @@ extern int default_strategy;
 extern void dict_init_strategies (void);
 extern void dict_destroy_strategies (void);
 
-/* disables comma-separated strategies */
+/* disable comma-separated strategies */
 extern void dict_disable_strategies (const char *strategies);
-/* adds new strategy */
+/* add new strategy */
 extern void dict_add_strategy (const char *strat, const char *description);
 
 /* */
@@ -49,4 +48,4 @@ extern int get_strategy_count (void);
 extern dictStrategy **get_strategies (void);
 extern int lookup_strategy( const char *strategy );
 
-#endif
+#endif /* _STRATEGY_H_ */

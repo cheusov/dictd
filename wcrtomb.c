@@ -1,12 +1,17 @@
-#include <wchar.h>
-#include <stdlib.h>
-#include <assert.h>
-
 /*
   partial wcrtomb implementation:
   - doesn't change *ps
   - s should NOT be NULL
 */
+
+#include "dictP.h"
+
+#if HAVE_WCHAR_H
+#include <wchar.h>
+#endif
+
+#include <stdlib.h>
+#include <assert.h>
 
 size_t wcrtomb (char *s, wchar_t wc, mbstate_t *ps)
 {

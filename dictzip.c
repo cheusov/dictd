@@ -17,20 +17,14 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictzip.c,v 1.21 2003/01/19 17:26:46 cheusov Exp $
+ * $Id: dictzip.c,v 1.22 2003/03/19 16:43:26 cheusov Exp $
  * 
  */
 
 #include "dictzip.h"
+#include "data.h"
+
 #include <sys/stat.h>
-
-#ifndef HAVE_SNPRINTF
-extern int snprintf(char *str, size_t size, const char *format, ...);
-#endif
-
-#ifndef HAVE_VSNPRINTF
-extern int vsnprintf(char *str, size_t size, const char *format, va_list ap);
-#endif
 
 void dict_data_print_header( FILE *str, dictData *header )
 {
@@ -319,7 +313,7 @@ static const char *id_string( const char *id )
 
 static void banner( void )
 {
-   const char *id = "$Id: dictzip.c,v 1.21 2003/01/19 17:26:46 cheusov Exp $";
+   const char *id = "$Id: dictzip.c,v 1.22 2003/03/19 16:43:26 cheusov Exp $";
    
    fprintf( stderr, "%s %s\n", err_program_name(), id_string( id ) );
    fprintf( stderr,
