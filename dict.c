@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.c,v 1.32 2002/12/17 13:49:01 cheusov Exp $
+ * $Id: dict.c,v 1.33 2003/02/02 16:34:26 hilliard Exp $
  * 
  */
 
@@ -959,7 +959,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.32 2002/12/17 13:49:01 cheusov Exp $";
+   const char        *id = "$Id: dict.c,v 1.33 2003/02/02 16:34:26 hilliard Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -1065,7 +1065,7 @@ int main( int argc, char **argv )
       { "port",       1, 0, 'p' },
       { "database",   1, 0, 'd' },
       { "info",       1, 0, 'i' },
-      { "server",     0, 0, 'I' },
+      { "serverinfo", 0, 0, 'I' },
       { "match",      0, 0, 'm' },
       { "strategy",   1, 0, 's' },
       { "nocorrect",  0, 0, 'C' },

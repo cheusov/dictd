@@ -53,9 +53,9 @@ be run from
 .P
 Databases are distributed separately from the server.
 .P
-By default, dictd assumes that index files consist of any
-characters but only alphanumeric charactares are used for search.
-This default may be
+.B dictd
+assumes that the index files are sorted alphabeticaly.  By default, only
+alphanumeric charactares are used for search.  This default may be
 overridden by a header in the data file.  The only such features
 implemented at this time are the headers "00-database-allchars" which
 tells
@@ -63,10 +63,14 @@ tells
 that non-alphanumeric characters may also be used for search, and the
 header "00-database-utf8" which indicates that the database uses utf8
 encoding. All headwords in the index file are sorted alphabetically.
+.P
 A header "00-database-plugin" may also be present and is used for
 integrating plugins into dictd. See "dictfmt_plugin --help" and
 "dictdplugin.h" for more information.
-
+.P
+A header "00-database-virtual" identifies "virtual dictionaries",
+which are lists of real dictionaries to be searched by
+.B dictd.
 .SH "BACKGROUND"
 For many years, the Internet community has relied on the "webster" protocol
 for access to natural language definitions.  The webster protocol supports
@@ -447,7 +451,12 @@ Per-database control is specified in the Database Section.
 .TP
 .BI database " string " "{ " "database specification " "}"
 This section is required.  The string specifies the name of the database
-(e.g., wn or web1913).
+(e.g., wn or web1913).  (This is an arbitrary name selected by the
+administrator, and is not necessarily related to the file name or any
+name listed in the data file.  A short, easy to type name is often
+selected for easy use with 
+.BR "dict -d".)
+
 .B NOTE:
 If the files specified in the database specification do not exist on the
 system, dictd may silently fail.
@@ -456,6 +465,7 @@ system, dictd may silently fail.
 Excludes following databases from the '*' database.
 By default '*' means all databases available.
 Look at 'example_virtual.conf' file for example configuration.
+
 .B NOTE:
 If you use 'virtual' dictionaries, you should use this directive,
 otherwise you will search the same dictionary twice.
@@ -651,17 +661,16 @@ non-whitespace characters.
 An exact match.  This algorithm uses a binary search and is one of the
 fastest search algorithms available.
 .TP
+.B lev
+The Levenshtein algorithm (string edit distance of one).  This algorithm
+searches for all words which are within an edit distance of one from the
+target word.  An "edit" means an insertion, deletion, or transposition.
+This is a rapid algorithm for correcting spelling errors, since many
+spelling errors are within a Levenshtein distance of one from the original
+word.
+.TP
 .B prefix
 Prefix match.  This algorithm also uses a binary search and is very fast.
-.TP
-.B substring
-Match a substring anywhere in the headword.  This search strategy uses a
-modified Boyer-Moore-Horspool algorithm.  Since it must search the whole
-index file, it is not as fast as the exact and prefix matches.
-.TP
-.B suffix
-Suffix match.  This search strategy also uses a modified
-Boyer-Moore-Horspool algorithm, and is as fast as the substring search.
 .TP
 .B re
 POSIX 1003.2 (modern) regular expression search.  Modern regular
@@ -711,13 +720,21 @@ letter of the word and up to three digits.  Since the first letter is
 known, this search is relatively fast, and it sometimes good for correcting
 spelling errors when the Levenshtein algorithm doesn't help.
 .TP
-.B lev
-The Levenshtein algorithm (string edit distance of one).  This algorithm
-searches for all words which are within an edit distance of one from the
-target word.  An "edit" means an insertion, deletion, or transposition.
-This is a rapid algorithm for correcting spelling errors, since many
-spelling errors are within a Levenshtein distance of one from the original
-word.
+.B substring
+Match a substring anywhere in the headword.  This search strategy uses a
+modified Boyer-Moore-Horspool algorithm.  Since it must search the whole
+index file, it is not as fast as the exact and prefix matches.
+.TP
+.B suffix
+Suffix match.  This search strategy also uses a modified
+Boyer-Moore-Horspool algorithm, and is as fast as the substring
+search.  If the optional index_suffix string file is listed in the
+configuration file this search is much faster.
+.TP
+.B word
+Match any single word, even if part of a multi-word entry.  If the
+optional index_suffix string file is listed in the configuration file
+this search is much faster.
 .SH "DATABASE FORMAT"
 Databases for
 .B dictd
