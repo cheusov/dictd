@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.67 2003/02/21 20:41:15 cheusov Exp $
+ * $Id: dictd.c,v 1.68 2003/02/23 11:38:51 cheusov Exp $
  * 
  */
 
@@ -379,6 +379,7 @@ static int config_print( const void *datum, void *arg )
    FILE         *s  = (FILE *)arg;
 
    fprintf( s, "database %s {\n", db->databaseName );
+
    if (db->dataFilename)
       fprintf( s, "   data       %s\n", db->dataFilename );
    if (db->indexFilename)
@@ -395,8 +396,11 @@ static int config_print( const void *datum, void *arg )
       fprintf( s, "   postfilter %s\n", db->postfilter );
    if (db->databaseShort)
       fprintf( s, "   name       %s\n", db->databaseShort );
-   if (db->acl) acl_print( s, db->acl, 3 );
+   if (db->acl)
+      acl_print( s, db->acl, 3 );
+
    fprintf( s, "}\n" );
+
    return 0;
 }
 
@@ -670,8 +674,7 @@ static void make_dictexit_invisible (dictConfig *c)
 	 db_exit = NULL;
       }
 
-      if (!db -> dataFilename){
-	 /* exit db */
+      if (db -> exit){
 	 db_exit = db;
 	 db_exit -> invisible = 1;
       }
@@ -774,7 +777,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.67 2003/02/21 20:41:15 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.68 2003/02/23 11:38:51 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;

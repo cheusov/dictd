@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.14 2003/02/21 20:41:15 cheusov Exp $
+ * $Id: servparse.y,v 1.15 2003/02/23 11:38:52 cheusov Exp $
  * 
  */
 
@@ -181,6 +181,7 @@ Database : T_DATABASE T_STRING
 	      memset( db, 0, sizeof(struct dictDatabase));
 	      db -> databaseName  = strdup("--exit--");
 	      db -> databaseShort = strdup("Stop default search here.");
+	      db -> exit          = 1;
 	      $$ = db;
 	   }
          ;

@@ -214,6 +214,7 @@ typedef struct dictDatabase {
 
    lst_List   *virtual_db_list;
 
+   int        exit;      /* non-zero for dictionary_exit entry */
    int        invisible; /* non-zero if database is not visible for clients */
 } dictDatabase;
 
