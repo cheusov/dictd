@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.87 2003/07/21 10:02:33 cheusov Exp $
+ * $Id: dictd.c,v 1.88 2003/08/06 16:08:19 cheusov Exp $
  * 
  */
 
@@ -556,10 +556,15 @@ static int init_database( const void *datum )
 
    PRINTF (DBG_INIT, (":I: Initializing '%s'\n", db->databaseName));
 
-   PRINTF (DBG_INIT, (":I:   Opening indices\n"));
+   if (db->indexFilename){
+      PRINTF (DBG_INIT, (":I:   Opening indices\n"));
+   }
 
    db->index        = dict_index_open( db->indexFilename, 1, 0, 0 );
-   PRINTF (DBG_INIT, (":I:     .index <ok>\n"));
+
+   if (db->indexFilename){
+      PRINTF (DBG_INIT, (":I:     .index <ok>\n"));
+   }
 
    if (db->index){
       db->index_suffix = dict_index_open(
@@ -583,11 +588,16 @@ static int init_database( const void *datum )
       db->index_word->flag_allchars = db->index->flag_allchars;
    }
 
-   PRINTF (DBG_INIT, (":I:   Opening data\n"));
+   if (db->dataFilename){
+      PRINTF (DBG_INIT, (":I:   Opening data\n"));
+   }
+
    db->data         = dict_data_open( db->dataFilename, 0 );
 
-   PRINTF(DBG_INIT,
-	  (":I: '%s' initialized\n", db->databaseName));
+   if (db->dataFilename){
+      PRINTF(DBG_INIT,
+	     (":I: '%s' initialized\n", db->databaseName));
+   }
 
    return 0;
 }
@@ -778,9 +788,6 @@ static int dump_def( const void *datum )
 static void dict_dump_defs( lst_List list )
 {
    lst_iterate (list, dump_def);
-#ifdef USE_PLUGIN
-   call_dictdb_free (list);
-#endif
 }
 
 static const char *id_string( const char *id )
@@ -796,7 +803,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.87 2003/07/21 10:02:33 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.88 2003/08/06 16:08:19 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1126,6 +1133,12 @@ static void dict_test (
 	 fprintf (stderr, "No definitions found for \"%s\"\n", word);
       }
    }
+
+#ifdef USE_PLUGIN
+   if (count != 0){
+      call_dictdb_free (l);
+   }
+#endif
 
    dict_destroy_list (l);
 }
