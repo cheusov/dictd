@@ -61,15 +61,20 @@ FILE may be in any of the several formats described by
 the format options \-c5, \-t, \-e, \-f, \-h, \-j, or \-p.  Exactly one of 
 these options must be given.
 
-Headers are prepended to the .dict file giving the URL of the site
-from which the original database was obtained, the name of the
-dictionary, and the date of conversion (formatting).  If the -u and/or
--s options are omitted, the value "unknown" will be included for these
-values, which is undesirable for a publicly distributed database.
+.B dictfmt
+prepends several headers are to the .dict file.  The 00-database-url
+header gives the value of the -u option as the URL of the site from
+which the original database was obtained.  The 00-database-short
+header gives the value of the -s option as the short name of the
+dictionary.  (This "short name" is the identifying name given by the
+"dict- D" option.)  If the -u and/or -s options are omitted, these
+values will be shown as "unknown", which is undesirable for a publicly
+distributed database.
 
-All text in the input file prior to the first headword is appended to
-the headers in the .dict file.  All text in the input file following
-a headword, up to the next headword, is copied unchanged to the .dict
+The date of conversion (formatting) is given in the 00-database-info
+header.  All text in the input file prior to the first headword is
+appended to this header.  All text in the input file following a
+headword, up to the next headword, is copied unchanged to the .dict
 file.
 
 .SH FORMATTING OPTIONS
@@ -136,8 +141,8 @@ is formatted with the
 starting in column 0, with the definition indented at least one space
 (or tab character) on subsequent lines.  The third line starting in
 column 0 is taken as the first headword, and the first two lines
-starting in column 0 are treated as part of the headers.  This option
-was written to format the F.O.L.D.O.C.
+starting in column 0 are treated as part of the -00-database-info
+header.  This option was written to format the F.O.L.D.O.C.
 .TP
 .BI \-h 
 .I
@@ -146,9 +151,9 @@ is formatted with the
 .B headwords
 starting in column 0, followed by a comma, with the definition
 continuing on the same line.  All text before the first single
-character line is considered part of the headers, and lines with only
-one character are omitted from the .dict file.  The first headword
-is on the line following the first single character line.
+character line is included in 00-database-info header, and lines with
+only one character are omitted from the .dict file.  The first
+headword is on the line following the first single character line.
 .RS
 This option was written to format HITCHCOCK'S  BIBLE
 NAMES DICTIONARY.  The 
@@ -227,7 +232,8 @@ use all characters (not only alphanumeric and space) in sorting the index
 sets the head word separator, which allows several words to have the same
 definition.  For example, if \'--headword-separator %%%' is given,
 and the input file contains \'autumn%%%fall', both 'autumn' and 'fall'
-will be indexed as  headwords, with the same definition.
+will be indexed as  headwords, with the same definition.  This
+option implies the --without-headword option.
 .TP
 .BI \--without-headword
 head words will not be included in .dict file
