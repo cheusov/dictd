@@ -1,10 +1,10 @@
 /* dict.c -- 
  * Created: Fri Mar 28 19:16:29 1997 by faith@cs.unc.edu
- * Revised: Sun Jan 18 19:51:17 1998 by faith@acm.org
+ * Revised: Sun Feb 15 18:52:24 1998 by faith@acm.org
  * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dict.c,v 1.16 1998/01/19 03:37:17 faith Exp $
+ * $Id: dict.c,v 1.17 1998/02/16 02:25:14 faith Exp $
  * 
  */
 
@@ -50,6 +50,7 @@ struct cmd {
    const char *client;
    const char *user;
    const char *key;
+   const char *comment;
 };
 
 lst_List      cmd_list;
@@ -345,25 +346,26 @@ static struct cmd *make_command( int command, ... )
    va_start( ap, command );
    switch (command) {
    case CMD_PRINT:
+      c->comment  = va_arg( ap, const char * );
       break;
    case CMD_DEFPRINT:
-      c->database = va_arg( ap, const char *);
-      c->word     = va_arg( ap, const char *);
+      c->database = va_arg( ap, const char * );
+      c->word     = va_arg( ap, const char * );
       c->flag     = va_arg( ap, int );
       break;
    case CMD_CONNECT:
-      c->host     = va_arg( ap, const char *);
-      c->service  = va_arg( ap, const char *);
-      c->user     = va_arg( ap, const char *);
-      c->key      = va_arg( ap, const char *);
+      c->host     = va_arg( ap, const char * );
+      c->service  = va_arg( ap, const char * );
+      c->user     = va_arg( ap, const char * );
+      c->key      = va_arg( ap, const char * );
       break;
    case CMD_CLIENT:
-      c->client   = va_arg( ap, const char *);
+      c->client   = va_arg( ap, const char * );
       break;
    case CMD_AUTH:
       break;
    case CMD_INFO:
-      c->database = va_arg( ap, const char *);
+      c->database = va_arg( ap, const char * );
       break;
    case CMD_SERVER:
       break;
@@ -374,22 +376,22 @@ static struct cmd *make_command( int command, ... )
    case CMD_HELP:
       break;
    case CMD_MATCH:
-      c->database = va_arg( ap, const char *);
-      c->strategy = va_arg( ap, const char *);
-      c->word     = va_arg( ap, const char *);
+      c->database = va_arg( ap, const char * );
+      c->strategy = va_arg( ap, const char * );
+      c->word     = va_arg( ap, const char * );
       break;
    case CMD_DEFINE:
-      c->database = va_arg( ap, const char *);
-      c->word     = va_arg( ap, const char *);
+      c->database = va_arg( ap, const char * );
+      c->word     = va_arg( ap, const char * );
       break;
    case CMD_SPELL:
-      c->database = va_arg( ap, const char *);
-      c->word     = va_arg( ap, const char *);
+      c->database = va_arg( ap, const char * );
+      c->word     = va_arg( ap, const char * );
       break;
    case CMD_WIND:
-      c->database = va_arg( ap, const char *);
-      c->strategy = va_arg( ap, const char *);
-      c->word     = va_arg( ap, const char *);
+      c->database = va_arg( ap, const char * );
+      c->strategy = va_arg( ap, const char * );
+      c->word     = va_arg( ap, const char * );
       break;
    case CMD_CLOSE:
       break;
@@ -462,7 +464,7 @@ static void request( void )
 	 break;
       case CMD_CLIENT:
          if (client_text)
-            sprintf( b, "client \"%s\" %s\n", c->client, client_text );
+            sprintf( b, "client \"%s: %s\"\n", c->client, client_text );
          else
             sprintf( b, "client \"%s\"\n", c->client );
          break;
@@ -574,6 +576,7 @@ static void process( int html )
       expected = CODE_OK;
       switch (c->command) {
       case CMD_PRINT:
+	 if (c->comment) fprintf( dict_output, "%s", c->comment );
 	 if (cmd_reply.match)
 	    client_print_matches( cmd_reply.data, html, 1, cmd_reply.word );
 	 else if (cmd_reply.listed)
@@ -582,7 +585,7 @@ static void process( int html )
 	    client_print_text( cmd_reply.data, html );
 	 client_free_text( cmd_reply.data );
 	 cmd_reply.data = NULL;
-	 cmd_reply.matches = cmd_reply.match = 0;
+	 cmd_reply.matches = cmd_reply.match = cmd_reply.listed = 0;
 	 expected = cmd_reply.retcode;
 	 break;
       case CMD_DEFPRINT:
@@ -598,7 +601,11 @@ static void process( int html )
 	    for (i = 0; i < cmd_reply.count; i++) {
 	       if (html) fprintf( dict_output, "<HR><H3>Source: " );
 	       else      fprintf( dict_output, "\nFrom " );
-	       if (cmd_reply.defs[i].dbname) {
+	       if (cmd_reply.defs[i].dbname && cmd_reply.defs[i].db) {
+		  fprintf( dict_output, "%s [%s]",
+			   cmd_reply.defs[i].dbname,
+			   cmd_reply.defs[i].db);
+	       } else if (cmd_reply.defs[i].dbname) {
 		  fprintf( dict_output, "%s", cmd_reply.defs[i].dbname );
 	       } else if (cmd_reply.defs[i].db) {
 		  fprintf( dict_output, "%s", cmd_reply.defs[i].db );
@@ -915,20 +922,8 @@ static void client_config_print( FILE *stream, lst_List c )
 static const char *id_string( const char *id )
 {
    static char buffer[BUFFERSIZE];
-   arg_List    a;
-   char        *pt, *dot;
 
    sprintf( buffer, "%s", DICT_VERSION );
-   pt = buffer + strlen( buffer );
-
-   a = arg_argify( id, 0 );
-   if (arg_count(a) >= 2) {
-      if ((dot = strchr( arg_get(a, 2), '.' )))
-	 sprintf( pt, ".%s", dot+1 );
-      else
-	 sprintf( pt, ".%s", arg_get( a, 2 ) );
-   }
-   arg_destroy( a );
    
    return buffer;
 }
@@ -936,14 +931,14 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.16 1998/01/19 03:37:17 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.17 1998/02/16 02:25:14 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
    uname( &uts );
    buffer = xmalloc(256);
    sprintf( buffer,
-	    "%s %s/rf on %s %s", err_program_name(), id_string( id ),
+	    "%s %s on %s %s", err_program_name(), id_string( id ),
 	    uts.sysname,
 	    uts.release );
    return buffer;
@@ -1030,13 +1025,14 @@ int main( int argc, char **argv )
    int                html        = 0;
    int                offset      = 0;
    int                i;
-   enum { DEFINE,
-	  INFO,
-	  SERVER,
-	  MATCH,
-	  DBS,
-	  STRATS,
-	  HELP }      function    = DEFINE;
+   enum { DEFINE = 0x0001,
+	  MATCH  = 0x0002,
+	  INFO   = 0x0010,
+	  SERVER = 0x0020,
+	  DBS    = 0x0040,
+	  STRATS = 0x0080,
+	  HELP   = 0x0100
+   }      function    = DEFINE;
    struct option      longopts[]  = {
       { "host",       1, 0, 'h' },
       { "port",       1, 0, 'p' },
@@ -1081,35 +1077,35 @@ int main( int argc, char **argv )
 			    "h:p:d:i:Ims:DSHac:Ck:VLvrP:",
 			    longopts, NULL )) != EOF)
       switch (c) {
-      case 'h': host = optarg;                        break;
-      case 'p': service = optarg;                     break;
-      case 'd': database = optarg;                    break;
-      case 'i': database = optarg; function = INFO;   break;
-      case 'I':                    function = SERVER; break;
-      case 'm':                    function = MATCH;  break;
-      case 's': strategy = optarg;                    break;
-      case 'D':                    function = DBS;    break;
-      case 'S':                    function = STRATS; break;
-      case 'H':                    function = HELP;   break;
-      case 'c': configFile = optarg;                  break;
-      case 'C': docorrect = 0;                        break;
-      case 'a': doauth = 0;                           break;
-      case 'u': user = optarg;                        break;
-      case 'k': key = optarg;                         break;
-      case 'V': banner(); exit(1);                    break;
-      case 'L': license(); exit(1);                   break;
-      case 'v': dbg_set( "verbose" );                 break;
-      case 'r': dbg_set( "raw" );                     break;
-      case 'P': dict_pager = optarg;                  break;
-      case 505: client_text = optarg;                 break;
-      case 504: client_pipesize = atoi(optarg);       break;
-      case 503: ++html;                               break;
-      case 502: dbg_set( optarg );                    break;
+      case 'h': host = optarg;                         break;
+      case 'p': service = optarg;                      break;
+      case 'd': database = optarg;                     break;
+      case 'i': database = optarg; function |= INFO;   break;
+      case 'I':                    function |= SERVER; break;
+      case 'm':                    function = MATCH;   break;
+      case 's': strategy = optarg;                     break;
+      case 'D':                    function |= DBS;    break;
+      case 'S':                    function |= STRATS; break;
+      case 'H':                    function |= HELP;   break;
+      case 'c': configFile = optarg;                   break;
+      case 'C': docorrect = 0;                         break;
+      case 'a': doauth = 0;                            break;
+      case 'u': user = optarg;                         break;
+      case 'k': key = optarg;                          break;
+      case 'V': banner(); exit(1);                     break;
+      case 'L': license(); exit(1);                    break;
+      case 'v': dbg_set( "verbose" );                  break;
+      case 'r': dbg_set( "raw" );                      break;
+      case 'P': dict_pager = optarg;                   break;
+      case 505: client_text = optarg;                  break;
+      case 504: client_pipesize = atoi(optarg);        break;
+      case 503: ++html;                                break;
+      case 502: dbg_set( optarg );                     break;
       case 501:					      
       default:  help(); exit(1);                      break;
       }
 
-   if (optind == argc && (function == DEFINE || function == MATCH)) {
+   if (optind == argc && (!(function & ~(DEFINE|MATCH)))) {
       banner();
       fprintf( stderr, "Use --help for help\n" );
       exit(1);
@@ -1278,46 +1274,48 @@ int main( int argc, char **argv )
 	 }
       }
 #if 0
-      append_command( make_command(CMD_CONNECT, "localhost", NULL,NULL,NULL) );
+      append_command(make_command(CMD_CONNECT,"localhost",    NULL,NULL,NULL));
 #endif
-      append_command( make_command(CMD_CONNECT, "dict.org", NULL,NULL,NULL) );
+      append_command(make_command(CMD_CONNECT,"dict.org",     NULL,NULL,NULL));
+      append_command(make_command(CMD_CONNECT,"alt0.dict.org",NULL,NULL,NULL));
+      append_command(make_command(CMD_CONNECT,"alt1.dict.org",NULL,NULL,NULL));
+      append_command(make_command(CMD_CONNECT,"alt2.dict.org",NULL,NULL,NULL));
    }
    append_command( make_command( CMD_CLIENT, client_get_banner() ) );
    if (doauth) append_command( make_command( CMD_AUTH ) );
-   switch (function) {
-   case INFO:
+   if (function & INFO) {
       append_command( make_command( CMD_INFO, database ) );
-      append_command( make_command( CMD_PRINT ) );
-      break;
-   case SERVER:
+      append_command( make_command( CMD_PRINT, NULL ) );
+   }
+   if (function & SERVER) {
       append_command( make_command( CMD_SERVER ) );
-      append_command( make_command( CMD_PRINT ) );
-      break;
-   case DBS:
+      append_command( make_command( CMD_PRINT, NULL ) );
+   }
+   if (function & DBS) {
       append_command( make_command( CMD_DBS ) );
-      append_command( make_command( CMD_PRINT ) );
-      break;
-   case STRATS:
+      append_command( make_command( CMD_PRINT, "Databases available:\n" ) );
+   }
+   if (function & STRATS) {
       append_command( make_command( CMD_STRATS ) );
-      append_command( make_command( CMD_PRINT ) );
-      break;
-   case HELP:
+      append_command( make_command( CMD_PRINT, "Strategies available:\n" ) );
+   }
+   if (function & HELP) {
       append_command( make_command( CMD_HELP ) );
-      append_command( make_command( CMD_PRINT ) );
-      break;
-   case MATCH:
+      append_command( make_command( CMD_PRINT, "Server help:\n" ) );
+   }
+
+   if (function & MATCH) {
       if (word) {
 	 append_command( make_command( CMD_MATCH, database, strategy, word ) );
-	 append_command( make_command( CMD_PRINT ) );
+	 append_command( make_command( CMD_PRINT, NULL ) );
       } else {
 	 for (i = optind; i < argc; i++) {
 	    append_command( make_command( CMD_MATCH,
 					  database, strategy, argv[i] ) );
-	    append_command( make_command( CMD_PRINT ) );
+	    append_command( make_command( CMD_PRINT, NULL ) );
 	 }
       }
-      break;
-   case DEFINE:
+   } else if (function & DEFINE) {
       if (word) {
 	 append_command( make_command( CMD_DEFINE, database, word ) );
 	 append_command( make_command( CMD_DEFPRINT, database, word, 1 ) );

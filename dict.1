@@ -1,6 +1,6 @@
 .\" dict.1 -- 
 .\" Created: Tue Jul  8 11:36:19 1997 by faith@acm.org
-.\" Revised: Sun Jan  4 10:16:33 1998 by faith@acm.org
+.\" Revised: Sun Feb 15 18:54:25 1998 by faith@acm.org
 .\" Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
 .\" 
 .\" Permission is granted to make and distribute verbatim copies of this
@@ -23,7 +23,7 @@
 .\" Formatted or processed versions of this manual, if unaccompanied by
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" 
-.TH DICT 1 " 8 Jul 1997" "" "Linux Programmer's Manual"
+.TH DICT 1 "15 February 1998" "" "Linux Programmer's Manual"
 .SH NAME
 dict \- DICT Protocol Client
 .SH SYNOPSIS
@@ -32,9 +32,9 @@ dict \- DICT Protocol Client
 .br
 .BI dict " [options] [word]"
 .br
-.BI dict " [options] dict://user:secret@host:port/d:word:database"
+.BI dict " [options] dict://host:port/d:word:database"
 .br
-.BI dict " [options] dict://user:secret@host:port/m:word:database:strategy"
+.BI dict " [options] dict://host:port/m:word:database:strategy"
 .fi
 .SH DESCRIPTION
 .B dict
@@ -46,7 +46,10 @@ definitions from a set of natural language dictionary databases.
 .BI \-h " server\fR or " \-\-host " server"
 Specifies the hostname for the DICT server.  Server/port combinations can
 be specified in the configuration file.  If no servers are specified the
-default behavior is to first try localhost, and then to try dict.org.
+default behavior is to try dict.org, alt0.dict.org, alt1.dict.org, and
+alt2.dict.org, in that order.  If IP lookup for a server expands to a list
+of IP addresses (as dict.org does currently), then each IP will be tried in
+the order listed.
 .TP
 .BI \-p " service\fR or " \-\-port " service"
 Specifies the port (e.g., 2628) or service (e.g., dict) for connections.
@@ -123,7 +126,8 @@ Be verbose.
 Be very verbose: show the raw client/server interaction.
 .TP
 .B \-\-html
-Generate HTML tags in the output.
+Generate HTML tags in the output.  The HTML generated is not very useful.
+Support for this option needs to be rewritten.
 .TP
 .B \-\-pipesize
 Specify the buffer size for pipelineing commands.  The default is 256,
@@ -132,6 +136,9 @@ transport media.  Larger values may provide faster or slower throughput,
 depending on MTU.  If the buffer is too small, requests will be
 serialized.  Values less than 0 and greater than one million are silently
 changed to something more reasonable.
+.TP
+.BI \-\-client " text"
+Specifies additional text to be sent using the CLIENT command.
 .TP
 .BI \-\-debug " flag"
 Set a debugging flag.  Valid flags are:
@@ -210,13 +217,20 @@ for applications which are incompatible with the GPL -- please see the
 copyright notices and license information that come with the libraries for
 more information, and consult with your attorney to resolve these issues.
 .SH BUGS
-If a dict: URL is given on the command line, only the first one is used.
-The rest are ignored.
+If a
+.B dict:
+URL is given on the command line, only the first one is used.  The rest are
+ignored.
 .P
-If a dict: URL contains a specifier for the nth definition or match of a
-word, it will be ignored and all the definitions or matches will be
-provided.  This violates the RFC, and will be corrected in a future
-release.
+If a
+.B dict:
+URL contains a specifier for the nth definition or match of a word, it will
+be ignored and all the definitions or matches will be provided.  This
+violates the RFC, and will be corrected in a future release.
+.P
+If a
+.B dict:
+URL contains a shared secret, it will not be parsed correctly.
 .P
 HTML mode isn't as useful as it could be.  This will be improved in a
 future release.
@@ -227,5 +241,5 @@ future release.
 .SH "SEE ALSO"
 .BR dictd (8),
 .BR dictzip (1),
-.BR http://www.dict.org
-
+.BR http://www.dict.org,
+.B RFC 2229

@@ -1,7 +1,7 @@
 .\" dictd.8 -- 
 .\" Created: Mon Mar 10 16:10:03 1997 by faith@cs.unc.edu
-.\" Revised: Sun Jul 20 12:11:13 1997 by faith@acm.org
-.\" Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
+.\" Revised: Sun Feb 15 18:54:25 1998 by faith@acm.org
+.\" Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
 .\" 
 .\" Permission is granted to make and distribute verbatim copies of this
 .\" manual provided the copyright notice and this permission notice are
@@ -23,7 +23,7 @@
 .\" Formatted or processed versions of this manual, if unaccompanied by
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" 
-.TH DICTD 8 "29 July 1997" "" "Linux Programmer's Manual"
+.TH DICTD 8 "15 February 1998" "" "Linux Programmer's Manual"
 .SH "NAME"
 dictd - a dictionary database server
 .SH "SYNOPSIS"
@@ -273,6 +273,12 @@ This option implies
 .BR nodetach ,
 and is most useful for using a debugger to find the point at which daemon
 processes are dumping core.
+.TP
+.B alt
+Debugs
+.B altcompare
+in
+.IR index.c .
 .RE
 .SH "CONFIGURATION FILE"
 The configuration file defaults to
@@ -622,4 +628,5 @@ so databases cannot be added or deleted on the fly.
 .BR dictzip (1),
 .BR gunzip (1),
 .BR zcat (1),
-.BR webster (1)
+.BR webster (1),
+.B RFC 2229

@@ -1,4 +1,5 @@
-The dictd-1.1 distirbution contains client/server software implementing the
+The DICT Development Group (www.dict.org) announces the dictd-1.4
+distirbution, containing client/server software implementing the
 Dictionary Server Protocol, as described in RFC 2229.
 
 The Dictionary Server Protocol (DICT) is a TCP transaction based
@@ -25,24 +26,24 @@ copyright and licensing information at the top of each database file.
 Below are approximate sizes for the databases, showing the number of
 headwords in each, and the space required to store the database:
 
-                  Headwords  Uncompressed  Compressed   Index
-                                   (kB)       (kB)       (kB)
-Webster 1913        187637        31546      11328       3492
-WordNet 1.6         121968        22372       7082       2436
-U.S. Gazetteer       52994         8552       1763       1094
-The Jargon File       2136         1279        541         40
-FOLDOC               11452         4357       1759        221
-Elements               132           39         14          3
-Easton's              3969         2744       1089         66
-Hitchcock's           2606           87         35         36
+  Database      Headwords         Index          Data  Uncompressed
+  web1913          185774       3445 kB         11 MB         30 MB
+  wn               121967       2427 kB       7142 kB         21 MB
+  gazetteer         52994       1087 kB       1754 kB       8351 kB
+  jargon             2135         38 kB        536 kB       1248 kB
+  foldoc            11508        220 kB       1759 kB       4275 kB
+  elements            131          2 kB         12 kB         38 kB
+  easton             3968         64 kB       1077 kB       2648 kB
+  hitchcock          2619         34 kB         33 kB         85 kB
 
 All of these compressed databases and indices can be stored in
-approximately 30MB of disk space.
-
-For more information on the original sources for each database, please see
-http://www.dict.org/links.html
+approximately 32MB of disk space.
 
 The software has been developed under Linux 2.0.x and SunOS 4.1.x.  Porting
 to other Unix-like operating systems should be straightforward.
 
-For more information on the DICT Project, please see http://www.dict.org/
+Software and databases are available for anonymous ftp from:
+    ftp://ftp.cs.unc.edu/pub/users/faith/dict
+
+For more information on the DICT project, please see:
+    http://www.dict.org

@@ -1,10 +1,5 @@
 Sun Jan  4 10:14:37 1998, faith@cs.unc.edu
 
-This is BETA code.  This version is:
-    ftp://ftp.cs.unc.edu/pub/users/faith/dict/dictd-1.1.tar.gz
-
-The client defaults to looking at localhost and dict.org on port 2628.
-
 To build and install the client and the server:
 
 untar

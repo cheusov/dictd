@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Sun Jan 18 22:51:57 1998 by faith@acm.org
+ * Revised: Sun Feb 15 18:44:25 1998 by faith@acm.org
  * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.34 1998/01/19 03:52:23 faith Exp $
+ * $Id: dictd.c,v 1.35 1998/02/16 02:25:18 faith Exp $
  * 
  */
 
@@ -367,20 +367,8 @@ static void dict_dump_defs( lst_List list, dictDatabase *db )
 static const char *id_string( const char *id )
 {
    static char buffer[BUFFERSIZE];
-   arg_List    a;
-   char        *pt, *dot;
 
    sprintf( buffer, "%s", DICT_VERSION );
-   pt = buffer + strlen( buffer );
-
-   a = arg_argify( id, 0 );
-   if (arg_count(a) >= 2) {
-      if ((dot = strchr( arg_get(a, 2), '.' )))
-	 sprintf( pt, ".%s", dot+1 );
-      else
-	 sprintf( pt, ".%s", arg_get( a, 2 ) );
-   }
-   arg_destroy( a );
    
    return buffer;
 }
@@ -389,7 +377,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.34 1998/01/19 03:52:23 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.35 1998/02/16 02:25:18 faith Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -539,6 +527,7 @@ int main( int argc, char **argv, char **envp )
    dbg_register( DBG_AUTH,     "auth" );
    dbg_register( DBG_NODETACH, "nodetach" );
    dbg_register( DBG_NOFORK,   "nofork" );
+   dbg_register( DBG_ALT,      "alt" );
 
    while ((c = getopt_long( argc, argv,
 			    "vVd:p:c:hL:t:l:sm:f", longopts, NULL )) != EOF)

@@ -1,6 +1,6 @@
 /* dictd.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Sat Jan 17 23:56:55 1998 by faith@acm.org
+ * Revised: Sun Jan 25 19:25:54 1998 by faith@acm.org
  * Copyright 1994, 1995, 1996, 1997, 1998 Rickard E. Faith (faith@acm.org)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -68,6 +68,7 @@
 #define DBG_AUTH        (0<<30|1<< 9) /* Debug authentication               */
 #define DBG_NODETACH    (0<<30|1<<10) /* Don't detach as a background proc. */
 #define DBG_NOFORK      (0<<30|1<<11) /* Don't fork (single threaded)       */
+#define DBG_ALT         (0<<30|1<<12) /* altcompare()                      */
 
 #define LOG_SERVER      (0<<30|1<< 0) /* Log server diagnostics             */
 #define LOG_CONNECT     (0<<30|1<< 1) /* Log connection information         */

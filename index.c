@@ -1,7 +1,7 @@
 /* index.c -- 
  * Created: Wed Oct  9 14:52:23 1996 by faith@cs.unc.edu
- * Revised: Mon Jun 23 07:52:50 1997 by faith@acm.org
- * Copyright 1996, 1997 Rickard E. Faith (faith@cs.unc.edu)
+ * Revised: Sun Jan 25 19:33:01 1998 by faith@acm.org
+ * Copyright 1996, 1997, 1998 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.15 1997/06/23 11:53:17 faith Exp $
+ * $Id: index.c,v 1.16 1998/02/16 02:25:21 faith Exp $
  * 
  */
 
@@ -55,7 +55,7 @@ static int isspacealnumtab[256];
 static int compare( const char *word, const char *start, const char *end )
 {
    int c;
-   char       buf[4096], *d;
+   char       buf[80], *d;
    const char *s;
 
    if (dbg_test(DBG_SEARCH)) {
@@ -79,7 +79,7 @@ static int compare( const char *word, const char *start, const char *end )
       c = tolower(*start);
 #endif
       if (*word != c) {
-	 PRINTF(DBG_SEARCH,("   result = %d\n", (*word < c) ? -1 : 1 ));
+	 PRINTF(DBG_SEARCH,("   result = %d\n", (*word < c) ? -2 : 1 ));
 	 return (*word < c) ? -2 : 1;
       }
       ++word;
@@ -91,6 +91,36 @@ static int compare( const char *word, const char *start, const char *end )
    PRINTF(DBG_SEARCH,("   result = %d\n",
 		      *word ? 1 : ((*start != '\t') ? -1 : 0)));
    return  *word ? 1 : ((*start != '\t') ? -1 : 0);
+}
+
+static int altcompare( const char *word, const char *start, const char *end )
+{
+   char       buf[80], buf2[80], *d;
+   const char *s;
+   
+   if (dbg_test(DBG_ALT)) {
+      for (d = buf, s = start; s < end && *s != '\t';) *d++ = *s++;
+      *d = '\0';
+      for (d = buf2, s = word; s < end && *s != '\t';) *d++ = *s++;
+      *d = '\0';
+      printf( "altcompare \"%s\" with \"%s\"\n", buf2, buf );
+   }
+
+   ++_dict_comparisons;		/* counter for profiling */
+   
+				/* FIXME.  Optimize this inner loop. */
+   while (*word && start < end && *start != '\t') {
+      if (*word != *start) {
+	 PRINTF(DBG_ALT,("   result = %d\n", (*word < *start) ? -2 : 1 ));
+	 return (*word < *start) ? -2 : 1;
+      }
+      ++word;
+      ++start;
+   }
+   
+   PRINTF(DBG_ALT,("   result = %d\n",
+		   (*word != '\t') ? 1 : ((*start != '\t') ? -1 : 0)));
+   return  (*word != '\t') ? 1 : ((*start != '\t') ? -1 : 0);
 }
 
 static const char *binary_search( const char *word,
@@ -248,12 +278,15 @@ static int dict_search_exact( lst_List l,
    const char *pt   = dict_index_search( word, database->index );
    int        count = 0;
    dictWord   *datum;
-
+   const char *previous = NULL;
+   
    while (pt && pt < database->index->end) {
       if (!compare( word, pt, database->index->end )) {
-	 ++count;
-	 datum = dict_word_create( pt, database );
-	 lst_append( l, datum );
+	 if (!previous || altcompare(previous, pt, database->index->end)) {
+	    ++count;
+	    datum = dict_word_create( previous = pt, database );
+	    lst_append( l, datum );
+	 }
       } else break;
       FIND_NEXT( pt, database->index->end );
    }
@@ -268,12 +301,15 @@ static int dict_search_prefix( lst_List l,
    const char *pt   = dict_index_search( word, database->index );
    int        count = 0;
    dictWord   *datum;
+   const char *previous = NULL;
 
    while (pt && pt < database->index->end) {
       if (compare( word, pt, database->index->end ) + 1 >= 0) {
-	 ++count;
-	 datum = dict_word_create( pt, database );
-	 lst_append( l, datum );
+	 if (!previous || altcompare(previous, pt, database->index->end)) {
+	    ++count;
+	    datum = dict_word_create( previous = pt, database );
+	    lst_append( l, datum );
+	 }
       } else break;
       FIND_NEXT( pt, database->index->end );
    }
@@ -293,6 +329,7 @@ static int dict_search_brute( lst_List l,
    int        count = 0;
    dictWord   *datum;
    int        result;
+   const char *previous = NULL;
 
    p = start;
    while (p < end && !isspacealnum(*p)) ++p;
@@ -303,24 +340,26 @@ static int dict_search_brute( lst_List l,
 	 while (p < end && !isspacealnum(*p)) ++p;
       }
       if (tolower(*p) == *word) {
-         result = compare( word, p, end );
-         if (result == -1 || result == 0) {
+	 result = compare( word, p, end );
+	 if (result == -1 || result == 0) {
 	    if (suffix && result) continue;
 	    for (pt = p; pt >= start && *pt != '\n'; --pt)
 	       if (*pt == '\t') goto continue2;
-            ++count;
-            datum = dict_word_create( pt + 1, database );
+	    if (!previous || altcompare(previous, pt + 1, end)) {
+	       ++count;
+	       datum = dict_word_create( previous = pt + 1, database );
 #if 0
-            fprintf( stderr, "Adding %d %s\n",
-                     compare( word, p, end ),
-                     datum->word);
+	       fprintf( stderr, "Adding %d %s\n",
+			compare( word, p, end ),
+			datum->word);
 #endif
-            lst_append( l, datum );
+	       lst_append( l, datum );
+	    }
 	    FIND_NEXT(p,end);
 	    --p;
-         }
+	 }
       }
-continue2:
+ continue2:
    }
    
    return count;
@@ -347,6 +386,7 @@ static int dict_search_bmh( lst_List l,
    const char *f = NULL;	/* Boolean flag, but has to be a pointer */
    dictWord   *datum;
    const char *wpt;
+   const char *previous = NULL;
 
    if (patlen < BMH_THRESHOLD)
       return dict_search_brute( l, word, database, suffix, patlen );
@@ -380,15 +420,17 @@ static int dict_search_bmh( lst_List l,
 	 for (; pt > start && *pt != '\n'; --pt)
 	    if (*pt == '\t') goto continue2;
 	 if (pt > start) ++pt;
-	 ++count;
-	 datum = dict_word_create( pt, database );
+	 if (!previous || altcompare(previous, pt, database->index->end)) {
+	    ++count;
+	    datum = dict_word_create( previous = pt, database );
 #if 0
-	 fprintf( stderr, "Adding %d %s, word = %s\n",
-		  compare( word, p, database->index->end ),
-		  datum->word,
-		  word );
+	    fprintf( stderr, "Adding %d %s, word = %s\n",
+		     compare( word, p, database->index->end ),
+		     datum->word,
+		     word );
 #endif
-	 lst_append( l, datum );
+	    lst_append( l, datum );
+	 }
 	 FIND_NEXT(p,end);
 	 f = p += patlen-1;	/* Set boolean flag to non-NULL value */
 	 if (p > end) return count;
@@ -428,6 +470,7 @@ static int dict_search_regexpr( lst_List l,
    int           err;
    regmatch_t    subs[1];
    unsigned char first;
+   const char    *previous = NULL;
 
 #if OPTSTART
    if (*word == '^' && isspacealnum(word[1])) {
@@ -451,14 +494,16 @@ static int dict_search_regexpr( lst_List l,
       subs[0].rm_eo = p - pt;
       ++_dict_comparisons;
       if (!regexec(&re, pt, 1, subs, REG_STARTEND)) {
-	 ++count;
-	 datum = dict_word_create( pt, database );
+	 if (!previous || altcompare(previous, pt, end)) {
+	    ++count;
+	    datum = dict_word_create( previous = pt, database );
 #if 0
-	 fprintf( stderr, "Adding %d %s\n",
-		  compare( word, pt, end ),
-		  datum->word);
+	    fprintf( stderr, "Adding %d %s\n",
+		     compare( word, pt, end ),
+		     datum->word);
 #endif
-	 lst_append( l, datum );
+	    lst_append( l, datum );
+	 }
       }
       pt = p + 1;
       FIND_NEXT( pt, end );
@@ -497,6 +542,7 @@ static int dict_search_soundex( lst_List l,
    const char *s;
    int        i;
    int        c = (unsigned char)*word;
+   const char *previous = NULL;
 
 #if OPTSTART
    pt  = database->index->optStart[ c ];
@@ -517,9 +563,11 @@ static int dict_search_soundex( lst_List l,
       }
       *d = '\0';
       if (!strcmp(soundex, txt_soundex(buffer))) {
-	 datum = dict_word_create( pt, database );
-	 lst_append( l, datum );
-	 ++count;
+	 if (!previous || altcompare(previous, pt, end)) {
+	    datum = dict_word_create( previous = pt, database );
+	    lst_append( l, datum );
+	    ++count;
+	 }
       }
       FIND_NEXT(pt,end);
    }

@@ -1,6 +1,6 @@
 /* dict.h -- 
  * Created: Wed Apr 16 08:44:21 1997 by faith@cs.unc.edu
- * Revised: Sun Jan 18 19:43:49 1998 by faith@acm.org
+ * Revised: Sun Jan 25 19:25:54 1998 by faith@acm.org
  * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.h,v 1.12 1998/01/19 03:37:19 faith Exp $
+ * $Id: dict.h,v 1.13 1998/02/16 02:25:16 faith Exp $
  * 
  */
 
@@ -44,7 +44,7 @@
 #define DBG_PIPE        (0<<30|1<< 4) /* Debug pipelining                  */
 #define DBG_SERIAL      (0<<30|1<< 5) /* Disable pipelining                */
 #define DBG_TIME        (0<<30|1<< 6) /* Time transaction                  */
-#define DBG_URL         (0<<30|1<< 7) /* Time transaction                  */
+#define DBG_URL         (0<<30|1<< 7) /* URLs                              */
 
 typedef struct dictServer {
    const char *host;
