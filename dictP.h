@@ -19,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.13 2003/10/26 12:57:55 cheusov Exp $
+ * $Id: dictP.h,v 1.14 2003/10/27 18:34:12 cheusov Exp $
  * 
  */
 
@@ -146,6 +146,10 @@ extern size_t mbrtowc (wchar_t *pwc, const char *s, size_t n, mbstate_t *ps);
 
 #if !HAVE_MBSTOWCS
 extern size_t mbstowcs (wchar_t *dest, const char *src, size_t n);
+#endif
+
+#if !HAVE_SETENV
+extern int setenv(const char *name, const char *value, int overwrite);
 #endif
 
 #if !HAVE_MBTOWC
