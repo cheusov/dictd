@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script for dict.
 dnl
 dnl Created: Wed Apr 24 14:11:05 1996 by faith@cs.unc.edu
-dnl Revised: Sun Jun 22 13:01:57 1997 by faith@acm.org
+dnl Revised: Fri Jul 11 13:46:10 1997 by faith@acm.org
 dnl Copyright 1996, 1997 Rickard E. Faith (faith@acm.org)
 dnl
 dnl This program is free software; you can redistribute it and/or modify it
@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.9 1997/06/23 11:05:22 faith Exp $
+dnl $Id: configure.in,v 1.10 1997/07/12 01:50:11 faith Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -32,7 +32,7 @@ dnl     YCFLAGS is for yacc
 dnl     LCFLAGS is for lex
 
 AC_PREREQ(2.1)
-AC_REVISION($Revision: 1.9 $)
+AC_REVISION($Revision: 1.10 $)
 AC_INIT(dictd.c)
 AC_CONFIG_HEADER(config.h)
 
@@ -240,6 +240,7 @@ AC_SUBST(XTRALDFLAGS)
 AC_SUBST(XTRAHEADERS)
 AC_SUBST(allsubdirs)
 AC_SUBST(piddir)
+AC_SUBST(etcdir)
 AC_OUTPUT(Makefile doc/Makefile)
 
 date > stamp-h.in

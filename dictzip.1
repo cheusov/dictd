@@ -1,6 +1,6 @@
 .\" dictzip.1 -- 
 .\" Created: Sun Jun 22 16:33:39 1997 by faith@acm.org
-.\" Revised: Sun Jun 22 18:15:47 1997 by faith@acm.org
+.\" Revised: Fri Jul 11 14:18:25 1997 by faith@acm.org
 .\" Copyright 1997 Rickard E. Faith (faith@acm.org)
 .\" 
 .\" Permission is granted to make and distribute verbatim copies of this
@@ -203,7 +203,20 @@ interface possible.
 .BI \-P " postfilter\fR or " \-\-post " postfilter"
 Specify a shell command to execute as a filter after compression or
 decompression.
+.SH CREDITS
+.B dictzip
+was written by Rik Faith (faith@cs.unc.edu) and is distributed under the
+terms of the GNU General Public License.  If you need to distribute under
+other terms, write to the author.
+.P
+The main libraries used by this programs (zlib, regex, libmaa) are
+distributed under different terms, so you may be able to use the libraries
+for applications which are incompatible with the GPL -- please see the
+copyright notices and license information that come with the libraries for
+more information, and consult with your attorney to resolve these issues.
 .SH "SEE ALSO"
+.BR dict (1),
+.BR dictd (8),
 .BR gzip (1),
 .BR gunzip (1),
 .BR zcat (1)

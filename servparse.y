@@ -1,6 +1,6 @@
 /* servparse.y -- Parser for dictd server configuration file
  * Created: Fri Feb 28 08:31:38 1997 by faith@cs.unc.edu
- * Revised: Tue May 27 16:16:54 1997 by faith@acm.org
+ * Revised: Fri Jul 11 11:42:51 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.7 1997/05/27 20:28:40 faith Exp $
+ * $Id: servparse.y,v 1.8 1997/07/12 01:50:25 faith Exp $
  * 
  */
 
@@ -28,10 +28,10 @@
 
 static dictDatabase *db;
 
-#define SET(field,s,t) do {                               \
-   if (db->field)                                         \
+#define SET(field,s,t) do {                                   \
+   if (db->field)                                             \
       src_parse_error( stderr, s.src, #field "already set" ); \
-   db->field = t.string;                                  \
+   db->field = t.string;                                      \
 } while(0);
 %}
 

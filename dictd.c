@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Fri Jul 11 09:53:40 1997 by faith@acm.org
+ * Revised: Fri Jul 11 13:48:21 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.27 1997/07/11 14:07:13 faith Exp $
+ * $Id: dictd.c,v 1.28 1997/07/12 01:50:18 faith Exp $
  * 
  */
 
@@ -224,9 +224,9 @@ static void handler( int sig )
       tim_stop( "dictd" );
       if (sig == SIGALRM && _dict_markTime > 0) {
 	 time(&t);
-	 log_info( ":T: %24.24s; c/f = %d/%d; %sr %su %ss\n",
+	 log_info( ":T: %24.24s; %d/%d %sr %su %ss\n",
 		   ctime(&t),
-		   _dict_comparisons,
+		   _dict_daemon_count,
 		   _dict_forks,
 		   dict_format_time( tim_get_real( "dictd" ) ),
 		   dict_format_time( tim_get_user( "dictd" ) ),
@@ -441,7 +441,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.27 1997/07/11 14:07:13 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.28 1997/07/12 01:50:18 faith Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -537,7 +537,7 @@ int main( int argc, char **argv, char **envp )
    int                c;
    int                alen         = sizeof(csin);
    const char         *service     = DICT_DEFAULT_SERVICE;
-   const char         *configFile  = DICT_CONFIG_FILE;
+   const char         *configFile  = DICT_CONFIG_PATH DICTD_CONFIG_NAME;
    int                detach       = 1;
    const char         *testWord    = NULL;
    const char         *testFile    = NULL;
@@ -643,7 +643,7 @@ int main( int argc, char **argv, char **envp )
 
    DictConfig = xmalloc(sizeof(struct dictConfig));
    memset( DictConfig, 0, sizeof( struct dictConfig ) );
-   prs_file_nocpp( configFile );
+   if (!access(configFile,R_OK)) prs_file_nocpp( configFile );
    dict_config_print( NULL, DictConfig );
    dict_init_databases( DictConfig );
 
@@ -719,21 +719,21 @@ int main( int argc, char **argv, char **envp )
    if (detach) {
       FILE *str;
 
-      if (!forceStartup && (str = fopen(DICT_PID_FILE, "r"))) {
+      if (!forceStartup && (str = fopen(DICTD_PID_FILE, "r"))) {
 	 char buf[80];
 	 if (fread(buf,1,80,str) > 0) {
 	    buf[strlen(buf)-1] = '\0'; /* Kill newline */
 	    err_fatal( __FUNCTION__,
 		       "dictd already running with pid %s\n"
 		       "   remove %s or use -f to force startup\n",
-		       buf, DICT_PID_FILE );
+		       buf, DICTD_PID_FILE );
 	 }
 	 fclose(str);
       }
       
       net_detach();
       
-      if ((str = fopen(DICT_PID_FILE, "w"))) {
+      if ((str = fopen(DICTD_PID_FILE, "w"))) {
 	 fprintf( str, "%d\n", getpid() );
 	 fclose( str );
       }

@@ -1,6 +1,6 @@
 /* dict.h -- 
  * Created: Wed Apr 16 08:44:21 1997 by faith@cs.unc.edu
- * Revised: Tue Jul  8 20:16:13 1997 by faith@acm.org
+ * Revised: Fri Jul 11 19:10:56 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.h,v 1.10 1997/07/09 04:00:58 faith Exp $
+ * $Id: dict.h,v 1.11 1997/07/12 01:50:15 faith Exp $
  * 
  */
 
@@ -33,6 +33,10 @@
 #include <signal.h>
 #include <sys/utsname.h>
 
+#define DICT_DEFAULT_SERVICE     "2628"	/* Also in dictd.h */
+#define DICT_CONFIG_NAME         "dict.conf"
+#define DICT_RC_NAME             ".dictrc"
+
 #define DBG_VERBOSE     (0<<30|1<< 0) /* Verbose                           */
 #define DBG_RAW         (0<<30|1<< 1) /* Trace client/server interaction   */
 #define DBG_SCAN        (0<<30|1<< 2) /* Debug configuration file scanner  */
@@ -40,8 +44,22 @@
 #define DBG_PIPE        (0<<30|1<< 4) /* Debug pipelining                  */
 #define DBG_SERIAL      (0<<30|1<< 5) /* Disable pipelining                */
 #define DBG_TIME        (0<<30|1<< 6) /* Time transaction                  */
+#define DBG_URL         (0<<30|1<< 7) /* Time transaction                  */
 
+typedef struct dictServer {
+   const char *host;
+   const char *port;
+   const char *user;
+   const char *secret;
+} dictServer;
 
+typedef struct dictToken {
+   const char   *string;
+   int          integer;
+   src_Type     src;
+} dictToken;
+
+extern lst_List   dict_Servers;	/* List of servers to try */
 
 				/* dmalloc must be last */
 #ifdef DMALLOC_FUNC_CHECK

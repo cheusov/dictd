@@ -1,8 +1,8 @@
 .\"
-.\" Revised: Tue Jul  8 12:30:50 1997 by faith@acm.org
+.\" Revised: Fri Jul 11 20:40:42 1997 by faith@acm.org
 .\" Distribution of this memo is unlimited.
 .\"
-.\" $Id: rfc.ms,v 1.15 1997/07/08 21:21:27 faith Exp $
+.\" $Id: rfc.ms,v 1.16 1997/07/12 01:50:31 faith Exp $
 .\" 
 .pl 10.0i
 .po 0
@@ -11,7 +11,7 @@
 .nr LL 7.2i
 .nr LT 7.2i
 .ds LF Faith, Martin
-.ds DA 1 July 1997
+.ds DA 11 July 1997
 .ds RF FORMFEED[Page %]
 .ds CF
 .ds LH RFC Unassigned
@@ -40,11 +40,9 @@ at dict://dict.miranda.org:2628 and the other at
 dict://proteus.cs.unc.edu:2628.  This note should be deleted when this
 memo is assigned an RFC number.]]
 
-This document specifies an Internet standards track protocol for the
-Internet community, and requests discussion and suggestions for
-improvements.  Please refer to the current edition of the "Internet
-Official Protocol Standards" (STD 1) for the standardization state and
-status of this protocol.  Distribution of this memo is unlimited.
+This memo provides information for the Internet community.  This memo
+does not specify an Internet standard of any kind.  Distribution of
+this memo is unlimited.
 
 .RE
 .SH
@@ -361,6 +359,10 @@ for the client to locate and parse but does not significantly decrease
 any security benefits, since the msg-id may be arbitrarily long (as
 bounded by the response length limits set forth elsewhere in this
 document).
+
+Note also that the open and close brackets are part of the msg-id and
+should be included in the string that is used to compute the MD5
+checksum.
 
 This message id will be used by the client when formulating the
 authentication string used in the AUTH command.
@@ -987,7 +989,7 @@ dict://dict.org/d:sun
 dict://dict.org/d:sun::1
 
 dict://dict.org/m:sun
-dict://dict.org/m:sun:soundex
+dict://dict.org/m:sun::soundex
 dict://dict.org/m:sun:wordnet::1
 dict://dict.org/m:sun::soundex:1
 dict://dict.org/m:sun:::
@@ -1313,8 +1315,8 @@ Jay Kominek for extensive testing and feedback on the initial
 implementations of the DICT server.  Thanks to Zhong Shao for advice
 and support.
 
-(Thanks to Brian Kanto, Phil Lapsley, and Jon Postel for writing exemplary
-RFCs which were consulted during the preparation of this document.)
+Thanks to Brian Kanto, Phil Lapsley, and Jon Postel for writing exemplary
+RFCs which were consulted during the preparation of this document.
 
 .RE
 .NH 1

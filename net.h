@@ -1,6 +1,6 @@
 /* net.h -- 
  * Created: Sat Feb 22 00:39:54 1997 by faith@cs.unc.edu
- * Revised: Wed Apr 16 09:35:43 1997 by faith@cs.unc.edu
+ * Revised: Fri Jul 11 15:24:46 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: net.h,v 1.5 1997/04/30 12:03:53 faith Exp $
+ * $Id: net.h,v 1.6 1997/07/12 01:50:24 faith Exp $
  * 
  */
 
@@ -28,3 +28,8 @@ extern int        net_open_tcp( const char *service, int queueLength );
 extern void       net_detach( void );
 extern int        net_read( int s, char *buf, int maxlen );
 extern int        net_write( int s, const char *buf, int len );
+
+#define NET_NOHOST     (-1)
+#define NET_NOSERVICE  (-2)
+#define NET_NOPROTOCOL (-3)
+#define NET_NOCONNECT  (-4)

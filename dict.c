@@ -1,10 +1,10 @@
 /* dict.c -- 
  * Created: Fri Mar 28 19:16:29 1997 by faith@cs.unc.edu
- * Revised: Fri Jul 11 09:53:41 1997 by faith@acm.org
+ * Revised: Fri Jul 11 20:38:12 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dict.c,v 1.9 1997/07/11 14:07:11 faith Exp $
+ * $Id: dict.c,v 1.10 1997/07/12 01:50:13 faith Exp $
  * 
  */
 
@@ -12,11 +12,13 @@
 #include "md5.h"
 #include <stdarg.h>
 
-extern int        yy_flex_debug;
+extern int         yy_flex_debug;
+       lst_List    dict_Servers;
 
 #define BUFFERSIZE  2048
 #define PIPESIZE     256
 #define DEF_STRAT    "."
+#define DEF_DB       "*"
 
 #define CMD_PRINT     0
 #define CMD_DEFPRINT  1
@@ -64,14 +66,24 @@ struct reply {
    int        s;
    const char *host;
    const char *service;
+   const char *user;
+   const char *key;
    const char *msgid;
+   const char *word;
    lst_List   data;
    int        retcode;
    int        count;		/* definitions found */
    int        matches;		/* matches found */
+   int        match;		/* doing match found */
    int        listed;		/* Databases or strategies listed */
    struct def *defs;
 } cmd_reply;
+
+static const char *cpy( const char *s )
+{
+   if (!s || !*s) return NULL;
+   return str_copy(s);
+}
 
 static void client_crlf( char *d, const char *s )
 {
@@ -128,7 +140,8 @@ static void client_print_text( lst_List l, int html )
    if (html) printf( "</PRE>\n" );
 }
 
-static void client_print_matches( lst_List l, int html, int flag )
+static void client_print_matches( lst_List l, int html, int flag,
+				  const char *word )
 {
    lst_Position p;
    const char   *e;
@@ -140,16 +153,20 @@ static void client_print_matches( lst_List l, int html, int flag )
    int          len;
    int          count;
 
-   if (!l) return;
-   count = lst_length(l);
+   count = l ? lst_length(l) : 0;
 
    if (flag) {
       if (html) printf( "<H2>" );
-      printf( "%d match%s found", count, count == 1 ? "" : "es" );
+      if (count)
+	 printf( "%d match%s found", count, count == 1 ? "" : "es" );
+      else
+	 printf( "No matches found for \"%s\"", word );
       if (html) printf( "</H2>\n" );
       else      printf( "\n" );
    }
-   
+
+   if (!l) return;
+
    LST_ITERATE(l,p,e) {
       a = arg_argify( e, 0 );
       if (arg_count(a) != 2)
@@ -223,7 +240,7 @@ static int client_read_status( int s,
    int         argc;
    char        **argv;
    int         status;
-   char        *p;
+   char        *start, *end, *p;
    int         len;
 
    if ((len = net_read( s, buf, BUFFERSIZE )) < 0)
@@ -244,8 +261,10 @@ static int client_read_status( int s,
 
    switch (status) {
    case CODE_HELLO:
-      if ((p = strrchr(buf, '>')) && (p = strrchr(p,'<'))) {
-	 *msgid = str_copy( p+1 );
+      if ((start = strrchr(buf, '<')) && (end = strrchr(buf,'>'))) {
+	 end[1] = '\0';
+	 *msgid = str_copy( start );
+	 PRINTF(DBG_VERBOSE,("Msgid is \"%s\"\n",*msgid));
       }
       break;
    case CODE_DATABASE_LIST:
@@ -292,13 +311,13 @@ static struct cmd *make_command( int command, ... )
    case CMD_CONNECT:
       c->host     = va_arg( ap, const char *);
       c->service  = va_arg( ap, const char *);
+      c->user     = va_arg( ap, const char *);
+      c->key      = va_arg( ap, const char *);
       break;
    case CMD_CLIENT:
       c->client   = va_arg( ap, const char *);
       break;
    case CMD_AUTH:
-      c->user     = va_arg( ap, const char *);
-      c->key      = va_arg( ap, const char *);
       break;
    case CMD_INFO:
       c->database = va_arg( ap, const char *);
@@ -369,6 +388,12 @@ static void request( void )
    int               count = 0;
 
    *p = '\0';
+   c = lst_top(cmd_list);
+   if (c->command == CMD_CONNECT) {
+      cmd_reply.user = c->user;
+      cmd_reply.key  = c->key;
+   }
+      
    LST_ITERATE(cmd_list,pos,c) {
       b[0] = '\0';
       PRINTF(DBG_PIPE,("* Looking at request %d\n",c->command));
@@ -382,15 +407,15 @@ static void request( void )
       case CMD_DEFPRINT:                                              break;
       case CMD_CONNECT:                                               break;
       case CMD_AUTH:
-	 if (!c->key || !c->user) break;
-	 if (cmd_reply.msgid) {
-	    MD5Init(&ctx);
-	    MD5Update(&ctx, c->key, strlen(c->key));
-	    MD5Final(digest, &ctx );
-	    for (i = 0; i < 16; i++) sprintf( hex+2*i, "%02x", digest[i] );
-	    hex[32] = '\0';
-	    sprintf( b, "auth %s %s\n", c->user, hex );
-	 }
+	 if (!cmd_reply.key || !cmd_reply.user)                       break;
+	 if (!cmd_reply.msgid)                                        goto end;
+	 MD5Init(&ctx);
+	 MD5Update(&ctx, cmd_reply.msgid, strlen(cmd_reply.msgid));
+	 MD5Update(&ctx, cmd_reply.key, strlen(cmd_reply.key));
+	 MD5Final(digest, &ctx );
+	 for (i = 0; i < 16; i++) sprintf( hex+2*i, "%02x", digest[i] );
+	 hex[32] = '\0';
+	 sprintf( b, "auth %s %s\n", cmd_reply.user, hex );
 	 break;
       case CMD_CLIENT: sprintf( b, "client \"%s\"\n", c->client );    break;
       case CMD_INFO:   sprintf( b, "show info %s\n", c->database );   break;
@@ -399,10 +424,12 @@ static void request( void )
       case CMD_STRATS: sprintf( b, "show strat\n" );                  break;
       case CMD_HELP:   sprintf( b, "help\n" );                        break;
       case CMD_MATCH:
+	 cmd_reply.word = c->word;
 	 sprintf( b,
 		  "match %s %s \"%s\"\n",
 		  c->database, c->strategy, c->word );                break;
       case CMD_DEFINE:
+	 cmd_reply.word = c->word;
 	 sprintf( b, "define %s \"%s\"\n", c->database, c->word );    break;
       case CMD_SPELL:                                                 goto end;
       case CMD_WIND:                                                  goto end;
@@ -434,12 +461,41 @@ end:				/* Ready to send buffer, but are we
       c = lst_top(cmd_list);
       if (c->command != CMD_CONNECT)
 	 err_internal( __FUNCTION__, "Not connected, but no CMD_CONNECT\n" );
-      if ((cmd_reply.s = net_connect_tcp( c->host, c->service )) < 0) {
-	 err_fatal( __FUNCTION__,
-		    "Can't connect to %s.%s\n", c->host, c->service );
+      if ((cmd_reply.s = net_connect_tcp( c->host,
+					     c->service
+					     ? c->service
+					     : DICT_DEFAULT_SERVICE )) < 0) {
+	 const char *message;
+	 
+	 switch (cmd_reply.s) {
+	 case NET_NOHOST:     message = "Can't get host entry for";     break;
+	 case NET_NOSERVICE:  message = "Can't get service entry for";  break;
+	 case NET_NOPROTOCOL: message = "Can't get protocol entry for"; break;
+	 case NET_NOCONNECT:  message = "Can't connect to";             break;
+	 default:             message = "Unknown error for";            break;
+	 }
+	 PRINTF(DBG_VERBOSE,("%s %s.%s\n",
+			     message,
+			     c->host,
+			     c->service ? c->service : DICT_DEFAULT_SERVICE));
+	 if (lst_length(cmd_list) > 1) {
+	    c = lst_nth_get(cmd_list,2);
+	    if (((struct cmd *)lst_top(cmd_list))->command == CMD_CONNECT) {
+				/* undo pipelining */
+	       cmd_reply.s = 0;
+	       if (!dbg_test(DBG_SERIAL)) {
+		  LST_ITERATE(cmd_list,pos,c) c->sent = 0;
+	       }
+	       return;
+	    }
+	 }
+	 err_fatal( NULL,
+		    "Cannot connect to any servers (use -v to see why)\n" );
       }
       cmd_reply.host    = c->host;
-      cmd_reply.service = c->service;
+      cmd_reply.service = c->service ? c->service : DICT_DEFAULT_SERVICE;
+      cmd_reply.user    = c->user;
+      cmd_reply.key     = c->key;
    }
    if ((len = strlen(buffer))) {
       char *pt;
@@ -469,19 +525,15 @@ static void process( int html )
       expected = CODE_OK;
       switch (c->command) {
       case CMD_PRINT:
-	 if (!cmd_reply.data) {
-	    printf( "Error, status %d\n", cmd_reply.retcode );
-	 } else {
-	    if (cmd_reply.matches)
-	       client_print_matches( cmd_reply.data, html, 1 );
-	    else if (cmd_reply.listed)
-	       client_print_listed( cmd_reply.data, html );
-	    else
-	       client_print_text( cmd_reply.data, html );
-	    client_free_text( cmd_reply.data );
-	    cmd_reply.data = NULL;
-	    cmd_reply.matches = 0;
-	 }
+	 if (cmd_reply.match)
+	    client_print_matches( cmd_reply.data, html, 1, cmd_reply.word );
+	 else if (cmd_reply.listed)
+	    client_print_listed( cmd_reply.data, html );
+	 else
+	    client_print_text( cmd_reply.data, html );
+	 client_free_text( cmd_reply.data );
+	 cmd_reply.data = NULL;
+	 cmd_reply.matches = cmd_reply.match = 0;
 	 expected = cmd_reply.retcode;
 	 break;
       case CMD_DEFPRINT:
@@ -524,7 +576,7 @@ static void process( int html )
 		    c->word );
 	    if (html) printf( "</H2>\n" );
 	    else      printf( "\n" );
-	    client_print_matches( cmd_reply.data, html, 0 );
+	    client_print_matches( cmd_reply.data, html, 0, c->word );
 	    client_free_text( cmd_reply.data );
 	    cmd_reply.data = NULL;
 	    cmd_reply.matches = 0;
@@ -536,18 +588,21 @@ static void process( int html )
 	 expected = cmd_reply.retcode;
 	 break;
       case CMD_CONNECT:
+	 if (!cmd_reply.s) break; /* Connection failed, continue; */
 	 cmd_reply.retcode = client_read_status( cmd_reply.s,
 						 &message,
 						 NULL, NULL, NULL, NULL,
 						 &cmd_reply.msgid );
 	 if (cmd_reply.retcode == CODE_ACCESS_DENIED) {
-	    err_fatal( __FUNCTION__,
+	    err_fatal( NULL,
 		       "Access to server %s.%s denied when connecting",
 		    cmd_reply.host,
 		    cmd_reply.service );
 	    exit(1);
 	 }
 	 expected = CODE_HELLO;
+	 while (((struct cmd *)lst_top(cmd_list))->command == CMD_CONNECT)
+	    lst_pop(cmd_list);
 	 break;
       case CMD_CLIENT:
 	 cmd_reply.retcode = client_read_status( cmd_reply.s,
@@ -555,16 +610,19 @@ static void process( int html )
 						 NULL, NULL, NULL, NULL, NULL);
 	 break;
       case CMD_AUTH:
-	 if (!c->key || !c->user) break;
+	 if (!cmd_reply.key || !cmd_reply.user || !cmd_reply.msgid) break;
 	 cmd_reply.retcode = client_read_status( cmd_reply.s,
 						 &message,
 						 NULL, NULL, NULL, NULL, NULL);
-	 if (cmd_reply.retcode == CODE_AUTH_DENIED)
-	    err_warning( __FUNCTION__,
+	 expected = CODE_AUTH_OK;
+	 if (cmd_reply.retcode == CODE_AUTH_DENIED) {
+	    err_warning( NULL,
 			 "Authentication to %s.%s denied\n",
 			 cmd_reply.host,
 			 cmd_reply.service );
-	 expected = CODE_AUTH_OK;
+	    expected = CODE_AUTH_DENIED;
+	 }
+	 break;
       case CMD_INFO:
 	 expected = CODE_DATABASE_INFO;
 	 listed = NULL;
@@ -643,6 +701,7 @@ static void process( int html )
    error:
 	 break;
       case CMD_MATCH:
+	 cmd_reply.match = 1;
 	 cmd_reply.retcode = client_read_status( cmd_reply.s,
 						 &message,
 						 &cmd_reply.matches,
@@ -711,7 +770,7 @@ static void process( int html )
 	    cmd_reply.matches = 0;
 	 } else {
 	    if (html) printf( "<H2>" );
-	    printf( "No matches found for \"%s\"\n", c->word );
+	    printf( "No matches found for \"%s\"", c->word );
 	    if (html) printf( "</H2>\n" );
 	    else      printf( "\n" );
 	 }
@@ -726,8 +785,8 @@ static void process( int html )
       default:
 	 err_internal( __FUNCTION__, "Illegal command %d\n", c->command );
       }
-      if (cmd_reply.retcode != expected) {
-	 err_fatal( __FUNCTION__,
+      if (cmd_reply.s && cmd_reply.retcode != expected) {
+	 err_fatal( NULL,
 		    "Unexpected status code %d (%s), wanted %d\n",
 		    cmd_reply.retcode,
 		    message ? message : "no message",
@@ -772,6 +831,26 @@ static void setsig( int sig, void (*f)(int) )
 }
 #endif
 
+static void client_config_print( FILE *stream, lst_List c )
+{
+   FILE         *s = stream ? stream : stderr;
+   lst_Position p;
+   dictServer   *e;
+
+   LST_ITERATE(dict_Servers,p,e) {
+      if (e->port || e->user || e->secret) {
+	 fprintf( s, "server %s {\n", e->host );
+	 if (e->port) fprintf( s, "   port %s\n", e->port );
+	 if (e->user) fprintf( s, "   user %s %s\n",
+			       e->user,
+			       e->secret ? "*" : "(none)" );
+	 fprintf( s, "}\n" );
+      } else {
+	 fprintf( s, "server %s\n", e->host );
+      }
+   }
+}
+
 static const char *id_string( const char *id )
 {
    static char buffer[BUFFERSIZE];
@@ -796,7 +875,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.9 1997/07/11 14:07:11 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.10 1997/07/12 01:50:13 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -848,7 +927,8 @@ static void help( void )
       "-d --database <dbname>  select a database to search",
       "-m --match              match instead of define",
       "-s --strategy           strategy for matching or defining",
-      "-c --nocorrect          disable attempted spelling correction",
+      "-c --config <file>      specify configuration file",
+      "-C --nocorrect          disable attempted spelling correction",
       "-D --dbs                show available databases",
       "-S --strats             show available search strategies",
       "-H --serverhelp         show server help",
@@ -875,15 +955,18 @@ static void help( void )
 int main( int argc, char **argv )
 {
    int                c;
-   const char         *service   = "2628";
-   const char         *host      = "dict.org";
-   const char         *database  = "*";
-   const char         *strategy  = DEF_STRAT;
-   int                doauth     = 1;
-   int                docorrect  = 1;
-   int                html       = 0;
-   const char         *user      = NULL;
-   const char         *key       = NULL;
+   const char         *host       = NULL;
+   const char         *service    = NULL;
+   const char         *user       = NULL;
+   const char         *key        = NULL;
+   const char         *database   = DEF_DB;
+   const char         *strategy   = DEF_STRAT;
+   const char         *configFile = NULL;
+   const char         *word       = NULL;
+   int                doauth      = 1;
+   int                docorrect   = 1;
+   int                html        = 0;
+   int                offset      = 0;
    int                i;
    enum { DEFINE,
 	  INFO,
@@ -900,7 +983,8 @@ int main( int argc, char **argv )
       { "server",     0, 0, 'I' },
       { "match",      0, 0, 'm' },
       { "strategy",   1, 0, 's' },
-      { "nocorrect",  0, 0, 'c' },
+      { "nocorrect",  0, 0, 'C' },
+      { "config",     1, 0, 'c' },
       { "dbs",        0, 0, 'D' },
       { "strats",     0, 0, 'S' },
       { "serverhelp", 0, 0, 'H' },
@@ -927,9 +1011,10 @@ int main( int argc, char **argv )
    dbg_register( DBG_PIPE,    "pipe" );
    dbg_register( DBG_SERIAL,  "serial" );
    dbg_register( DBG_TIME,    "time" );
+   dbg_register( DBG_URL,     "url" );
 
    while ((c = getopt_long( argc, argv,
-			    "h:p:d:i:Ims:DSHack:VLvr",
+			    "h:p:d:i:Ims:DSHac:Ck:VLvr",
 			    longopts, NULL )) != EOF)
       switch (c) {
       case 'h': host = optarg;                        break;
@@ -942,7 +1027,8 @@ int main( int argc, char **argv )
       case 'D':                    function = DBS;    break;
       case 'S':                    function = STRATS; break;
       case 'H':                    function = HELP;   break;
-      case 'c': docorrect = 0;                        break;
+      case 'c': configFile = optarg;                  break;
+      case 'C': docorrect = 0;                        break;
       case 'a': doauth = 0;                           break;
       case 'u': user = optarg;                        break;
       case 'k': key = optarg;                         break;
@@ -957,19 +1043,145 @@ int main( int argc, char **argv )
       default:  help(); exit(1);                      break;
       }
 
+   if (optind == argc && (function == DEFINE || function == MATCH)) {
+      banner();
+      fprintf( stderr, "Use --help for help\n" );
+      exit(1);
+   }
+
    if (client_pipesize < 0)       client_pipesize = 0;
    if (client_pipesize > 1000000) client_pipesize = 1000000;
    
-#if 0
    if (dbg_test(DBG_PARSE))     prs_set_debug(1);
    if (dbg_test(DBG_SCAN))      yy_flex_debug = 1;
    else                         yy_flex_debug = 0;
 
-   DictConfig = xmalloc(sizeof(struct dictConfig));
-   prs_file_nocpp( configFile );
-   dict_config_print( NULL, DictConfig );
-   dict_init_databases( DictConfig );
+   if (configFile) {
+      prs_file_nocpp( configFile );
+   } else {
+      char b[256];
+      char *env = getenv("HOME");
 
+      sprintf( b, "%s/%s", env ? env : "./", DICT_RC_NAME );
+      PRINTF(DBG_VERBOSE,("Trying %s...\n",b));
+      if (!access(b, R_OK)) {
+	 prs_file_nocpp(b);
+      } else {
+	 PRINTF(DBG_VERBOSE,("Trying %s...\n",
+			     DICT_CONFIG_PATH DICT_CONFIG_NAME));
+	 if (!access( DICT_CONFIG_PATH DICT_CONFIG_NAME, R_OK ))
+	    prs_file_nocpp( DICT_CONFIG_PATH DICT_CONFIG_NAME );
+      }
+   }
+   if (dbg_test(DBG_VERBOSE)) {
+      if (dict_Servers) client_config_print( NULL, dict_Servers );
+      else              fprintf( stderr, "No configuration\n" );
+   }
+
+   if (!strncmp(argv[optind],"dict://",7)) {
+      char *p;
+      int  state, fin;
+      char *s;
+
+/*  dict://<user>:<passphrase>@<host>:<port>/d:<word>:<database>:<n>
+           000000 111111111111 222222 333333 4 555555 6666666666 777
+
+    dict://<user>:<passphrase>@<host>/d:<word>:<database>:<n>
+           000000 111111111111 222222 4 555555 6666666666 777
+	   
+    dict://<host>:<port>/d:<word>:<database>:<n>
+           000000 111111 4 555555 6666666666 777
+	   
+    dict://<host>/d:<word>:<database>:<n>
+           000000 4 555555 6666666666 777
+	   
+    dict://<host>/d:<word>:<database>:<n>
+           000000 4 555555 6666666666 777
+	   
+    dict://<user>:<passphrase>@<host>:<port>/m:<word>:<database>:<strat>:<n>
+           000000 111111111111 222222 333333 4 555555 6666666666 7777777 888
+	   
+    dict://<host>:<port>/m:<word>:<database>:<strat>:<n>
+           000000 111111 4 555555 6666666666 7777777 888
+
+    dict://<host>/m:<word>:<database>:<strat>:<n>
+           000000 4 555555 6666666666 7777777 888
+	   
+*/
+
+      for (s = p = argv[optind] + 7, state = 0, fin = 0; !fin; ++p) {
+	 switch (*p) {
+	 case '\0': ++fin;
+	 case ':':
+	    switch (state) {
+	    case 0: *p = '\0'; host = user = cpy(s);     ++state; s=p+1; break;
+	    case 2: *p = '\0'; host = cpy(s);            ++state; s=p+1; break;
+	    case 4:
+	       if (s == p - 1) {
+		  if (*s == 'd') function = DEFINE;
+		  else if (*s == 'm') function = MATCH;
+		  else {
+		     PRINTF(DBG_URL,("State = %d, s = %s\n",state,s));
+		     err_fatal( NULL, "Parse error at %s\n", p );
+		  }
+		                                         ++state; s=p+1; break;
+	       } else {
+		  PRINTF(DBG_URL,("State = %d, s = %s\n",state,s));
+		  err_fatal( NULL, "Parse error at %s\n", p );
+	       }
+	       break;
+	    case 5: *p = '\0'; word = cpy(s);            ++state; s=p+1; break;
+	    case 6: *p = '\0'; database = cpy(s);        ++state; s=p+1; break;
+	    case 7: *p = '\0';
+	       if (function == DEFINE) offset = atoi(s);
+	       else                    strategy = cpy(s);
+	                                                 ++state; s=p+1; break;
+	    case 8: *p = '\0';
+	       if (function == MATCH) offset = atoi(s); ++state; s=p+1; break;
+				/* FALLTHROUGH */
+	    default:
+	       PRINTF(DBG_URL,("State = %d, s = %s\n",state,s));
+	       err_fatal( NULL, "Parse error at %s\n", p );
+	    }
+	    break;
+	 case '@':
+	    switch (state) {
+	    case 1: *p = '\0'; key = xstrdup(s);         ++state; s=p+1; break;
+	    default:
+	       PRINTF(DBG_URL,("State = %d, s = %s\n",state,s));
+	       err_fatal( NULL, "Parse error at %s\n", p );
+	    }
+	    break;
+	 case '/':
+	    switch (state) {
+	    case 0: *p = '\0'; host = xstrdup(s);      state = 4; s=p+1; break;
+	    case 1: *p = '\0'; service = xstrdup(s);   state = 4; s=p+1; break;
+	    case 2: *p = '\0'; host = xstrdup(s);      state = 4; s=p+1; break;
+	    default:
+	       PRINTF(DBG_URL,("State = %d, s = %s\n",state,s));
+	       err_fatal( NULL, "Parse error at %s\n", p );
+	    }
+	    break;
+	 }
+      }
+      
+      if (!key)      user = NULL;
+      if (!database) database = DEF_DB;
+      if (!strategy) strategy = DEF_STRAT;
+      
+      if (dbg_test(DBG_URL)) {
+	 printf( "user = %s, passphrase = %s\n",
+		 user ? user : "(null)", key ? key : "(null)" );
+	 printf( "host = %s, port = %s\n",
+		 host ? host : "(null)", service ? service : "(null)" );
+	 printf( "word = %s, database = %s, strategy = %s\n",
+		 word ? word : "(null)",
+		 strategy ? strategy : "(null)",
+		 database ? database : "(null)" );
+      }
+   }
+
+#if 0
    setsig(SIGHUP,  handler);
    setsig(SIGINT,  handler);
    setsig(SIGQUIT, handler);
@@ -984,9 +1196,26 @@ int main( int argc, char **argv )
 
    tim_start("total");
 
-   append_command( make_command( CMD_CONNECT, host, service ) );
+   if (host) {
+      append_command( make_command( CMD_CONNECT, host, service, user, key ) );
+   } else {
+      lst_Position p;
+      dictServer   *s;
+
+      if (dict_Servers) {
+	 LST_ITERATE(dict_Servers,p,s) {
+	    append_command( make_command( CMD_CONNECT,
+					  s->host,
+					  s->port,
+					  s->user,
+					  s->secret ) );
+	 }
+      }
+      append_command( make_command(CMD_CONNECT, "localhost", NULL,NULL,NULL) );
+      append_command( make_command(CMD_CONNECT, "dict.org", NULL,NULL,NULL) );
+   }
    append_command( make_command( CMD_CLIENT, client_get_banner() ) );
-   if (doauth) append_command( make_command( CMD_AUTH, user, key ) );
+   if (doauth) append_command( make_command( CMD_AUTH ) );
    switch (function) {
    case INFO:
       append_command( make_command( CMD_INFO, database ) );
@@ -1009,24 +1238,34 @@ int main( int argc, char **argv )
       append_command( make_command( CMD_PRINT ) );
       break;
    case MATCH:
-      for (i = optind; i < argc; i++) {
-	 append_command( make_command( CMD_MATCH,
-				       database, strategy, argv[i] ) );
+      if (word) {
+	 append_command( make_command( CMD_MATCH, database, strategy, word ) );
 	 append_command( make_command( CMD_PRINT ) );
+      } else {
+	 for (i = optind; i < argc; i++) {
+	    append_command( make_command( CMD_MATCH,
+					  database, strategy, argv[i] ) );
+	    append_command( make_command( CMD_PRINT ) );
+	 }
       }
       break;
    case DEFINE:
-      for (i = optind; i < argc; i++) {
-	 if (!strcmp(strategy, DEF_STRAT)) {
-	    append_command( make_command( CMD_DEFINE, database, argv[i] ) );
-	    if (docorrect)
-	       append_command( make_command( CMD_SPELL, database, argv[i] ) );
-	    append_command( make_command( CMD_DEFPRINT, database, argv[i],1));
-	 } else {
-	    append_command( make_command( CMD_MATCH,
-					  database, strategy, argv[i] ) );
-	    append_command( make_command( CMD_WIND,
-					  database, strategy, argv[i] ) );
+      if (word) {
+	 append_command( make_command( CMD_DEFINE, database, word ) );
+	 append_command( make_command( CMD_DEFPRINT, database, word, 1 ) );
+      } else {
+	 for (i = optind; i < argc; i++) {
+	    if (!strcmp(strategy, DEF_STRAT)) {
+	       append_command( make_command( CMD_DEFINE, database, argv[i] ) );
+	       if (docorrect)
+		  append_command( make_command( CMD_SPELL, database, argv[i]));
+	       append_command( make_command(CMD_DEFPRINT,database,argv[i],1) );
+	    } else {
+	       append_command( make_command( CMD_MATCH,
+					     database, strategy, argv[i] ) );
+	       append_command( make_command( CMD_WIND,
+					     database, strategy, argv[i] ) );
+	    }
 	 }
       }
    }

@@ -1,6 +1,6 @@
 .\" dict.1 -- 
 .\" Created: Tue Jul  8 11:36:19 1997 by faith@acm.org
-.\" Revised: Fri Jul 11 09:53:42 1997 by faith@acm.org
+.\" Revised: Fri Jul 11 20:41:41 1997 by faith@acm.org
 .\" Copyright 1997 Rickard E. Faith (faith@acm.org)
 .\" 
 .\" Permission is granted to make and distribute verbatim copies of this
@@ -30,6 +30,10 @@ dict \- DICT Protocol Client
 .BI dict " word"
 .br
 .BI dict " [options] [word]"
+.br
+.BI dict " [options] dict://user:secret@host:port/d:word:database"
+.br
+.BI dict " [options] dict://user:secret@host:port/m:word:database:strategy"
 .SH DESCRIPTION
 .B dict
 is a client for the Dictionary Server Protocol (DICT), a TCP transaction
@@ -62,10 +66,18 @@ Specify a matching strategy.  By default, the server default match strategy
 is used.  This is usually "exact" for definitions, and some form of
 spelling-correction strategy for matches ("." from the DICT protocol).
 .TP
-.BR \-c " or " \-\-nocorrect
+.BR \-C " or " \-\-nocorrect
 Usually, if a definition is requested and the word cannot be found,
 spelling correction is requested from the server, and a list of possible
 words are provided.  This option disables the generation of this list.
+.TP
+.BI \-c " file\fR or " \-\-config " file"
+Specify the configuration file.  The default is to try
+.I ~/.dictrc
+and
+.IR /etc/dict.conf ,
+using the first file that exists.  If a specific configuration file is
+specified, then the defaults will not be tried.
 .TP
 .BR \-D " or " \-\-dbs
 Query the server and display a list of available databases.
@@ -148,6 +160,68 @@ Perform transaction timing.
 .TP
 .RE
 .TP
+.SH CONFIGURATION
+The configuration file currently has a very simple format.  Lines are used
+to specify servers, for example:
+.RS
+server dict.org
+.RE
+or, with options:
+.RS
+server dict.org { port 8080 }
+.br
+server dict.org { user username secret }
+.br
+server dict.org { port dict user username secret }
+.RE
+the
+.B port
+and
+.B user
+options may be specified in any order.  The
+.B port
+option is used to specify an optional port (e.g., 2628) or service (e.g.,
+dict) for the TCP/IP connection.  The
+.B user
+option is used to specify a username and shared secret to be used for
+authentication to this particular server.
+.P
+Servers are tried in the order listed until a connection is made.  If none
+of the specified servers are available, then an attempt will be made to
+connect on
+.B localhost
+and on
+.B dict.org
+at the standard part (2628).  We expect that dict.org will point to one or
+more DICT servers (perhaps in round-robin fashion) for the foreseeable
+future (starting in July 1997), although it is difficult to predict
+anything on the Internet for more than about 3-6 months.
+.SH CREDITS
+.B dict
+was written by Rik Faith (faith@cs.unc.edu) and is distributed under the
+terms of the GNU General Public License.  If you need to distribute under
+other terms, write to the author.
+.P
+The main libraries used by this programs (zlib, regex, libmaa) are
+distributed under different terms, so you may be able to use the libraries
+for applications which are incompatible with the GPL -- please see the
+copyright notices and license information that come with the libraries for
+more information, and consult with your attorney to resolve these issues.
+.SH BUGS
+If a dict: URL is given on the command line, only the first one is used.
+The rest are ignored.
+.P
+If a dict: URL contains a specifier for the nth definition or match of a
+word, it will be ignored and all the definitions or matches will be
+provided.  This violates the RFC, and will be corrected in a future
+release.
+.P
+HTML mode isn't as useful as it could be.  This will be improved in a
+future release.
 .SH FILES
+.I ~/.dictrc
+.br
+.I /etc/dict.conf
 .SH "SEE ALSO"
-.BR dictd (1)
+.BR dictd (8),
+.BR dictzip (1)

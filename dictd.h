@@ -1,6 +1,6 @@
 /* dictd.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Fri Jul 11 09:53:42 1997 by faith@acm.org
+ * Revised: Fri Jul 11 13:44:26 1997 by faith@acm.org
  * Copyright 1994, 1995, 1996, 1997 Rickard E. Faith (faith@acm.org)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -39,7 +39,8 @@
 
 				/* Configurable things */
 
-#define DICT_DEFAULT_SERVICE     "2628"
+#define DICT_DEFAULT_SERVICE     "2628"	/* Also in dict.h */
+#define DICTD_CONFIG_NAME        "dictd.h"
 #define DICT_QUEUE_DEPTH         10
 #define DICT_DEFAULT_DELAY       600 /* 10 minute timeout */
 #define DICT_DAEMON_LIMIT        100 /* maximum simultaneous daemons */

@@ -1,7 +1,7 @@
-/* servscan.l -- Scanner for dictd server configuration file
- * Created: Fri Feb 28 08:23:03 1997 by faith@cs.unc.edu
- * Revised: Fri Jul 11 14:21:06 1997 by faith@acm.org
- * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
+/* clientscan.l -- 
+ * Created: Fri Jul 11 11:33:46 1997 by faith@acm.org
+ * Revised: Fri Jul 11 14:21:07 1997 by faith@acm.org
+ * Copyright 1997 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,14 +17,14 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servscan.l,v 1.8 1997/07/12 01:50:25 faith Exp $
+ * $Id: clientscan.l,v 1.1 1997/07/12 01:50:09 faith Exp $
  * 
  */
 
 %option stack debug
 %{
-#include "dictd.h"
-#include "servparse.h"
+#include "dict.h"
+#include "clientparse.h"
 extern int  yylex( void );
 extern int  yydebug;
 extern void yyerror( const char *message );
@@ -35,7 +35,7 @@ extern void yyerror( const char *message );
 %}
 %s OTHER
 comment                     #.*
-word                        ([[:alpha:]_/\-\.\*][[:alnum:]_/\-\.\*]*)
+word                        ([[:alnum:]_/\-\.\*][[:alnum:]_/\-\.\*]*)
 string                      \"(([^\"\n])|\"\")*\"
 badstring                   \"(([^\"\n])|\"\")*
 NL                          \n
@@ -46,20 +46,10 @@ WS                          [[:blank:]]+
    .*                       src_line(yytext,yyleng); yyless(0); BEGIN(OTHER);
 }
 
-access                      RETURN(T_ACCESS);
-allow                       RETURN(T_ALLOW);
-deny                        RETURN(T_DENY);
-group                       RETURN(T_GROUP);
-database                    RETURN(T_DATABASE);
-data                        RETURN(T_DATA);
-index                       RETURN(T_INDEX);
-filter                      RETURN(T_FILTER);
-prefilter                   RETURN(T_PREFILTER);
-postfilter                  RETURN(T_POSTFILTER);
-name                        RETURN(T_NAME);
+server                      RETURN(T_SERVER);
+port                        RETURN(T_PORT);
 user                        RETURN(T_USER);
-authonly                    RETURN(T_AUTHONLY);
-site                        RETURN(T_SITE);
+filter                      RETURN(T_FILTER);
 {word}                      { yylval.token.string = str_findn(yytext, yyleng);
                               RETURN(T_STRING);
                             }
