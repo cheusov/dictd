@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.73 2004/03/06 15:19:15 cheusov Exp $
+ * $Id: daemon.c,v 1.74 2004/03/06 15:27:54 cheusov Exp $
  * 
  */
 
@@ -458,6 +458,10 @@ static void daemon_crlf( char *d, const char *s, int dot )
       }
    }
    if (dot) {                   /* add final . */
+      if (!first){
+	 *d++ = '\r';
+	 *d++ = '\n';
+      }
       *d++ = '.';
       *d++ = '\r';
       *d++ = '\n';
