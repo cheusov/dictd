@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.c,v 1.29 2002/08/12 16:27:33 cheusov Exp $
+ * $Id: dict.c,v 1.30 2002/08/21 17:35:29 cheusov Exp $
  * 
  */
 
@@ -159,7 +159,9 @@ static lst_List client_read_text( int s )
    char     line[BUFFERSIZE];
    int      len;
 
-   while ((len = net_read(s, line, BUFFERSIZE)) >= 0) {
+   while ((len = net_read(s, line, BUFFERSIZE - 1)) >= 0) {
+      line [len] = 0;
+
       client_bytes += len;
       PRINTF(DBG_RAW,("* Text: %s\n",line));
       if (line[0] == '.' && line[1] == '\0') break;
@@ -942,7 +944,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.29 2002/08/12 16:27:33 cheusov Exp $";
+   const char        *id = "$Id: dict.c,v 1.30 2002/08/21 17:35:29 cheusov Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
