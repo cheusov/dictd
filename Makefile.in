@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.86 2003/08/18 13:06:06 cheusov Exp $
+# $Id: Makefile.in,v 1.87 2003/09/01 12:57:52 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -105,10 +105,6 @@ uninstall.samples :
 
 endif
 
-HEADERS= 	./config.h @XTRAHEADERS@ dictzip.h dictd.h dict.h dictP.h \
-                codes.h md5.h strategy.h defs.h plugin.h data.h index.h \
-                parse.h dictdplugin.h str.h
-
 ifdef USE_PLUGIN
 SRCHOBJS=       index.o data.o dictdplugin.o str.o plugin.o
 else
@@ -123,7 +119,7 @@ TMPS=           servscan.c servparse.c servparse.h \
 
 @SET_MAKE@
 
-all $(EXES)::
+all $(EXES) $(PLUGINS) dictdplugin_popen.so dictdplugin_exit.so ::
 	@for subdir in `echo $(subdirs)`; do \
 		echo making in $$subdir; \
 	 	if [ "$$subdir" = "zlib" ]; then \
@@ -147,29 +143,30 @@ ALLCFLAGS=$(XTRACFLAGS) $(CFLAGS)
 ALLLDFLAGS=$(XTRALDFLAGS) $(LDFLAGS) $(LDLIBS)
 
 %.o: %.c
-	$(CC) -c $(ALLCFLAGS) $(SCFLAGS) $<
+	$(CC) -c $(ALLCFLAGS) $(SCFLAGS) $< -o $@
 %.o: %.cpp
-	$(CXX) -c $(ALLCFLAGS) $(SCFLAGS) $<
+	$(CXX) -c $(ALLCFLAGS) $(SCFLAGS) $< -o $@
+%.os: %.c
+	$(CC) -fPIC -c $(ALLCFLAGS) $(SCFLAGS) $< -o $@
+%.os: %.cpp
+	$(CXX) -fPIC -c $(ALLCFLAGS) $(SCFLAGS) $< -o $@
+
 %: %.o
 	$(CC) -o $@ $^ $(OBJS) $(ALLLDFLAGS)
 
-$(SRCHOBJS):  $(HEADERS)
-$(NETOBJS):  $(HEADERS)
-$(CLIOBJS):  $(HEADERS)
-dict.o dictfmt.o dictd.o dictzip.o : $(HEADERS)
+include $(srcdir)/deps
+
 dictd.o : servparse.h
 
-$(PLUGINS) dictdplugin_popen.so dictdplugin_exit.so : libdictdplugin.a @LIBOBJS@
+$(PLUGINS) dictdplugin_popen.so dictdplugin_exit.so :: libdictdplugin.a @LIBOBJS@
 
 lib%.a : %.o
 	$(AR) rc $@ $^
 
-dictdplugin_judy.so : data.o str.o heap.o
-
-dictdplugin_judy.so : dictdplugin_judy.o
+dictdplugin_judy.so :: data.os str.os heap.os dictdplugin_judy.os
 	$(CC) $^ $(ALLLDFLAGS) -lJudy -shared -o $@
 
-%.so : %.o
+%.so : %.os
 	$(CC) $^ $(ALLLDFLAGS) -shared -o $@
 
 .PHONY: plugins
@@ -360,7 +357,6 @@ ChangeLog:
            s,\(.*\)<\([^@<>]\+\)@\([^@<>]\+\)>\(.*\),\1<\2 at \3}\4,g' \
 	> ChangeLog;)
 
-
 dist:
 	@( CVSROOT=`cat CVS/Root`; \
 	export CVSROOT; \
@@ -383,7 +379,7 @@ dist:
 
 .PHONY: clean distclean tags
 clean:
-	-rm -f *.o *.a *.so *.s *~ core a.out config.log $(EXES) $(TMPS)
+	-rm -f *.o *.os *.a *.so *.s *~ core a.out config.log $(EXES) $(TMPS)
 	-rm -f *.log *.aux *.toc *.dvi *.ps
 	-rm -f *.cfg *.dtk .inslog tca.map
 	-rm -f *.dct *.idx y.output TAGS
@@ -419,6 +415,11 @@ cvsclean: distclean
 tags:
 	etags *.[ch]
 
+deps:
+	for i in *.c *.cpp; do \
+      gcc -MM $$i 2>/dev/null; \
+   done | awk '{gsub(/ \/[^ ]+/, ""); print}' | \
+   sed 's,\(.*[.]\)o,\1o \1os,1' > deps
 
 # The following is based on the "Automatic Remaking" node in the GNU
 # Autoconf documentation:
@@ -441,4 +442,3 @@ Makefile: Makefile.in config.status
 
 config.status: configure
 	./config.status --recheck
-
