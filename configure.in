@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.78 2004/09/21 12:37:37 cheusov Exp $
+dnl $Id: configure.in,v 1.79 2004/10/06 14:59:10 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -36,7 +36,7 @@ define(VERSION, 1.9.14)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.78 $)
+AC_REVISION($Revision: 1.79 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -400,25 +400,30 @@ echo .
 echo Checking for library functions
 
 AC_FUNC_ALLOCA
-AC_FUNC_MMAP
 AC_FUNC_FORK
 AC_FUNC_MALLOC
 #AC_FUNC_STAT
 AC_FUNC_STRCOLL
 AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
+
 AC_FUNC_WAIT3
+AC_CHECK_FUNCS(waitpid)
+
+#AC_FUNC_MMAP
+AC_CHECK_FUNCS(mmap munmap)
 
 AC_CHECK_FUNCS(strdup strtol strtoul semget strerror inet_aton)
 AC_CHECK_FUNCS(strdup strtol strtoul)
 AC_CHECK_FUNCS(alarm gethostbyaddr gethostbyname gethostname gettimeofday)
-AC_CHECK_FUNCS(inet_ntoa memmove memset munmap regcomp setlocale)
+AC_CHECK_FUNCS(inet_ntoa memmove memset regcomp setlocale)
 AC_CHECK_FUNCS(socket strcasecmp strchr strrchr strstr uname)
 
-AC_CHECK_FUNCS(iswspace iswalnum towlower)
 AC_CHECK_FUNCS(dlopen)
 AC_CHECK_FUNCS(getopt)
 AC_CHECK_FUNCS(wcwidth)
+AC_CHECK_FUNCS(initgroups)
+
 AC_REPLACE_FUNCS(setenv)
 AC_REPLACE_FUNCS(wcrtomb wctomb mbrlen mbrtowc mbstowcs mbtowc)
 AC_REPLACE_FUNCS(strlcpy strlcat)
@@ -427,6 +432,7 @@ AC_REPLACE_FUNCS(nl_langinfo)
 #   [AC_LIBOBJ([getopt_long])
 #   AC_LIBOBJ([getopt])])
 AC_REPLACE_FUNCS(snprintf vsnprintf)
+AC_REPLACE_FUNCS(iswspace iswalnum towlower)
 
 echo .
 echo Making output files
@@ -465,10 +471,10 @@ AC_CONFIG_FILES([colorit], [chmod +x colorit])
 
 AC_OUTPUT
 
-echo -en '\n\n'
+printf '\n\n'
 
 # MAA
-echo -n "maa:             "
+printf "maa:             "
 if test "_$local_libmaa" = "_0"; then
   echo system
 else
@@ -476,7 +482,7 @@ else
 fi
 
 # ZLIB
-echo -n "zlib:            "
+printf "zlib:            "
 if test "_$local_zlib" = "_0"; then
   echo system
 else
@@ -484,7 +490,7 @@ else
 fi
 
 # REGEX
-echo -n "regex:           "
+printf "regex:           "
 if test "_$local_regex" = "_0"; then
   echo system
 else
@@ -492,7 +498,7 @@ else
 fi
 
 # PLUGIN SUPPORT
-echo -n "plugin support:  "
+printf "plugin support:  "
 if test "_$USE_PLUGIN" = "_"; then
   echo disabled
 else
@@ -501,14 +507,14 @@ else
     2) echo native
   esac
 
-  echo -n " judy plugin:    "
+  printf " judy plugin:    "
   if test "_$JUDYLIB" = "_"; then
     echo "disabled"
   else
     echo "enabled"
   fi
 
-  echo -n " dbi plugin:     "
+  printf " dbi plugin:     "
   if test "_$DBILIB" = "_"; then
     echo "disabled"
   else
@@ -516,7 +522,7 @@ else
   fi
 fi
 
-echo -en '\n\n'
+printf '\n\n'
 
 date > stamp-h.in
 date > stamp-h

@@ -19,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.17 2004/02/24 17:55:51 cheusov Exp $
+ * $Id: dictP.h,v 1.18 2004/10/06 14:59:10 cheusov Exp $
  * 
  */
 
@@ -30,12 +30,26 @@
 #include "config.h"
 #endif
 
+#if  defined(__INTERIX) || defined(__OPENNT)
+#ifndef _ALL_SOURCE
+#define _ALL_SOURCE
+#endif /* _ALL_SOURCE */
+#endif /* __OPENNT */
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/utsname.h>
 #include <sys/wait.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+
+#ifdef HAVE_WCTYPE_H
+#include <wctype.h>
+#endif
+
+#ifdef HAVE_CTYPE_H
+#include <ctype.h>
+#endif
 
 #ifndef __GNUC__
 #define __FUNCTION__ __FILE__
@@ -115,6 +129,21 @@ extern int vsnprintf(char *str, size_t size, const char *format, va_list ap);
 typedef unsigned int wint_t;
 #endif
 
+#if !HAVE_ISWALNUM
+extern int iswalnum__ (wint_t wc);
+#define iswalnum iswalnum__
+#endif
+
+#if !HAVE_ISWSPACE
+extern int iswspace__ (wint_t wc);
+#define iswspace iswspace__
+#endif
+
+#if !HAVE_TOWLOWER
+extern wint_t towlower__ (wint_t wc);
+#define towlower towlower__
+#endif
+
 #if HAVE_WCHAR_T
 #include <stddef.h>
 #else
@@ -124,7 +153,7 @@ typedef unsigned int wchar_t;
 #if HAVE_LANGINFO_H
 #include <langinfo.h>
 #else
-const char * nl_langinfo (int ITEM);
+extern const char * nl_langinfo (int ITEM);
 #define CODESET 1234
 #endif
 
@@ -172,6 +201,15 @@ extern int mbtowc (wchar_t *pwc, const char *s, size_t n);
 
 #if !HAVE_WCWIDTH
 #define wcwidth(x) (1)
+#endif
+
+#if !HAVE_INITGROUPS
+#define initgroups(a,b)
+#endif
+
+#if defined(HAVE_WAITPID) && !defined(HAVE_WAIT3)
+#define wait3(status,options,rusage) \
+        waitpid(-1, (status),(options))
 #endif
 
 #if USE_PLUGIN
@@ -277,12 +315,6 @@ extern char *optarg;
 #define max(a,b) ((a)>(b)?(a):(b))
 #endif
 
-#if HAVE_ISWALNUM && HAVE_ISWSPACE && HAVE_TOWLOWER
-#ifdef HAVE_UTF8
-#undef HAVE_UTF8
-#endif
-
 #define HAVE_UTF8 1
-#endif
 
 #endif /* _DICTP_H_ */
