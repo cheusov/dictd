@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.56 2003/02/23 14:33:42 cheusov Exp $
+ * $Id: daemon.c,v 1.57 2003/02/23 15:31:38 cheusov Exp $
  * 
  */
 
@@ -1151,7 +1151,10 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
 
    list = lst_create();
    while ((db = next_database(&databasePosition, argv[2] ))) {
-      if (db -> databaseInfo && db -> databaseInfo [0] != '@'){
+      if (
+	 db -> databaseInfo &&
+	 (db -> virtual_db || db -> databaseInfo [0] != '@'))
+      {
 	 daemon_printf( "%d information for %s\n",
 			CODE_DATABASE_INFO, argv[2] );
 	 daemon_mime();

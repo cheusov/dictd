@@ -630,12 +630,12 @@ Specifies a list of databases which are included into the virtual database.
 Database names are in the string and are separated by comma.
 .TP
 .BI name " string"
-Specifies the short name of the database. See
-.I database specification
+Specifies the short name of the database. String beginning with '@' symbol
+is not treated as an entry name.
 .TP
 .BI info " string"
-Specifies the information about database. See
-.I database specification
+Specifies the information about database.  String beginning with '@' symbol
+is not treated as an entry name.
 .TP
 .BI invisible
 Makes dictionary invisible to the clients. See
@@ -653,7 +653,7 @@ database files by dictfmt_virtual executable
 Specifies a filename of the plugin.
 .TP
 .BI data " string"
-Specifies date for initializing plugin.
+Specifies data for initializing plugin.
 .TP
 .BI name " string"
 Specifies the short name of the database. See

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.55 2003/02/23 14:23:09 cheusov Exp $
+ * $Id: index.c,v 1.56 2003/02/23 15:31:39 cheusov Exp $
  * 
  */
 
@@ -1705,8 +1705,8 @@ int dict_search (
    const dictPluginData **extra_data,
    int *extra_data_size)
 {
-   int count;
-   int res;
+   int count = 0;
+   int res = 0;
    dictWord *dw;
 
    assert (word);
