@@ -17,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: parse.c,v 1.4 2003/10/14 11:54:15 cheusov Exp $
+ * $Id: parse.c,v 1.5 2003/10/26 12:45:58 cheusov Exp $
  *
  * \section{Parsing (and Lexing) Support}
  * 
@@ -76,7 +76,8 @@ void prs_file_pp (const char *pp, const char *filename)
 
    sprintf (buffer, "%s '%s' 2>/dev/null", pp, filename);
 
-   PRINTF(MAA_PARSE,(__FUNCTION__ ": %s\n",buffer));
+
+   PRINTF(MAA_PARSE,("%s: %s\n", __FUNCTION__, buffer));
    if (!(yyin = popen( buffer, "r" )))
       err_fatal_errno( __FUNCTION__,
 		       "Cannot open \"%s\" for read\n", buffer );
@@ -105,7 +106,7 @@ void prs_file( const char *filename )
 
    if (!cpp) {
       if ((cpp = getenv( "KHEPERA_CPP" ))) {
-         PRINTF(MAA_PARSE,(__FUNCTION__ ": Using KHEPERA_CPP from %s\n",cpp));
+         PRINTF(MAA_PARSE,("%s: Using KHEPERA_CPP from %s\n", __FUNCTION__, cpp));
       }
       
                                 /* Always look for gcc's cpp first, since
@@ -116,7 +117,7 @@ void prs_file( const char *filename )
          
          if (fread( buf, 1, 1023, tmp ) > 0) {
             if ((t = strchr( buf, '\n' ))) *t = '\0';
-            PRINTF(MAA_PARSE,(__FUNCTION__ ": Using GNU cpp from %s\n",buf));
+            PRINTF(MAA_PARSE,("%s: Using GNU cpp from %s\n", __FUNCTION__, buf));
             cpp = str_find( buf );
             extra_options = "-nostdinc -nostdinc++";
          }
@@ -133,7 +134,7 @@ void prs_file( const char *filename )
          for (pt = cpps; **pt; pt++) {
             if (!access( *pt, X_OK )) {
                PRINTF(MAA_PARSE,
-                      (__FUNCTION__ ": Using system cpp from %s\n",*pt));
+                      ("%s: Using system cpp from %s\n", __FUNCTION__, *pt));
                cpp = *pt;
                break;
             }
@@ -153,7 +154,7 @@ void prs_file( const char *filename )
    sprintf( buffer, "%s -I. %s %s 2>/dev/null", cpp,
 	    _prs_cpp_options ? _prs_cpp_options : "", filename );
 
-   PRINTF(MAA_PARSE,(__FUNCTION__ ": %s\n",buffer));
+   PRINTF(MAA_PARSE,("%s: %s\n", __FUNCTION__, buffer));
    if (!(yyin = popen( buffer, "r" )))
       err_fatal_errno( __FUNCTION__,
 		       "Cannot open \"%s\" for read\n", filename );
