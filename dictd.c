@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Sun Jul  5 21:08:46 1998 by faith@acm.org
- * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
+ * Revised: Wed Dec 22 06:10:40 1999 by faith@acm.org
+ * Copyright 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.39 1998/07/06 01:35:40 faith Exp $
+ * $Id: dictd.c,v 1.40 1999/12/22 11:49:56 faith Exp $
  * 
  */
 
@@ -14,6 +14,8 @@
 #define MAXPROCTITLE 2048       /* Maximum amount of proc title we'll use. */
 #undef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
+#define UID_NOBODY  65534
+#define GID_NOGROUP 65534
 
 extern int        yy_flex_debug;
 static int        _dict_daemon;
@@ -102,7 +104,7 @@ static void reaper( int dummy )
       ++_dict_reaps;
       
       if (flg_test(LOG_SERVER))
-         log_info( ":I: Reaped %d%s%s\n",
+         log_info( ":I: Reaped %d%s\n",
                    pid,
                    _dict_daemon ? " IN CHILD": "" );
    }
@@ -376,7 +378,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.39 1998/07/06 01:35:40 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.40 1999/12/22 11:49:56 faith Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -464,6 +466,18 @@ static void set_minimal( void )
    flg_set("-min");
 }
 
+static void release_root_privileges( void )
+/* At the spring 1999 Linux Expo in Raleigh, Rik Faith told me that he
+ * did not want dictd to be allowed to run as root for any reason.
+ * This patch irrevocably releases root privileges.  -- Kirk Hilliard
+ */
+{
+   if (geteuid() == 0) {
+      setgid(GID_NOGROUP);
+      setuid(UID_NOBODY);
+   }
+}
+
 int main( int argc, char **argv, char **envp )
 {
    int                childSocket;
@@ -503,6 +517,7 @@ int main( int argc, char **argv, char **envp )
       { 0,          0, 0,  0  }
    };
 
+   release_root_privileges();
    maa_init(argv[0]);
 
    flg_register( LOG_SERVER,    "server" );
@@ -636,28 +651,7 @@ int main( int argc, char **argv, char **envp )
    fflush(stdout);
    fflush(stderr);
 
-   if (detach) {
-      FILE *str;
-
-      if (!forceStartup && (str = fopen(DICTD_PID_FILE, "r"))) {
-	 char buf[80];
-	 if (fread(buf,1,80,str) > 0) {
-	    buf[strlen(buf)-1] = '\0'; /* Kill newline */
-	    err_fatal( __FUNCTION__,
-		       "dictd already running with pid %s\n"
-		       "   remove %s or use -f to force startup\n",
-		       buf, DICTD_PID_FILE );
-	 }
-	 fclose(str);
-      }
-      
-      net_detach();
-      
-      if ((str = fopen(DICTD_PID_FILE, "w"))) {
-	 fprintf( str, "%d\n", (int)getpid() );
-	 fclose( str );
-      }
-   }
+   if (detach) net_detach();
 
    masterSocket = net_open_tcp( service, depth );
    

@@ -1,8 +1,8 @@
 dnl Process this file with autoconf to produce a configure script for dict.
 dnl
 dnl Created: Wed Apr 24 14:11:05 1996 by faith@cs.unc.edu
-dnl Revised: Sun Jul  5 18:05:56 1998 by faith@acm.org
-dnl Copyright 1996, 1997, 1998 Rickard E. Faith (faith@acm.org)
+dnl Revised: Wed Dec 22 06:12:45 1999 by faith@acm.org
+dnl Copyright 1996, 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
 dnl
 dnl This program is free software; you can redistribute it and/or modify it
 dnl under the terms of the GNU General Public License as published by the
@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.14 1998/07/05 22:09:59 faith Exp $
+dnl $Id: configure.in,v 1.15 1999/12/22 11:49:56 faith Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -32,13 +32,12 @@ dnl     YCFLAGS is for yacc
 dnl     LCFLAGS is for lex
 
 AC_PREREQ(2.1)
-AC_REVISION($Revision: 1.14 $)
+AC_REVISION($Revision: 1.15 $)
 AC_INIT(dictd.c)
 AC_CONFIG_HEADER(config.h)
 
-prefix=/usr
+ac_default_prefix=/usr
 etcdir=/etc
-piddir=/var/run
 
 echo Configuring for dict
 echo .
@@ -169,10 +168,6 @@ AC_ARG_WITH(etcdir,
 [ --with-etcdir=PATH       directory containing server configuration file],
 etcdir=$withval)
 
-AC_ARG_WITH(piddir,
-[ --with-piddir=PATH       directory containing dictd.pid file],
-piddir=$withval)
-
 dnl Checks for programs.
 echo Checking for programs
 
@@ -263,12 +258,6 @@ echo Checking for system constants
 AC_C_CONST
 AC_C_INLINE
 
-AC_MSG_CHECKING(where to put dictd.pid)
-if test '!' -d $piddir; then
-    piddir=$etcdir;
-fi
-AC_MSG_RESULT($piddir)
-
 echo .
 echo Checking for library functions
 
@@ -289,7 +278,6 @@ AC_SUBST(XTRACFLAGS)
 AC_SUBST(XTRALDFLAGS)
 AC_SUBST(XTRAHEADERS)
 AC_SUBST(allsubdirs)
-AC_SUBST(piddir)
 AC_SUBST(etcdir)
 AC_OUTPUT(Makefile doc/Makefile)
 

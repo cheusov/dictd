@@ -1,7 +1,7 @@
 # Makefile.in -- Makefile for dict
 # Created: Wed Apr 24 14:14:09 1996 by faith@cs.unc.edu
-# Revised: Sun Jul  5 17:55:23 1998 by faith@acm.org
-# Copyright 1996, 1997, 1998 Rickard E. Faith (faith@acm.org)
+# Revised: Wed Dec 22 06:11:46 1999 by faith@acm.org
+# Copyright 1996, 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,12 +17,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.32 1998/07/05 22:09:59 faith Exp $
+# $Id: Makefile.in,v 1.33 1999/12/22 11:49:56 faith Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
 # Numbers are for the original author(s) only.
-DICT_VERSION=1.4.9
+DICT_VERSION=1.5.0
 
 ifneq (,)
 This makefile requires GNU Make.
@@ -39,7 +39,6 @@ man1_prefix=	$(prefix)/man/man1
 man8_prefix=	$(prefix)/man/man8
 bindir=         @bindir@
 sbindir=        @sbindir@
-pid=            @piddir@/dictd.pid
 conf=           @etcdir@/
 
 SHELL=		/bin/sh

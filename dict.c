@@ -1,10 +1,10 @@
 /* dict.c -- 
  * Created: Fri Mar 28 19:16:29 1997 by faith@cs.unc.edu
- * Revised: Sun Feb 15 22:44:18 1998 by faith@acm.org
- * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
+ * Revised: Wed Dec 22 05:49:19 1999 by faith@acm.org
+ * Copyright 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dict.c,v 1.18 1998/02/16 03:48:15 faith Exp $
+ * $Id: dict.c,v 1.19 1999/12/22 11:49:56 faith Exp $
  * 
  */
 
@@ -15,7 +15,7 @@
 extern int         yy_flex_debug;
        lst_List    dict_Servers;
        const char  *dict_pager;
-       FILE        *dict_output = stdout;
+       FILE        *dict_output;
 
 #define BUFFERSIZE  2048
 #define PIPESIZE     256
@@ -139,7 +139,9 @@ static void client_open_pager( void )
 				/* default */
    dict_output = stdout;
 				/* use an empty string to avoid paging */
-   if ((dict_pager || (dict_pager = getenv("PAGER"))) && *dict_pager) {
+   if ((dict_pager || (dict_pager = getenv("PAGER")))
+       && *dict_pager
+       && !strcmp(dict_pager, "-")) {
       PRINTF(DBG_VERBOSE,("Using \"%s\" as pager\n",dict_pager));
       pr_open( dict_pager, PR_CREATE_STDIN, &infd, NULL, NULL );
       dict_output = fdopen( infd, "w" );
@@ -931,7 +933,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.18 1998/02/16 03:48:15 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.19 1999/12/22 11:49:56 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -998,6 +1000,7 @@ static void help( void )
       "   --help               display this help",
       "-v --verbose            be verbose",
       "-r --raw                trace raw transaction",
+      "-P --pager program      specify program to use as pager (- for none)",
       "   --debug <flag>       set debugging flag",
       "   --html               output HTML format",
       "   --pipesize <size>    specify buffer size for pipelining (256)",
@@ -1062,6 +1065,7 @@ int main( int argc, char **argv )
       { 0,            0, 0,  0  }
    };
 
+   dict_output = stdout;
    maa_init(argv[0]);
 
    dbg_register( DBG_VERBOSE, "verbose" );

@@ -1,7 +1,7 @@
 /* clientscan.l -- 
  * Created: Fri Jul 11 11:33:46 1997 by faith@acm.org
- * Revised: Sun Jan 18 10:06:30 1998 by faith@acm.org
- * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
+ * Revised: Wed Dec 22 05:37:25 1999 by faith@acm.org
+ * Copyright 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: clientscan.l,v 1.2 1998/01/19 03:37:14 faith Exp $
+ * $Id: clientscan.l,v 1.3 1999/12/22 11:49:56 faith Exp $
  * 
  */
 
@@ -71,7 +71,7 @@ int yywrap( void )
 
 void yyerror( const char *message )
 {
-   src_parse_error( stderr, src_get( yyleng ), message );
+   src_parse_error( stderr, yylval.token.src, message );
    err_fatal( __FUNCTION__, "parse error\n" );
    exit( 1 );
 }

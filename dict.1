@@ -1,7 +1,7 @@
 .\" dict.1 -- 
 .\" Created: Tue Jul  8 11:36:19 1997 by faith@acm.org
-.\" Revised: Sun Jul  5 19:49:55 1998 by faith@acm.org
-.\" Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
+." Revised: Wed Dec 22 05:37:23 1999 by faith@acm.org
+.\" Copyright 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
 .\" 
 .\" Permission is granted to make and distribute verbatim copies of this
 .\" manual provided the copyright notice and this permission notice are
@@ -125,6 +125,9 @@ Be verbose.
 .BR -r " or " \-\-raw
 Be very verbose: show the raw client/server interaction.
 .TP
+.BI \-P " program\fR or " \-\-pager " program"
+Specify program to use as pager. Use "-" for none.
+.TP
 .B \-\-html
 Generate HTML tags in the output.  The HTML generated is not very useful.
 Support for this option needs to be rewritten.
@@ -166,9 +169,6 @@ Disable pipelining support.
 .TP
 .B time
 Perform transaction timing.
-.TP
-.RE
-.TP
 .SH CONFIGURATION
 The configuration file currently has a very simple format.  Lines are used
 to specify servers, for example:
@@ -205,6 +205,12 @@ at the standard part (2628).  We expect that dict.org will point to one or
 more DICT servers (perhaps in round-robin fashion) for the foreseeable
 future (starting in July 1997), although it is difficult to predict
 anything on the Internet for more than about 3-6 months.
+.P
+The configuration file also allows the setting of a pager (keyword
+.BR pager ),
+similar to the 
+.B \-\-pager
+option.
 .SH CREDITS
 .B dict
 was written by Rik Faith (faith@cs.unc.edu) and is distributed under the

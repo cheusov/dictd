@@ -1,7 +1,7 @@
 /* decl.h -- Declarations for non-ANSI hosts
  * Created: Sun Nov 19 14:04:27 1995 by faith@cs.unc.edu
- * Revised: Tue Mar 11 11:13:32 1997 by faith@cs.unc.edu
- * Copyright 1995, 1996 Rickard E. Faith (faith@cs.unc.edu)
+ * Revised: Wed Dec 22 05:37:24 1999 by faith@acm.org
+ * Copyright 1995, 1996, 1999 Rickard E. Faith (faith@acm.org)
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Library General Public License as published
@@ -17,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: decl.h,v 1.5 1998/01/16 03:51:55 faith Exp $
+ * $Id: decl.h,v 1.6 1999/12/22 11:49:56 faith Exp $
  * 
  */
 
@@ -28,7 +28,7 @@
 declarations for standard library calls.  We provide them here for
 situations that we know about. */
 
-#if defined(__sparc__)
+#if defined(__sparc__) && !defined(__linux__)
 				/* Both SunOS and Solaris */
 extern int    getrusage( int who, struct rusage * );
 extern void   bcopy( const void *, void *, int );
