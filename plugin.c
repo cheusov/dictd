@@ -15,15 +15,17 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: plugin.c,v 1.9 2003/10/22 03:56:37 cheusov Exp $
+ * $Id: plugin.c,v 1.10 2003/10/31 00:40:04 cheusov Exp $
  * 
  */
 
+#include "dictP.h"
+
+#include "dictd.h"
 #include "plugin.h"
 #include "strategy.h"
 #include "data.h"
 #include "index.h"
-#include "dictd.h"
 
 #ifndef HAVE_DLFCN_H
 #include <ltdl.h>

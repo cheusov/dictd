@@ -17,9 +17,11 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: data.c,v 1.22 2003/03/24 11:23:20 cheusov Exp $
+ * $Id: data.c,v 1.23 2003/10/31 00:40:04 cheusov Exp $
  * 
  */
+
+#include "dictP.h"
 
 #include "data.h"
 #include "dictzip.h"

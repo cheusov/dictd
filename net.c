@@ -17,20 +17,24 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: net.c,v 1.22 2002/08/02 19:43:14 faith Exp $
+ * $Id: net.c,v 1.23 2003/10/31 00:40:04 cheusov Exp $
  * 
  */
 
-
-#include "dictd.h"
-#include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/termios.h>
 
+#include "dictP.h"
+
 #if HAVE_SYS_PARAM_H
 # include <sys/param.h>
 #endif
+
+#include <fcntl.h>
+
+#include "dictd.h"
+
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN 64
 #endif

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.68 2003/10/14 22:31:22 cheusov Exp $
+ * $Id: daemon.c,v 1.69 2003/10/31 00:40:04 cheusov Exp $
  * 
  */
 
@@ -675,9 +675,9 @@ static void daemon_banner( void )
 
    snprintf( daemonStamp, sizeof (daemonStamp), "<%d.%d.%lu@%s>", 
 	    _dict_forks,
-	    getpid(),
+	    (int) getpid(),
 	    (long unsigned)t,
-	    net_hostname() );
+	     net_hostname() );
    daemon_printf( "%d %s %s <auth.mime> %s\n",
 		  CODE_HELLO,
                   net_hostname(),

@@ -28,18 +28,18 @@
 #include "defs.h"
 
 #include "net.h"
-#include <arpa/inet.h>
 #include <errno.h>
 
 #include <netdb.h>
-#include <netinet/in.h>
 #include <signal.h>
-#include <sys/utsname.h>
+/*
 #ifdef __osf__
 #define _XOPEN_SOURCE_EXTENDED
 #endif
 #include <sys/wait.h>
 #include <grp.h>
+#include <arpa/inet.h>
+*/
 
 extern void       dict_disable_strat (dictDatabase *db, const char* strat);
 

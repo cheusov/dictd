@@ -19,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.14 2003/10/27 18:34:12 cheusov Exp $
+ * $Id: dictP.h,v 1.15 2003/10/31 00:40:04 cheusov Exp $
  * 
  */
 
@@ -29,6 +29,13 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/utsname.h>
+#include <sys/wait.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #ifndef __GNUC__
 #define __FUNCTION__ __FILE__
