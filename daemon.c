@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.74 2004/03/06 15:27:54 cheusov Exp $
+ * $Id: daemon.c,v 1.75 2004/04/23 14:26:28 cheusov Exp $
  * 
  */
 
@@ -1485,7 +1485,7 @@ int _handleconn (int delay, int error) {
    dict_setproctitle( "dictd: %s connected", daemonHostname );
 
    if (error) {
-      daemon_printf( "%d temporarily unavailable\n",
+      daemon_printf( "%d server temporarily unavailable\n",
 		     CODE_TEMPORARILY_UNAVAILABLE );
       daemon_terminate( 0, "temporarily unavailable" );
    }
