@@ -1,6 +1,6 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@cs.unc.edu
- * Revised: Fri Feb 28 23:17:44 1997 by faith@cs.unc.edu
+ * Revised: Mon Mar  3 08:49:26 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.2 1997/03/01 05:21:14 faith Exp $
+ * $Id: daemon.c,v 1.3 1997/03/07 13:57:57 faith Exp $
  * 
  */
 
@@ -414,6 +414,7 @@ int dict_daemon( int s, struct sockaddr_in *csin )
    tim_stop( "daemon" );
    daemon_log( s, hostname, port,
 	       "%s:%d disconnect %d %0.3fr %0.3fu %0.3fs\n",
+               hostname, port,
 	       totalMatches,
 	       tim_get_real( "daemon" ),
 	       tim_get_user( "daemon" ),

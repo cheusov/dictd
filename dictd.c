@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Fri Feb 28 22:30:23 1997 by faith@cs.unc.edu
+ * Revised: Mon Mar  3 08:52:22 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.2 1997/03/01 05:21:16 faith Exp $
+ * $Id: dictd.c,v 1.3 1997/03/07 13:57:59 faith Exp $
  * 
  */
 
@@ -199,7 +199,7 @@ static const char *id_string( const char *id )
 const char *dict_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dictd.c,v 1.2 1997/03/01 05:21:16 faith Exp $";
+   const char        *id = "$Id: dictd.c,v 1.3 1997/03/07 13:57:59 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -334,6 +334,9 @@ int main( int argc, char **argv )
    sigemptyset(&sa.sa_mask);
    sa.sa_flags = 0;
    sigaction(SIGCHLD,&sa,NULL);
+
+   fflush(stdout);
+   fflush(stderr);
 
    masterSocket = net_open_tcp( service, DICT_QUEUE_DEPTH );
 
