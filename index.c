@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.78 2003/10/11 21:57:06 cheusov Exp $
+ * $Id: index.c,v 1.79 2003/10/20 01:21:39 cheusov Exp $
  * 
  */
 
@@ -270,9 +270,16 @@ static int compare_alnumspace(
 	 }
 	 if (dbg_test(DBG_SEARCH)){
 	    if (utf8_mode)
-	       printf("   result = %d (%i != %i) \n", result, c1, c2);
+	       printf(
+		  "   result = %d (%i != %i) \n", result, c1, c2);
 	    else
-	       printf("   result = %d ('%c' != '%c') \n", result, c1, c2);
+	       printf(
+		  "   result = %d ('%c'(c2i=%i) != '%c'(c2i=%i)) \n",
+		  result,
+		  c1,
+		  c2i (c1),
+		  c2,
+		  c2i (c2));
 	 }
          return result;
       }
@@ -385,7 +392,7 @@ static const char *binary_search_8bit(
 
    assert (dbindex);
 
-   PRINTF(DBG_SEARCH,("%s %p %p\n",word,start,end));
+   PRINTF(DBG_SEARCH,("word/start/end %s/%p/%p\n",word,start,end));
 
    pt = start + (end-start)/2;
    FIND_NEXT(pt,end);
@@ -1468,6 +1475,14 @@ int dict_search (
 
    assert (word);
    assert (database);
+
+/*
+   fprintf (
+      stderr,
+      "search in '%s' for '%s'\n",
+      database -> databaseName,
+      word);
+*/
 
    if (
       database -> strategy_disabled &&
