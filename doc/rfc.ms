@@ -1,3 +1,9 @@
+.\"
+.\" Revised: Wed May  7 23:10:22 1997 by faith@cs.unc.edu
+.\" Distribution of this memo is unlimited.
+.\"
+.\" $Id: rfc.ms,v 1.8 1997/05/09 18:06:46 faith Exp $
+.\" 
 .pl 10.0i
 .po 0
 .ll 7.2i
@@ -13,7 +19,6 @@
 .hy 0
 .ad l
 .in 0
-.\"$Id: rfc.ms,v 1.7 1997/05/07 05:38:17 faith Exp $
 Network Working Group                                           R. Faith
 Request for Comments: Unassigned          U. North Carolina, Chapel Hill
 Category: Standards Track                                      B. Martin
@@ -43,7 +48,7 @@ Abstract
 
 The Dictionary Server Protocol (DICT) is a TCP transaction based
 query/response protocol that allows a client to access dictionary
-definitions from a natural language dictionary database.
+definitions from a set of natural language dictionary databases.
 
 .ti 0
 1. Introduction
@@ -60,12 +65,9 @@ freely-distributable databases are not accessible via a uniform
 interface, and are not accessible from a single site.  They are often
 small and incomplete individually, but would collectively provide an
 interesting and useful database of English words.  Examples include
-the Jargon file [The on-line hacker Jargon File, version 4.0.0, 25 JUL
-1996], the WordNet database [http://www.cogsci.princeton.edu/~wn/],
-MICRA's version of the 1913 Webster's Revised Unabridged Dictionary
-[http://humanities.uchicago.edu/forms_unrest/webster.form.html], and
-the Free Online Dictionary of Computing
-[http://wombat.doc.ic.ac.uk/foldoc/].
+the Jargon file [JARGON], the WordNet database [WORDNET], MICRA's
+version of the 1913 Webster's Revised Unabridged Dictionary [WEB1913],
+and the Free Online Dictionary of Computing [FOLDOC].
 
 The webster protocol is not suitable for providing access to a large
 number of separate dictionary databases, and extensions to the current
@@ -82,6 +84,13 @@ information).  Further, the DICT protocol has hooks that can be used
 to restrict access to some or all of the databases.  The protocol also
 allows for the transmission of binary data, which will facilitate the
 retrieval of foreign-language definitions or other 8-bit data.
+
+.ti 0
+1.1. Requirements
+
+In this document, we adopt the convention discussed in Section 1.3.2 of
+[RFC1122] of using the capitalized words MUST, SHOULD, and MAY to define
+the significance of each particular requirement specified in this document.
 
 .ti 0
 2. Protocol Overview
@@ -224,7 +233,7 @@ Parameters are separeted from the numeric response code and from each other
 by a single space.  All numeric parameters are decimal, and may have
 leading zeros.  All string parameters are surrounded by double quotes
 (decimal code 34, '"').
-.\" "For emacs
+
 If a double quote appears in the string, it is preceeded by a backslash
 (decimal code 92, "\\").
 
@@ -866,6 +875,13 @@ This RFC raises no security issues.
 .in 8
 
 .ti 3
+[FOLDOC] Howe, Denis, ed.  The Free On-Line Dictionary of
+Computing, http://wombat.doc.ic.ac.uk/
+
+.ti 3
+[JARGON] The on-line hacker Jargon File, version 4.0.0, 25 JUL 1996
+
+.ti 3
 [RFC640] Postel, J., "Revised FTP Reply Codes", RFC-640, June, 1975.
 
 .ti 3
@@ -896,6 +912,16 @@ RFC-1939, Carnegie Mellon/Dover Beach Consulting, May, 1996.
 Berners-Lee, T., "Hypertext Transfer Protocol -- HTTP/1.1", RFC-2068,
 U.C. Irvine, DEC, MIT/LCS, January, 1997.
 
+.ti 3
+[WEB1913] Webster's Revised Unabridged Dictionary (G & C. Merriam Co.,
+1913, edited by Noah Porter).  Online version prepared by MICRA, Inc., 
+Plainfield, N.J. and edited by Patrick Cassidy <cassidy@micra.com>.
+ftp://uiarchive.cso.uiuc.edu/pub/etext/gutenberg/etext96/pgw* and 
+http://humanities.uchicago.edu/forms_unrest/webster.form.html
+
+.ti 3
+[WORDNET] http://www.cogsci.princeton.edu/~wn/
+
 .in 3
 
 .ti 0
@@ -919,3 +945,9 @@ EMail: faith@cs.unc.edu
 
 Bret Martin
 EMail: martin-bret@cs.yale.edu
+
+.\" Local Variables:
+.\" mode: nroff
+.\" mode: font-lock
+.\" fill-column: 70
+.\" End:
