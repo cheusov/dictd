@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.81 2003/08/07 16:24:48 cheusov Exp $
+# $Id: Makefile.in,v 1.82 2003/08/08 14:50:21 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -107,12 +107,12 @@ endif
 
 HEADERS= 	./config.h @XTRAHEADERS@ dictzip.h dictd.h dict.h dictP.h \
                 codes.h md5.h strategy.h defs.h plugin.h data.h index.h \
-                parse.h dictdplugin.h
+                parse.h dictdplugin.h str.h
 
 ifdef USE_PLUGIN
-SRCHOBJS=       index.o data.o dictdplugin.o plugin.o
+SRCHOBJS=       index.o data.o dictdplugin.o str.o plugin.o
 else
-SRCHOBJS=       index.o data.o dictdplugin.o
+SRCHOBJS=       index.o data.o dictdplugin.o str.o
 endif
 
 NETOBJS=        daemon.o strategy.o net.o servscan.o servparse.o md5.o
@@ -162,7 +162,7 @@ $(PLUGINS) dictdplugin_popen.so dictdplugin_exit.so : libdictdplugin.a @LIBOBJS@
 lib%.a : %.o
 	$(AR) rc $@ $^
 
-dictdplugin_judy.so : data.o
+dictdplugin_judy.so : data.o str.o
 
 dictdplugin_judy.so : dictdplugin_judy.c
 	$(CC) $^ $(ALLCFLAGS) $(ALLLDFLAGS) -lJudy -shared -o $@
@@ -192,7 +192,7 @@ dictd :: dictd.o $(NETOBJS) $(SRCHOBJS) @LIBOBJS@ parse.o
 dictzip :: dictzip.o data.o @LIBOBJS@
 	$(CC) -o $@ $^ $(OBJS) $(ALLLDFLAGS) $(DICTZIP_LDFLAGS)
 
-dictfmt :: dictfmt.o @LIBOBJS@
+dictfmt :: dictfmt.o str.o @LIBOBJS@
 	$(CC) -o $@ $^ $(OBJS) $(ALLLDFLAGS) $(DICTFMT_LDFLAGS)
 
 servscan.c: servscan.l

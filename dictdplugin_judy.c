@@ -17,13 +17,14 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.2 2003/08/08 12:35:40 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.3 2003/08/08 14:50:21 cheusov Exp $
  * 
  */
 
 #include "dictP.h"
 #include "dictdplugin.h"
 #include "data.h"
+#include "str.h"
 
 #include <maa.h>
 #include <string.h>
@@ -453,102 +454,6 @@ static BOOL split_index (
    return 1;
 }
 
-/*
-  Copies alphanumeric and space characters converting them to lower case.
-  Strings are represented in 8-bit character set.
-*/
-static int tolower_alnumspace_8bit (
-   const char *src, char *dest,
-   int allchars_mode)
-{
-   int c;
-
-   for (; *src; ++src) {
-      c = * (const unsigned char *) src;
-
-      if (isspace (c)) {
-         *dest++ = ' ';
-      }else if (allchars_mode || isalnum (c)){
-	 *dest++ = tolower (c);
-      }
-   }
-
-   *dest = '\0';
-   return 1;
-}
-
-#if HAVE_UTF8
-/*
-  Copies alphanumeric and space characters converting them to lower case.
-  Strings are represented in UTF-8 character set.
-*/
-static int tolower_alnumspace_utf8 (
-   const char *src, char *dest,
-   int allchars_mode)
-{
-   wchar_t      ucs4_char;
-   size_t len;
-   int    len2;
-
-   mbstate_t ps;
-   mbstate_t ps2;
-
-   memset (&ps,  0, sizeof (ps));
-   memset (&ps2, 0, sizeof (ps2));
-
-   while (src && src [0]){
-      len = mbrtowc (&ucs4_char, src, MB_CUR_MAX, &ps);
-      if ((int) len < 0)
-	 return 0;
-
-      if (iswspace (ucs4_char)){
-	 *dest++ = ' ';
-      }else if (allchars_mode || iswalnum (ucs4_char)){
-	 len2 = wcrtomb (dest, towlower (ucs4_char), &ps2);
-	 if (len2 < 0)
-	    return 0;
-
-	 dest += len2;
-      }
-
-      src += len;
-   }
-
-   *dest = 0;
-
-   return (src != NULL);
-}
-#endif
-
-/* returns 0 if failed */
-static int tolower_alnumspace (
-   global_data *dict_data,
-   const char *src, char *dest,
-   int allchars_mode)
-{
-#if HAVE_UTF8
-   if (dict_data -> m_conf_utf8){
-      if (!tolower_alnumspace_utf8 (
-	 src, dest, dict_data -> m_conf_allchars))
-      {
-	 plugin_error (dict_data, "tolower_alnumspace_utf8 failed");
-	 return 0;
-      }
-   }else{
-#endif
-      if (!tolower_alnumspace_8bit (
-	 src, dest, dict_data -> m_conf_allchars))
-      {
-	 plugin_error (dict_data, "tolower_alnumspace_8bit failed");
-	 return 0;
-      }
-#if HAVE_UTF8
-   }
-#endif
-
-   return 1;
-}
-
 static void it_incr1 (
    global_data *dict_data,
    PPvoid_t value,
@@ -638,9 +543,12 @@ static void read_index_file (
 	 return;
       }
 
-      if (!tolower_alnumspace (
-	 dict_data, buf, buf, dict_data -> m_conf_allchars))
+      if (
+	 tolower_alnumspace (
+	    buf, buf,
+	    dict_data -> m_conf_allchars, dict_data -> m_conf_utf8))
       {
+	 plugin_error (dict_data, "tolower_alnumspace failed");
 	 fclose (fd);
 	 return;
       }
@@ -1219,8 +1127,14 @@ int dictdb_search (
       search_strategy != dict_data -> m_strat_regexp &&
       search_strategy != dict_data -> m_strat_re)
    {
-      tolower_alnumspace (
-	 dict_data, word_copy2, word_copy2, dict_data -> m_conf_allchars);
+      if (
+	 tolower_alnumspace (
+	    word_copy2, word_copy2,
+	    dict_data -> m_conf_allchars, dict_data -> m_conf_utf8))
+      {
+	 plugin_error (dict_data, "tolower_alnumspace failed");
+	 return 1;
+      }
 
       if (word_size > dict_data -> m_max_hw_len){
 //      fprintf (stderr, "This word is too long\n");

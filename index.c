@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.71 2003/08/08 12:29:19 cheusov Exp $
+ * $Id: index.c,v 1.72 2003/08/08 14:50:21 cheusov Exp $
  * 
  */
 
@@ -99,73 +99,6 @@ static int dict_table_init_compare_utf8 (const void *a, const void *b)
 
     return c1 - c2;
 }
-
-/*
-  Copies alphanumeric and space characters converting them to lower case.
-  Strings are represented in 8-bit character set.
-*/
-static int tolower_alnumspace_8bit (
-   const char *src, char *dest,
-   int allchars_mode)
-{
-   int c;
-
-   for (; *src; ++src) {
-      c = * (const unsigned char *) src;
-
-      if (isspace( c )) {
-         *dest++ = ' ';
-      }else if (allchars_mode || isalnum( c )){
-	 *dest++ = tolower (c);
-      }
-   }
-
-   *dest = '\0';
-   return 1;
-}
-
-#if HAVE_UTF8
-/*
-  Copies alphanumeric and space characters converting them to lower case.
-  Strings are represented in UTF-8 character set.
-*/
-static int tolower_alnumspace_utf8 (
-   const char *src, char *dest,
-   int allchars_mode)
-{
-   wchar_t      ucs4_char;
-   size_t len;
-   int    len2;
-
-   mbstate_t ps;
-   mbstate_t ps2;
-
-   memset (&ps,  0, sizeof (ps));
-   memset (&ps2, 0, sizeof (ps2));
-
-   while (src && src [0]){
-      len = mbrtowc (&ucs4_char, src, MB_CUR_MAX, &ps);
-      if ((int) len < 0)
-	 return 0;
-
-      if (iswspace (ucs4_char)){
-	 *dest++ = ' ';
-      }else if (allchars_mode || iswalnum (ucs4_char)){
-	 len2 = wcrtomb (dest, towlower (ucs4_char), &ps2);
-	 if (len2 < 0)
-	    return 0;
-
-	 dest += len2;
-      }
-
-      src += len;
-   }
-
-   *dest = 0;
-
-   return (src != NULL);
-}
-#endif
 
 static void dict_table_init(void)
 {
@@ -1410,35 +1343,25 @@ int dict_search_database_ (
 
    buf = alloca( strlen( word ) + 1 );
 
-#if HAVE_UTF8
-   if (utf8_mode){
-      if (
-	 !strcmp(utf8_err_msg, word) ||
-	 !tolower_alnumspace_utf8 (
-	    word, buf, database -> index -> flag_allchars))
-      {
-	 PRINTF(DBG_SEARCH, ("tolower_... ERROR!!!\n"));
-
-	 dw = xmalloc (sizeof (dictWord));
-	 memset (dw, 0, sizeof (dictWord));
-
-	 dw -> database = database;
-	 dw -> def      = utf8_err_msg;
-	 dw -> def_size = -1;
-	 dw -> word     = strdup (word);
-
-	 lst_append (l, dw);
-
-	 return -1;
-      }
-   }else{
-      tolower_alnumspace_8bit (
-	  word, buf, database -> index -> flag_allchars);
+   if (
+      !strcmp(utf8_err_msg, word) ||
+      tolower_alnumspace (
+	 word, buf, database -> index -> flag_allchars, utf8_mode))
+   {
+      PRINTF(DBG_SEARCH, ("tolower_... ERROR!!!\n"));
+      
+      dw = xmalloc (sizeof (dictWord));
+      memset (dw, 0, sizeof (dictWord));
+      
+      dw -> database = database;
+      dw -> def      = utf8_err_msg;
+      dw -> def_size = -1;
+      dw -> word     = strdup (word);
+      
+      lst_append (l, dw);
+      
+      return -1;
    }
-#else
-   tolower_alnumspace_8bit (
-      word, buf, database -> index -> flag_allchars);
-#endif
 
    if (!buf [0] && word [0]){
       /*

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.25 2003/08/06 17:55:54 cheusov Exp $
+ * $Id: dictfmt.c,v 1.26 2003/08/08 14:50:21 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -27,6 +27,8 @@
  */
 
 #include "dictP.h"
+#include "str.h"
+
 #include <maa.h>
 
 #include <stdio.h>
@@ -194,56 +196,6 @@ static void fmt_string( const char *s )
    free(sdup);
 }
 
-#if HAVE_UTF8
-static int tolower_alnumspace_utf8 (const char *src, char *dest)
-{
-   wchar_t      ucs4_char;
-   size_t len;
-   int    len2;
-
-   while (src && src [0]){
-      len = mbtowc (&ucs4_char, src, MB_CUR_MAX);
-      if ((int) len < 0)
-	 return 0;
-
-      if (iswspace (ucs4_char)){
-	 *dest++ = ' ';
-      }else if (allchars_mode || iswalnum (ucs4_char)){
-	 len2 = wctomb (dest, towlower (ucs4_char));
-	 if (len2 < 0)
-	    return 0;
-
-	 dest += len2;
-      }
-
-      src += len;
-   }
-
-   *dest = 0;
-
-   return (src != NULL);
-}
-#endif
-
-static void tolower_alnumspace_8bit (const char *src, char *dest)
-{
-   int ch;
-
-   while (src && src [0]){
-      ch = *(const unsigned char *)src;
-
-      if (isspace (ch)){
-	 *dest++ = ' ';
-      }else if (allchars_mode || isalnum (ch)){
-	 *dest++ = tolower(ch);
-      }
-
-      ++src;
-   }
-
-   *dest = 0;
-}
-
 #ifdef HAVE_UTF8
 /*
   makes anagram of the 8-bit string 's'
@@ -397,18 +349,10 @@ static void write_hw_to_index (const char *word, int start, int end)
 	 exit (1);
       }
 
-#if HAVE_UTF8
-      if (utf8_mode){
-	 if (!tolower_alnumspace_utf8 (word, new_word)){
-	    fprintf (stderr, "'%s' is not a UTF-8 string", word);
-	    exit (1);
-	 }
-      }else{
-	 tolower_alnumspace_8bit (word, new_word);
+      if (tolower_alnumspace (word, new_word, allchars_mode, utf8_mode)){
+	 fprintf (stderr, "'%s' is not a UTF-8 string", word);
+	 exit (1);
       }
-#else
-      tolower_alnumspace_8bit (word, new_word);
-#endif
 
       word = trim_right (new_word);
 
@@ -620,16 +564,6 @@ static void help( FILE *out_stream )
 
    banner( out_stream );
    while (*p) fprintf( out_stream, "%s\n", *p++ );
-}
-
-static char *strlwr_8bit (char *s)
-{
-   char *p;
-   for (p = s; *p; ++p){
-      *p = tolower ((unsigned char) *p);
-   }
-
-   return s;
 }
 
 static void set_utf8bit_mode (const char *loc)

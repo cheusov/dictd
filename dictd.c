@@ -17,11 +17,13 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.88 2003/08/06 16:08:19 cheusov Exp $
+ * $Id: dictd.c,v 1.89 2003/08/08 14:50:21 cheusov Exp $
  * 
  */
 
 #include "dictd.h"
+#include "str.h"
+
 #include "servparse.h"
 #include "strategy.h"
 #include "index.h"
@@ -803,7 +805,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.88 2003/08/06 16:08:19 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.89 2003/08/08 14:50:21 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1045,16 +1047,6 @@ static void sanity(const char *confFile)
       }
       err_fatal(__FUNCTION__, ":E: terminating due to errors\n");
    }
-}
-
-static char *strlwr_8bit (char *str)
-{
-   char *p;
-   for (p = str; *p; ++p){
-      *p = tolower ((unsigned char) *p);
-   }
-
-   return str;
 }
 
 static void set_utf8bit_mode (const char *loc)
