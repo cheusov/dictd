@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.86 2003/07/07 12:24:16 cheusov Exp $
+ * $Id: dictd.c,v 1.87 2003/07/21 10:02:33 cheusov Exp $
  * 
  */
 
@@ -386,7 +386,7 @@ static int config_print( const void *datum, void *arg )
    if (db->indexwordFilename)
       fprintf( s, "   index_word      %s\n", db->indexwordFilename );
    if (db->filter)
-      fprintf( s, "   filter     %s\n", db->filter ); /* Not implemented. */
+      fprintf( s, "   filter     %s\n", db->filter );
    if (db->prefilter)
       fprintf( s, "   prefilter  %s\n", db->prefilter );
    if (db->postfilter)
@@ -796,7 +796,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.86 2003/07/07 12:24:16 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.87 2003/07/21 10:02:33 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;

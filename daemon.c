@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.64 2003/04/14 09:14:38 cheusov Exp $
+ * $Id: daemon.c,v 1.65 2003/07/21 10:02:33 cheusov Exp $
  * 
  */
 
@@ -571,6 +571,7 @@ static void daemon_dump_defs( lst_List list )
    unsigned long previousStart = 0;
    unsigned long previousEnd   = 0;
    const char *  previousDef   = NULL;
+   int count;
 
    LST_ITERATE(list,p,dw) {
       db = dw->database;
@@ -601,6 +602,16 @@ static void daemon_dump_defs( lst_List list )
 	  db->invisible ? ""  : db->databaseShort);
 
       daemon_mime();
+
+      if (db->filter){
+	 count = strlen(buf);
+	 daemon_log( DICT_LOG_AUTH, "filtering with: %s\ncount: %d\n",
+		     db->filter, count );
+
+	 dict_data_filter(buf, &count, strlen (buf), db->filter);
+	 buf[count] = '\0';
+      }
+
       daemon_text(buf);
       xfree( buf );
    }
