@@ -1,0 +1,364 @@
+% design.tex -- 
+% Created: Fri Feb 21 08:04:03 1997 by faith@cs.unc.edu
+% Revised: Wed Feb 26 13:51:54 1997 by faith@cs.unc.edu
+% Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
+% This program comes with ABSOLUTELY NO WARRANTY.
+% 
+% $Id: design.tex,v 1.1 1997/02/27 19:30:36 faith Exp $
+% 
+%
+\def\FileCreated{Fri Feb 21 08:04:03 1997}
+\def\FileRevised{Wed Feb 26 13:51:54 1997}
+
+\documentclass{article}
+\usepackage{xspace}
+\usepackage{ifthen}
+
+
+\newcommand{\WS}{\mbox{\tt <WS>\ }}
+\newcommand{\SP}{\mbox{\tt <SP>\ }}
+\newcommand{\NL}{\mbox{\tt <NL>\ }}
+\newcommand{\EOF}{\mbox{\tt <EOF>\ }}
+
+% grammar support
+\def\leftline{\topsep 0ex\partopsep 0ex\trivlist \raggedright \item[]}
+\let\endleftline=\endtrivlist
+\newcommand{\note}{\bigskip\par\noindent}
+\newcommand{\prd}[3][]{\noindent\begin{leftline}\hspace{1em}{\it #2}\ ::=\ %
+  \begin{minipage}[t]{.64\textwidth}\raggedright #3\end{minipage}%
+    \ifthenelse{\equal{#1}{}}{}%
+    {\begin{minipage}[t]{.54\textwidth}\raggedright #1\end{minipage}%
+      \vspace{1ex}}%
+    \end{leftline}}
+\newcommand{\opt}[1]{[~#1~]}
+\newcommand{\optlist}[1]{\leftbrace\ #1\ \rightbrace}
+\newcommand{\lhs}[1]{{\it #1\/}}
+\newcommand{\leftbrace}{\char'173}  % for cmtt10 font
+\newcommand{\rightbrace}{\char'175}
+\newcommand{\lit}[1]{{\tt #1}}
+
+\newcommand{\dict}{\textsc{dict}\xspace}
+\newcommand{\webster}{\textsc{webster}\xspace}
+
+\begin{document}
+
+\title{The Design and Implementation of the \dict Client/Server}
+\author{Rickard E. Faith\thanks{faith@cs.unc.edu}}
+\maketitle
+
+
+\section{Introduction}
+
+
+\subsection{Historical Background}
+
+The \webster program has long been available on the Internet.  This program
+uses a proprietary Webster's 7th edition dictionary which is available at
+only a few sites.  Due to overwhelming load, most of these sites have shut
+down access to the general Internet community.\footnote{We believe that
+  some original Arpanet sites have a license for a database which allows
+  serving the database to other sites, but we have been unable to confirm
+  these reports.  We also believe that some NeXT machines contained a copy
+  of the same or similar database and that some of the \webster servers on
+  the Internet have served this database.} For example, prior to 1994,
+generally accessible \webster servers were running at MIT, CMU, Indiana
+University, and several other sites.  Since 1996, the only publically
+available server appears to be running at the University of Michigan,
+although at least one other server is accessible via the WWW.
+
+Fortunately, in the past few years, several freely-distributable
+dictionaries and lexicons have become available on the Internet.  However,
+these freely-distributable databases are not accessible via a uniform
+interface, and are not accessible from a single site.  Further, they are
+often small and incomplete individually, but would collectively provide an
+interesting and useful database for providing definitions of English words.
+Examples include the Free On-line Dictionary of Computing, the Jargon file,
+the WordNet database, and MICRA's version of the 1913 Webster's Revised
+Unabridged Dictionary.\footnote{URLs and more information about each of
+  these databases are provided in a later section.} Several translating
+dictionaries are also available.
+
+\section{The \dict Protocol}
+
+\prd{banner}{\lit{server} \WS \lhs{number} \WS \lhs{string} \WS
+  \lhs{msg-id}}
+
+\note When a client connects, the server sends a \lhs{baner}.  \lhs{number}
+is the highest protocol level supported by the server, \lhs{string} is an
+arbitrary identification string, which may contain whitespace, and
+\lhs{msg-id} is a timestamp.  The syntax of the timestamp corresponds to
+the `msg-id' in RFC822 \cite{RFC822}, and \emph{must} be differrent each
+time the the \dict server issues a banner greeting.  For example,
+\begin{center}
+\begin{verbatim}
+<process-id.clock@hostname>
+\end{verbatim}
+\end{center}
+The timestamp can be used by a client to provide secure transmission of a
+shared secret in the manner described in RFC1939 \cite{RFC1939} for APOP
+authentication.\note
+
+\prd{error}{\lit{error} \WS \lhs{number} \lhs{error-message}}
+\prd{status}{\lit{status} \WS \lhs{status-message}}
+
+\note After the \lhs{banner} is sent, the conversation is client-driven.
+The server replies to the client requests with database information as
+described below, and/or with an \lhs{error} or \lhs{status} string.  A list
+of valid \lhs{number} codes is given below.  The \lhs{status} message may
+take any form and implies that the request completed without error.  Some
+server implementations may include a running total of commands,
+definitions, or resources requested by the client.  This may be useful for
+debugging or logging purposes.\note
+
+\prd{ident}{\lit{client} \WS \lhs{number} \WS \lhs{string}}
+\prd{ident-response}{\lhs{error}}
+\prd{ident-response}{\lhs{status}}
+
+\note The \lhs{client-ident} from the client specifies the protocol version
+that the client supports.  The server will reply with either an \lhs{error}
+or a \lhs{status} message.  From this point forward, the client will drive
+all communications.  Note that the \lhs{client-ident} is optional, thereby
+allowing simple use with a \texttt{telnet} connection.\note
+
+\prd{protocol}{\lit{protocol} \WS \lhs{number}}
+\prd{protocol-response}{\lhs{error}}
+\prd{protocol-response}{\lhs{status}}
+
+\note The client can request a protocol level change later in the
+conversation.  This will probably not be implemented in the prototype
+servers.\note
+
+\prd{show-db}{\lit{show} \WS \lit{databases}}
+\prd{show-db}{\lit{show} \WS \lit{db}}
+\prd{show-db-response}{\lit{databases} \WS \lhs{number} \NL \lhs{db-list}
+  \lhs{status}}
+\prd{db-list}{\lit{database} \WS \lhs{db-id} \WS \lhs{db-description} \NL
+              \lhs{db-list}}
+\prd{db-list}{}
+
+\note The short description of the database list should be suitable for use
+in a human-readable identification line of the form:
+\begin{center}
+  From <short-description>:
+\end{center}
+which can be used to preface a retrieved definition.  A typical reply might
+be as follows:
+
+\begin{verbatim}
+databases 3
+database wordnet "WordNet 1.5 Database"
+database jargon "Jargon File"
+database foldoc "Free Online Dictionary of Computing"
+status ok
+\end{verbatim}
+
+The descriptions given are from the databases themselves, and are stored
+under the required ``::short-description::'' headword.  See below for a
+complete list of required and optional headwords.
+\note
+
+\prd{show-strat}{\lit{show} \WS \lit{strategies}}
+\prd{show-strat}{\lit{show} \WS \lit{strat}}
+\prd{show-db-response}{\lit{strategies} \WS \lhs{number} \NL \lhs{strat-list}
+  \lhs{status}}
+\prd{strat-list}{\lit{strategy} \WS \lhs{strat-id} \WS
+  \lhs{strat-description} \NL \lhs{db-list}}
+\prd{strat-list}{}
+
+\note The strategies listed are all those available for use with the
+\lhs{match} command.  Some strategies may not be useful with all databases.
+A typical response might be as follows:
+
+\begin{verbatim}
+strategies 7
+strategy exact "Match words exactly"
+strategy prefix "Match prefixes"
+strategy substring "Match substring occurring anywhere in word"
+strategy regexp "Regular expression match"
+strategy soundex "Match using SOUNDEX algorithm"
+strategy levenshtein "Match words within an edit distance of one"
+strategy reverse "Match given definition fragment"
+status ok
+\end{verbatim}
+
+\prd{define}{\lit{define} \WS \lhs{word} \WS \lhs{db-id} \NL}
+\prd{define}{\lit{define} \WS \lhs{word} \NL}
+\prd{define-response}{\lhs{error}}
+\prd{define-response}{\lit{definitions} \WS \lhs{number} \NL
+                      \lhs{definition-list}
+                      \NL \lhs{status}}
+\prd{definition-list}{\lit{definition} \WS \lhs{word} \WS \lhs{db-id} \WS
+                      \lhs{db-description} \WS \lhs{number} \NL
+                      \lhs{bytes} \NL
+                      \lhs{definition-list}}
+\prd{definition-list}{}
+
+\note The definitions may contain binary characters, so the \lhs{number} of
+bytes in the definition is sent before the byte stream containing the
+definition.  If the \lhs{db-id} is not specified, then the first dictionary
+listed in the \lhs{db-list} is used.
+
+An error may occur if the exact word is not found in the dictionary, or if
+the \lhs{db-id} specified is not available.
+
+\prd{match}{\lit{match} \WS \lhs{word} \WS \lhs{strat-id} \WS \lhs{db-id} \NL}
+\prd{match}{\lit{match} \WS \lhs{word} \WS \lhs{strat-id} \NL}
+\prd{match-response}{\lhs{error}}
+\prd{match-response}{\lit{matches} \WS \lhs{number} \NL
+                     \lhs{match-list}
+                     \NL \lhs{status}}
+\prd{match-list}{\lit{match} \WS \lhs{word} \WS \lhs{db-id} \NL
+                 \lhs{definition-list}}
+\prd{match-list}{}
+
+\section{Other Dictionary Server Protocols}
+
+\subsection{The \webster Protocol}
+
+In the interest of preserving historical accuracy, the \webster protocol is
+presented here as it was implemented for the University of Michigan server.
+The original \webster protocol was able to access a thesaurus database and
+probably had additional commands that are not listed in this summary.  Our
+hope is to implement the \webster protocol as well as the \dict protocol in
+the same server.  To allow a mode-less interface to the two protocols, we
+have specified that the \dict protocol keywords are all lowercase.  Since
+the \webster protocol requires all keywords to be in uppercase, this should
+provide a suitable partitioning of the command namespace.  (For future
+expansion, mixed-case commands are still available as a third
+namespace.)\note
+
+\prd{command}{\lhs{keyword} \opt{\lhs{space} \lhs{argument}} \NL}
+\prd{\SP}{ASCII 32, a space}
+\prd{\NL}{ASCII 13 ASCII 10, a CR LF sequence}
+\prd{\NL}{ASCII 141, LispMachine NewLine character}
+\prd{\EOF}{ASCII 128}
+\prd{number}{String of ASCII digits representing a number}
+\prd{word}{ASCII string representing a word}
+
+\subsubsection{The Help Command}
+
+\prd{help}{\lit{HELP} \NL}
+\prd{help-response}{\lhs{help-document} \EOF}
+
+\subsubsection{The Define Command}
+
+\prd{define}{\lit{DEFINE} \SP \lhs{word} \NL}
+\prd{define-response}{\lhs{wild-response}}
+\prd{define-response}{\lhs{spelling-response}}
+\prd{define-response}{\lhs{definition-response}}
+
+\prd{wild-response}{\lit{WILD} \SP \lit{0} \NL}
+\prd{wild-response}{\lit{WILD} \NL \lhs{word-list} \EOF}
+\prd{word-list}{\lhs{numbered-word}}
+\prd{word-list}{\lhs{numbered-word} \lhs{word-list}}
+\prd{numbered-word}{\lhs{number} \SP \lhs{word} \NL}
+
+\note A \lhs{wild-response} is given when the word to be defined contained
+wildcard characters (`\%' which matches exactly one character, or `*' which
+matches 0 or more characters).  The word numbers are unique and can be used
+in place of the word itself in a \lhs{define} request.\note
+
+\prd{spelling-response}{\lit{SPELLING} \SP \lit{0} \NL}
+\prd{spelling-response}{\lit{SPELLING} \NL \lhs{word-list} \EOF}
+
+\note The \lhs{spelling-response} is returned if the requested word could
+not be found in the dictionary.  The list contains possible words which are
+within a Levenshtein distance of one from the requested word.  The exact
+\webster algorithm is unknown, but it appears that transposition, single
+character deletion, single character addition, and signel character
+correction are all attempted).\note
+
+\prd{definition-response}{\lit{DEFINITION} \SP \lhs{number}
+  \NL \opt{\lhs{word-list}} \lhs{definition} \EOF}
+\prd{definition}{Any amount of ASCII text}
+
+\note A \lhs{definition-response} is given when an exact match occurs.  The
+\lhs{number} given is the number of cross-references for that definition.
+These cross-references are given in the \lhs{word-list} (which is empty if
+there are zero cross-references given).
+
+
+\subsubsection{The Complete Command}
+
+\prd{complete}{\lit{COMPLETE} \SP \lhs{word} \NL}
+\prd{complete-response}{\lhs{ambiguous-response}}
+\prd{complete-response}{\lhs{completion-response}}
+
+\prd{ambiguous-response}{\lit{AMBIGUOUS} \SP \lhs{number} \EOF}
+
+\note The \lhs{ambiguous-response} is given if the requested word is the
+prefix or wild-card match of zero or more than one other words in the
+dictionary.\note
+
+\prd{completion-response}{\lit{COMPLETION} \SP \lhs{word} \NL}
+
+\note The \lhs{completion-response} is given if the requested word is the
+prefix or wildcard match of exactly one word in the dictionary.  The
+matching word is returned in the response.
+
+
+\subsubsection{The Endings Command}
+
+\prd{endings}{\lit{ENDINGS} \SP \lhs{word} \NL}
+\prd{endings-response}{\lit{MATCHES} \SP \lit{0} \NL}
+\prd{endings-response}{\lit{MATCHES} \NL \lhs{word-list} \EOF}
+
+\note The endings command returns a prefix or wild-card match on the
+requested word.  The notes specifically state that the numbers returned
+cannot be used in a subsequent define command, but the implemented server
+appears to allow this.  Note that this command is similar to ``DEFINE
+word*''.
+
+
+\subsubsection{The Spell Command}
+
+\prd{spell}{\lit{SPELL} \SP \lhs{word} \EOF}
+\prd{spell-response}{\lit{SPELLING} \SP \lhs{number} \NL}
+\prd{spell-response}{\lit{SPELLING} \NL \lhs{word-list} \EOF}
+
+\note If the requested word matches exactly one word in the dictionary, the
+response number is one.  Otherwise it is zero.  Wildcards are not allowed
+in spell requests.  If the word is not found, but other words are found
+within a Levenshtein distance of one from the requested word, these words
+are returned in a list (e.g., centre).
+
+\subsubsection{Other Responses and Notes}
+
+Additionally, the following error responses are possible:
+
+\prd{error}{\lit{ERROR RECOVERABLE}\lhs{error-message}\NL}
+\prd{error}{\lit{ERROR FATAL}\lhs{error-message}\NL}
+
+\note If there is additional data in the response, the data is followed by
+an EOF packet (ASCII 128).
+
+After a fatal error, the server will terminate the connection.
+
+\section{Available Databases}
+
+In general, dictionary databases that might be useful with \dict fall into
+three classes:
+\begin{itemize}
+\item Databases which are in the public domain or which have licenses which
+  specifically permit their use in a program such as \dict.
+\item Databases which are accessible via the Internet or the WWW, but which
+  have an unknown or ambiguous copyright or other licensing restrictions
+  that make their use in \dict problematic.
+\item Commercial databases which are available on CDROM, which \emph{might}
+  be suitable for personal or educational use but which \emph{cannot} be
+  redistributed using the \dict server.
+\end{itemize}
+
+Databases in the last two catagories are listed here for informational
+purposes only.  Many of these databases are probably not suitable for use
+with \dict due to legal restrictions on their use and/or distribution.  We
+do not have the legal resources available to determine which databases are
+redistributable.
+
+The only databases which we will provide for use with \dict are those that
+are clearly in the Public Domain, or those for which we have specific
+permission from the author or copyright owner to redistribute.
+Fortunately, this catagory now includes enough information to make \dict a
+useful system.
+
+\end{document}
