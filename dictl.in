@@ -1,0 +1,77 @@
+#!/bin/sh
+
+# by Aleksey Cheusov <vle@gmx.net>
+
+sysconfdir=@sysconfdir@
+
+#####################################
+if test -z "$DICTL_SERVER_CHARSET"; then
+    DICTL_SERVER_CHARSET=utf-8
+fi
+
+if test -z "$DICTL_CHARSET"; then
+    DICTL_CHARSET=`locale | sed -n '/^LC_CTYPE=/ { s/"\|^.*\.//g; p; }'`
+fi
+
+if test -z "$DICTL_PAGER"; then
+    if test -r ~/.dictrc; then
+	DICTL_PAGER=`awk '$1 == "pager" {print $2}' < ~/.dictrc`
+	if test -z "$DICTL_PAGER" && test -r $sysconfdir/dict.conf; then
+	    DICTL_PAGER=`awk '$1 == "pager" {print $2}' < $sysconfdir/dict.conf`
+	fi
+    fi
+
+    if test -z "$DICTL_PAGER"; then
+	DICTL_PAGER=less
+    fi
+fi
+
+charset2charset (){
+    if test "$DICTL_USE_ICONV"; then
+	iconv -f $1 -t $2
+    else if test "$DICTL_USE_KONWERT"; then
+	konwert $1-$2
+    else
+	recode -f $1..$2
+    fi fi
+}
+
+#####################################
+
+params="dict"
+
+while test $# -ne 0; do
+    case $1 in
+	--run-a-pipe)
+	    charset2charset $DICTL_SERVER_CHARSET $DICTL_CHARSET
+	    exit $?;;
+	-P|--pipe)
+	    DICTL_PAGER=$2
+	    shift;;
+	*)
+	    p=`echo $1 | charset2charset $DICTL_CHARSET $DICTL_SERVER_CHARSET`
+	    params="$params '$p'"
+
+	    # ...to be comatible with dict
+	    if echo $1 |
+		awk '{
+		    exit ($0 !~ /^(-L|--license|-V|--version|--help)$/)
+		}'
+	    then
+		DICTL_PAGER=
+		break
+	    fi;;
+    esac
+
+    shift
+done
+
+if test "_$DICTL_PAGER" = '_-'; then
+    DICTL_PAGER=
+fi
+
+if test -z "$DICTL_PAGER"; then
+    eval $params -P - | $0 --run-a-pipe
+else
+    eval $params -P - | $0 --run-a-pipe | $DICTL_PAGER
+fi
