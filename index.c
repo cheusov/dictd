@@ -17,13 +17,14 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.59 2003/03/02 13:11:47 cheusov Exp $
+ * $Id: index.c,v 1.60 2003/03/03 17:24:30 cheusov Exp $
  * 
  */
 
 #include "dictzip.h"
 #include "dictd.h"
 #include "regex.h"
+#include "strategy.h"
 
 #include <sys/stat.h>
 
@@ -1521,7 +1522,10 @@ static int dict_search_database_ (
       return dict_search_word( l, buf, database);
 
    default:
+      return 0;
+/*
       err_internal( __FUNCTION__, "Search strategy %d unknown\n", strategy );
+*/
    }
 }
 
@@ -1633,7 +1637,7 @@ static int plugin_initdata_set_dbnames (dictPluginData *data, int data_size)
 
 static int plugin_initdata_set_stratnames (dictPluginData *data, int data_size)
 {
-   const dictStrategy *strats;
+   dictStrategy **strats;
    int count;
    int ret = 0;
    int i;
@@ -1642,33 +1646,31 @@ static int plugin_initdata_set_stratnames (dictPluginData *data, int data_size)
    if (data_size <= 0)
       err_fatal (__FUNCTION__, "too small initial array");
 
-   count = get_strategies_count ();
+   count = get_strategy_count ();
    assert (count > 0);
 
    strats = get_strategies ();
 
    for (i = 0; i < count; ++i){
-      if (strats [i].number >= 0){
-	 data -> id   = DICT_PLUGIN_INITDATA_STRATEGY;
+      data -> id   = DICT_PLUGIN_INITDATA_STRATEGY;
 
-	 if (
-	    strlen (strats [i].name) + 1 >
-	    sizeof (datum.name))
-	 {
-	    err_fatal (__FUNCTION__, "too small initial array");
-	 }
-
-	 datum.number = strats [i].number;
-	 strcpy (datum.name, strats [i].name);
-
-	 data -> size = sizeof (datum);
-	 data -> data = xmalloc (sizeof (datum));
-
-	 memcpy ((void *) data -> data, &datum, sizeof (datum));
-
-	 ++data;
-	 ++ret;
+      if (
+	 strlen (strats [i] -> name) + 1 >
+	 sizeof (datum.name))
+      {
+	 err_fatal (__FUNCTION__, "too small initial array");
       }
+
+      datum.number = strats [i] -> number;
+      strcpy (datum.name, strats [i] -> name);
+
+      data -> size = sizeof (datum);
+      data -> data = xmalloc (sizeof (datum));
+
+      memcpy ((void *) data -> data, &datum, sizeof (datum));
+
+      ++data;
+      ++ret;
    }
 
    return ret;

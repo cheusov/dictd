@@ -17,16 +17,18 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.59 2003/03/02 13:47:57 cheusov Exp $
+ * $Id: daemon.c,v 1.60 2003/03/03 17:24:26 cheusov Exp $
  * 
  */
 
 #include "dictd.h"
 #include <ctype.h>
 #include <setjmp.h>
+
 #include "md5.h"
 #include "regex.h"
 #include "dictdplugin.h"
+#include "strategy.h"
 
 #ifndef HAVE_INET_ATON
 #define inet_aton(a,b) (b)->s_addr = inet_addr(a)
@@ -40,7 +42,6 @@ extern int snprintf(char *str, size_t size, const char *format, ...);
 extern int vsnprintf(char *str, size_t size, const char *format, va_list ap);
 #endif
 
-int default_strategy  = DICT_DEFAULT_STRATEGY;
 
 static int          _dict_defines, _dict_matches;
 static int          daemonS;
@@ -95,67 +96,6 @@ static struct {
    { 1, {"q"},                  daemon_quit },
 };
 #define COMMANDS (sizeof(commandInfo)/sizeof(commandInfo[0]))
-
-static dictStrategy strategyInfo[] = {
-   {"exact",     "Match headwords exactly",                    DICT_EXACT },
-   {"prefix",    "Match prefixes",                             DICT_PREFIX },
-   {"substring", "Match substring occurring anywhere in a headword", DICT_SUBSTRING},
-   {"suffix",    "Match suffixes",                             DICT_SUFFIX},
-   {"re",        "POSIX 1003.2 (modern) regular expressions",  DICT_RE },
-   {"regexp",    "Old (basic) regular expressions",            DICT_REGEXP },
-   {"soundex",   "Match using SOUNDEX algorithm",              DICT_SOUNDEX },
-   {"lev", "Match headwords within Levenshtein distance one",  DICT_LEVENSHTEIN },
-   {"word", "Match separate words within headwords",           DICT_WORD },
-};
-#define STRATEGIES (sizeof(strategyInfo)/sizeof(strategyInfo[0]))
-
-int get_strategies_count (void)
-{
-   return STRATEGIES;
-}
-
-const dictStrategy *get_strategies (void)
-{
-   return strategyInfo;
-}
-
-static int lookup_strategy_index ( const char *strategy )
-{
-   int i;
-
-   for (i = 0; i < STRATEGIES; i++) {
-      if (
-	 !strcasecmp (strategy, strategyInfo[i].name) &&
-	 strategyInfo [i].number >= 0)
-      {
-         return i;
-      }
-   }
-
-   return -1;
-}
-
-int lookup_strategy( const char *strategy )
-{
-   int idx;
-   if (strategy[0] == '.' && strategy[1] == '\0')
-      return default_strategy;
-
-   idx = lookup_strategy_index (strategy);
-   if (-1 == idx)
-      return -1;
-   else
-      return strategyInfo [idx].number;
-}
-
-dictStrategy * lookup_strat( const char *strategy )
-{
-   int idx = lookup_strategy_index (strategy);
-   if (-1 == idx)
-      return NULL;
-   else
-      return strategyInfo + idx;
-}
 
 static void *(lookup_command)( int argc, char **argv )
 {
@@ -295,8 +235,8 @@ static int daemon_check_mask(const char *spec, const char *ip)
    
    bitmask = daemon_compute_mask(bits);
    if ((ntohl(target.s_addr) & bitmask) == (ntohl(mask.s_addr) & bitmask)) {
-       PRINTF(DBG_AUTH, ("%s matches %s/%d\n", tstring, mstring, bits));
-       return DICT_MATCH;
+      PRINTF(DBG_AUTH, ("%s matches %s/%d\n", tstring, mstring, bits));
+      return DICT_MATCH;
    }
    PRINTF(DBG_AUTH, ("%s does NOT match %s/%d\n", tstring, mstring, bits));
    return DICT_NOMATCH;
@@ -1147,7 +1087,9 @@ static void daemon_show_db( const char *cmdline, int argc, char **argv )
 static void daemon_show_strat( const char *cmdline, int argc, char **argv )
 {
    int i;
-   int strategy_count;
+
+   int strat_count        = get_strategy_count ();
+   dictStrategy ** strats = get_strategies ();
 
    if (argc != 2) {
       daemon_printf( "%d syntax error, illegal parameters\n",
@@ -1155,22 +1097,16 @@ static void daemon_show_strat( const char *cmdline, int argc, char **argv )
       return;
    }
 
-   strategy_count = 0;
+   if (strat_count){
+      daemon_printf( "%d %d databases present\n",
+		     CODE_STRATEGY_LIST, strat_count );
+      daemon_mime();
 
-   for (i = 0; i < STRATEGIES; i++) {
-      if (strategyInfo[i].number >= 0){
-	 if (!strategy_count++){
-	    daemon_printf( "%d %d databases present\n",
-			   CODE_STRATEGY_LIST, STRATEGIES );
-	    daemon_mime();
-	 }
-
+      for (i = 0; i < strat_count; i++) {
 	 daemon_printf( "%s \"%s\"\n",
-			strategyInfo[i].name, strategyInfo[i].description );
+			strats [i] -> name, strats [i] -> description );
       }
-   }
 
-   if (strategy_count){
       daemon_printf( ".\n" );
       daemon_ok( CODE_OK, "ok", NULL );
    }else{

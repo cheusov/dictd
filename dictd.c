@@ -17,12 +17,13 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.75 2003/03/02 13:47:57 cheusov Exp $
+ * $Id: dictd.c,v 1.76 2003/03/03 17:24:28 cheusov Exp $
  * 
  */
 
 #include "dictd.h"
 #include "servparse.h"
+#include "strategy.h"
 
 #include <grp.h>                /* initgroups */
 #include <pwd.h>                /* getpwuid */
@@ -808,7 +809,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.75 2003/03/02 13:47:57 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.76 2003/03/03 17:24:28 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1070,6 +1071,7 @@ static void init (const char *fn)
 {
    maa_init (fn);
    dict_ltdl_init ();
+   dict_init_strategies ();
 }
 
 static void destroy ()
@@ -1081,6 +1083,7 @@ static void destroy ()
    src_destroy ();
    str_destroy ();
    dict_ltdl_close ();
+   dict_destroy_strategies ();
 }
 
 static void dict_make_dbs_available (dictConfig *cfg)
@@ -1121,36 +1124,8 @@ static void dict_test (
    dict_destroy_list (l);
 }
 
-static const char *       without_strategy_arg = NULL;
-static dictStrategy *     without_strategy = (dictStrategy *) 1;
-
-static void disable_strategy (const char *strategies)
-{
-   char buffer [400];
-   int  i;
-   int  len = strlen (strategies);
-
-   if (len >= sizeof (buffer))
-      len = sizeof (buffer) - 1;
-
-   strncpy (buffer, strategies, len);
-   buffer [len] = '\0';
-
-   for (i = 0; i < len; ++i){
-      if (',' == buffer [i])
-	 buffer [i] = '\0';
-   }
-   for (i = 0; i < len; ){
-      without_strategy_arg = buffer + i;
-      i += strlen (without_strategy_arg) + 1;
-      without_strategy = lookup_strat (without_strategy_arg);
-      if (without_strategy){
-	 without_strategy -> number = -1;
-      }else{
-	 break;
-      }
-   }
-}
+//static const char *       without_strategy_arg = NULL;
+//static dictStrategy *     without_strategy = (dictStrategy *) 1;
 
 int main( int argc, char **argv, char **envp )
 {
@@ -1175,9 +1150,12 @@ int main( int argc, char **argv, char **envp )
    int                i;
 
    const char *       strategy_arg = "exact";
-   int                strategy = lookup_strategy (strategy_arg);
+   int                strategy     = DICT_EXACT;
 
    const char *       default_strategy_arg = "???";
+
+   char *             new_strategy;
+   char *             new_strategy_descr;
 
    struct option      longopts[]   = {
       { "verbose",  0, 0, 'v' },
@@ -1210,10 +1188,12 @@ int main( int argc, char **argv, char **envp )
       { "without-strategy", 1, 0, 513 },
       { "test-nooutput",    0, 0, 514 },
       { "test-idle",        0, 0, 515 },
+      { "add-strategy",     1, 0, 516 },
       { 0,                  0, 0, 0  }
    };
 
    release_root_privileges();
+
    init(argv[0]);
 
    flg_register( LOG_SERVER,    "server" );
@@ -1282,7 +1262,7 @@ int main( int argc, char **argv, char **envp )
 	 match_mode = 1;
 	 break;
       case 513:
-	 disable_strategy (optarg);
+	 dict_disable_strategies (optarg);
 	 break;
       case 514:
 	 nooutput_mode = 1;
@@ -1290,21 +1270,32 @@ int main( int argc, char **argv, char **envp )
       case 515:
 	 idle_mode = 1;
 	 break;
+      case 516:
+	 new_strategy = optarg;
+	 new_strategy_descr = strchr (new_strategy, ':');
+	 if (!new_strategy_descr)
+	    exit (7);
+
+	 *new_strategy_descr++ = 0;
+
+	 dict_add_strategy (new_strategy, new_strategy_descr);
+
+	 break;
       case 'h':
       default:  help(); exit(0);                          break;
       }
 
    if (
       -1 == strategy ||
-      (strategy_arg = without_strategy_arg, NULL == without_strategy) ||
+//      (strategy_arg = without_strategy_arg, NULL == without_strategy) ||
       (strategy_arg = default_strategy_arg, -1 == default_strategy))
    {
       fprintf (stderr, "%s is not a valid search strategy\n", strategy_arg);
       fprintf (stderr, "available ones are:\n");
-      for (i = 0; i < get_strategies_count (); ++i){
+      for (i = 0; i < get_strategy_count (); ++i){
 	  fprintf (
 	      stderr, "  %15s : %s\n",
-	      get_strategies () [i].name, get_strategies () [i].description);
+	      get_strategies () [i] -> name, get_strategies () [i] -> description);
       }
       exit (1);
    }

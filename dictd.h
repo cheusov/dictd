@@ -67,7 +67,6 @@
 #define DICT_FLAG_ALLCHARS       DICT_ENTRY_PREFIX"-allchars"
 #define DICT_FLAG_VIRTUAL        DICT_ENTRY_PREFIX"-virtual"
 
-#define DICT_DEFAULT_STRATEGY    DICT_LEVENSHTEIN
 
 				/* End of configurable things */
 
@@ -116,12 +115,6 @@
 #define DICT_DZIP       3
 
 #define DICT_CACHE_SIZE 5
-
-typedef struct dictStrategy {
-   const char *name;
-   const char *description;
-   int        number;
-} dictStrategy;
 
 typedef struct dictCache {
    int           chunk;
@@ -288,11 +281,7 @@ extern int   dict_data_filter(
    char *buffer, int *len, int maxLength,
    const char *filter );
 
-extern int get_strategies_count (void);
-extern const dictStrategy *get_strategies (void);
-extern dictStrategy * lookup_strat( const char *strategy );
-extern int lookup_strategy( const char *strategy );
-
+/**/
 extern const char *dict_index_search( const char *word, dictIndex *idx );
 extern int         dict_search (
    lst_List l,
@@ -350,9 +339,6 @@ extern const char *postprocess_plugin_filename (const char *fn);
 extern int  dict_daemon( int s, struct sockaddr_in *csin, char ***argv0,
 			 int delay, int error );
 extern void daemon_terminate( int sig, const char *name );
-extern int get_strategies_count ();
-extern const dictStrategy *get_strategies ();
-extern int lookup_strategy( const char *strategy );
 
 /* */
 extern int        utf8_mode;
