@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_judy.c,v 1.1 2003/08/07 16:24:48 cheusov Exp $
+ * $Id: dictdplugin_judy.c,v 1.2 2003/08/08 12:35:40 cheusov Exp $
  * 
  */
 
@@ -48,6 +48,8 @@
 
 typedef struct heap_struct {
    char *ptr;
+
+   char *last;
 
    int magic_num;
    int allocated_bytes;
@@ -94,32 +96,80 @@ static void heap_destroy (void **heap)
 static void * heap_alloc (void *heap, size_t size)
 {
    heap_s *h = (heap_s *) heap;
+//   fprintf (stderr, "heap_alloc\n");
 
    if (size >= HEAP_LIMIT || h -> allocated_bytes + size > HEAP_ARRAY_SIZE){
       return xmalloc (size);
    }else{
+//      fprintf (stderr, "heap alloc\n");
+
+      h -> last = h -> ptr + h -> allocated_bytes;
       h -> allocated_bytes  += size;
       h -> allocation_count += 1;
 
-      return h -> ptr + h -> allocated_bytes - size;
+      return h -> last;
    }
+}
+
+static char * heap_strdup (void *heap, const char *s)
+{
+   size_t len = strlen (s);
+   char *p = (char *) heap_alloc (heap, len + 1);
+   memcpy (p, s, len + 1);
+   return p;
 }
 
 static void heap_free (void *heap, void *p)
 {
    heap_s *h = (heap_s *) heap;
 
-   if (!p)
+//   fprintf (stderr, "heap_free\n");
+
+   if (!p){
+//      fprintf (stderr, "heap_free(NULL)\n");
       return;
+   }
 
    if ((char *) p >= h -> ptr && (char *) p < h -> ptr + HEAP_ARRAY_SIZE){
+//      fprintf (stderr, "heap free\n");
+
       h -> allocation_count -= 1;
 
       if (!h -> allocation_count){
+//	 fprintf (stderr, "heap destroied\n");
 	 h -> allocated_bytes = 0;
       }
+
+      h -> last = NULL;
    }else{
       xfree (p);
+   }
+}
+
+static void * heap_realloc (void *heap, void *p, size_t size)
+{
+   heap_s *h = (heap_s *) heap;
+   char *new_p;
+
+   if (!p)
+      return heap_alloc (heap, size);
+
+   if ((char *) p >= h -> ptr && (char *) p < h -> ptr + HEAP_ARRAY_SIZE){
+      assert (h -> last == p);
+
+      if (h -> allocated_bytes + size > HEAP_ARRAY_SIZE){
+	 new_p = xmalloc (size);
+	 memcpy (new_p, (char *) p, (h -> ptr + h -> allocated_bytes) - (char *) p);
+	 h -> allocated_bytes = (char *) p - h -> ptr;
+	 h -> last = NULL;
+
+	 return new_p;
+      }else{
+	 h -> allocated_bytes  = ((char *) p - h -> ptr) + size;
+	 return p;
+      }
+   }else{
+      return xrealloc (p, size);
    }
 }
 
@@ -129,6 +179,7 @@ typedef struct global_data_s {
    char m_err_msg  [BUFSIZE];
 
    void *m_heap;
+   void *m_heap2;
 
 //   char * m_res;
 //   int m_res_size;
@@ -508,12 +559,16 @@ static void it_incr1 (
    ++ *(PWord_t) value;
 }
 
-/* iterate over all entries WORD/VALUE in judy array JUDY */
+/* iterate over entries WORD/VALUE in judy array JUDY */
 #define JUDY_ITERATE(JUDY,VALUE,WORD)            \
-   WORD [0] = 0;                                 \
-   for (VALUE = JudySLFirst (JUDY, WORD, 0);     \
+   for (;                                        \
         VALUE;                                   \
         VALUE = JudySLNext (JUDY, WORD, 0))
+
+#define JUDY_ITERATE_ALL(JUDY,VALUE,WORD)        \
+   WORD [0] = 0;                                 \
+   VALUE = JudySLFirst (JUDY, WORD, 0);          \
+   JUDY_ITERATE(JUDY,VALUE,WORD)
 
 /*
 static void debug_print (global_data *dict_data)
@@ -523,7 +578,7 @@ static void debug_print (global_data *dict_data)
 
    assert (sizeof (word) > dict_data -> m_max_hw_len);
 
-   JUDY_ITERATE (dict_data -> m_judy_array, value, word){
+   JUDY_ITERATE_ALL (dict_data -> m_judy_array, value, word){
       fprintf (stderr, "%s --> %li\n", word, * (PWord_t) value);
    }
 }
@@ -539,7 +594,7 @@ static Word_t count2offs (global_data *dict_data)
    Word_t val;
 
    assert (sizeof (word) > dict_data -> m_max_hw_len);
-   JUDY_ITERATE (dict_data -> m_judy_array, value, word){
+   JUDY_ITERATE_ALL (dict_data -> m_judy_array, value, word){
       val = (*(PWord_t) value);
       *(PWord_t) value = sum;
       sum += val;
@@ -596,6 +651,7 @@ static void read_index_file (
 
 //      fprintf (stderr, "%s %li %li\n", buf, def_offset, def_size);
       value = JudySLIns (&dict_data -> m_judy_array, buf, 0);
+      assert (value != (PPvoid_t) 0 && value != (PPvoid_t) -1);
 
       (*fun) (dict_data, value, buf, def_offset, def_size);
 //      fprintf (stderr, "value=%li\n", *(PWord_t)value);
@@ -666,7 +722,7 @@ static void init_index_file (global_data *dict_data)
       return;
 
 //   fputs ("ura1\n", stderr);
-   JUDY_ITERATE (dict_data -> m_judy_array, value, word){
+   JUDY_ITERATE_ALL (dict_data -> m_judy_array, value, word){
       val = *(PWord_t) value;
 //      fprintf (stderr, "%s --> %li\n", word, val);
       *value = dict_data -> m_offs_size_array + val * 2;
@@ -676,7 +732,7 @@ static void init_index_file (global_data *dict_data)
 //   return;
 
 //   fputs ("ura2\n", stderr);
-//   JUDY_ITERATE (dict_data -> m_judy_array, value, word){
+//   JUDY_ITERATE_ALL (dict_data -> m_judy_array, value, word){
 //      fprintf (
 //	 stderr,
 //	 "%s --> %i %i\n",
@@ -773,8 +829,8 @@ int dictdb_open (
       return 1;
 
 //   fprintf (stderr, "max_word_len = %i\n", dict_data -> m_max_hw_len);
-   if (dict_data -> m_max_hw_len > BUFSIZE - 1){
-//      plugin_error (dict_data, "Index file contains too long word");
+   if (dict_data -> m_max_hw_len > BUFSIZE - 100){
+      plugin_error (dict_data, "Index file contains too long word");
       return 1;
    }
 
@@ -805,8 +861,9 @@ const char *dictdb_error (void *dict_data)
 int dictdb_free (void * data)
 {
    int i;
-
    global_data *dict_data = (global_data *) data;
+
+//   fprintf (stderr, "dictdb_free\n");
 
    if (dict_data){
       heap_free (dict_data -> m_heap, dict_data -> m_mres_sizes);
@@ -874,6 +931,87 @@ static int match_prefix (
    const int **result_sizes,
    int *results_count)
 {
+   int cnt = 0;
+   PPvoid_t value;
+   PPvoid_t value_last;
+
+   char curr_word [BUFSIZE];
+   size_t len = strlen (word);
+   int cmp_res;
+
+   strlcpy (curr_word, word, sizeof (curr_word));
+
+   if (len){
+      /* trick:
+	 here we construct a word that is "largest" one
+	 with the prefix 'word' (function argument)
+      */
+      curr_word [len + 0] = UCHAR_MAX;
+      curr_word [len + 1] = UCHAR_MAX;
+      curr_word [len + 2] = UCHAR_MAX;
+      curr_word [len + 3] = UCHAR_MAX;
+      curr_word [len + 4] = UCHAR_MAX;
+      curr_word [len + 5] = UCHAR_MAX;
+      curr_word [len + 6] = UCHAR_MAX;
+      curr_word [len + 7] = 0;
+
+      value_last = JudySLPrev (dict_data -> m_judy_array, curr_word, 0);
+//      fprintf (stderr, "last=%s %p\n", curr_word, value_last);
+      curr_word [len + 0] = 0;
+   }else{
+      value_last = NULL;
+   }
+
+   strlcpy (curr_word, word, sizeof (curr_word));
+   value = JudySLGet (dict_data -> m_judy_array, curr_word, 0);
+   if (!value)
+      value = JudySLNext (dict_data -> m_judy_array, curr_word, 0);
+
+//   fprintf (stderr, "first=%s %p\n", curr_word, value);
+
+   for (
+      ;
+      value;
+      value = JudySLNext (dict_data -> m_judy_array, curr_word, 0))
+   {
+      if (value == value_last){
+	 cmp_res = strncmp (word, curr_word, len);
+
+	 if (cmp_res){
+//	    fprintf (stderr, "%s != %s\n", word, curr_word);
+	    break;
+	 }
+      }
+
+      ++cnt;
+
+      dict_data -> m_mres = (const char **)
+	 xrealloc (
+	    dict_data -> m_mres,
+	    cnt * sizeof (dict_data -> m_mres [0]));
+      dict_data -> m_mres [cnt - 1] =
+	 heap_strdup (dict_data -> m_heap, curr_word);
+
+      dict_data -> m_mres_sizes = (int *)
+	 xrealloc (
+	    dict_data -> m_mres_sizes,
+	    cnt * sizeof (dict_data -> m_mres_sizes [0]));
+      dict_data -> m_mres_sizes [cnt - 1] = -1;
+
+      if (value == value_last){
+	 break;
+      }
+   }
+
+   dict_data -> m_mres_count = cnt;
+
+   *result       = dict_data -> m_mres;
+   *result_sizes = dict_data -> m_mres_sizes;
+
+   *results_count = cnt;
+
+   *ret = DICT_PLUGIN_RESULT_FOUND;
+
    return 0;
 }
 
@@ -886,6 +1024,49 @@ static int match_suffix (
    const int **result_sizes,
    int *results_count)
 {
+   int cnt = 0;
+   PPvoid_t value;
+
+   char curr_word [BUFSIZE];
+
+   size_t len = strlen (word);
+   size_t curr_len;
+
+   curr_word [0] = 0;
+
+   JUDY_ITERATE_ALL (dict_data -> m_judy_array, value, curr_word){
+      curr_len = strlen (curr_word);
+      if (curr_len < len)
+	 continue;
+
+      if (strncmp (word, curr_word + curr_len - len, len))
+	 continue;
+
+      ++cnt;
+
+      dict_data -> m_mres = (const char **)
+	 xrealloc (
+	    dict_data -> m_mres,
+	    cnt * sizeof (dict_data -> m_mres [0]));
+      dict_data -> m_mres [cnt - 1] =
+	 heap_strdup (dict_data -> m_heap, curr_word);
+
+      dict_data -> m_mres_sizes = (int *)
+	 xrealloc (
+	    dict_data -> m_mres_sizes,
+	    cnt * sizeof (dict_data -> m_mres_sizes [0]));
+      dict_data -> m_mres_sizes [cnt - 1] = -1;
+   }
+
+   dict_data -> m_mres_count = cnt;
+
+   *result       = dict_data -> m_mres;
+   *result_sizes = dict_data -> m_mres_sizes;
+
+   *results_count = cnt;
+
+   *ret = DICT_PLUGIN_RESULT_FOUND;
+
    return 0;
 }
 
@@ -898,6 +1079,49 @@ static int match_soundex (
    const int **result_sizes,
    int *results_count)
 {
+   int cnt = 0;
+   PPvoid_t value;
+
+   char curr_word [BUFSIZE];
+
+   char soundex  [5];
+   char soundex2 [5];
+
+   curr_word [0] = 0;
+
+   txt_soundex2 (word, soundex);
+
+   JUDY_ITERATE_ALL (dict_data -> m_judy_array, value, curr_word){
+      txt_soundex2 (curr_word, soundex2);
+
+      if (strcmp (soundex, soundex2))
+	 continue;
+
+      ++cnt;
+
+      dict_data -> m_mres = (const char **)
+	 xrealloc (
+	    dict_data -> m_mres,
+	    cnt * sizeof (dict_data -> m_mres [0]));
+      dict_data -> m_mres [cnt - 1] =
+	 heap_strdup (dict_data -> m_heap, curr_word);
+
+      dict_data -> m_mres_sizes = (int *)
+	 xrealloc (
+	    dict_data -> m_mres_sizes,
+	    cnt * sizeof (dict_data -> m_mres_sizes [0]));
+      dict_data -> m_mres_sizes [cnt - 1] = -1;
+   }
+
+   dict_data -> m_mres_count = cnt;
+
+   *result       = dict_data -> m_mres;
+   *result_sizes = dict_data -> m_mres_sizes;
+
+   *results_count = cnt;
+
+   *ret = DICT_PLUGIN_RESULT_FOUND;
+
    return 0;
 }
 
@@ -983,24 +1207,26 @@ int dictdb_search (
       word_size = strlen (word);
    }
 
-   if (word_size > dict_data -> m_max_hw_len){
-//      fprintf (stderr, "This word is too long\n");
-      return 0;
-   }
-
-   strlcpy (word_copy2, word, sizeof (word_copy2));
-
-   tolower_alnumspace (
-      dict_data,
-      word_copy2,
-      word_copy2,
-      dict_data -> m_conf_allchars);
-
    match_search_type = search_strategy & DICT_MATCH_MASK;
    search_strategy &= ~DICT_MATCH_MASK;
 
    assert (!dict_data -> m_mres);
    assert (!dict_data -> m_mres_sizes);
+
+   strlcpy (word_copy2, word, sizeof (word_copy2));
+
+   if (
+      search_strategy != dict_data -> m_strat_regexp &&
+      search_strategy != dict_data -> m_strat_re)
+   {
+      tolower_alnumspace (
+	 dict_data, word_copy2, word_copy2, dict_data -> m_conf_allchars);
+
+      if (word_size > dict_data -> m_max_hw_len){
+//      fprintf (stderr, "This word is too long\n");
+	 return 0;
+      }
+   }
 
    if (match_search_type){
       if (search_strategy == dict_data -> m_strat_exact){
