@@ -157,7 +157,7 @@ convert_files_to_stdout (){
 		process_config_line()
 	    }
 	}else{
-	    pipe = pp " <\"" config_file "\""
+	    pipe = pp " -DHOME=" ENVIRON ["HOME"] " <\"" config_file "\""
 
 	    while (0 < (ret = (pipe | getline))){
 		process_config_line()
