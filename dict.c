@@ -1,10 +1,10 @@
 /* dict.c -- 
  * Created: Fri Mar 28 19:16:29 1997 by faith@cs.unc.edu
- * Revised: Sun Jan  4 19:56:51 1998 by faith@acm.org
+ * Revised: Sun Jan 18 19:51:17 1998 by faith@acm.org
  * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dict.c,v 1.15 1998/01/05 01:07:00 faith Exp $
+ * $Id: dict.c,v 1.16 1998/01/19 03:37:17 faith Exp $
  * 
  */
 
@@ -14,6 +14,8 @@
 
 extern int         yy_flex_debug;
        lst_List    dict_Servers;
+       const char  *dict_pager;
+       FILE        *dict_output = stdout;
 
 #define BUFFERSIZE  2048
 #define PIPESIZE     256
@@ -127,18 +129,45 @@ static lst_List client_read_text( int s )
    return l;
 }
 
+static void client_open_pager( void )
+{
+   int infd;
+   
+   if (dict_output && dict_output != stdout) return;
+
+				/* default */
+   dict_output = stdout;
+				/* use an empty string to avoid paging */
+   if ((dict_pager || (dict_pager = getenv("PAGER"))) && *dict_pager) {
+      PRINTF(DBG_VERBOSE,("Using \"%s\" as pager\n",dict_pager));
+      pr_open( dict_pager, PR_CREATE_STDIN, &infd, NULL, NULL );
+      dict_output = fdopen( infd, "w" );
+   }
+}
+
+static void client_close_pager( void )
+{
+   if (dict_output) fflush(dict_output);
+   else             fflush(stdout);
+   
+   if (dict_output && dict_output != stdout) {
+      pr_close(fileno(dict_output));
+   }
+   dict_output = stdout;
+}
+
 static void client_print_text( lst_List l, int html )
 {
    lst_Position p;
    const char   *e;
 
    if (!l) return;
-   if (html) printf( "<PRE>\n" );
+   if (html) fprintf( dict_output, "<PRE>\n" );
    LST_ITERATE(l,p,e) {
-      if (html) printf( "%s\n", e );
-      else      printf( "  %s\n", e );
+      if (html) fprintf( dict_output, "%s\n", e );
+      else      fprintf( dict_output, "  %s\n", e );
    }
-   if (html) printf( "</PRE>\n" );
+   if (html) fprintf( dict_output, "</PRE>\n" );
 }
 
 static void client_print_matches( lst_List l, int html, int flag,
@@ -166,13 +195,14 @@ static void client_print_matches( lst_List l, int html, int flag,
    }
 
    if (flag) {
-      if (html) printf( "<H2>" );
+      if (html) fprintf( dict_output, "<H2>" );
       if (count)
-	 printf( "%d match%s found", count, count == 1 ? "" : "es" );
+	 fprintf( dict_output,
+		  "%d match%s found", count, count == 1 ? "" : "es" );
       else
-	 printf( "No matches found for \"%s\"", word );
-      if (html) printf( "</H2>\n" );
-      else      printf( "\n" );
+	 fprintf( dict_output, "No matches found for \"%s\"", word );
+      if (html) fprintf( dict_output, "</H2>\n" );
+      else      fprintf( dict_output, "\n" );
    }
 
    if (!l) return;
@@ -186,28 +216,28 @@ static void client_print_matches( lst_List l, int html, int flag,
 	 err_internal( __FUNCTION__,
 		       "MATCH command didn't return 2 args: \"%s\"\n", e );
       if ((db = str_find(arg_get(a,0))) != prev) {
-	 if (!first) printf( "\n" );
+	 if (!first) fprintf( dict_output, "\n" );
 	 first = 0;
-	 if (html) printf( "<P><B>" );
-	 printf( "%s:", db );
-	 if (html) printf( "</B>" );
+	 if (html) fprintf( dict_output, "<P><B>" );
+	 fprintf( dict_output, "%s:", db );
+	 if (html) fprintf( dict_output, "</B>" );
 	 prev = db;
 	 pos = 6 + strlen(db);
       }
       len = strlen(arg_get(a,1));
       if (pos + len + 4 > 70) {
-	 printf( "\n" );
+	 fprintf( dict_output, "\n" );
 	 pos = 0;
       }
       if (strchr( arg_get(a,1),' ')) {
-	 printf( "  \"%s\"", arg_get(a,1) );
+	 fprintf( dict_output, "  \"%s\"", arg_get(a,1) );
 	 pos += len + 4;
       } else {
-	 printf( "  %s", arg_get(a,1) );
+	 fprintf( dict_output, "  %s", arg_get(a,1) );
 	 pos += len + 2;
       }
    }
-   printf( "\n" );
+   fprintf( dict_output, "\n" );
 }
 
 static void client_print_listed( lst_List l, int html )
@@ -217,15 +247,15 @@ static void client_print_listed( lst_List l, int html )
    arg_List     a;
 
    if (!l) return;
-   if (html) printf( "<PRE>\n" );
+   if (html) fprintf( dict_output, "<PRE>\n" );
    LST_ITERATE(l,p,e) {
       a = arg_argify( e, 0 );
       if (arg_count(a) != 2)
 	 err_internal( __FUNCTION__,
 		       "SHOW command didn't return 2 args: \"%s\"\n", e );
-      printf( "  %-10.10s %s\n", arg_get(a,0), arg_get(a,1) );
+      fprintf( dict_output, "  %-10.10s %s\n", arg_get(a,0), arg_get(a,1) );
    }
-   if (html) printf( "</PRE>\n" );
+   if (html) fprintf( dict_output, "</PRE>\n" );
 }
 
 static void client_free_text( lst_List l )
@@ -558,25 +588,25 @@ static void process( int html )
       case CMD_DEFPRINT:
 	 if (cmd_reply.count) {
 	    if (c->flag) {
-	       if (html) printf( "<H2>" );
-	       printf( "%d definition%s found",
-		       cmd_reply.count,
-		       cmd_reply.count == 1 ? "" : "s" );
-	       if (html) printf( "</H2>\n" );
-	       else      printf( "\n" );
+	       if (html) fprintf( dict_output, "<H2>" );
+	       fprintf( dict_output, "%d definition%s found",
+			cmd_reply.count,
+			cmd_reply.count == 1 ? "" : "s" );
+	       if (html) fprintf( dict_output, "</H2>\n" );
+	       else      fprintf( dict_output, "\n" );
 	    }
 	    for (i = 0; i < cmd_reply.count; i++) {
-	       if (html) printf( "<HR><H3>Source: " );
-	       else      printf( "\nFrom " );
+	       if (html) fprintf( dict_output, "<HR><H3>Source: " );
+	       else      fprintf( dict_output, "\nFrom " );
 	       if (cmd_reply.defs[i].dbname) {
-		  printf( "%s", cmd_reply.defs[i].dbname );
+		  fprintf( dict_output, "%s", cmd_reply.defs[i].dbname );
 	       } else if (cmd_reply.defs[i].db) {
-		  printf( "%s", cmd_reply.defs[i].db );
+		  fprintf( dict_output, "%s", cmd_reply.defs[i].db );
 	       } else {
-		  printf( "unknown" );
+		  fprintf( dict_output, "unknown" );
 	       }
-	       if (html) printf( "</H3>\n" );
-	       else      printf( ":\n\n" );
+	       if (html) fprintf( dict_output, "</H3>\n" );
+	       else      fprintf( dict_output, ":\n\n" );
 	       client_print_text( cmd_reply.defs[i].data, html );
 	       client_free_text( cmd_reply.defs[i].data );
 	       cmd_reply.defs[i].data = NULL;
@@ -584,20 +614,21 @@ static void process( int html )
 	    xfree( cmd_reply.defs );
 	    cmd_reply.count = 0;
 	 } else if (cmd_reply.matches) {
-	    if (html) printf( "<H2>" );
-	    printf( "No definitions found for \"%s\","
-		    " perhaps you mean:",
-		    c->word );
-	    if (html) printf( "</H2>\n" );
-	    else      printf( "\n" );
+	    if (html)  fprintf( dict_output, "<H2>" );
+	    fprintf( dict_output,
+		     "No definitions found for \"%s\", perhaps you mean:",
+		     c->word );
+	    if (html) fprintf( dict_output, "</H2>\n" );
+	    else      fprintf( dict_output, "\n" );
 	    client_print_matches( cmd_reply.data, html, 0, c->word );
 	    client_free_text( cmd_reply.data );
 	    cmd_reply.data = NULL;
 	    cmd_reply.matches = 0;
 	 } else {
-	    if (html) printf( "<H2>" );
-	    printf( "No definitions found for \"%s\"\n", c->word );
-	    if (html) printf( "</H2>\n" );
+	    if (html) fprintf( dict_output, "<H2>" );
+	    fprintf( dict_output,
+		     "No definitions found for \"%s\"\n", c->word );
+	    if (html) fprintf( dict_output, "</H2>\n" );
 	 }
 	 expected = cmd_reply.retcode;
 	 break;
@@ -622,8 +653,8 @@ static void process( int html )
 	 cmd_reply.retcode = client_read_status( cmd_reply.s,
 						 &message,
 						 NULL, NULL, NULL, NULL, NULL);
-	 if (cmd_reply.retcode && dbg_test(DBG_VERBOSE))
-	    printf( "Client command gave unexpected status code %d (%s)\n",
+	 if (cmd_reply.retcode != expected && dbg_test(DBG_VERBOSE))
+	    fprintf( dict_output, "Client command gave unexpected status code %d (%s)\n",
 		    cmd_reply.retcode, message ? message : "no message" );
 
 	 expected = cmd_reply.retcode;
@@ -715,7 +746,7 @@ static void process( int html )
 		    c->database );
 	    break;
 	 case CODE_NO_DATABASES:
-	    printf( "There are no databases currently available\n" );
+	    fprintf( dict_output, "There are no databases currently available\n" );
 	    break;
 	 default:
 	    expected = CODE_OK;
@@ -742,18 +773,22 @@ static void process( int html )
 		    c->database,c->word,c->strategy));
 	    break;
 	 case CODE_INVALID_DB:
-	    printf( "%s is not a valid database, use -D for a list\n",
-		    c->database );
+	    fprintf( dict_output,
+		     "%s is not a valid database, use -D for a list\n",
+		     c->database );
 	    break;
 	 case CODE_INVALID_STRATEGY:
-	    printf( "%s is not a valid search strategy, use -S for a list\n",
-		    c->strategy );
+	    fprintf( dict_output,
+		     "%s is not a valid search strategy, use -S for a list\n",
+		     c->strategy );
 	    break;
 	 case CODE_NO_DATABASES:
-	    printf( "There are no databases currently available\n" );
+	    fprintf( dict_output,
+		     "There are no databases currently available\n" );
 	    break;
 	 case CODE_NO_STRATEGIES:
-	    printf( "There are no search strategies currently available\n" );
+	    fprintf( dict_output,
+		     "There are no search strategies currently available\n" );
 	    break;
 	 default:
 	    expected = CODE_OK;
@@ -791,10 +826,10 @@ static void process( int html )
 	    client_free_text( cmd_reply.data );
 	    cmd_reply.matches = 0;
 	 } else {
-	    if (html) printf( "<H2>" );
-	    printf( "No matches found for \"%s\"", c->word );
-	    if (html) printf( "</H2>\n" );
-	    else      printf( "\n" );
+	    if (html) fprintf( dict_output, "<H2>" );
+	    fprintf( dict_output, "No matches found for \"%s\"", c->word );
+	    if (html) fprintf( dict_output, "</H2>\n" );
+	    else      fprintf( dict_output, "\n" );
 	 }
 	 expected = cmd_reply.retcode;
 	 break;
@@ -859,16 +894,20 @@ static void client_config_print( FILE *stream, lst_List c )
    lst_Position p;
    dictServer   *e;
 
+   printf( "Configuration file:\n" );
+   if (dict_pager) {
+      fprintf( s, "   pager \"%s\"\n", dict_pager );
+   }
    LST_ITERATE(dict_Servers,p,e) {
       if (e->port || e->user || e->secret) {
-	 fprintf( s, "server %s {\n", e->host );
-	 if (e->port) fprintf( s, "   port %s\n", e->port );
-	 if (e->user) fprintf( s, "   user %s %s\n",
+	 fprintf( s, "   server %s {\n", e->host );
+	 if (e->port) fprintf( s, "      port %s\n", e->port );
+	 if (e->user) fprintf( s, "      user %s %s\n",
 			       e->user,
 			       e->secret ? "*" : "(none)" );
-	 fprintf( s, "}\n" );
+	 fprintf( s, "   }\n" );
       } else {
-	 fprintf( s, "server %s\n", e->host );
+	 fprintf( s, "   server %s\n", e->host );
       }
    }
 }
@@ -897,7 +936,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.15 1998/01/05 01:07:00 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.16 1998/01/19 03:37:17 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -1019,6 +1058,7 @@ int main( int argc, char **argv )
       { "help",       0, 0, 501 },
       { "verbose",    0, 0, 'v' },
       { "raw",        0, 0, 'r' },
+      { "pager",      1, 0, 'P' },
       { "debug",      1, 0, 502 },
       { "html",       0, 0, 503 },
       { "pipesize",   1, 0, 504 },
@@ -1038,7 +1078,7 @@ int main( int argc, char **argv )
    dbg_register( DBG_URL,     "url" );
 
    while ((c = getopt_long( argc, argv,
-			    "h:p:d:i:Ims:DSHac:Ck:VLvr",
+			    "h:p:d:i:Ims:DSHac:Ck:VLvrP:",
 			    longopts, NULL )) != EOF)
       switch (c) {
       case 'h': host = optarg;                        break;
@@ -1060,6 +1100,7 @@ int main( int argc, char **argv )
       case 'L': license(); exit(1);                   break;
       case 'v': dbg_set( "verbose" );                 break;
       case 'r': dbg_set( "raw" );                     break;
+      case 'P': dict_pager = optarg;                  break;
       case 505: client_text = optarg;                 break;
       case 504: client_pipesize = atoi(optarg);       break;
       case 503: ++html;                               break;
@@ -1236,7 +1277,9 @@ int main( int argc, char **argv )
 					  s->secret ) );
 	 }
       }
+#if 0
       append_command( make_command(CMD_CONNECT, "localhost", NULL,NULL,NULL) );
+#endif
       append_command( make_command(CMD_CONNECT, "dict.org", NULL,NULL,NULL) );
    }
    append_command( make_command( CMD_CLIENT, client_get_banner() ) );
@@ -1295,10 +1338,13 @@ int main( int argc, char **argv )
       }
    }
    append_command( make_command( CMD_CLOSE ) );
+
+   if (!dbg_test(DBG_VERBOSE|DBG_TIME)) client_open_pager();
    process(html);
+   client_close_pager();
    
    if (dbg_test(DBG_TIME)) {
-      printf( "\n" );
+      fprintf( dict_output, "\n" );
       tim_stop("total");
       if (client_defines) {
 	 tim_stop("define");

@@ -1,7 +1,7 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@cs.unc.edu
- * Revised: Thu Aug 21 08:51:06 1997 by faith@acm.org
- * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
+ * Revised: Sun Jan 18 09:23:15 1998 by faith@acm.org
+ * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.22 1997/09/01 01:14:45 faith Exp $
+ * $Id: daemon.c,v 1.23 1998/01/19 03:37:15 faith Exp $
  * 
  */
 
@@ -767,14 +767,49 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
 
 static void daemon_show_server( const char *cmdline, int argc, char **argv )
 {
-   FILE *str;
-   char buffer[1024];
+   FILE          *str;
+   char          buffer[1024];
+   dictDatabase  *db;
+   double        uptime;
+   
+   tim_stop("dictd");
+   uptime = tim_get_real("dictd");
    
    daemon_printf( "%d server information\n", CODE_SERVER_INFO );
    daemon_mime();
-   daemon_printf( "DICT Protocol Server: %s\n", dict_get_banner(0) );
+   daemon_printf( "%s\n", dict_get_banner(0) );
+   
+   daemon_printf( "On %s: up %s, %d fork%s (%0.1f/hour)\n",
+		  net_hostname(),
+		  dict_format_time( uptime ),
+		  _dict_forks,
+		  _dict_forks > 1 ? "s" : "",
+		  _dict_forks/uptime/60.0 );
+   if (count_databases()) {
+      daemon_printf( "\nDatabase      Headwords         Index"
+		     "          Data  Uncompressed\n" );
+      reset_databases();
+      while ((db = next_database("*"))) {
+	 daemon_printf( "%-12.12s %10lu %10lu %cB %10lu %cB %10lu %cB\n",
+			db->databaseName,
+			db->index->headwords,
+			
+			db->index->size/1024 > 10240 ?
+			db->index->size/1024/1024 : db->index->size/1024,
+			db->index->size/1024 > 10240 ? 'M' : 'k',
+
+			db->data->size/1024 > 10240 ?
+			db->data->size/1024/1024 : db->data->size/1024,
+			db->data->size/1024 > 10240 ? 'M' : 'k',
+
+			db->data->length/1024 > 10240 ?
+			db->data->length/1024/1024 : db->data->length/1024,
+			db->data->length/1024 > 10240 ? 'M' : 'k' );
+      }
+   }
    if (DictConfig->site && (str = fopen( DictConfig->site, "r" ))) {
-      daemon_printf( "Site-specific information for %s:\n\n", net_hostname() );
+      daemon_printf( "\nSite-specific information for %s:\n\n",
+		     net_hostname() );
       while ((fgets( buffer, 1000, str ))) daemon_printf( "%s", buffer );
       fclose( str );
    }

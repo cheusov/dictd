@@ -1,7 +1,7 @@
 /* clientscan.l -- 
  * Created: Fri Jul 11 11:33:46 1997 by faith@acm.org
- * Revised: Fri Jul 11 14:21:07 1997 by faith@acm.org
- * Copyright 1997 Rickard E. Faith (faith@acm.org)
+ * Revised: Sun Jan 18 10:06:30 1998 by faith@acm.org
+ * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: clientscan.l,v 1.1 1997/07/12 01:50:09 faith Exp $
+ * $Id: clientscan.l,v 1.2 1998/01/19 03:37:14 faith Exp $
  * 
  */
 
@@ -46,6 +46,7 @@ WS                          [[:blank:]]+
    .*                       src_line(yytext,yyleng); yyless(0); BEGIN(OTHER);
 }
 
+pager                       RETURN(T_PAGER);
 server                      RETURN(T_SERVER);
 port                        RETURN(T_PORT);
 user                        RETURN(T_USER);

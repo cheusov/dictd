@@ -1,7 +1,7 @@
 /* clientparse.y -- 
  * Created: Fri Jul 11 11:34:05 1997 by faith@acm.org
- * Revised: Fri Jul 11 15:03:30 1997 by faith@acm.org
- * Copyright 1997 Rickard E. Faith (faith@acm.org)
+ * Revised: Sun Jan 18 10:26:29 1998 by faith@acm.org
+ * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: clientparse.y,v 1.1 1997/07/12 01:50:08 faith Exp $
+ * $Id: clientparse.y,v 1.2 1998/01/19 03:37:13 faith Exp $
  * 
  */
 
@@ -36,12 +36,20 @@ static dictServer *s;
 
 				/* Terminals */
 
-%token <token> '{' '}' T_SERVER T_PORT T_USER T_FILTER
+%token <token> '{' '}' T_SERVER T_PORT T_USER T_FILTER T_PAGER
 
 %token <token>  T_STRING
-%type  <list>   Server ServerList
+%type  <list>   Options Pager Server ServerList
 
 %%
+
+Options : ServerList
+        | Pager ServerList
+        | Pager
+        ;
+
+Pager : T_PAGER T_STRING { if (!dict_pager) dict_pager = $2.string; }
+      ;
 
 ServerList : Server { $$ = dict_Servers = lst_create(); lst_append($$, $1); }
            | ServerList Server { lst_append($1, $2); $$ = $1; }

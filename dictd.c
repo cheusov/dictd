@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Fri Jan  2 00:03:06 1998 by faith@acm.org
+ * Revised: Sun Jan 18 18:40:01 1998 by faith@acm.org
  * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.32 1998/01/16 03:32:51 faith Exp $
+ * $Id: dictd.c,v 1.33 1998/01/19 03:37:20 faith Exp $
  * 
  */
 
@@ -392,14 +392,34 @@ static int init_database( const void *datum )
       db->databaseShort = get_entry_info( db, db->databaseShort + 1 );
    if (!db->databaseShort) db->databaseShort = str_find( db->databaseName );
    
+   log_info( ":I: %-12.12s %s\n",
+	     db->databaseName, db->databaseShort );
    PRINTF(DBG_INIT,
 	  ("%s \"%s\" initialized\n",db->databaseName,db->databaseShort));
+   return 0;
+}
+
+static int log_database_info( const void *datum )
+{
+   dictDatabase  *db = (dictDatabase *)datum;
+   const char    *pt;
+   unsigned long headwords = 0;
+
+   for (pt = db->index->start; pt < db->index->end; pt++)
+      if (*pt == '\n') ++headwords;
+   db->index->headwords = headwords;
+   
+   log_info( ":I: %-12.12s %12lu %12lu %12lu %12lu\n",
+	     db->databaseName, headwords,
+	     db->index->size, db->data->size, db->data->length );
+
    return 0;
 }
 
 static void dict_init_databases( dictConfig *c )
 {
    lst_iterate( c->dbl, init_database );
+   lst_iterate( c->dbl, log_database_info );
 }
 
 static int dump_def( const void *datum, void *arg )
@@ -445,7 +465,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.32 1998/01/16 03:32:51 faith Exp $";
+   const char     *id = "$Id: dictd.c,v 1.33 1998/01/19 03:37:20 faith Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -539,6 +559,7 @@ int main( int argc, char **argv, char **envp )
    int                masterSocket;
    struct sockaddr_in csin;
    int                c;
+   time_t             startTime;
    int                alen         = sizeof(csin);
    const char         *service     = DICT_DEFAULT_SERVICE;
    const char         *configFile  = DICT_CONFIG_PATH DICTD_CONFIG_NAME;
@@ -648,12 +669,12 @@ int main( int argc, char **argv, char **envp )
    DictConfig = xmalloc(sizeof(struct dictConfig));
    memset( DictConfig, 0, sizeof( struct dictConfig ) );
    if (!access(configFile,R_OK)) prs_file_nocpp( configFile );
-   dict_config_print( NULL, DictConfig );
-   dict_init_databases( DictConfig );
 
    if (testWord) {		/* stand-alone test mode */
       lst_List list = lst_create();
 
+      dict_config_print( NULL, DictConfig );
+      dict_init_databases( DictConfig );
       if (dict_search_database( list,
 				testWord,
 				lst_nth_get( DictConfig->dbl, 1 ),
@@ -717,9 +738,6 @@ int main( int argc, char **argv, char **envp )
    fflush(stdout);
    fflush(stderr);
 
-   if (flg_test(LOG_TIMESTAMP)) log_option( LOG_OPTION_FULL );
-   else                         log_option( LOG_OPTION_NO_FULL );
-   
    if (detach) {
       FILE *str;
 
@@ -742,6 +760,9 @@ int main( int argc, char **argv, char **envp )
 	 fclose( str );
       }
    }
+
+   if (flg_test(LOG_TIMESTAMP)) log_option( LOG_OPTION_FULL );
+   else                         log_option( LOG_OPTION_NO_FULL );
    
    if (logFile)   log_file( "dictd", logFile );
    if (useSyslog) log_syslog( "dictd", 0 );
@@ -749,13 +770,15 @@ int main( int argc, char **argv, char **envp )
 
    if ((logFile || useSyslog || !detach) && !logOptions) set_minimal();
 
-   dict_initsetproctitle(argc, argv, envp);
+   masterSocket = net_open_tcp( service, depth );
 
+   time(&startTime);
    tim_start( "dictd" );
    alarm(_dict_markTime);
 
 #if !PERSISTENT
-   log_info(":I: %d starting\n", getpid());
+   log_info(":I: %d starting %s %24.24s\n",
+	    getpid(), dict_get_banner(0), ctime(&startTime));
 #else
    if (_dict_persistent_limit) {
       _dict_persistent_pids = malloc(_dict_persistent_limit
@@ -769,8 +792,12 @@ int main( int argc, char **argv, char **envp )
 		  _dict_persistent_prestart);
    }
 #endif
+
+   if (dbg_test(DBG_VERBOSE)) dict_config_print( NULL, DictConfig );
+   dict_init_databases( DictConfig );
+
    
-   masterSocket = net_open_tcp( service, depth );
+   dict_initsetproctitle(argc, argv, envp);
 
    for (;;) {
       dict_setproctitle( "%s: %d/%d",

@@ -1,7 +1,7 @@
 /* dict.h -- 
  * Created: Wed Apr 16 08:44:21 1997 by faith@cs.unc.edu
- * Revised: Fri Jul 11 19:10:56 1997 by faith@acm.org
- * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
+ * Revised: Sun Jan 18 19:43:49 1998 by faith@acm.org
+ * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.h,v 1.11 1997/07/12 01:50:15 faith Exp $
+ * $Id: dict.h,v 1.12 1998/01/19 03:37:19 faith Exp $
  * 
  */
 
@@ -60,6 +60,8 @@ typedef struct dictToken {
 } dictToken;
 
 extern lst_List   dict_Servers;	/* List of servers to try */
+extern const char *dict_pager;	/* Pager to use if isatty() */
+extern FILE       *dict_output;	/* Pid of paging process */
 
 				/* dmalloc must be last */
 #ifdef DMALLOC_FUNC_CHECK

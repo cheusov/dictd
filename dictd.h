@@ -1,7 +1,7 @@
 /* dictd.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Fri Jul 11 23:53:00 1997 by faith@acm.org
- * Copyright 1994, 1995, 1996, 1997 Rickard E. Faith (faith@acm.org)
+ * Revised: Sat Jan 17 23:56:55 1998 by faith@acm.org
+ * Copyright 1994, 1995, 1996, 1997, 1998 Rickard E. Faith (faith@acm.org)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -139,6 +139,7 @@ typedef struct dictIndex {
    const char    *end;		 /* end of mmap'd area */
    unsigned long size;		 /* size of mmap */
    const char    *optStart[257]; /* Optimized starting points */
+   unsigned long headwords;	 /* computed number of headwords */
 } dictIndex;
 
 typedef struct dictDatabase {

@@ -1,6 +1,6 @@
 /* net.c -- 
  * Created: Fri Feb 21 20:58:10 1997 by faith@cs.unc.edu
- * Revised: Sun Jan  4 10:35:55 1998 by faith@acm.org
+ * Revised: Sun Jan 18 00:54:26 1998 by faith@acm.org
  * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: net.c,v 1.17 1998/01/16 03:51:55 faith Exp $
+ * $Id: net.c,v 1.18 1998/01/19 03:37:23 faith Exp $
  * 
  */
 
@@ -42,11 +42,21 @@ static char netHostname[MAXHOSTNAMELEN];
 
 const char *net_hostname( void )
 {
+   struct hostent *hostEntry;
+   static char    *hostname = NULL;
+   
    if (!netHostname[0]) {
       memset( netHostname, 0, sizeof(netHostname) );
       gethostname( netHostname, sizeof(netHostname)-1 );
+      
+      if ((hostEntry = gethostbyname(netHostname))) {
+	 hostname = xstrdup(hostEntry->h_name);
+      } else {
+	 hostname = xstrdup(netHostname);
+      }
    }
-   return netHostname;
+   
+   return hostname;
 }
 
 int net_connect_tcp( const char *host, const char *service )
