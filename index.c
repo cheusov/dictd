@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.80 2003/10/22 03:36:01 cheusov Exp $
+ * $Id: index.c,v 1.81 2003/10/26 12:48:23 cheusov Exp $
  * 
  */
 
@@ -333,8 +333,8 @@ static int compare(
       }
 
       *d = '\0';
-      printf( "compare \"%s\" with \"%s\" (sizes: %i and %i)\n",
-         word, buf, strlen( word ), strlen( buf ) );
+      printf( "compare \"%s\" with \"%s\" (sizes: %lu and %lu)\n",
+         word, buf, (unsigned long) strlen( word ), (unsigned long) strlen( buf ) );
    }
 
    ++_dict_comparisons;		/* counter for profiling */
@@ -406,8 +406,8 @@ static const char *binary_search_8bit(
 	 }
 
          *d = '\0';
-         printf( "compare \"%s\" with \"%s\" (sizes: %i and %i)\n",
-            word, buf, strlen( word ), strlen( buf ) );
+         printf( "compare \"%s\" with \"%s\" (sizes: %lu and %lu)\n",
+            word, buf, (unsigned long) strlen( word ), (unsigned long) strlen( buf ) );
       }
 
       if (

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictzip.c,v 1.23 2003/08/06 17:55:54 cheusov Exp $
+ * $Id: dictzip.c,v 1.24 2003/10/26 12:48:23 cheusov Exp $
  * 
  */
 
@@ -167,7 +167,7 @@ int dict_data_zip( const char *inFilename, const char *outFilename,
    if (st.st_size % chunkLength) ++chunks;
    PRINTF(DBG_VERBOSE,("%lu chunks * %u per chunk = %lu (filesize = %lu)\n",
 			chunks, chunkLength, chunks * chunkLength,
-			st.st_size ));
+			(unsigned long) st.st_size ));
    dataLength   = chunks * 2;
    extraLength  = 10 + dataLength;
    headerLength = GZ_FEXTRA_START
@@ -233,12 +233,12 @@ int dict_data_zip( const char *inFilename, const char *outFilename,
 	 total += count;
 	 if (dbg_test( DBG_VERBOSE )) {
 	    printf( "chunk %5lu: %lu of %lu total\r",
-		    chunk, total, st.st_size );
+		    chunk, total, (unsigned long) st.st_size );
 	    fflush( stdout );
 	 }
       }
    }
-   PRINTF(DBG_VERBOSE,("total: %lu chunks, %lu bytes\n", chunks, st.st_size));
+   PRINTF(DBG_VERBOSE,("total: %lu chunks, %lu bytes\n", chunks, (unsigned long) st.st_size));
     
    /* Write last bit */
 #if 0
@@ -313,7 +313,7 @@ static const char *id_string( const char *id )
 
 static void banner( void )
 {
-   const char *id = "$Id: dictzip.c,v 1.23 2003/08/06 17:55:54 cheusov Exp $";
+   const char *id = "$Id: dictzip.c,v 1.24 2003/10/26 12:48:23 cheusov Exp $";
    
    fprintf( stderr, "%s %s\n", err_program_name(), id_string( id ) );
    fprintf( stderr,
