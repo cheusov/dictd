@@ -13,11 +13,12 @@
 .hy 0
 .ad l
 .in 0
+.\"$Id: rfc.ms,v 1.6 1997/04/30 15:38:35 faith Exp $
 Network Working Group                                           R. Faith
 Request for Comments: Unassigned          U. North Carolina, Chapel Hill
 Category: Standards Track                                      B. Martin
                                                          Yale University
-                                                            2 April 1997
+                                                           26 April 1997
 
 
 .ce
@@ -47,39 +48,40 @@ definitions from a natural language dictionary database.
 .ti 0
 1. Introduction
 
-For many years, the Internet community has relied on the "webster" protocol
-for access to natural language definitions.  The webster protocol supports
-access to a single dictionary and (optionally) to a single thesaurus.  In
-recent years, the number of publically available webster servers on the
-Internet has dramatically decreased.
+For many years, the Internet community has relied on the "webster"
+protocol for access to natural language definitions.  The webster
+protocol supports access to a single dictionary and (optionally) to a
+single thesaurus.  In recent years, the number of publically available
+webster servers on the Internet has dramatically decreased.
 
-Fortunately, several freely-distributable dictionaries and lexicons have
-recently become available on the Internet.  However, these
-freely-distributable databases are not accessible via a uniform interface,
-and are not accessible from a single site.  They are often small and
-incomplete individually, but would collectively provide an interesting and
-useful database of English words.  Examples include the Jargon file [The
-on-line hacker Jargon File, version 4.0.0, 24 JUL 1996], the WordNet
-database [http://www.cogsci.princeton.edu/~wn/], MICRA's version of the
-1913 Webster's Revised Unabridged Dictionary
-[http://humanities.uchicago.edu/forms_unrest/webster.form.html], and the
-Free Online Dictionary of Computing [http://wombat.doc.ic.ac.uk/foldoc/].
+Fortunately, several freely-distributable dictionaries and lexicons
+have recently become available on the Internet.  However, these
+freely-distributable databases are not accessible via a uniform
+interface, and are not accessible from a single site.  They are often
+small and incomplete individually, but would collectively provide an
+interesting and useful database of English words.  Examples include
+the Jargon file [The on-line hacker Jargon File, version 4.0.0, 25 JUL
+1996], the WordNet database [http://www.cogsci.princeton.edu/~wn/],
+MICRA's version of the 1913 Webster's Revised Unabridged Dictionary
+[http://humanities.uchicago.edu/forms_unrest/webster.form.html], and
+the Free Online Dictionary of Computing
+[http://wombat.doc.ic.ac.uk/foldoc/].
 
-The webster protocol is not suitable for providing access to a large number
-of separate dictionary databases, and extensions to the current webster
-protocol were not felt to be a clean solution to the dictionary database
-problem.
+The webster protocol is not suitable for providing access to a large
+number of separate dictionary databases, and extensions to the current
+webster protocol were not felt to be a clean solution to the
+dictionary database problem.
 
 The DICT protocol is designed to provide access to multiple databases.
-Word definitions can be requested, the word index can be searched (using an
-easily extended list of algorithms), information about the server can be
-provided (e.g., which index search strategies are supported, or which
-databases are available), and information about a database can be provided
-(e.g., copyright, citation, or distribution information).  Further, the
-DICT protocol has hooks that can be used to restrict access to some or all
-of the databases.  The protocol also allows for the transmission of binary
-data, which will facilitate the retrieval of foreign-language definitions
-or other 8-bit data.
+Word definitions can be requested, the word index can be searched
+(using an easily extended list of algorithms), information about the
+server can be provided (e.g., which index search strategies are
+supported, or which databases are available), and information about a
+database can be provided (e.g., copyright, citation, or distribution
+information).  Further, the DICT protocol has hooks that can be used
+to restrict access to some or all of the databases.  The protocol also
+allows for the transmission of binary data, which will facilitate the
+retrieval of foreign-language definitions or other 8-bit data.
 
 .ti 0
 2. Protocol Overview
@@ -155,13 +157,12 @@ Responses are of two kinds, textual and status.
 .ti 0
 2.4.1. Text Responses
 
-Before text is sent a numeric status response line will be sent indicating
-text will follow.
- Text is sent as a series of successive
+Before text is sent a numeric status response line will be sent
+indicating text will follow. Text is sent as a series of successive
 lines of textual matter, each terminated with a CRLF.  A single line
-containing only a period (decimal code 46, ".") is sent to indicate the end
-of the text (i.e., the server will send a CRLF at the end of the last line
-of text, a period, and another CRLF).
+containing only a period (decimal code 46, ".") is sent to indicate
+the end of the text (i.e., the server will send a CRLF at the end of
+the last line of text, a period, and another CRLF).
 
 If a line of original text contained a period as the first character of the
 line, that first period is doubled by the dict server.  Therefore, the
@@ -187,7 +188,7 @@ The first digit of the response broadly indicates the success, failure, or
 progress of the previous command (based generally on [RFC640,RFC821]):
 
 .nf
-   1yz - Positive Preliminary reply (not used by DICT)
+   1yz - Positive Preliminary reply
    2yz - Positive Completion reply
    3yz - Positive Intermediate reply (not used by DICT)
    4yz - Transient Negative Completion reply
@@ -226,9 +227,6 @@ leading zeros.  All string parameters are surrounded by double quotes
 .\" "For emacs
 If a double quote appears in the string, it is preceeded by a backslash
 (decimal code 92, "\\").
-
-[We need to make the above really clear or more flexible, so that quotes
-aren't needed for db names or urls.]
 
 Response codes not specified in this standard may be used for any
 installation-specific additional commands also not specified.  These should
@@ -315,30 +313,26 @@ indicate that a well known server has been permanently removed from service
 3.2. The DEFINE Command
 
 DEFINE database word
-.br
-DEFINE word
 
 .ti 0
 3.2.1. Description
 
-This command will look up the specified word in the specified database.  If
-the database name is specified with a star (decimal code 42, "*"), then all
-of the databases will be searched until a match is found.  In this case,
-the databases will be searched in the same order as that printed by the
-"SHOW DB" command.  This is the default behavior if a database is not
-specified.  ("DEFINE word" is equivalent to "DEFINE * word".)
+This command will look up the specified word in the specified database.  
 
-[NOTE TO REVIEWERS: For *, should all definitions from all databases be
-returned (as from match)?  The * form is generally useful as a convenience
-feature to be used for direct human interaction with the database (e.g.,
-via a telnet client), and should not be used by DICT-aware clients]
+If the database name is specified with an exclamation point (decimal
+code 33, "!"), then all of the databases will be searched until a
+match is found, and all matches in that database will be displayed.
+If the database name is specified with a star (decimal code 42, "*"),
+then all of the matches in all available databases will be displayed.
+In both of these special cases, the databases will be searched in the
+same order as that printed by the "SHOW DB" command.
 
 If the word was not found, then status code 552 is sent.
 
-If the word was found, then status code 250 is sent, indicating that one or
+If the word was found, then status code 150 is sent, indicating that one or
 more definitions follow.
 
-For each definition, status code 251 is sent, followed by the textual
+For each definition, status code 151 is sent, followed by the textual
 body of the definition.  The first three space-delimited parameters
 following status code 251 give the word retrieved, the short name of
 the database (which is the same as the first column of the SHOW DB
@@ -359,7 +353,7 @@ reversed?]
 The textual body of each definition is terminated with a CRLF period CRLF
 sequence.
 
-After all of the definitions have been sent, status code 259 is sent.  This
+After all of the definitions have been sent, status code 250 is sent.  This
 command can provide optional timing information (which is server dependent
 and is not intended to be parsable by the client).  This additional
 information is useful when debugging and tuning the server.
@@ -370,19 +364,19 @@ information is useful when debugging and tuning the server.
 .nf
    550 Invalid database, use "SHOW DB" for list of databases
    552 No match
-   250 n definitions retrieved - definitions follow
-   251 word database name - text follows
-   259 ok (optional timing information here)
+   150 n definitions retrieved - definitions follow
+   151 word database name - text follows
+   250 ok (optional timing information here)
 .fi
 
-Response codes 250 and 251 require special parameters as part of their
+Response codes 150 and 151 require special parameters as part of their
 text.  The client can use these parameters to display information on
 the user's terminal.
 
-For code 250, the first parameter must indicate the number of definitions
+For code 150, the first parameter must indicate the number of definitions
 retrieved.
 
-For code 251, the first parameter must be the word retrieved.  The second
+For code 151, the first parameter must be the word retrieved.  The second
 parameter must be the short database name (the first name as shown by "SHOW
 DB") for the database from which the definition has been retrieved.  The
 third parameter must be the short database description (the second name
@@ -393,10 +387,6 @@ shown by "SHOW DB").
 3.3. The MATCH Command
 
 MATCH database strategy word
-.br
-MATCH strategy word
-.br
-MATCH word
 
 .ti 0
 3.3.1. Description
@@ -408,20 +398,26 @@ search strategies (e.g., reverse lookup).  All DICT servers should support
 the "exact" and "prefix" strategies.  These are easy to implement and are
 generally the most useful.  Other strategies are server dependent.
 
-If the database name is a star (decimal code 42, "*"), then all of the
-databases will be searched in the same order as that printed by the "SHOW
-DB" command.  This is the default behavior is the database is not
-specified.
+If the database name is specified with an exclamation point (decimal
+code 33, "!"), then all of the databases will be searched until a
+match is found, and all matches in that database will be displayed.
+If the database name is specified with a star (decimal code 42, "*"),
+then all of the matches in all available databases will be displayed.
+In both of these special cases, the databases will be searched in the
+same order as that printed by the "SHOW DB" command.  The default
+behavior when a database is not specified is to display all matches in
+all databases.
 
-If the strategy is not specified, then the word will be matched using a
-server-dependent strategy, which should be the best strategy possible for
-interactive spell checking.  This is usually a derivative of the
-Levenshtein matching algorithm.
+If the strategy is specified using a period (decimal code 46, "."),
+then the word will be matched using a server-dependent default
+strategy, which should be the best strategy possible for interactive
+spell checking.  This is usually a derivative of the Levenshtein
+algorithm.
 
 If no matches are found in any of the searched databases, then status code
 552 will be returned.
 
-Otherwise, status code 253 will be returned followed by a list of matched
+Otherwise, status code 152 will be returned followed by a list of matched
 words in the form:
 .RS
 database word
@@ -432,7 +428,7 @@ This makes the responses directly useful in a DEFINE command.
 The textual body of the match list is terminated with a CRLF period CRLF
 sequence.
 
-Following the list, status code 259 is sent, which may include
+Following the list, status code 250 is sent, which may include
 server-specific timing and statistical information, as discussed in the
 section on the DEFINE command.
 
@@ -443,11 +439,11 @@ section on the DEFINE command.
    550 Invalid database, use "SHOW DB" for list of databases
    551 Invalid strategy, use "SHOW STRAT" for a list of strategies
    552 No matches
-   253 n matches found - text follows
-   259 ok (optional timing information here)
+   152 n matches found - text follows
+   250 ok (optional timing information here)
 .fi
 
-Response code 253 requires a special parameter as part of its text.
+Response code 152 requires a special parameter as part of its text.
 Parameter 1 must be the number of matches retrieved.
 
 
@@ -486,11 +482,11 @@ databases did not exist.
 3.4.1.2. Responses
 
 .nf
-   210 n databases present - text follows
+   110 n databases present - text follows
    554 no databases present
 .fi
 
-Response code 210 requires a special parameter.  Parameter 1 must be
+Response code 110 requires a special parameter.  Parameter 1 must be
 the number of databases available to the user.
 
 .ti 0
@@ -515,12 +511,12 @@ sequence.
 3.4.2.2. Responses
 
 .nf
-   211 n strategies available - text follows
+   111 n strategies available - text follows
    555 no strategies available
 .fi
 
-Response code 210 requires a special parameter.  Parameter 1 must be
-the number of databases available to the user.
+Response code 111 requires a special parameter.  Parameter 1 must be
+the number of strategies available.
 
 .ti 0
 3.4.3. SHOW INFO
@@ -540,10 +536,34 @@ of the information is terminated with a CRLF period CRLF sequence.
 
 .nf
    550 Invalid database, use "SHOW DB" for list of databases
-   212 text follows
+   112 text follows
 .fi
 
 These response codes require no special parameters.
+
+
+.ti 0
+3.4.4. SHOW SERVER
+
+SHOW SERVER database
+
+.ti 0
+3.4.4.1. Description
+
+Displays local server information written by the local administrator.
+This could include information about local databases or strategies, or
+administrative information such as who to contact for access to
+databases requiring authentication.
+
+.ti 0
+3.4.4.2. Responses
+
+.nf
+   114 text follows
+.fi
+
+This response code requires no special parameters.
+
 
 .ti 0
 3.5. The CLIENT Command
@@ -561,7 +581,7 @@ this command after connecting to the server.
 3.5.2. Responses
 
 .nf
-   259 ok (optional timing information here)
+   250 ok (optional timing information here)
 .fi
 
 This response code requires no special parameters.
@@ -620,7 +640,7 @@ information may be useful in debugging or tuning a DICT server.
 3.7.2. Responses
 
 .nf
-   213 (optional timing and statistical information here)
+   210 (optional timing and statistical information here)
 .fi
 
 This response code requires no special parameters.
@@ -641,7 +661,7 @@ textual response, terminated by a single period on a line by itself.
 3.8.2. Responses
 
 .nf
-   214 help text follows
+   113 help text follows
 .fi
 
 This response code requires no special parameters.
@@ -666,7 +686,37 @@ This command is used by the client to cleanly exit the server.
 This response code requires no special parameters.
 
 .ti 0
-4. Sample Conversations
+4. URL Specification
+
+The dict URL scheme is used to refer to definitions or word lists
+available using the DICT protocol.
+
+.nf
+  dict://<user>:<password>@<host>:<port>/<database>/<word>:<n>
+  dict://<user>:<password>@<host>:<port>/<database>?<word>:<n>;strat=<strat>
+.fi
+
+The "<database>/<word>" syntax specifies the DEFINE command (see
+section 3.2), whereas the "<database>?<word>;strat=<strat>" specifies
+the MATCH command (section 3.3).
+
+Some or all of "<user>:<password>@", ":<port>", "<database>", ":<n>"
+and ";strat=<strat>" may be omitted.
+
+":<n>" will usually be omitted, but when included, it specifies the
+nth definition or match of a word.
+
+If "<user>:<password>@" is omitted, no authentication is done.  If
+":<port>" is omitted, the default port (2628) should be used.  If
+"<database>" is omitted, "!" should be used (see section 3.2.1).  If
+";strat=<strat>" is omitted, "." should be used for the strategy name.
+(see section 3.3.1).
+
+See RFC 1738 for the specification of Uniform Resource Locators.
+
+
+.ti 0
+5. Sample Conversations
 
 Theses are samples of the conversations that might be expected with a
 typical DICT server.  The notation "C:" indicates commands set by the
@@ -675,7 +725,7 @@ are included for clarity and do not indicate actual newlines in the
 transaction.
 
 .ti 0
-4.1. Sample 1 - opening connection, HELP, DEFINE, and QUIT commands
+5.1. Sample 1 - opening connection, HELP, DEFINE, and QUIT commands
 
 .nf
 C: [ client initiates connection ]
@@ -684,42 +734,43 @@ S: 220 dict.org dictd (version 0.9) <27831.860032493@dict.org>
 
 C: HELP
 
-S: 214 Help text follows
+S: 113 Help text follows
 S: DEFINE database word     look up word in database
 S: DEFINE word              look up word in each database until found
 S: [ more server-dependent help text ]
 S: .
+S: 250 Command complete
 
-C: DEFINE cow
+C: DEFINE * cow
 
-S: 250 1 definitions found: list follows
-S: 251 "cow" wn "WordNet 1.5" : definition text follows
+S: 150 1 definitions found: list follows
+S: 151 "cow" wn "WordNet 1.5" : definition text follows
 S: cow
 S:   1. n: mature female of mammals of which the male is called "bull"
 S:   2. n: female of domestic cattle: "`moo-cow'" is a child's term
 S:   3. n: a large unpleasant woman
 S: .
-S: 259 Command complete
+S: 250 Command complete
 
 C: DEFINE abcdefgh
 
 S: 552 No matches
 
-C: DEFINE Sun
+C: DEFINE ! Sun
 
-S: 250 2 definitions found: list follows
-S: 251 "Sun" wn "WordNet 1.5" : definition text follows
+S: 150 2 definitions found: list follows
+S: 151 "Sun" wn "WordNet 1.5" : definition text follows
 S: Sun
 S:   1. n: the star that is the source of light and heat for the planets in
 S:      the solar system
 S: .
-S: 251 "sun" wn "WordNet 1.5" : definition text follows
+S: 151 "sun" wn "WordNet 1.5" : definition text follows
 S: sun
 S:   1. n: any star around which a planetary system evolves
 S:   2. n: a person considered as a source of warmth or energy or glory etc
 S:   3. v: expose to as if to sun rays
 S: .
-S: 259 Command complete
+S: 250 Command complete
 
 C: quit
 
@@ -728,32 +779,32 @@ S: 221 Closing connection
 
 
 .ti 0
-4.2. Sample 2 - SHOW commands, MATCH command
+5.2. Sample 2 - SHOW commands, MATCH command
 
 .nf
 C: SHOW DB
 
-S: 210 3 databases present: list follows
+S: 110 3 databases present: list follows
 S: wn "WordNet 1.5"
 S: foldoc "Free On-Line Dictionary of Computing"
 S: jargon "Hacker Jargon File"
 S: .
-S: 259 Command complete
+S: 250 Command complete
 
 C: SHOW STRAT
 
-S: 211 5 strategies present: list follows
+S: 111 5 strategies present: list follows
 S: exact "Match words exactly"
 S: prefix "Match word prefixes"
 S: substring "Match substrings anywhere in word"
 S: regex "Match using regular expressions"
 S: reverse "Match words given definition keywords"
 S: .
-S: 259 Command complete
+S: 250 Command complete
 
 C: MATCH foldoc regex "s.si"
 
-S: 253 7 matches found: list follows
+S: 152 7 matches found: list follows
 S: foldoc Fast SCSI
 S: foldoc SCSI
 S: foldoc SCSI-1
@@ -762,7 +813,7 @@ S: foldoc SCSI-3
 S: foldoc Ultra-SCSI
 S: foldoc Wide SCSI
 S: .
-S: 259 Command complete
+S: 250 Command complete
 
 C: MATCH wn substring "abcdefgh"
 
@@ -771,7 +822,7 @@ S: 552 No matches
 
 
 .ti 0
-4.3. Sample 3 - Server downtime
+5.3. Sample 3 - Server downtime
 
 .nf
 C: [ client initiates connection ]
@@ -786,7 +837,7 @@ S: 421 Server shutting down at operator request
 .fi
 
 .ti 0
-4.4. Sample 4 - Authentication
+5.4. Sample 4 - Authentication
 
 .nf
 C: [ client initiates connection ]
@@ -795,10 +846,10 @@ S: 220 dict.org dictd (version 0.9) <27831.860032493@dict.org>
 
 C: SHOW DB
 
-S: 210 1 database present: list follows
+S: 110 1 database present: list follows
 S: free "Free database"
 S: .
-S: 259 Command complete
+S: 250 Command complete
 
 C: AUTH joesmith authentication-string
 
@@ -806,11 +857,11 @@ S: 230 Authentication successful
 
 C: SHOW DB
 
-S: 210 2 databases present: list follows
+S: 110 2 databases present: list follows
 S: free "Free database"
 S: licensed "Local licensed database"
 S: .
-S: 259 Command complete
+S: 250 Command complete
 .fi
 
 .ti 0
@@ -858,10 +909,11 @@ U.C. Irvine, DEC, MIT/LCS, January, 1997.
 .ti 0
 7. Acknowledgements
 
-Thanks to Nicolai Langfeldt and Arnt Gulbrandsen for many helpful
-discussions.  Thanks to Bennet Yee, Doug Hoffman, and Kevin Martin for
-extensive testing and feedback on the initial implementations of the
-DICT server.  Thanks to Zhong Shao for advice and support.
+Thanks to Arnt Gulbrandsen and Nicolai Langfeldt for many helpful
+discussions.  Thanks to Bennet Yee, Doug Hoffman, Kevin Martin, and
+Jay Kominek for extensive testing and feedback on the initial
+implementations of the DICT server.  Thanks to Zhong Shao for advice
+and support.
 
 (Thanks to Brian Kanto, Phil Lapsley, and Jon Postel for writing exemplary
 RFCs which were consulted during the preparation of this document.)
