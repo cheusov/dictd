@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_dbi.c,v 1.1 2004/03/21 13:28:20 cheusov Exp $
+ * $Id: dictdplugin_dbi.c,v 1.2 2004/03/23 10:01:07 cheusov Exp $
  * 
  */
 
@@ -533,6 +533,9 @@ static void copy_list_to_dictdata (
 
    matches_count = lst_length (src);
 
+   if (!matches_count)
+      return;
+
    dest -> m_mres_count = matches_count;
 
    dest -> m_mres = (const char **)
@@ -760,6 +763,8 @@ int dictdb_search (
    int exit_code = 0;
 
    global_data *dict_data = (global_data *) data;
+
+//   fprintf (stderr, "dictdb_search %s\n", word);
 
    if (result_extra)
       *result_extra      = NULL;

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.106 2004/03/19 18:46:06 cheusov Exp $
+ * $Id: dictd.c,v 1.107 2004/03/23 10:01:07 cheusov Exp $
  * 
  */
 
@@ -896,7 +896,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.106 2004/03/19 18:46:06 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.107 2004/03/23 10:01:07 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1232,9 +1232,7 @@ static void dict_test (
    }
 
 #ifdef USE_PLUGIN
-   if (count != 0){
-      call_dictdb_free (DictConfig->dbl);
-   }
+   call_dictdb_free (DictConfig->dbl);
 #endif
 
    dict_destroy_list (l);
