@@ -32,7 +32,7 @@
  * It obviously works slowly.
  * Do not use it at all or use it carefully!
  *
- * Format of the 00-database-plugin-data entry from .dict file:
+ * Format of the 00-database-plugin-data entry:
  *  <command_line>
  *  <valid_characters>
  *
