@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.67 2003/03/03 18:58:55 cheusov Exp $
+# $Id: Makefile.in,v 1.68 2003/03/03 19:14:35 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -154,8 +154,9 @@ lib%.a : %.o
 .PHONY: plugins
 plugins: $(PLUGINS)
 
-man_popen.dict : dictdplugin-config dictfmt_plugin
-	{ \
+man_popen.dict : dictdplugin-config dictfmt_plugin dictfmt
+	PATH=`pwd`:$${PATH}; export PATH;  \
+   { \
       echo `./dictdplugin-config --plugindir`'/search_man'; \
       echo "qwertyuioplkjhgfdsazxcvbnm 0987654321QWERTYUIOPLKJHGFDSAZXCVBNM"; \
    } | ./dictfmt_plugin dictdplugin_popen.so -s \
