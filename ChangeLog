@@ -1,3 +1,18 @@
+2002-12-17  Aleksey Cheusov  <vle@gmx.net>
+
+  * libmaa/config.sub, libmaa/configure.in, ChangeLog, configure.in, dict.c, utf8_ucs4.c:
+  code cleanups
+  libmaa version set to 0.95
+  dictd version set 1.9.1
+
+2002-12-15  Bob Hilliard  <hilliard@debian.org>
+
+  * dict.c:
+  Modified client_print_listed() to make dict -D and dict -S print long
+  names sanely.
+  .
+  .
+
 2002-12-10  Aleksey Cheusov  <vle@gmx.net>
 
   * dictd.h:
