@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.38 2002/10/14 07:05:50 cheusov Exp $
+ * $Id: index.c,v 1.39 2002/11/18 19:15:07 cheusov Exp $
  * 
  */
 
@@ -239,10 +239,16 @@ static int compare_allchars(
 //	 continue;
 //      }
 #if 0
-      if (isspace( *start )) c2 = ' ';
-      else                   c2 = * (unsigned char *) start;
-      if (isspace( *word )) c1 = ' ';
-      else                  c1 = * (unsigned char *) word;
+      if (isspace( (unsigned char) *start ))
+	 c2 = ' ';
+      else
+	 c2 = * (unsigned char *) start;
+
+      if (isspace( (unsigned char) *word ))
+	 c1 = ' ';
+      else
+	 c1 = * (unsigned char *) word;
+
 #else
       c2 = * (unsigned char *) start;
       c1 = * (unsigned char *) word;
@@ -348,10 +354,15 @@ static int compare_alnumspace(
 	 continue;
       }
 #if 0
-      if (isspace( *start )) c2 = ' ';
-      else                   c2 = tolower(* (unsigned char *) start);
-      if (isspace( *word )) c1 = ' ';
-      else                  c1 = tolower(* (unsigned char *) word);
+      if (isspace( (unsigned char) *start ))
+	 c2 = ' ';
+      else
+	 c2 = tolower(* (unsigned char *) start);
+
+      if (isspace( (unsigned char) *word ))
+	 c1 = ' ';
+      else
+	 c1 = tolower(* (unsigned char *) word);
 #else
       c2 = tolower(* (unsigned char *) start);
       c1 = tolower(* (unsigned char *) word);
@@ -1696,13 +1707,17 @@ static char *dict_plugin_filename (
 	 ++p;
    }
 
-   while (*p == '\n' || isspace (*p))
+   while (*p == '\n' || isspace ((unsigned char) *p))
       ++p;
 
    len = strlen (p);
 
-   while (len > 0 && (p [len - 1] == '\n' || isspace (p [len - 1])))
+   while (
+      len > 0 &&
+      (p [len - 1] == '\n' || isspace ((unsigned char) p [len - 1])))
+   {
       --len;
+   }
 
    p [len] = 0;
 

@@ -103,7 +103,7 @@ char *strlwr_8bit (char *str)
 {
     char *p;
     for (p = str; *p; ++p){
-	*p = tolower (*p);
+	*p = tolower ((unsigned char) *p);
     }
 
     return str;
@@ -113,7 +113,7 @@ char *strupr_8bit (char *str)
 {
     char *p;
     for (p = str; *p; ++p){
-	*p = toupper (*p);
+	*p = toupper ((unsigned char) *p);
     }
 
     return str;

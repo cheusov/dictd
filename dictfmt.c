@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.10 2002/11/18 18:29:32 cheusov Exp $
+ * $Id: dictfmt.c,v 1.11 2002/11/18 19:15:07 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -253,7 +253,7 @@ static void write_hw_to_index (const char *word, int start, int end)
 	 tolower_alnumspace_8bit (word, new_word);
       }
 
-      while (len > 0 && isspace (word [len - 1])){
+      while (len > 0 && isspace ((unsigned char) word [len - 1])){
 	 new_word [--len] = 0;
       }
 
@@ -412,7 +412,7 @@ int main( int argc, char **argv )
    time_t     t;
    char       *pt;
    char       *s, *d;
-   char       *buf;
+   unsigned char *buf;
    const char *locale      = "C";
 
    struct option      longopts[]  = {
