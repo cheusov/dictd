@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: defs.h,v 1.5 2003/10/22 03:31:39 cheusov Exp $
+ * $Id: defs.h,v 1.6 2003/11/03 00:28:52 cheusov Exp $
  */
 
 #ifndef _DEFS_H_
@@ -49,9 +49,17 @@
 #define DICT_FLAG_ALLCHARS       DICT_ENTRY_PREFIX"-allchars"
 #define DICT_FLAG_VIRTUAL        DICT_ENTRY_PREFIX"-virtual"
 
+#define DICT_ENTRY_PLUGIN        DICT_ENTRY_PREFIX"-plugin"
+#define DICT_ENTRY_PLUGIN_DATA   DICT_ENTRY_PREFIX"-plugin-data"
+
+#define DICT_PLUGINFUN_OPEN      "dictdb_open"
+#define DICT_PLUGINFUN_ERROR     "dictdb_error"
+#define DICT_PLUGINFUN_FREE      "dictdb_free"
+#define DICT_PLUGINFUN_SEARCH    "dictdb_search"
+#define DICT_PLUGINFUN_CLOSE     "dictdb_close"
+#define DICT_PLUGINFUN_SET       "dictdb_set"
 
 				/* End of configurable things */
-
 
 #define BUFFERSIZE 10240
 

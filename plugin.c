@@ -15,7 +15,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: plugin.c,v 1.10 2003/10/31 00:40:04 cheusov Exp $
+ * $Id: plugin.c,v 1.11 2003/11/03 00:28:52 cheusov Exp $
  * 
  */
 
@@ -607,5 +607,16 @@ static int call_dictdb_free1 (const void *datum)
 
 void call_dictdb_free (lst_List db_list)
 {
-   lst_iterate (db_list, call_dictdb_free1);
+   const dictDatabase *db = NULL;
+   lst_Position pos;
+
+   LST_ITERATE (db_list, pos, db){
+      if (db -> plugin){
+	 if (db -> plugin -> dictdb_free_called){
+	    db -> plugin -> dictdb_free (db -> plugin -> data);
+
+	    db -> plugin -> dictdb_free_called = 0;
+	 }
+      }
+   }
 }

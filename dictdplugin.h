@@ -15,28 +15,6 @@
 
 __BEGIN_DECLS
 
-extern const char * DICT_ENTRY_PLUGIN;
-extern const char * DICT_ENTRY_PLUGIN_DATA;
-
-extern const char * DICT_PLUGINFUN_OPEN;
-extern const char * DICT_PLUGINFUN_ERROR;
-extern const char * DICT_PLUGINFUN_FREE;
-extern const char * DICT_PLUGINFUN_SEARCH;
-extern const char * DICT_PLUGINFUN_CLOSE;
-extern const char * DICT_PLUGINFUN_SET;
-
-/* search strategies*/
-#define DICT_EXACT        1     /* Exact */ 
-#define DICT_PREFIX       2     /* Prefix */ 
-#define DICT_SUBSTRING    3     /* Substring */ 
-#define DICT_SUFFIX       4     /* Suffix */ 
-#define DICT_RE           5     /* POSIX 1003.2 (modern) regular expressions */ 
-#define DICT_REGEXP       6     /* old (basic) regular expresions */ 
-#define DICT_SOUNDEX      7     /* Soundex */ 
-#define DICT_LEVENSHTEIN  8     /* Levenshtein */ 
-#define DICT_WORD         9     /* Word */
-
-
 /*
   The following mask is added to the search strategy
   and passed to plugin

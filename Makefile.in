@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.92 2003/10/31 16:28:20 cheusov Exp $
+# $Id: Makefile.in,v 1.93 2003/11/03 00:28:52 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -74,7 +74,7 @@ LEXLIB= 	@LEXLIB@
 YACC=		@YACC@
 JUDYLIB=        @JUDYLIB@
 
-CFLAGS=		@CFLAGS@ -DDICT_PLUGIN_PATH=\"$(PLUGIN_DIR)\" -DDICT_DICTIONARY_PATH=\"$(DICT_DIR)\" -DDICT_VERSION=\"$(DICT_VERSION)\" -DDICT_CONFIG_PATH=\"$(CONF_DIR)\"
+CFLAGS= @CFLAGS@ -DDICT_PLUGIN_PATH=\"$(PLUGIN_DIR)\" -DDICT_DICTIONARY_PATH=\"$(DICT_DIR)\" -DDICT_VERSION=\"$(DICT_VERSION)\" -DDICT_CONFIG_PATH=\"$(CONF_DIR)\"
 
 SCFLAGS=        @SCFLAGS@
 LDFLAGS=        @LDFLAGS@
@@ -92,7 +92,8 @@ ifdef JUDYLIB
 PLUGINS=    dictdplugin_judy.so
 endif
 
-LIBRARIES=  libdictdplugin.a
+LIBRARIES=
+#libdictdplugin.a
 INCLUDES=   dictdplugin.h
 
 all: plugins
@@ -114,9 +115,9 @@ uninstall.samples :
 endif
 
 ifdef USE_PLUGIN
-SRCHOBJS=       index.o data.o dictdplugin.o str.o plugin.o
+SRCHOBJS=       index.o data.o str.o plugin.o #dictdplugin.o 
 else
-SRCHOBJS=       index.o data.o dictdplugin.o str.o
+SRCHOBJS=       index.o data.o str.o #dictdplugin.o 
 endif
 
 NETOBJS=        daemon.o strategy.o net.o servscan.o servparse.o md5.o
@@ -168,8 +169,8 @@ include $(srcdir)/deps
 
 dictd.o : servparse.h
 
-$(PLUGINS) dictdplugin_popen.so dictdplugin_exit.so : \
-	libdictdplugin.a $(LIBSOBJS)
+$(PLUGINS) dictdplugin_popen.so dictdplugin_exit.so : $(LIBSOBJS)
+#	libdictdplugin.a 
 
 lib%.a : %.o
 	$(AR) rc $@ $^
@@ -225,7 +226,7 @@ clientparse.c clientparse.h: clientparse.y
 clientparse.o: clientparse.c
 
 .PHONY: install.dict install.dictzip install.dictfmt install.dictd \
-        install.libs install.includes
+        install.libs install.includes install.colorit
 
 install.dict: dict
 	if test ! -d $(DESTDIR)$(bindir); then \
@@ -235,7 +236,19 @@ install.dict: dict
         $(INSTALL) -d 755 $(DESTDIR)$(man1_prefix); \
     fi; \
 	$(INSTALL_PROGRAM) dict$(EXEEXT) $(DESTDIR)$(bindir); \
-	$(INSTALL_DATA) dict.1 $(DESTDIR)$(man1_prefix)/dict.1
+	$(INSTALL_DATA) dict.1 $(DESTDIR)$(man1_prefix)/dict.1; \
+	$(INSTALL_SCRIPT) dictl $(DESTDIR)$(bindir); \
+	$(INSTALL_DATA) dictl.1 $(DESTDIR)$(man1_prefix)/dictl.1
+
+install.colorit: colorit
+	if test ! -d $(DESTDIR)$(bindir); then \
+        $(INSTALL) -d 755 $(DESTDIR)$(bindir); \
+    fi; \
+	if test ! -d $(DESTDIR)$(man1_prefix); then \
+        $(INSTALL) -d 755 $(DESTDIR)$(man1_prefix); \
+    fi; \
+	$(INSTALL_SCRIPT) colorit $(DESTDIR)$(bindir); \
+	$(INSTALL_DATA) colorit.1 $(DESTDIR)$(man1_prefix)
 
 install.dictzip: dictzip
 	if test ! -d $(DESTDIR)$(bindir); then \
@@ -296,16 +309,17 @@ install.plugins:
 
 install: \
 install.dict install.dictzip install.dictd install.dictfmt \
-install.libs install.includes install.plugins
+install.libs install.includes install.plugins install.colorit
 ifdef USE_PLUGIN
 	$(INSTALL_SCRIPT) dictdplugin-config $(DESTDIR)$(bindir)
 endif
 
 .PHONY: uninstall.dict uninstall.dictzip uninstall.dictfmt uninstall.dictd \
-        uninstall.libs uninstall.includes
+        uninstall.libs uninstall.includes uninstall.colorit
 
 uninstall.dict:
 	rm -f $(DESTDIR)$(bindir)/dict$(EXEEXT) $(DESTDIR)$(man1_prefix)/dict.1
+	rm -f $(DESTDIR)$(bindir)/dictl $(DESTDIR)$(man1_prefix)/dictl.1
 
 uninstall.dictzip:
 	rm -f $(DESTDIR)$(bindir)/dictzip$(EXEEXT) $(DESTDIR)$(man1_prefix)/dictzip.1
@@ -325,6 +339,9 @@ uninstall.dictfmt:
 	test _$(USE_PLUGIN) != _ && \
 		rm -f $(DESTDIR)$(bindir)/dictfmt_plugin || true
 
+uninstall.colorit:
+	rm -f $(DESTDIR)$(bindir)/colorit $(DESTDIR)$(man1_prefix)/colorit.1
+
 uninstall.includes:
 ifdef USE_PLUGIN
 	rm -f $(addprefix $(DESTDIR)$(includedir)/, $(INCLUDES))
@@ -337,14 +354,14 @@ endif
 
 uninstall.plugins:
 ifdef USE_PLUGIN
-	rm -f $(addprefix $(DESTDIR)$(libexecdir), $(PLUGINS))
+	rm -f $(addprefix $(DESTDIR)$(libexecdir)/, $(PLUGINS))
 endif
 
 .PHONY: uninstall
 
 uninstall: \
 uninstall.dict uninstall.dictd uninstall.dictfmt uninstall.dictzip \
-uninstall.libs uninstall.includes uninstall.plugins
+uninstall.libs uninstall.includes uninstall.plugins uninstall.colorit
 ifdef USE_PLUGIN
 	rm -f $(DESTDIR)$(bindir)/dictdplugin-config
 endif
