@@ -2,6 +2,8 @@
 
 #include <stdarg.h>
 #include <stddef.h>
+#include <maa.h>
+#include <string.h>
 
 /*
   partial snprintf implementation:
@@ -15,4 +17,7 @@ int snprintf(char *str, size_t size, const char *format, ...)
    va_start (ap, format);
    vsprintf (str, format, ap);
    va_end (ap);
+
+   if (strlen (str) >= size)
+      err_fatal( __FUNCTION__, "Buffer too small\n" );
 }
