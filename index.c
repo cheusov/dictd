@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.84 2004/01/05 12:25:10 cheusov Exp $
+ * $Id: index.c,v 1.85 2004/01/07 16:47:29 cheusov Exp $
  * 
  */
 
@@ -1403,24 +1403,29 @@ static int dict_search_levenshtein(
    const dictDatabase *database,
    dictIndex *dbindex)
 {
+   int count = 0;
+
    assert (database);
    assert (dbindex);
+
+   count = dict_search_exact (l, word, database, dbindex);
 
 #if HAVE_UTF8
    if (dbindex -> flag_utf8){
       if (database -> alphabet){
-	 return dict_search_levenshtein_utf8_with_alphabet (
+	 return count + dict_search_levenshtein_utf8_with_alphabet (
 	    l, word, database, dbindex);
       }else{
-	 return 0;
+	 return count + dict_search_levenshtein_8bit_without_alphabet (
+	    l, word, database, dbindex);
       }
    }else{
 #endif
       if (database -> alphabet){
-	 return dict_search_levenshtein_8bit_with_alphabet (
+	 return count + dict_search_levenshtein_8bit_with_alphabet (
 	    l, word, database, dbindex);
       }else{
-	 return dict_search_levenshtein_8bit_without_alphabet (
+	 return count + dict_search_levenshtein_8bit_without_alphabet (
 	    l, word, database, dbindex);
       }
 #if HAVE_UTF8
