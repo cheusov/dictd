@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.47 2003/01/03 19:43:35 cheusov Exp $
+ * $Id: daemon.c,v 1.48 2003/01/19 17:26:44 cheusov Exp $
  * 
  */
 
@@ -30,6 +30,14 @@
 
 #ifndef HAVE_INET_ATON
 #define inet_aton(a,b) (b)->s_addr = inet_addr(a)
+#endif
+
+#ifndef HAVE_SNPRINTF
+extern int snprintf(char *str, size_t size, const char *format, ...);
+#endif
+
+#ifndef HAVE_VSNPRINTF
+extern int vsnprintf(char *str, size_t size, const char *format, va_list ap);
 #endif
 
 int default_strategy  = DICT_DEFAULT_STRATEGY;
@@ -209,20 +217,26 @@ static void daemon_log( int type, const char *format, ... )
    }
 
    if (dbg_test(DBG_PORT))
-      sprintf( buf, ":%c: %s:%d ", marker, daemonHostname, daemonPort );
+      snprintf(
+	 buf, sizeof (buf)/2,
+	 ":%c: %s:%d ", marker, daemonHostname, daemonPort );
    else if (flg_test(LOG_HOST))
-      sprintf( buf, ":%c: %s ", marker, daemonHostname );
+      snprintf(
+	 buf, sizeof (buf)/2,
+	 ":%c: %s ", marker, daemonHostname );
    else
-      sprintf( buf, ":%c: ", marker );
-      
+      snprintf(
+	 buf, sizeof (buf)/2,
+	 ":%c: ", marker );
+
    len = strlen( buf );
-   
+
    va_start( ap, format );
-   vsprintf( buf+len, format, ap );
+   vsnprintf( buf+len, sizeof (buf)/2-len, format, ap );
    va_end( ap );
    len = strlen( buf );
 
-   if (len > 2048) {
+   if (len >= sizeof (buf)/2) {
       log_info( ":E: buffer overflow (%d)\n", len );
       buf[2048] = '\0';
       len = strlen(buf);
@@ -523,7 +537,7 @@ static void daemon_printf( const char *format, ... )
    int     len;
 
    va_start( ap, format );
-   vsprintf( buf, format, ap );
+   vsnprintf( buf, sizeof (buf), format, ap );
    va_end( ap );
    if ((len = strlen( buf )) >= BUFFERSIZE) {
       log_info( ":E: buffer overflow: %d\n", len );
@@ -696,7 +710,7 @@ static void daemon_banner( void )
 
    time(&t);
 
-   sprintf( daemonStamp, "<%d.%d.%lu@%s>", 
+   snprintf( daemonStamp, sizeof (daemonStamp), "<%d.%d.%lu@%s>", 
 	    _dict_forks,
 	    getpid(),
 	    (long unsigned)t,
@@ -1250,7 +1264,8 @@ static void daemon_auth( const char *cmdline, int argc, char **argv )
    unsigned char     digest[16];
    char              hex[33];
    int               i;
-   
+   int               buf_size;
+
    if (argc != 3)
       daemon_printf( "%d syntax error, illegal parameters\n",
 		     CODE_ILLEGAL_PARAM );
@@ -1260,15 +1275,18 @@ static void daemon_auth( const char *cmdline, int argc, char **argv )
       daemon_printf( "%d auth denied\n", CODE_AUTH_DENIED );
       return;
    }
-   
-   buf = alloca(strlen(daemonStamp) + strlen(secret) + 10);
-   sprintf( buf, "%s%s", daemonStamp, secret );
+
+   buf_size = strlen(daemonStamp) + strlen(secret) + 10;
+   buf = alloca(buf_size);
+   snprintf( buf, buf_size, "%s%s", daemonStamp, secret );
 
    MD5Init(&ctx);
    MD5Update(&ctx, buf, strlen(buf));
    MD5Final(digest, &ctx);
 
-   for (i = 0; i < 16; i++) sprintf( hex+2*i, "%02x", digest[i] );
+   for (i = 0; i < 16; i++)
+      snprintf( hex+2*i, 2, "%02x", digest[i] );
+
    hex[32] = '\0';
 
    PRINTF(DBG_AUTH,("Got %s expected %s\n", argv[2], hex ));

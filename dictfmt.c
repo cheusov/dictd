@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.13 2003/01/19 15:08:12 cheusov Exp $
+ * $Id: dictfmt.c,v 1.14 2003/01/19 17:26:46 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -39,6 +39,14 @@
 
 #if HAVE_GETOPT_H
 #include <getopt.h>
+#endif
+
+#ifndef HAVE_SNPRINTF
+extern int snprintf(char *str, size_t size, const char *format, ...);
+#endif
+
+#ifndef HAVE_VSNPRINTF
+extern int vsnprintf(char *str, size_t size, const char *format, va_list ap);
 #endif
 
 #define FMT_MAXPOS 65
@@ -78,12 +86,13 @@ static void fmt_openindex( const char *filename )
 {
    char buffer[1024];
 
-   if (!filename) return;
+   if (!filename)
+      return;
 
    if (utf8_mode || allchars_mode)
-      sprintf( buffer, "sort > %s\n", filename );
+      snprintf( buffer, sizeof (buffer), "sort > %s\n", filename );
    else
-      sprintf( buffer, "sort -df > %s\n", filename );
+      snprintf( buffer, sizeof (buffer), "sort -df > %s\n", filename );
 
    if (!(fmt_str = popen( buffer, "w" ))) {
       fprintf( stderr, "Cannot open %s for write\n", buffer );
@@ -489,8 +498,14 @@ int main( int argc, char **argv )
       exit (2);
    }
 
-   sprintf( indexname, "%s.index", argv[optind] );
-   sprintf( dataname,  "%s.dict", argv[optind] );
+   if (
+      -1 == snprintf (
+	 indexname, sizeof (indexname), "%s.index", argv[optind] )||
+      -1 == snprintf (
+	 dataname,  sizeof (dataname), "%s.dict", argv[optind] ))
+   {
+      err_fatal (__FUNCTION__, "Too long filename\n");
+   }
 
    fmt_openindex( indexname );
    if (Debug) {
@@ -527,7 +542,7 @@ int main( int argc, char **argv )
       fmt_string("This file was converted from the original database on:" );
       fmt_newline();
       time(&t);
-      sprintf( buffer, "          %25.25s", ctime(&t) );
+      snprintf( buffer, sizeof (buffer), "          %25.25s", ctime(&t) );
       fmt_string( buffer );
       fmt_newline();
       fmt_newline();
