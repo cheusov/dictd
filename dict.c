@@ -1,10 +1,10 @@
 /* dict.c -- 
  * Created: Fri Mar 28 19:16:29 1997 by faith@cs.unc.edu
- * Revised: Fri Jul 11 20:38:12 1997 by faith@acm.org
+ * Revised: Sat Jul 12 00:07:43 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dict.c,v 1.10 1997/07/12 01:50:13 faith Exp $
+ * $Id: dict.c,v 1.11 1997/07/12 04:13:54 faith Exp $
  * 
  */
 
@@ -875,7 +875,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.10 1997/07/12 01:50:13 faith Exp $";
+   const char        *id = "$Id: dict.c,v 1.11 1997/07/12 04:13:54 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -1078,7 +1078,7 @@ int main( int argc, char **argv )
       else              fprintf( stderr, "No configuration\n" );
    }
 
-   if (!strncmp(argv[optind],"dict://",7)) {
+   if (optind < argc && !strncmp(argv[optind],"dict://",7)) {
       char *p;
       int  state, fin;
       char *s;
