@@ -1,4 +1,5 @@
 #!/bin/sh
+# Example script courtesy of Jeff Blain <jblaine@linus.mitre.org>
 
 DICTD=/where/is/your/dictd_binary
 

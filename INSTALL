@@ -131,3 +131,4 @@ and then start dictd on that host.
 NOTE:  I had to install the dictd.conf and dict.conf in that location
        BY HAND.  This is not done automatically for you.
 
+[INSTALL file courtesy Jeff Blain <jblaine@linus.mitre.org>]
