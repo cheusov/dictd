@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictdplugin_dbi.c,v 1.4 2004/05/14 12:52:33 cheusov Exp $
+ * $Id: dictdplugin_dbi.c,v 1.5 2004/07/08 11:58:12 cheusov Exp $
  * 
  */
 
@@ -62,7 +62,7 @@ typedef struct global_data_s {
    char *m_define_query;
    hsh_HashTable m_strategy2strategynum;
 
-   BOOL m_conf_allchars;
+   BOOL m_conf_all_chars;
    BOOL m_conf_utf8;
 
 //   BOOL m_flag_allchars; // ???
@@ -77,6 +77,8 @@ typedef struct global_data_s {
    char *m_dbi_option_dbname;
    char *m_dbi_option_username;
    char *m_dbi_option_password;
+
+//   int m_dbi_option_case_sensitive;
 
    char *m_alphabet_global_8bit;
    char *m_alphabet_global_ascii;
@@ -114,7 +116,9 @@ static global_data * global_data_create (void)
 
    memset (d, 0, sizeof (*d));
 
-   d -> m_strat_exact = -2;
+   d -> m_strat_exact    = -2;
+   d -> m_conf_all_chars = 0;
+   d -> m_conf_utf8      = 1;
 
    return d;
 }
@@ -246,6 +250,19 @@ static void on_error (const char *bad_line, void *data)
       bad_line);
 }
 
+static int string2bool (const char *str)
+{
+   if (
+      !strcasecmp ("1", str)
+      || !strcasecmp ("true", str)
+      || !strcasecmp ("yes", str))
+   {
+      return 1;
+   }else{
+      return 0;
+   }
+}
+
 static int process_name_value (
    const char *name,
    const char *value,
@@ -269,6 +286,10 @@ static int process_name_value (
       dict_data-> m_dbi_option_username = xstrdup (value);
    }else if (!strcmp(name, "option_password")){
       dict_data-> m_dbi_option_password = xstrdup (value);
+   }else if (!strcmp(name, "all_chars")){
+      dict_data-> m_conf_all_chars = string2bool (value);
+   }else if (!strcmp(name, "utf8")){
+      dict_data-> m_conf_utf8 = string2bool (value);
    }else if (!strcmp(name, "query_define")){
       dict_data-> m_define_query = xstrdup (value);
    }else if (!strncmp (name, "query_", 6) && strlen (name) > 7){
@@ -339,6 +360,51 @@ static void init_alphabet (global_data *dict_data)
    }
 
    dictdb_free (dict_data);
+}
+
+static void init_allchars (global_data *dict_data)
+{
+   int ret = 0;
+   int exit_code = 0;
+   const char * const* defs;
+   const int * defs_sizes;
+   int count = 0;
+   int len = 0;
+   char *p = NULL;
+   char *alphabet = NULL;
+
+   assert (dict_data);
+
+   dict_data -> m_conf_all_chars = 1;
+
+   exit_code = dictdb_search (
+      dict_data, "00-database-allchars", -1,
+      dict_data -> m_strat_exact,
+      &ret,
+      NULL, 0,
+      &defs, &defs_sizes,
+      &count);
+
+   if (!exit_code && ret == DICT_PLUGIN_RESULT_FOUND && count > 0){
+      dictdb_free (dict_data);
+      return;
+   }
+
+   exit_code = dictdb_search (
+      dict_data, "00databaseallchars", -1,
+      dict_data -> m_strat_exact,
+      &ret,
+      NULL, 0,
+      &defs, &defs_sizes,
+      &count);
+
+   if (!exit_code && ret == DICT_PLUGIN_RESULT_FOUND && count > 0){
+      dictdb_free (dict_data);
+      return;
+   }
+
+   dictdb_free (dict_data);
+   dict_data -> m_conf_all_chars = 0;
 }
 
 static int strcmp_ (const void *a, const void *b)
@@ -509,6 +575,8 @@ int dictdb_open (
    if (err)
       return err;
 #endif
+
+   init_allchars (dict_data);
 
    return 0;
 }
@@ -816,7 +884,7 @@ int dictdb_search (
    if (
       tolower_alnumspace (
 	 word_copy2, word_copy2,
-	 dict_data -> m_conf_allchars, dict_data -> m_conf_utf8))
+	 dict_data -> m_conf_all_chars, dict_data -> m_conf_utf8))
    {
       plugin_error (dict_data, "tolower_alnumspace in dictdb_search failed");
       return 7;
