@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.30 2003/10/01 11:28:01 cheusov Exp $
+ * $Id: dictfmt.c,v 1.31 2003/10/26 12:46:53 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -308,7 +308,7 @@ static char *trim_left (char *s)
    int len;
 
    if (!utf8_mode){
-      while (isspace(*s)){
+      while (isspace((unsigned char) *s)){
 	 ++s;
       }
 
