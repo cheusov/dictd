@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.55 2003/02/23 13:03:12 cheusov Exp $
+ * $Id: daemon.c,v 1.56 2003/02/23 14:33:42 cheusov Exp $
  * 
  */
 
@@ -1162,7 +1162,7 @@ static void daemon_show_info( const char *cmdline, int argc, char **argv )
       }
 
       if (db -> databaseInfo && db -> databaseInfo [0] == '@')
-	 info_entry_name = db -> databaseInfo;
+	 info_entry_name = db -> databaseInfo + 1;
 
       if (dict_search (
 	 list,
