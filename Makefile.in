@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.70 2003/04/10 18:52:31 cheusov Exp $
+# $Id: Makefile.in,v 1.71 2003/04/14 09:42:50 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -49,6 +49,7 @@ DESTDIR=
 SHELL=		/bin/sh
 
 USE_PLUGIN=@USE_PLUGIN@
+EXEEXT=@EXEEXT@
 
 CONF_DIR=@sysconfdir@/
 PLUGIN_DIR=${libexecdir}/
@@ -218,7 +219,7 @@ install.dict: dict
 	if test ! -d $(DESTDIR)$(man1_prefix); then \
         $(INSTALL) -d 755 $(DESTDIR)$(man1_prefix); \
     fi; \
-	$(INSTALL_PROGRAM) dict $(DESTDIR)$(bindir); \
+	$(INSTALL_PROGRAM) dict$(EXEEXT) $(DESTDIR)$(bindir); \
 	$(INSTALL_DATA) dict.1 $(DESTDIR)$(man1_prefix)/dict.1
 
 install.dictzip: dictzip
@@ -228,7 +229,7 @@ install.dictzip: dictzip
 	if test ! -d $(DESTDIR)$(man1_prefix); then \
         $(INSTALL) -d 755 $(DESTDIR)$(man1_prefix); \
     fi; \
-	$(INSTALL_PROGRAM) dictzip $(DESTDIR)$(bindir); \
+	$(INSTALL_PROGRAM) dictzip$(EXEEXT) $(DESTDIR)$(bindir); \
 	$(INSTALL_DATA) dictzip.1 $(DESTDIR)$(man1_prefix)/dictzip.1
 
 install.dictfmt: dictfmt dictfmt_index2word dictfmt_index2suffix dictfmt_plugin
@@ -238,7 +239,7 @@ install.dictfmt: dictfmt dictfmt_index2word dictfmt_index2suffix dictfmt_plugin
 	if test ! -d $(DESTDIR)$(man1_prefix); then \
         $(INSTALL) -d 755 $(DESTDIR)$(man1_prefix); \
     fi; \
-	$(INSTALL_PROGRAM) dictfmt $(DESTDIR)$(bindir); \
+	$(INSTALL_PROGRAM) dictfmt$(EXEEXT) $(DESTDIR)$(bindir); \
 	$(INSTALL_SCRIPT) dictfmt_index2suffix $(DESTDIR)$(bindir); \
 	$(INSTALL_SCRIPT) dictfmt_index2word $(DESTDIR)$(bindir); \
 	$(INSTALL_SCRIPT) dictfmt_virtual $(DESTDIR)$(bindir); \
@@ -257,7 +258,7 @@ install.dictd: dictd
 	if test ! -d $(DESTDIR)$(man8_prefix); then \
         $(INSTALL) -d 755 $(DESTDIR)$(man8_prefix); \
     fi; \
-	$(INSTALL_PROGRAM) dictd $(DESTDIR)$(sbindir); \
+	$(INSTALL_PROGRAM) dictd$(EXEEXT) $(DESTDIR)$(sbindir); \
 	$(INSTALL_DATA) dictd.8 $(DESTDIR)$(man8_prefix)/dictd.8
 
 install.libs: $(LIBRARIES)
@@ -288,16 +289,16 @@ endif
         uninstall.libs uninstall.includes
 
 uninstall.dict:
-	rm -f $(DESTDIR)$(bindir)/dict $(DESTDIR)$(man1_prefix)/dict.1
+	rm -f $(DESTDIR)$(bindir)/dict$(EXEEXT) $(DESTDIR)$(man1_prefix)/dict.1
 
 uninstall.dictzip:
-	rm -f $(DESTDIR)$(bindir)/dictzip $(DESTDIR)$(man1_prefix)/dictzip.1
+	rm -f $(DESTDIR)$(bindir)/dictzip$(EXEEXT) $(DESTDIR)$(man1_prefix)/dictzip.1
 
 uninstall.dictd:
-	rm -f $(DESTDIR)$(sbindir)/dictd $(DESTDIR)$(man8_prefix)/dictd.8
+	rm -f $(DESTDIR)$(sbindir)/dictd$(EXEEXT) $(DESTDIR)$(man8_prefix)/dictd.8
 
 uninstall.dictfmt:
-	rm -f $(DESTDIR)$(bindir)/dictfmt $(DESTDIR)$(man1_prefix)/dictfmt.1 \
+	rm -f $(DESTDIR)$(bindir)/dictfmt$(EXEEXT) $(DESTDIR)$(man1_prefix)/dictfmt.1 \
     $(DESTDIR)$(man1_prefix)/dictfmt_index2word.1 \
     $(DESTDIR)$(man1_prefix)/dictfmt_index2suffix.1 \
     $(DESTDIR)$(man1_prefix)/dictunformat.1 \
