@@ -365,22 +365,60 @@ administrator, and is not necessarily related to the file name or any
 name listed in the data file.  A short, easy to type name is often
 selected for easy use with 
 .BR "dict -d".)
+.RS
+.P
 .B NOTE:
 If the files specified in the database specification do not exist on the
 system, dictd may silently fail.
+.RE
 .TP
 .BI database_virtual " string " "{ " "virtual database specification " "}"
 This section specifies the virtual database.
-The string specifies the name of the database (e.g., en-ru or fren).
+The
+.I string
+specifies the name of the database (e.g., en-ru or fren).
 .TP
 .BI database_plugin " string " "{ " "plugin specification " "}"
 This section specifies the plugin.
-The string specifies the name of the database.
+The
+.I string
+specifies the name of the database.
+.TP
+.BI database_mime " string " "{ " "mime specification " "}"
+Traditionally, databases created for
+.I dictd
+contained plain text only because
+.B dictd
+releases before 1.10.0 didn't have full support of
+.I OPTION MIME
+option (consult with RFC-2229).
+This section describes the special database which behaves
+differently depending on whether
+.I OPTION MIME
+command was received from client or was not,
+i.e. the database created by this section
+allows to return to the client either a plain text or
+specially formatted content depending on whether DICT client supports
+(or wants to receive) MIME of doesn't.
+The
+.I string
+specifies the name of the database.
+.RS
+.P
+.B NOTE:
+All this is about
+.I DEFINE
+command only.
+.I MATCH, SHOW DB, SHOW STRAT, SHOW INFO, SHOW SERVER and HELP
+commands return texts prepanded with empty line only.
+.RE
 .TP
 .BI database_exit
 Excludes following databases from the '*' database.
 By default '*' means all databases available.
 Look at 'example_virtual.conf' file for example configuration.
+.RS
+.P
 .B NOTE:
 If you use 'virtual' dictionaries, you should use this directive,
 otherwise you will search the same dictionary twice.
@@ -741,10 +779,12 @@ each use using the
 call.  For example, a filename ending in ".%Y%m%d" will write to log
 files ending in the year, month, and date that the log entry was
 written.
+.RS
 .B NOTE:
 If
 .B dictd
 does not have write permission for this file, it will silently fail.
+.RE
 .TP
 .BI fast\_start
 By default, dictd creates (in memory) additional index
@@ -827,8 +867,15 @@ dictionary,
 the name of the upper visible virtual dictionary is returned.
 Dictionaries '*' and '!' don't include invisible ones.
 .B NOTE:
-There is no sense to make dictionary invisible unless it is included
-to the virtual dictionary.
+Invisible dictionaries are completely
+inaccesible (and invisible) to the client
+unless they are included
+to the virtual or MIME dictionary
+(See
+.I database_virtual
+or
+.I database_mime
+database sections).
 .TP
 .BI disable_strategy " string"
 Disables the specified strategy for database.
@@ -916,10 +963,57 @@ Sets the default search strategy for database.
 See
 .I Database Specification
 for more information.
+.RE
+
+.B Mime Specification
+.RS
 .TP
-.B NOTE:
-Another way to configure plugin is to create
-database files by dictfmt_plugin executable
+.BI dbname_nomime " string"
+Specifies the real database name which is used
+in case
+.I OPTION MIME
+command was NOT received from a client.
+.TP
+.BI dbname_mime " string"
+Specifies the real database name which is used
+in case
+.I OPTION MIME
+command WAS received from a client.
+A necessary MIME header is set while creating a database.
+See
+.I dictfmt(1)
+for option
+.I --mime-header.
+.TP
+.BI name " string"
+Specifies the short name of the database.
+See
+.I Database Specification
+for more information.
+.TP
+.BI info " string"
+Specifies the information about database.
+See
+.I Database Specification
+for more information.
+.TP
+.BI invisible
+Makes dictionary invisible to the clients.
+See
+.I Database Specification
+for more information.
+.TP
+.BI disable_strategy " string"
+Disables the specified strategy for database.
+See
+.I Database Specification
+for more information.
+.TP
+.BI default_strategy " string"
+Sets the default search strategy for database.
+See
+.I Database Specification
+for more information.
 .RE
 .TP
 .BI include " string"
