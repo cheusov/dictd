@@ -25,13 +25,13 @@ INSTALLATION
 
       Example1 (to build dictd with TRE regex library):
 
-        DICTD_LDFLAGS='-L/usr/local/lib/ -ltre' \
+        LDFLAGS='-L/usr/local/lib/ -ltre' \
            CPPFLAGS='-I/usr/local/include/tre' ./configure
         make
 
       Example2 (to build dictd with pcreposix regex library):
 
-        DICTD_LDFLAGS='-lpcreposix -lpcre' \
+        LDFLAGS='-lpcreposix -lpcre' \
            ./configure --with-regex-include='pcreposix.h'
         make
 
