@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.5 2002/08/23 14:37:39 cheusov Exp $
+ * $Id: dictfmt.c,v 1.6 2002/08/23 17:33:10 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -59,7 +59,8 @@ static FILE *str;
 static int utf8_mode     = 0;
 static int allchars_mode = 0;
 
-const char *hw_separator = "";
+static const char *hw_separator = "";
+static int         without_hw   = 0;
 
 static unsigned char b64_list[] =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -368,6 +369,8 @@ static void help( FILE *out_stream )
            several words to have the same definition\n\
            Example: autumn%%%fall can be used\n\
            if '--headword-separator %%%' is supplied",
+"--without-headword         with this parameter supplied
+           head words will not be copied to .dict file",
       0 };
    const char        **p = help_msg;
 
@@ -410,6 +413,7 @@ int main( int argc, char **argv )
       { "locale",     1, 0, 502 },
       { "allchars",   0, 0, 503 },
       { "headword-separator",   1, 0, 504 },
+      { "without-headword",     0, 0, 505 },
    };
 
    while ((c = getopt_long( argc, argv, "VLjfephDu:s:c:",
@@ -437,6 +441,7 @@ int main( int argc, char **argv )
       case 502: locale        = optarg;      break;
       case 503: allchars_mode = 1;           break;
       case 504: hw_separator  = optarg;      break;
+      case 505: without_hw    = 1;           break;
       default:
          help (stderr);
 	 exit(1);
@@ -530,7 +535,7 @@ int main( int argc, char **argv )
 	    if ((pt = strchr( buffer2, ','))) {
 	       *pt = '\0';
 	       fmt_newheadword(buffer2, 0);
-	       if (hw_separator [0])
+	       if (without_hw || hw_separator [0])
 		  buf = NULL;
 	    }
 	 }
@@ -666,7 +671,7 @@ int main( int argc, char **argv )
 
 	    if (*buf != '\0') {
 	       fmt_newheadword(buf,0);
-	       if (hw_separator [0])
+	       if (without_hw || hw_separator [0])
 		  buf = NULL;
 	    }
  	 }
