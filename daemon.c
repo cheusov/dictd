@@ -1,6 +1,6 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@cs.unc.edu
- * Revised: Sat Mar  8 16:59:46 1997 by faith@cs.unc.edu
+ * Revised: Mon Mar 10 12:12:48 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,21 +17,17 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.5 1997/03/08 22:09:32 faith Exp $
+ * $Id: daemon.c,v 1.6 1997/03/10 21:46:54 faith Exp $
  * 
  */
 
 #include <ctype.h>
 #include "dictd.h"
 
-struct arg {
-   dictDatabase *db;
-   int          s;
-   const char   *hostname;
-   int          port;
-};
-
-static int totalMatches;
+static int          totalMatches;
+static int          daemonS;
+static const char   *daemonHostname;
+static int          daemonPort;
 
 static struct {
    const char *name;
@@ -48,20 +44,22 @@ static struct {
 
 #define STRATEGIES (sizeof(strategyInfo)/sizeof(strategyInfo[0]))
 
-static void daemon_status( int s, const char *hostname, int port );
+static void daemon_status( void );
 
-static void daemon_log( int s, const char *hostname, int port,
-			const char *format, ... )
+static void daemon_log( const char *format, ... )
 {
    va_list ap;
-   time_t  t;
-   char    buf[1024];
+   char    buf[512];
+   char    buf2[3*512];
    int     len;
-   char    *pt;
+   char    *s, *d;
+   int     c;
 
-   time(&t);
-
-   sprintf( buf, "%24.24s ", ctime(&t) );
+   if (dbg_test(DBG_PORT))
+      sprintf( buf, "%s:%d ", daemonHostname, daemonPort );
+   else
+      sprintf( buf, "%s ", daemonHostname );
+      
    len = strlen( buf );
    
    va_start( ap, format );
@@ -69,23 +67,32 @@ static void daemon_log( int s, const char *hostname, int port,
    va_end( ap );
    len = strlen( buf );
 
-   for (pt = buf; *pt; pt++)
-      if (*pt != '\n' && !isprint(*pt)) *pt = '*';
+   if (len > 500)
+      err_internal( __FUNCTION__, "Buffer overflow (%d)\n", len );
 
-   fprintf( stderr, "%s", buf );
+   for (s = buf, d = buf2; *s; s++) {
+      c = (unsigned char)*s;
+      if (c == '\t')      *d++ = ' ';
+      else if (c == '\n') *d++ = c;
+      else {
+	 if (c > 128)       { *d++ = 'M'; *d++ = '-';    c -= 128; }
+	 if (c < 32)        { *d++ = '^'; *d++ = c + 64;           }
+	 else if (c == 127) { *d++ = '^'; *d++ = '?';              }
+	 else                 *d++ = c;
+      }
+   }
+   *d = '\0';
+
+   log_info( "%s", buf2 );
 }
 
-static int daemon_quit( int s, const char *hostname, int port, int clean,
-			const char *function )
+static int daemon_quit( int clean, const char *function )
 {
-   if (clean) daemon_status( s, hostname, port );
+   if (clean) daemon_status();
    else       tim_stop( "daemon" );
    
-   close(s);
-   daemon_log( s, hostname, port,
-	       "%s:%d %s/%s %d %0.3fr %0.3fu %0.3fs\n",
-	       hostname,
-	       port,
+   close(daemonS);
+   daemon_log( "%s/%s %d %0.3fr %0.3fu %0.3fs\n",
 	       clean ? "quit" : "abend",
 	       function,
 	       totalMatches,
@@ -95,8 +102,7 @@ static int daemon_quit( int s, const char *hostname, int port, int clean,
    exit(0);
 }
 
-static void daemon_write( int s, const char *hostname, int port,
-			  const char *format, ... )
+static void daemon_write( const char *format, ... )
 {
    va_list ap;
    char    buf[1024];
@@ -107,73 +113,53 @@ static void daemon_write( int s, const char *hostname, int port,
    va_end( ap );
    len = strlen( buf );
 
-   if (write(s, buf, len) != len)
-      daemon_quit( s, hostname, port, 0, __FUNCTION__ );
+   if (write(daemonS, buf, len) != len)
+      daemon_quit( 0, __FUNCTION__ );
 }
 
 
 static int dump_def( const void *datum, void *arg )
 {
    char         *buf;
-   struct arg   *a  = (struct arg *)arg;
    dictWord     *dw = (dictWord *)datum;
-   dictDatabase *db = a->db;
-   int          s   = a->s;
+   dictDatabase *db = (dictDatabase *)arg;
    int          len;
 
    buf = dict_data_read( db->data, dw->start, dw->end,
 			 db->prefilter, db->postfilter );
    len = strlen( buf );
 
-   daemon_write( s, a->hostname, a->port,
-		 "definition \"%s\" \"%s\" \"%s\" %d\n",
+   daemon_write( "definition \"%s\" \"%s\" \"%s\" %d\n",
 		 dw->word,
 		 db->databaseName,
 		 db->databaseShort,
 		 len );
-   if (write(s, buf, len) != len)
-      daemon_quit( s, a->hostname, a->port, 0, __FUNCTION__ );
+   if (write(daemonS, buf, len) != len)
+      daemon_quit( 0, __FUNCTION__ );
 
    xfree( buf );
    return 0;
 }
 
-static void daemon_dump_defs( lst_List list, dictDatabase *db,
-			      int s, const char *hostname, int port )
+static void daemon_dump_defs( lst_List list, dictDatabase *db )
 {
-   struct arg a;
-   
-   a.db       = db;
-   a.s        = s;
-   a.hostname = hostname;
-   a.port     = port;
-   
-   lst_iterate_arg( list, dump_def, &a );
+   lst_iterate_arg( list, dump_def, db );
 }
 
-static int dump_match( const void *datum, void *arg )
+static int dump_match( const void *datum )
 {
-   struct arg   *a  = (struct arg *)arg;
    dictWord     *dw = (dictWord *)datum;
 
-   daemon_write( a->s, a->hostname, a->port, "%s\n", dw->word );
+   daemon_write( "%s\n", dw->word );
    return 0;
 }
 
-static void daemon_dump_matches( lst_List list, dictDatabase *db,
-				 int s, const char *hostname, int port )
+static void daemon_dump_matches( lst_List list )
 {
-   struct arg a;
-   
-   a.db       = db;
-   a.s        = s;
-   a.hostname = hostname;
-   a.port     = port;
-   
-   lst_iterate_arg( list, dump_match, &a );
+   lst_iterate( list, dump_match );
 }
 
-static void daemon_status( int s, const char *hostname, int port )
+static void daemon_status( void )
 {
    time_t t;
    char   buf[1024];
@@ -189,12 +175,11 @@ static void daemon_status( int s, const char *hostname, int port )
 	   tim_get_system( "daemon" ),
 	   ctime(&t));
    len = strlen( buf );
-   if (write(s, buf, len) != len)
-      daemon_quit( s, hostname, port, 0, __FUNCTION__ );
+   if (write(daemonS, buf, len) != len)
+      daemon_quit( 0, __FUNCTION__ );
 }
 
-static void daemon_error( int s, const char *hostname, int port,
-			  int number, const char *format, ... )
+static void daemon_error( int number, const char *format, ... )
 {
    va_list ap;
    char    buf[1024];
@@ -208,14 +193,16 @@ static void daemon_error( int s, const char *hostname, int port,
    va_end( ap );
    len = strlen( buf );
 
-   sprintf( buf+len, "\n" );
-   len = strlen( buf );
+   if (*(buf+len-1) != '\n') {
+      sprintf( buf+len, "\n" );
+      len = strlen( buf );
+   }
 
-   if (write(s, buf, len) != len)
-      daemon_quit( s, hostname, port, 0, __FUNCTION__ );
+   if (write(daemonS, buf, len) != len)
+      daemon_quit( 0, __FUNCTION__ );
 }
 
-static int daemon_read( int s, char *buf, int count )
+static int daemon_read( char *buf, int count )
 {
    int  len = 0;
    int  n;
@@ -223,7 +210,7 @@ static int daemon_read( int s, char *buf, int count )
    char *pt = buf;
 
    *pt = '\0';
-   while ((n = read( s, &c, 1 )) > 0) {
+   while ((n = read( daemonS, &c, 1 )) > 0) {
       switch (c) {
       case '\n': *pt = '\0';       return len;
       case '\r':                   break;
@@ -234,89 +221,82 @@ static int daemon_read( int s, char *buf, int count )
    return n;
 }
 
-static int daemon_banner( int s, const char *hostname, int port )
+static int daemon_banner( void )
 {
    time_t         t;
 
    time(&t);
    
-   daemon_write( s, hostname, port,
-		 "server 1 %s <%ld.%ld@%s>\n",
+   daemon_write( "server 1 %s <%ld.%ld@%s>\n",
 		 dict_get_banner(),
 		 (long)getpid(),
 		 t,
-		 dict_get_hostname() );
+		 net_hostname() );
    return 0;
 }
 
-static int daemon_show( int s, const char *hostname, int port,
-			const char *what )
+static int daemon_show( const char *what )
 {
    int          count;
    int          i;
    dictDatabase *db;
    
    if (!strcmp(what,"databases") || !strcmp(what,"db")) {
-      count = lst_length( dict_get_config()->dbl );
-      daemon_write( s, hostname, port, "databases %d\n", count );
+      count = lst_length( DictConfig->dbl );
+      daemon_write( "databases %d\n", count );
       for (i = 1; i <= count; i++) {
-	 db = lst_nth_get( dict_get_config()->dbl, i );
-	 daemon_write( s, hostname, port,
-		       "database %s \"%s\"\n",
+	 db = lst_nth_get( DictConfig->dbl, i );
+	 daemon_write( "database %s \"%s\"\n",
 		       db->databaseName, db->databaseShort );
       }
-      daemon_status( s, hostname, port );
+      daemon_status();
       return count;
    } else if (!strcmp(what,"strategies") || !strcmp(what,"strat")) {
-      daemon_write( s, hostname, port, "strategies %d\n", STRATEGIES );
+      daemon_write( "strategies %d\n", STRATEGIES );
       for (i = 0; i < STRATEGIES; i++) {
-	 daemon_write( s, hostname, port, "strategy %s \"%s\"\n",
+	 daemon_write( "strategy %s \"%s\"\n",
 		       strategyInfo[i].name,
 		       strategyInfo[i].description );
       }
-      daemon_status( s, hostname, port );
+      daemon_status();
       return STRATEGIES;
    }
    
-   daemon_error( s, hostname, port, 0, "Illegal show command\n" );
+   daemon_error( 0, "Illegal show command" );
    return 0;
 }
 
-static int daemon_define( int s, const char *hostname, int port,
-			  const char *word, const char *databaseName )
+static int daemon_define( const char *word, const char *databaseName )
 {
    lst_List       list;
    dictDatabase   *db;
    int            i;
    int            matches = 0;
-   int            count = lst_length( dict_get_config()->dbl );
+   int            count = lst_length( DictConfig->dbl );
 
 				/* FIXME! Iterative search... */
    for (i = 1; i <= count; i++) {
-      db = lst_nth_get( dict_get_config()->dbl, i );
+      db = lst_nth_get( DictConfig->dbl, i );
       if (!databaseName || !strcmp( db->databaseName, databaseName )) {
 	 list = dict_search_database( word, db, DICT_EXACT );
 	 if (list && (matches = lst_length(list)) > 0) {
-	    daemon_write( s, hostname, port, "definitions %d\n", matches );
-	    daemon_dump_defs( list, db, s, hostname, port );
-	    daemon_status( s, hostname, port );
+	    daemon_write( "definitions %d\n", matches );
+	    daemon_dump_defs( list, db );
+	    daemon_status();
 	 } else {
-	    daemon_error( s, hostname, port, 0, "No match" );
+	    daemon_error( 0, "No match" );
 	 }
 	 if (list) dict_destroy_list( list );
-	 daemon_log( s, hostname, port,
-		     "%s:%d define %s \"%.80s\" %d\n",
-		     hostname, port, db->databaseName, word, matches );
+	 daemon_log( "define %s \"%.80s\" %d\n",
+		     db->databaseName, word, matches );
 	 return matches;
       }
    }
-   daemon_error( s, hostname, port,
-		 0, "Unknown database \"%s\"", databaseName );
+   daemon_error( 0, "Unknown database \"%s\"", databaseName );
    return 0;
 }
 
-static int daemon_match( int s, const char *hostname, int port,
-			 const char *word,
+static int daemon_match( const char *word,
 			 const char *strategy, const char *databaseName )
 {
    lst_List       list;
@@ -325,37 +305,32 @@ static int daemon_match( int s, const char *hostname, int port,
    int            matches = 0;
 
 				/* FIXME! Iterative search... */
-   for (i = 1; i <= lst_length( dict_get_config()->dbl ); i++) {
-      db = lst_nth_get( dict_get_config()->dbl, i );
+   for (i = 1; i <= lst_length( DictConfig->dbl ); i++) {
+      db = lst_nth_get( DictConfig->dbl, i );
       if (!databaseName || !strcmp( db->databaseName, databaseName )) {
 	 for (j = 0; j < STRATEGIES; j++) {
 	    if (!strcmp(strategyInfo[j].name,strategy)) {
 	       list = dict_search_database( word, db,
 					    strategyInfo[j].number);
 	       if (list && (matches = lst_length(list)) > 0) {
-		  daemon_write( s, hostname, port,
-				"matches %d\n", matches );
-		  daemon_dump_matches( list, db, s, hostname, port );
-		  daemon_status( s, hostname, port );
+		  daemon_write( "matches %d\n", matches );
+		  daemon_dump_matches( list );
+		  daemon_status();
 	       } else {
-		  daemon_error( s, hostname, port, 0, "No match" );
+		  daemon_error( 0, "No match" );
 	       }
 	       if (list) dict_destroy_list( list );
-	       daemon_log( s, hostname, port,
-			   "%s:%d match %s \"%.80s\" %s %d\n",
-			   hostname, port,
+	       daemon_log( "match %s \"%.80s\" %s %d\n",
 			   db->databaseName, word, strategyInfo[j].name,
 			   matches );
 	       return matches;
 	    }
 	 }
-	 daemon_error( s, hostname, port,
-		       0, "Unknown strategy \"%s\"", strategy );
+	 daemon_error( 0, "Unknown strategy \"%s\"", strategy );
 	 return 0;
       }
    }
-   daemon_error( s, hostname, port,
-		 0, "Unknown database \"%s\"", databaseName );
+   daemon_error( 0, "Unknown database \"%s\"", databaseName );
    return 0;
 }
 
@@ -377,44 +352,44 @@ int dict_daemon( int s, struct sockaddr_in *csin )
       hostname = str_find( h->h_name );
    }
 
+   daemonS        = s;
+   daemonHostname = hostname;
+   daemonPort     = port;
+   
    tim_start( "daemon" );
-   daemon_log( s, hostname, port, "%s:%d connected\n", hostname, port );
+   daemon_log( "connected\n" );
 
-   daemon_banner( s, hostname, port );
+   daemon_banner();
 
-   while ((count = daemon_read( s, buf, 4000 )) >= 0) {
+   while ((count = daemon_read( buf, 4000 )) >= 0) {
       if (!count) {
-	 daemon_status( s, hostname, port );
+	 daemon_status();
 	 continue;
       }
       cmdline = arg_argify(buf);
       arg_get_vector( cmdline, &argc, &argv );
       
       if (argc == 2 && !strcmp("define",argv[0])) {
-	 totalMatches += daemon_define( s, hostname, port, argv[1], NULL );
+	 totalMatches += daemon_define( argv[1], NULL );
       } else if (argc == 3 && !strcmp("define",argv[0])) {
-	 totalMatches += daemon_define( s, hostname, port, argv[1], argv[2] );
+	 totalMatches += daemon_define( argv[1], argv[2] );
       } else if (argc == 3 && !strcmp("match",argv[0])) {
-	 daemon_match( s, hostname, port, argv[1], argv[2], NULL );
+	 daemon_match( argv[1], argv[2], NULL );
       } else if (argc == 4 && !strcmp("match",argv[0])) {
-	 daemon_match( s, hostname, port, argv[1], argv[2], argv[3] );
+	 daemon_match( argv[1], argv[2], argv[3] );
       } else if (argc == 2 && !strcmp("show",argv[0])) {
-	 daemon_show( s, hostname, port, argv[1] );
+	 daemon_show( argv[1] );
       } else if (argc == 1 && !strcmp("quit",argv[0])) {
-	 daemon_quit( s, hostname, port, 1, __FUNCTION__ );
+	 daemon_quit( 1, __FUNCTION__ );
 	 return 0;
       } else {
-	 daemon_error( s, hostname, port,
-		       0, "Illegal command \"%s\"", buf );
-	 daemon_log( s, hostname, port,
-		     "%s:%d illegal %.80s\n", hostname, port, buf );
+	 daemon_error( 0, "Illegal command: \"%s\"\n", buf );
+	 daemon_log( "illegal %.80s\n", buf );
       }
       arg_destroy(cmdline);
    }
    tim_stop( "daemon" );
-   daemon_log( s, hostname, port,
-	       "%s:%d disconnect %d %0.3fr %0.3fu %0.3fs\n",
-               hostname, port,
+   daemon_log( "disconnect %d %0.3fr %0.3fu %0.3fs\n",
 	       totalMatches,
 	       tim_get_real( "daemon" ),
 	       tim_get_user( "daemon" ),

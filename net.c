@@ -1,15 +1,32 @@
 /* net.c -- 
  * Created: Fri Feb 21 20:58:10 1997 by faith@cs.unc.edu
- * Revised: Sat Mar  8 16:55:23 1997 by faith@cs.unc.edu
+ * Revised: Mon Mar 10 10:51:31 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: net.c,v 1.3 1997/03/08 22:09:39 faith Exp $
+ * $Id: net.c,v 1.4 1997/03/10 21:46:59 faith Exp $
  * 
  */
 
 
 #include "dictd.h"
+#if HAVE_SYS_PARAM_H
+# include <sys/param.h>
+#endif
+#ifndef MAXHOSTNAMELEN
+#define MAXHOSTNAMELEN 64
+#endif
+
+static char netHostname[MAXHOSTNAMELEN];
+
+const char *net_hostname( void )
+{
+   if (!netHostname[0]) {
+      memset( netHostname, 0, sizeof(netHostname) );
+      gethostname( netHostname, sizeof(netHostname)-1 );
+   }
+   return netHostname;
+}
 
 int net_open_tcp( const char *service, int queueLength )
 {

@@ -1,6 +1,6 @@
 # Makefile.in -- Makefile for dict
 # Created: Wed Apr 24 14:14:09 1996 by faith@cs.unc.edu
-# Revised: Sat Mar  8 17:33:55 1997 by faith@cs.unc.edu
+# Revised: Mon Mar 10 16:44:36 1997 by faith@cs.unc.edu
 # Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)
 # 
 # This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.7 1997/03/08 22:36:15 faith Exp $
+# $Id: Makefile.in,v 1.8 1997/03/10 21:46:52 faith Exp $
 #
 
 ifneq (,)
@@ -29,7 +29,7 @@ endif
 srcdir=		@srcdir@
 VPATH=		@srcdir@
 prefix=		@prefix@
-subdirs=        @allsubdirs@
+subdirs=        @allsubdirs@ regex
 exec_prefix=	@exec_prefix@
 man1_prefix=	$(prefix)/man/man1
 
@@ -47,9 +47,9 @@ YACC=		@YACC@
 
 CFLAGS=		@CFLAGS@
 LDFLAGS=        @LDFLAGS@
-XTRACFLAGS=     @WCFLAGS@ @XTRACFLAGS@ @DEFS@ @CPPFLAGS@ -I.
+XTRACFLAGS=     @WCFLAGS@ @XTRACFLAGS@ @DEFS@ @CPPFLAGS@ -I. -Iregex
 XTRALDFLAGS=    @WLDFLAGS@ @XTRALDFLAGS@
-LDLIBS=		@LIBS@
+LDLIBS=		@LIBS@ -Lregex -lregex
 
 EXES=	 	dictzip dictd
 
@@ -66,6 +66,10 @@ all::
 	 	if [ "$$subdir" = "zlib" ]; then \
 			(cd $$subdir \
 			&& $(MAKE) CC="$(CC)" CFLAGS="$(CFLAGS)" libz.a) \
+			|| exit 1; \
+		elif [ "$$subdir" = "regex" ]; then \
+			(cd $$subdir \
+			&& $(MAKE) CC="$(CC) $(CFLAGS)" lib) \
 			|| exit 1; \
 		else \
 			(cd $$subdir && $(MAKE)) || exit 1; \
@@ -119,7 +123,7 @@ recursive-clean: clean
 
 distclean: clean
 	@for subdir in $(subdirs); do \
-	 	if [ "$$subdir" != "zlib" ]; then \
+	 	if [ "$$subdir" != "zlib" -a "$$subdir" != "regex" ]; then \
 			echo making $@ in $$subdir; \
 			(cd $$subdir && $(MAKE) $@) || exit 1; \
 		fi \

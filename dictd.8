@@ -1,0 +1,72 @@
+.\" dictd.1 -- 
+.\" Created: Mon Mar 10 16:10:03 1997 by faith@cs.unc.edu
+.\" Revised: Mon Mar 10 16:23:37 1997 by faith@cs.unc.edu
+.\" Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
+.\" 
+.\" Permission is granted to make and distribute verbatim copies of this
+.\" manual provided the copyright notice and this permission notice are
+.\" preserved on all copies.
+.\" 
+.\" Permission is granted to copy and distribute modified versions of this
+.\" manual under the conditions for verbatim copying, provided that the
+.\" entire resulting derived work is distributed under the terms of a
+.\" permission notice identical to this one
+.\" 
+.\" Since the Linux kernel and libraries are constantly changing, this
+.\" manual page may be incorrect or out-of-date.  The author(s) assume no
+.\" responsibility for errors or omissions, or for damages resulting from
+.\" the use of the information contained herein.  The author(s) may not
+.\" have taken the same level of care in the production of this manual,
+.\" which is licensed free of charge, as they might when working
+.\" professionally.
+.\" 
+.\" Formatted or processed versions of this manual, if unaccompanied by
+.\" the source, must acknowledge the copyright and authors of this work.
+.\" 
+.TH DICTD 1 "10 Mar 1997" "" "Linux Programmer's Manual"
+.SH NAME
+dictd - a dictionary database server
+.SH SYNOPSIS
+.SH DESCRIPTION
+.SH ACKNOWLEDGEMENTS
+Special thanks to Jean-loup Gailly and Mark Adler for writing the zlib
+general purpose data compression library.  The version contained with
+.B dictd
+is not necessarily an original version and
+.BR "may have been modified" ,
+although any modifications are probably trivial.  The key features of the
+.B dictzip
+random-access compression algorithm utilize a documented extension of the
+gzip format, and do not require any modifications to zlib.  For more
+information on zlib, please see the zlib home page at
+.IR http://quest.jpl.nasa.gov/zlib/ .
+.P
+Special thanks to Henry Spencer for his regex package.  The package
+contained with
+.B dictd
+is not necessarily an original version and
+.B may have been modified.
+For more information on regex, please see
+.IR ftp://zoo.toronto.edu/pub/regex.shar .
+.SH COPYING
+The main source files for the
+.B dictd
+server and the
+.B dictzip
+compression program were written by Rik Faith (faith@cs.unc.edu) and are
+distributed under the terms of the GNU General Public License.
+.P
+The main libraries used by these programs (zlib, regex, libmaa) are
+distributed under different terms, so you may be able to use the libraries
+for applications which are incompatible with the GPL -- please see the
+copyright notices and license information that come with the libraries for
+more information, and consult with your attorney to resolve these issues.
+.SH FILES
+.I /etc/dictd.conf
+.br
+.I /usr/lib/dictd
+.SH "SEE ALSO"
+.BR dictzip (1),
+.BR gunzip (1),
+.BR zcat (1),
+.BR webster (1)

@@ -1,10 +1,10 @@
 /* dictd.c -- 
  * Created: Fri Feb 21 20:09:09 1997 by faith@cs.unc.edu
- * Revised: Sat Mar  8 18:38:15 1997 by faith@cs.unc.edu
+ * Revised: Mon Mar 10 14:13:11 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
- * $Id: dictd.c,v 1.7 1997/03/09 00:20:10 faith Exp $
+ * $Id: dictd.c,v 1.8 1997/03/10 21:46:57 faith Exp $
  * 
  */
 
@@ -12,42 +12,8 @@
 #include "servparse.h"
 
 extern int yy_flex_debug;
-
 extern int _dict_comparisons;
-
-static dictConfig *DictConfig;
-static const char *DictHostname;
-
-void dict_set_config( dictConfig *dc ) {
-   DictConfig = dc;
-}
-
-dictConfig *dict_get_config( void ) {
-   return DictConfig;
-}
-
-#ifndef MAXHOSTNAMELEN
-#define MAXHOSTNAMELEN 64
-#endif
-
-static void dict_set_hostname( void )
-{
-   char           myname[MAXHOSTNAMELEN+1];
-   struct hostent *hp;
-	
-   gethostname(myname, sizeof(myname));
-   
-   if (!(hp = gethostbyname(myname))) {
-      DictHostname = "localhost";
-      return;
-   }
-   DictHostname = strdup( hp->h_name );
-}
-
-const char *dict_get_hostname( void )
-{
-   return DictHostname;
-}
+dictConfig *DictConfig;
 
 static void reaper( int dummy )
 {
@@ -55,7 +21,7 @@ static void reaper( int dummy )
    pid_t      pid;
 
    while ((pid = wait3(&status, WNOHANG, NULL)) > 0)
-      fprintf( stderr, "Reaped %d\n", pid );
+      log_info( "Reaped %d\n", pid );
 }
 
 struct access_print_struct {
@@ -189,7 +155,7 @@ static const char *id_string( const char *id )
 const char *dict_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dictd.c,v 1.7 1997/03/09 00:20:10 faith Exp $";
+   const char        *id = "$Id: dictd.c,v 1.8 1997/03/10 21:46:57 faith Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -265,6 +231,8 @@ int main( int argc, char **argv )
    int                detach      = 0;
    const char         *testWord   = NULL;
    const char         *testFile   = NULL;
+   const char         *logFile    = NULL;
+   int                useSyslog   = 0;
    struct option      longopts[]  = {
       { "verbose", 0, 0, 'v' },
       { "version", 0, 0, 'V' },
@@ -276,6 +244,8 @@ int main( int argc, char **argv )
       { "license", 0, 0, 'L' },
       { "test",    1, 0, 't' },
       { "ftest",   1, 0, 501 },
+      { "log",     1, 0, 'l' },
+      { "syslog",  0, 0, 's' },
       { 0,         0, 0,  0  }
    };
 
@@ -286,9 +256,11 @@ int main( int argc, char **argv )
    dbg_register( DBG_SCAN,    "scan" );
    dbg_register( DBG_SEARCH,  "search" );
    dbg_register( DBG_INIT,    "init" );
+   dbg_register( DBG_PORT,    "port" );
+   dbg_register( DBG_LEV,     "lev" );
 
    while ((c = getopt_long( argc, argv,
-			    "vVdD:p:c:hLt:", longopts, NULL )) != EOF)
+			    "vVdD:p:c:hLt:l:s", longopts, NULL )) != EOF)
       switch (c) {
       case 'v': dbg_set( "verbose" ); break;
       case 'V': banner(); exit(1);    break;
@@ -298,6 +270,8 @@ int main( int argc, char **argv )
       case 'c': configFile = optarg;  break;
       case 'L': license(); exit(1);   break;
       case 't': testWord = optarg;    break;
+      case 'l': logFile = optarg;     break;
+      case 's': ++useSyslog;          break;
       case 501: testFile = optarg;    break;
       case 'h':
       default:  help(); exit(1);      break;
@@ -311,7 +285,6 @@ int main( int argc, char **argv )
    prs_file_nocpp( configFile );
    dict_config_print( NULL, DictConfig );
    dict_init_databases( DictConfig );
-   dict_set_hostname();
 
    if (testWord) {		/* stand-alone test mode */
       lst_List list = dict_search_database( testWord,
@@ -354,6 +327,13 @@ int main( int argc, char **argv )
 	       "%d comparisons, %d words\n", _dict_comparisons, words );
       fclose( str);
       exit(0);
+      /* Comparisons:
+	 P5/133
+	 1878064 comparisons, 113955 words
+	 39:18.72u 1.480s 55:20.27 71%
+	 */
+
+	
    }
    
    sa.sa_handler = reaper;
@@ -364,6 +344,10 @@ int main( int argc, char **argv )
    fflush(stdout);
    fflush(stderr);
 
+   if (logFile)                log_file( logFile, "dictd" );
+   if (useSyslog)              log_syslog( "dictd", 0 );
+   if (!logFile && !useSyslog) log_stream( stderr, "dictd" );
+   
    masterSocket = net_open_tcp( service, DICT_QUEUE_DEPTH );
 
    for (;;) {
@@ -379,7 +363,7 @@ int main( int argc, char **argv )
       case -1:
 	 err_fatal_errno( __FUNCTION__, "Fork failed" );
       default:
-	 fprintf( stderr, "Forked %d\n", pid );
+	 log_info( "Forked %d\n", pid );
 	 close(childSocket);
 	 break;
       }

@@ -1,6 +1,6 @@
 /* dict.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Sat Mar  8 18:40:01 1997 by faith@cs.unc.edu
+ * Revised: Mon Mar 10 14:13:20 1997 by faith@cs.unc.edu
  * Copyright 1994, 1995, 1996 Rickard E. Faith (faith@cs.unc.edu)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -52,11 +52,22 @@
 #define DBG_SCAN        (0<<30|1<< 4) /* Config file scan                  */
 #define DBG_PARSE       (0<<30|1<< 5) /* Config file parse                 */
 #define DBG_INIT        (0<<30|1<< 6) /* Database initialization           */
+#define DBG_PORT        (0<<30|1<< 7) /* Log port number for connections   */
+#define DBG_LEV         (0<<30|1<< 8) /* Levenshtein matching              */
 
 #define DICT_UNKNOWN    0
 #define DICT_TEXT       1
 #define DICT_GZIP       2
 #define DICT_DZIP       3
+
+#define DICT_CACHE_SIZE 5
+
+typedef struct dictCache {
+   int           chunk;
+   char          *inBuffer;
+   int           stamp;
+   int           count;
+} dictCache;
 
 typedef struct dictData {
    int           fd;		/* file descriptor */
@@ -85,6 +96,7 @@ typedef struct dictData {
    unsigned long crc;
    unsigned long length;
    unsigned long compressedLength;
+   dictCache     cache[DICT_CACHE_SIZE];
 } dictData;
 
 typedef struct dictIndex {
@@ -171,10 +183,9 @@ extern void       dict_destroy_list( lst_List list );
 
 /* dictd.c */
 
-extern void       dict_set_config( dictConfig *dc );
-extern dictConfig *dict_get_config( void );
 extern const char *dict_get_hostname( void );
 extern const char *dict_get_banner( void );
+extern dictConfig *DictConfig;
 
 /* daemon.c */
 

@@ -1,6 +1,6 @@
 /* data.c -- 
  * Created: Tue Jul 16 12:45:41 1996 by r.faith@ieee.org
- * Revised: Sat Mar  8 17:27:39 1997 by faith@cs.unc.edu
+ * Revised: Sun Mar  9 00:28:17 1997 by faith@cs.unc.edu
  * Copyright 1996, 1997 Rickard E. Faith (r.faith@ieee.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: data.c,v 1.5 1997/03/08 22:36:16 faith Exp $
+ * $Id: data.c,v 1.6 1997/03/10 21:46:55 faith Exp $
  * 
  */
 
@@ -27,13 +27,16 @@
 #include <ctype.h>
 #include <fcntl.h>
 
+#define USE_CACHE 1
+
 int dict_data_filter( char *buffer, int *len, int maxLength,
 		      const char *filter )
 {
-   char *outBuffer = xmalloc( maxLength + 2 );
+   char *outBuffer;
    int  outLen;
 
    if (!filter) return 0;
+   outBuffer = xmalloc( maxLength + 2 );
    
    outLen = pr_filter( filter, buffer, *len, outBuffer, maxLength + 1 );
    if (outLen > maxLength )
@@ -205,6 +208,7 @@ dictData *dict_data_open( const char *filename, int computeCRC )
 {
    dictData    *h = xmalloc( sizeof( struct dictData ) );
    struct stat sb;
+   int         j;
 
    memset( h, 0, sizeof( struct dictData ) );
    h->initialized = 0;
@@ -235,6 +239,12 @@ dictData *dict_data_open( const char *filename, int computeCRC )
 
    h->end = h->start + h->size;
 
+   for (j = 0; j < DICT_CACHE_SIZE; j++) {
+      h->cache[j].chunk    = -1;
+      h->cache[j].stamp    = -1;
+      h->cache[j].inBuffer = NULL;
+      h->cache[j].count    = 0;
+   }
    
    return h;
 }
@@ -268,11 +278,13 @@ char *dict_data_read( dictData *h, unsigned long start, unsigned long end,
    char          *buffer, *pt;
    unsigned long size;
    int           count;
-   char          inBuffer[IN_BUFFER_SIZE];
+   char          *inBuffer;
    char          outBuffer[OUT_BUFFER_SIZE];
    int           firstChunk, lastChunk;
    int           firstOffset, lastOffset;
-   int           i;
+   int           i, j;
+   int           found, target, lastStamp;
+   static int    stamp = 0;
 
    if (end < start) {
       size = end;
@@ -319,22 +331,54 @@ char *dict_data_read( dictData *h, unsigned long start, unsigned long end,
 	      " lastChunk = %d, lastOffset = %d\n",
 	      start, end, firstChunk, firstOffset, lastChunk, lastOffset ));
       for (pt = buffer, i = firstChunk; i <= lastChunk; i++) {
-	 memcpy( outBuffer, h->start + h->offsets[i], h->chunks[i] );
-	 dict_data_filter( outBuffer, &count, OUT_BUFFER_SIZE, preFilter );
+
+				/* Access cache */
+	 found  = 0;
+	 target = 0;
+	 lastStamp = INT_MAX;
+	 for (j = 0; j < DICT_CACHE_SIZE; j++) {
+#if USE_CACHE
+	    if (h->cache[j].chunk == i) {
+	       found  = 1;
+	       target = j;
+	       break;
+	    }
+#endif
+	    if (h->cache[j].stamp < lastStamp) {
+	       lastStamp = h->cache[j].stamp;
+	       target = j;
+	    }
+	 }
+
+	 h->cache[target].stamp = ++stamp;
+	 if (found) {
+	    count = h->cache[target].count;
+	    inBuffer = h->cache[target].inBuffer;
+	 } else {
+	    h->cache[target].chunk = i;
+	    if (!h->cache[target].inBuffer)
+	       h->cache[target].inBuffer = xmalloc( IN_BUFFER_SIZE );
+	    inBuffer = h->cache[target].inBuffer;
+	    
+	    memcpy( outBuffer, h->start + h->offsets[i], h->chunks[i] );
+	    dict_data_filter( outBuffer, &count, OUT_BUFFER_SIZE, preFilter );
 	 
-	 h->zStream.next_in   = outBuffer;
-	 h->zStream.avail_in  = h->chunks[i];
-	 h->zStream.next_out  = inBuffer;
-	 h->zStream.avail_out = IN_BUFFER_SIZE;
-	 if (inflate( &h->zStream,  Z_PARTIAL_FLUSH ) != Z_OK)
-	    err_fatal( __FUNCTION__, "inflate: %s\n", h->zStream.msg );
-	 if (h->zStream.avail_in)
-	    err_internal( __FUNCTION__,
-			  "inflate did not flush (%d pending, %d avail)\n",
-			  h->zStream.avail_in, h->zStream.avail_out );
-	 
-	 count = IN_BUFFER_SIZE - h->zStream.avail_out;
-	 dict_data_filter( inBuffer, &count, IN_BUFFER_SIZE, postFilter );
+	    h->zStream.next_in   = outBuffer;
+	    h->zStream.avail_in  = h->chunks[i];
+	    h->zStream.next_out  = inBuffer;
+	    h->zStream.avail_out = IN_BUFFER_SIZE;
+	    if (inflate( &h->zStream,  Z_PARTIAL_FLUSH ) != Z_OK)
+	       err_fatal( __FUNCTION__, "inflate: %s\n", h->zStream.msg );
+	    if (h->zStream.avail_in)
+	       err_internal( __FUNCTION__,
+			     "inflate did not flush (%d pending, %d avail)\n",
+			     h->zStream.avail_in, h->zStream.avail_out );
+	    
+	    count = IN_BUFFER_SIZE - h->zStream.avail_out;
+	    dict_data_filter( inBuffer, &count, IN_BUFFER_SIZE, postFilter );
+
+	    h->cache[target].count = count;
+	 }
 	 
 	 if (i == firstChunk) {
 	    if (i == lastChunk) {

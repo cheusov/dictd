@@ -1,6 +1,6 @@
 /* dictP.h -- 
  * Created: Fri Mar  7 10:54:05 1997 by faith@cs.unc.edu
- * Revised: Sat Mar  8 16:54:34 1997 by faith@cs.unc.edu
+ * Revised: Mon Mar 10 10:50:04 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
@@ -18,7 +18,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.2 1997/03/08 22:09:37 faith Exp $
+ * $Id: dictP.h,v 1.3 1997/03/10 21:46:55 faith Exp $
  * 
  */
 
@@ -126,6 +126,13 @@ extern void     srandom( unsigned int );
 #if HAVE_SYS_WAIT_H
 # include <sys/wait.h>
 #endif
+#ifndef WEXITSTATUS
+# define WEXITSTATUS(stat_val) ((unsigned)(stat_val) >> 8)
+#endif
+#ifndef WIFEXITED
+# define WIFEXITED(stat_val) (((stat_val) & 255) == 0)
+#endif
+
 #include <netdb.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

@@ -1,6 +1,6 @@
 /* servparse.y -- Parser for dictd server configuration file
  * Created: Fri Feb 28 08:31:38 1997 by faith@cs.unc.edu
- * Revised: Fri Mar  7 11:04:02 1997 by faith@cs.unc.edu
+ * Revised: Mon Mar 10 10:52:50 1997 by faith@cs.unc.edu
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.3 1997/03/07 16:10:35 faith Exp $
+ * $Id: servparse.y,v 1.4 1997/03/10 21:47:00 faith Exp $
  * 
  */
 
@@ -27,7 +27,6 @@
 #define YYERROR_VERBOSE
 
 static dictDatabase *db;
-static dictConfig   *dc;
 
 #define SET(field,s,t) do {                               \
    if (db->field)                                         \
@@ -56,17 +55,15 @@ static dictConfig   *dc;
 %%
 
 Program : Access DatabaseList
-          { dc = xmalloc(sizeof(struct dictConfig));
-	    memset( dc, 0, sizeof(struct dictConfig) );
-	    dc->acl = $1;
-	    dc->dbl = $2;
-	    dict_set_config( dc );
+          { DictConfig = xmalloc(sizeof(struct dictConfig));
+	    memset( DictConfig, 0, sizeof(struct dictConfig) );
+	    DictConfig->acl = $1;
+	    DictConfig->dbl = $2;
 	  }
         | DatabaseList
-          { dc = xmalloc(sizeof(struct dictConfig));
-	    memset( dc, 0, sizeof(struct dictConfig) );
-	    dc->dbl = $1;
-	    dict_set_config( dc );
+          { DictConfig = xmalloc(sizeof(struct dictConfig));
+	    memset( DictConfig, 0, sizeof(struct dictConfig) );
+	    DictConfig->dbl = $1;
 	  }
         ;
 
