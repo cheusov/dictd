@@ -1,6 +1,6 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@cs.unc.edu
- * Revised: Fri Jun 20 20:09:54 1997 by faith@acm.org
+ * Revised: Sun Jun 22 21:02:22 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.18 1997/06/21 01:05:39 faith Exp $
+ * $Id: daemon.c,v 1.19 1997/06/23 11:05:23 faith Exp $
  * 
  */
 
@@ -57,7 +57,9 @@ static struct {
    {"exact",     "Match words exactly",                        DICT_EXACT },
    {"prefix",    "Match prefixes",                             DICT_PREFIX },
    {"substring", "Match substring occurring anywhere in word", DICT_SUBSTRING},
-   {"regexp",    "Regular expression match",                   DICT_REGEXP },
+   {"suffix",    "Match suffixes",                             DICT_SUFFIX},
+   {"re",        "POSIX 1003.2 (modern) regular expressions",  DICT_RE },
+   {"regexp",    "Old (basic) regular expressions",            DICT_REGEXP },
    {"soundex",   "Match using SOUNDEX algorithm",              DICT_SOUNDEX },
    {"lev", "Match words within Levenshtein distance one", DICT_LEVENSHTEIN },
 };
@@ -83,8 +85,11 @@ static struct {
    { 1, {"client"},             daemon_client },
    { 1, {"auth"},               daemon_auth },
    { 1, {"status"},             daemon_status },
+   { 1, {"s"},                  daemon_status },
    { 1, {"help"},               daemon_help },
+   { 1, {"h"},                  daemon_help },
    { 1, {"quit"},               daemon_quit },
+   { 1, {"q"},                  daemon_quit },
 };
 #define COMMANDS (sizeof(commandInfo)/sizeof(commandInfo[0]))
 
@@ -185,15 +190,14 @@ static int daemon_check_list( const char *user, lst_List acl )
 	    switch (*s) {
 	    case '*': *d++ = '.';  *d++ = '*'; break;
 	    case '.': *d++ = '\\'; *d++ = '.'; break;
-	    case '?': *d++ = '\\'; *d++ = '?'; break;
+	    case '?': *d++ = '.';              break;
 	    default:  *d++ = *s;               break;
 	    }
 	 }
 	 *d = '\0';
 	 if ((err = regcomp(&re, regbuf, REG_ICASE|REG_NOSUB))) {
 	    regerror(err, &re, erbuf, sizeof(erbuf));
-	    if (flg_test(LOG_SERVER))
-               log_info( "regcomp(%s): %s\n", regbuf, erbuf );
+	    log_info( ":E: regcomp(%s): %s\n", regbuf, erbuf );
 	    return DICT_DENY;	/* Err on the side of safety */
 	 }
 	 if (!regexec(&re, daemonHostname, 0, NULL, 0)
@@ -211,7 +215,7 @@ static int daemon_check_list( const char *user, lst_List acl )
 	 break;
       case DICT_USER:
 	 if (!strcmp(user,a->spec)) return DICT_ALLOW;
-      case DICT_GROUP:
+      case DICT_GROUP:		/* Groups are not yet implemented. */
 	 break;
       }
    }
@@ -251,21 +255,31 @@ static void daemon_log( int type, const char *format, ... )
    int     len;
    char    *s, *d;
    int     c;
+   char    marker = '?';
 
    switch (type) {
    case DICT_LOG_TERM:
-   case DICT_LOG_DEFINE:
-   case DICT_LOG_MATCH:
-   case DICT_LOG_NOMATCH:
-   case DICT_LOG_CLIENT:
+      if (!flg_test(LOG_STATS))    return; marker = 'I'; break;
    case DICT_LOG_TRACE:
-   case DICT_LOG_COMMAND: if (!flg_test(LOG_COMMAND)) return;
+      if (!flg_test(LOG_SERVER))   return; marker = 'I'; break;
+   case DICT_LOG_CLIENT:
+      if (!flg_test(LOG_CLIENT))   return; marker = 'C'; break;
+   case DICT_LOG_DEFINE:
+      if (!flg_test(LOG_FOUND))    return; marker = 'D'; break;
+   case DICT_LOG_MATCH:
+      if (!flg_test(LOG_FOUND))    return; marker = 'M'; break;
+   case DICT_LOG_NOMATCH:
+      if (!flg_test(LOG_NOTFOUND)) return; marker = 'N'; break;
+   case DICT_LOG_COMMAND:
+      if (!flg_test(LOG_COMMAND))  return; marker = 'C'; break;
    }
 
    if (dbg_test(DBG_PORT))
-      sprintf( buf, "%s:%d ", daemonHostname, daemonPort );
+      sprintf( buf, ":%c: %s:%d ", marker, daemonHostname, daemonPort );
+   else if (flg_test(LOG_HOST))
+      sprintf( buf, ":%c: %s ", marker, daemonHostname );
    else
-      sprintf( buf, "%s ", daemonHostname );
+      sprintf( buf, ":%c: ", marker );
       
    len = strlen( buf );
    
@@ -275,8 +289,7 @@ static void daemon_log( int type, const char *format, ... )
    len = strlen( buf );
 
    if (len > 500) {
-      if (flg_test(LOG_SERVER))
-         log_error( __FUNCTION__, "Buffer overflow (%d)\n", len );
+      log_info( ":E: buffer overflow (%d)\n", len );
       exit(0);
    }
 
@@ -292,8 +305,10 @@ static void daemon_log( int type, const char *format, ... )
       }
    }
    *d = '\0';
-
    log_info( "%s", buf2 );
+
+   if (d != buf2) d[-1] = '\0';	/* kill newliney */
+   dict_setproctitle( "dictd %s", buf2 );
 }
 
 void daemon_terminate( int sig, const char *name )
@@ -303,24 +318,24 @@ void daemon_terminate( int sig, const char *name )
    close(daemonS);
    if (name) {
       daemon_log( DICT_LOG_TERM,
-		  "%s: d/m/c = %d/%d/%d; %0.3fr %0.3fu %0.3fs\n",
+		  "%s: d/m/c = %d/%d/%d; %sr %su %ss\n",
                   name,
                   _dict_defines,
                   _dict_matches,
                   _dict_comparisons,
-                  tim_get_real( "t" ),
-                  tim_get_user( "t" ),
-                  tim_get_system( "t" ) );
+                  dict_format_time( tim_get_real( "t" ) ),
+                  dict_format_time( tim_get_user( "t" ) ),
+                  dict_format_time( tim_get_system( "t" ) ) );
    } else {
       daemon_log( DICT_LOG_TERM,
-		  "Signal %d: d/m/c = %d/%d/%d; %0.3fr %0.3fu %0.3fs\n",
+		  "signal %d: d/m/c = %d/%d/%d; %sr %su %ss\n",
                   sig,
                   _dict_defines,
                   _dict_matches,
                   _dict_comparisons,
-                  tim_get_real( "t" ),
-                  tim_get_user( "t" ),
-                  tim_get_system( "t" ) );
+                  dict_format_time( tim_get_real( "t" ) ),
+                  dict_format_time( tim_get_user( "t" ) ),
+                  dict_format_time( tim_get_system( "t" ) ) );
    }
    
    longjmp(env,1);
@@ -337,16 +352,17 @@ static void daemon_write( const char *buf, int len )
    while (left) {
       if ((count = write(daemonS, buf, left)) != left) {
 	 if (count <= 0) {
+	    if (errno == EPIPE) {
+	       daemon_terminate( 0, "pipe" );
+	    }
 #if HAVE_STRERROR
-            log_error( __FUNCTION__,
-                       "Error writing %d of %d bytes:"
-                       " retval = %d, errno = %d (%s)\n",
-                       left, len, count, errno, strerror(errno) );
+            log_info( ":E: writing %d of %d bytes:"
+                      " retval = %d, errno = %d (%s)\n",
+                      left, len, count, errno, strerror(errno) );
 #else
-            log_error( __FUNCTION__,
-                       "Error writing %d of %d bytes:"
-                       " retval = %d, errno = %d\n",
-                       left, len, count, errno );
+            log_info( ":E: writing %d of %d bytes:"
+                      " retval = %d, errno = %d\n",
+                      left, len, count, errno );
 #endif
             daemon_terminate( 0, __FUNCTION__ );
          }
@@ -387,7 +403,7 @@ static void daemon_printf( const char *format, ... )
    vsprintf( buf, format, ap );
    va_end( ap );
    if ((len = strlen( buf )) >= BUFFERSIZE) {
-      log_error( __FUNCTION__, "Buffer overflow: %d\n", len );
+      log_info( ":E: buffer overflow: %d\n", len );
       daemon_terminate( 0, __FUNCTION__ );
    }
 
@@ -411,19 +427,34 @@ static int daemon_read( char *buf, int count )
 
 static void daemon_ok( int code, const char *string, const char *timer )
 {
+   static int lastDefines     = 0;
+   static int lastMatches     = 0;
+   static int lastComparisons = 0;
+
+   if (code == CODE_STATUS) {
+      lastDefines     = 0;
+      lastMatches     = 0;
+      lastComparisons = 0;
+   }
+
    if (!timer) {
       daemon_printf("%d %s\n", code, string);
    } else {
-      daemon_printf("%d %s [d/m/c = %d/%d/%d; %0.3fr %0.3fu %0.3fs]\n",
+      tim_stop( timer );
+      daemon_printf("%d %s [d/m/c = %d/%d/%d; %sr %su %ss]\n",
                     code,
                     string,
-                    _dict_defines,
-                    _dict_matches,
-                    _dict_comparisons,
-                    tim_get_real( timer ),
-                    tim_get_user( timer ),
-                    tim_get_system( timer ));
+                    _dict_defines - lastDefines,
+                    _dict_matches - lastMatches,
+                    _dict_comparisons - lastComparisons,
+                    dict_format_time( tim_get_real( timer ) ),
+                    dict_format_time( tim_get_user( timer ) ),
+                    dict_format_time( tim_get_system( timer ) ) );
    }
+
+   lastDefines     = _dict_defines;
+   lastMatches     = _dict_matches;
+   lastComparisons = _dict_comparisons;
 }
 
 static int dump_def( const void *datum )
@@ -478,7 +509,7 @@ static void daemon_banner( void )
    daemon_printf( "%d %s %s %s\n",
 		  CODE_HELLO,
                   net_hostname(),
-		  dict_get_banner(),
+		  dict_get_banner(0),
 		  daemonStamp );
 }
 
@@ -521,13 +552,13 @@ static void daemon_define( const char *cmdline, int argc, char **argv )
 
    if (matches) {
       _dict_defines += matches;
+      daemon_log( DICT_LOG_DEFINE,
+		  "%s \"%s\" %d\n", databaseName, word, matches);
       daemon_printf( "%d %d definitions retrieved\n",
 		     CODE_DEFINITIONS_FOUND,
 		     matches );
       daemon_dump_defs( list );
       daemon_ok( CODE_OK, "ok", "c" );
-      daemon_log( DICT_LOG_DEFINE,
-		  "define %s \"%s\" %d\n", databaseName, word, matches);
       dict_destroy_list( list );
       return;
    }
@@ -540,9 +571,9 @@ static void daemon_define( const char *cmdline, int argc, char **argv )
    
  nomatch:
    dict_destroy_list( list );
-   daemon_ok( CODE_NO_MATCH, "no match", "c" );
    daemon_log( DICT_LOG_NOMATCH,
-	       "nomatch %s exact \"%s\"\n", databaseName, word );
+	       "%s exact \"%s\"\n", databaseName, word );
+   daemon_ok( CODE_NO_MATCH, "no match", "c" );
 }
 
 static void daemon_match( const char *cmdline, int argc, char **argv )
@@ -594,12 +625,12 @@ static void daemon_match( const char *cmdline, int argc, char **argv )
 
    if (matches) {
       _dict_matches += matches;
+      daemon_log( DICT_LOG_MATCH,
+		  "%s %s \"%s\" %d\n",
+		  databaseName, strategy, word, matches);
       daemon_printf( "%d %d matches found\n", CODE_MATCHES_FOUND, matches );
       daemon_dump_matches( list );
       daemon_ok( CODE_OK, "ok", "c" );
-      daemon_log( DICT_LOG_MATCH,
-		  "match %s %s \"%s\" %d\n",
-		  databaseName, strategy, word, matches);
       dict_destroy_list( list );
       return;
    }
@@ -611,9 +642,9 @@ static void daemon_match( const char *cmdline, int argc, char **argv )
    }
 
  nomatch:
-   daemon_ok( CODE_NO_MATCH, "no match for ", "c" );
    daemon_log( DICT_LOG_NOMATCH,
-	       "nomatch %s %s \"%s\"\n", databaseName, strategy, word );
+	       "%s %s \"%s\"\n", databaseName, strategy, word );
+   daemon_ok( CODE_NO_MATCH, "no match", "c" );
 }
 
 static void daemon_show_db( const char *cmdline, int argc, char **argv )
@@ -724,7 +755,7 @@ static void daemon_show_server( const char *cmdline, int argc, char **argv )
    char buffer[1024];
    
    daemon_printf( "%d server information\n", CODE_DATABASE_INFO );
-   daemon_printf( "DICT Protocol Server: %s\n", dict_get_banner() );
+   daemon_printf( "DICT Protocol Server: %s\n", dict_get_banner(0) );
    if (DictConfig->site && (str = fopen( DictConfig->site, "r" ))) {
       daemon_printf( "Site-specific information for %s:\n\n", net_hostname() );
       while ((fgets( buffer, 1000, str ))) daemon_printf( "%s", buffer );
@@ -745,9 +776,9 @@ static void daemon_client( const char *cmdline, int argc, char **argv )
    const char *pt = strchr( cmdline, ' ' );
    
    if (pt)
-      daemon_log( DICT_LOG_CLIENT, "client: %.80s\n", pt + 1 );
+      daemon_log( DICT_LOG_CLIENT, "%.80s\n", pt + 1 );
    else
-      daemon_log( DICT_LOG_CLIENT, "client: %.80s\n", cmdline );
+      daemon_log( DICT_LOG_CLIENT, "%.80s\n", cmdline );
    daemon_ok( CODE_OK, "ok", NULL );
 }
 
@@ -798,22 +829,31 @@ static void daemon_help( const char *cmdline, int argc, char **argv )
 {
    daemon_printf( "%d help text follows\n", CODE_HELP );
    daemon_text(
-    "DEFINE database word -- look up word in database\n"
-    "DEFINE word          -- look up word in all databases until found\n"
+    "DEFINE database word         -- look up word in database\n"
     "MATCH database strategy word -- match word in database using strategy\n"
-    "MATCH strategy word          -- match word in all databases until found\n"
-    "MATCH word                   -- match word in using lev strategy\n"
-    "SHOW DB              -- list all accessible databases\n"
-    "SHOW DATABASES       -- list all accessible databases\n"
-    "SHOW STRAT           -- list available matching strategies\n"
-    "SHOW STRATEGIES      -- list available matching strategies\n"
-    "SHOW INFO database   -- provide information about the database\n"
-    "SHOW SERVER          -- provide site-specific information\n"
-    "CLIENT info          -- identify client to server\n"
-    "AUTH user string     -- provide authentication information\n"
-    "STATUS               -- display timing information\n"
-    "HELP                 -- display this help information\n"
-    "QUIT                 -- terminate connection\n"
+    "SHOW DB                      -- list all accessible databases\n"
+    "SHOW DATABASES               -- list all accessible databases\n"
+    "SHOW STRAT                   -- list available matching strategies\n"
+    "SHOW STRATEGIES              -- list available matching strategies\n"
+    "SHOW INFO database           -- provide information about the database\n"
+    "SHOW SERVER                  -- provide site-specific information\n"
+    "CLIENT info                  -- identify client to server\n"
+    "AUTH user string             -- provide authentication information\n"
+    "STATUS                       -- display timing information\n"
+    "HELP                         -- display this help information\n"
+    "QUIT                         -- terminate connection\n\n"
+    "The following commands are unofficial server extensions for debugging\n"
+    "only.  You may find them useful if you are using telnet as a client.\n"
+    "If you are writing a client, you MUST NOT use these commands, since\n"
+    "they won't be supported on any other server!\n\n"
+    "D word                       -- DEFINE * word\n"
+    "D database word              -- DEFINE database word\n"
+    "M word                       -- MATCH * . word\n"
+    "M strategy word              -- MATCH * strategy word\n"
+    "M database strategy word     -- MATCH database strategy word\n"
+    "S                            -- STATUS\n"
+    "H                            -- HELP\n"
+    "Q                            -- QUIT\n"
    );
    daemon_ok( CODE_OK, "ok", NULL );
 }
@@ -821,7 +861,7 @@ static void daemon_help( const char *cmdline, int argc, char **argv )
 static void daemon_quit( const char *cmdline, int argc, char **argv )
 {
    daemon_ok( CODE_GOODBYE, "bye", "t" );
-   daemon_terminate( 0, __FUNCTION__ );
+   daemon_terminate( 0, "quit" );
 }
 
 int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0, int delay,
@@ -853,6 +893,7 @@ int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0, int delay,
 
    tim_start( "t" );
    daemon_log( DICT_LOG_TRACE, "connected\n" );
+   dict_setproctitle( "dictd: %s connected", daemonHostname );
 
    if (error) {
       daemon_printf( "%d temporarily unavailable\n",
@@ -877,7 +918,8 @@ int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0, int delay,
 #endif
 	 continue;
       }
-      
+
+      daemon_log( DICT_LOG_COMMAND, "%.80s\n", buf );
       cmdline = arg_argify(buf,0);
       arg_get_vector( cmdline, &argc, &argv );
       if ((command = lookup_command(argc,argv))) {
@@ -888,7 +930,9 @@ int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0, int delay,
       arg_destroy(cmdline);
       alarm(delay);
    }
+#if 0
    printf( "%d %d\n", count, errno );
-   daemon_terminate( 0, "disconnect" );
+#endif
+   daemon_terminate( 0, "close" );
    return 0;
 }

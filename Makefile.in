@@ -1,7 +1,7 @@
 # Makefile.in -- Makefile for dict
 # Created: Wed Apr 24 14:14:09 1996 by faith@cs.unc.edu
-# Revised: Wed Apr 16 08:45:42 1997 by faith@cs.unc.edu
-# Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)
+# Revised: Sun Jun 22 13:27:13 1997 by faith@acm.org
+# Copyright 1996, 1997 Rickard E. Faith (faith@acm.org)
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.13 1997/04/30 12:03:45 faith Exp $
+# $Id: Makefile.in,v 1.14 1997/06/23 11:05:20 faith Exp $
 #
 
 ifneq (,)
@@ -32,6 +32,8 @@ prefix=		@prefix@
 subdirs=        @allsubdirs@ regex
 exec_prefix=	@exec_prefix@
 man1_prefix=	$(prefix)/man/man1
+pid=            @piddir@/dictd.pid
+conf=           @sysconfdir@/dictd.conf
 
 SHELL=		/bin/sh
 
@@ -45,7 +47,8 @@ LEX=		@LEX@
 LEXLIB= 	@LEXLIB@
 YACC=		@YACC@
 
-CFLAGS=		@CFLAGS@
+CFLAGS=		@CFLAGS@ \
+		-DDICT_CONFIG_FILE=\"$(conf)\" -DDICT_PID_FILE=\"$(pid)\"
 LDFLAGS=        @LDFLAGS@
 XTRACFLAGS=     @WCFLAGS@ @XTRACFLAGS@ @DEFS@ @CPPFLAGS@ -I. -Iregex
 XTRALDFLAGS=    @WLDFLAGS@ @XTRALDFLAGS@

@@ -1,7 +1,7 @@
 /* dictzip.c -- 
- * Created: Tue Jul 16 12:45:41 1996 by r.faith@ieee.org
- * Revised: Sat Mar 22 22:57:06 1997 by faith@cs.unc.edu
- * Copyright 1996 Rickard E. Faith (r.faith@ieee.org)
+ * Created: Tue Jul 16 12:45:41 1996 by faith@acm.org
+ * Revised: Sun Jun 22 21:02:22 1997 by faith@acm.org
+ * Copyright 1996, 1997 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictzip.c,v 1.9 1997/03/23 12:22:35 faith Exp $
+ * $Id: dictzip.c,v 1.10 1997/06/23 11:05:27 faith Exp $
  * 
  */
 
@@ -310,7 +310,7 @@ static const char *id_string( const char *id )
 
 static void banner( void )
 {
-   const char *id = "$Id: dictzip.c,v 1.9 1997/03/23 12:22:35 faith Exp $";
+   const char *id = "$Id: dictzip.c,v 1.10 1997/06/23 11:05:27 faith Exp $";
    
    fprintf( stderr, "%s %s\n", err_program_name(), id_string( id ) );
    fprintf( stderr, "Copyright 1996 Rickard E. Faith (faith@cs.unc.edu)\n" );
@@ -349,7 +349,7 @@ static void help( void )
       "-k --keep            do not delete original file",
       "-l --list            list compressed file contents",
       "-L --license         display software license",
-      "   --stdout          write to stdout (decompression only)",
+      "-c --stdout          write to stdout (decompression only)",
       "-t --test            test compressed file integrity",
       "-v --verbose         verbose mode",
       "-V --version         display version number",
@@ -384,14 +384,18 @@ int main( int argc, char **argv )
    unsigned long start          = 0;
    unsigned long size           = 0;
    dictData      *header;
+   char          *pt;
+   FILE          *str;
+   int           len;
+   char          filename[BUFFERSIZE];
    struct option longopts[] = {
+      { "stdout",       0, 0, 'c' },
       { "decompress",   0, 0, 'd' },
       { "force",        0, 0, 'f' },
       { "help",         0, 0, 'h' },
       { "keep",         0, 0, 'k' },
       { "list",         0, 0, 'l' },
       { "license",      0, 0, 'L' },
-      { "stdout",       0, 0, 513 },
       { "test",         0, 0, 't' },
       { "verbose",      0, 0, 'v' },
       { "version",      0, 0, 'V' },
@@ -410,6 +414,13 @@ int main( int argc, char **argv )
    dbg_register( DBG_VERBOSE, "verbose" );
    dbg_register( DBG_ZIP,     "zip" );
    dbg_register( DBG_UNZIP,   "unzip" );
+
+   if (!(pt = strrchr( argv[0], '/' ))) pt = argv[0];
+   if (!strcmp(pt, "dictunzip")) ++decompressFlag;
+   if (!strcmp(pt, "dictzcat")) {
+      ++decompressFlag;
+      ++stdoutFlag;
+   }
    
 #if 0
    if (signal( SIGINT, SIG_IGN ) != SIG_IGN)  signal( SIGINT, sig_handler );
@@ -425,7 +436,7 @@ int main( int argc, char **argv )
       case 'k': ++keepFlag;                                            break;
       case 'l': ++listFlag;                                            break;
       case 'L': license(); exit( 1 );                                  break;
-      case 513: ++stdoutFlag;                                          break;
+      case 'c': ++stdoutFlag;                                          break;
       case 't': ++testFlag;                                            break;
       case 'v': dbg_set( "verbose" );                                  break;
       case 'V': banner(); exit( 1 );                                   break;
@@ -440,19 +451,50 @@ int main( int argc, char **argv )
       case 'h': help(); exit( 1 );                                     break;
       }
 
+   if (testFlag) ++listFlag;
+
    for (i = optind; i < argc; i++) {
       if (listFlag) {
 	 header = dict_data_open( argv[i], 1 );
 	 dict_data_print_header( stdout, header );
 	 dict_data_close( header );
       } else if (decompressFlag) {
-	 header = dict_data_open( argv[i], 0 );
-	 if (!size) size = header->length;
-	 buf = dict_data_read( header, start, size, pre, post );
-	 fwrite( buf, size, 1, stdout );
-	 fflush( stdout );
-	 xfree( buf );
-	 dict_data_close( header );
+	 if (stdoutFlag) {
+	    header = dict_data_open( argv[i], 0 );
+	    if (!size) size = header->length;
+	    len = header->chunkLength;
+	    for (i = 0; i < size; i += len) {
+	       if (i + len >= size) len = size - i;
+	       buf = dict_data_read( header, i, len, pre, post );
+	       fwrite( buf, len, 1, stdout );
+	       fflush( stdout );
+	       xfree( buf );
+	    }
+	    dict_data_close( header );
+	 } else {
+	    strcpy( filename, argv[i] );
+	    if ((pt = strrchr( filename, '.' ))) *pt = '\0';
+	    else
+	       err_fatal( __FUNCTION__, "Cannot truncate filename\n" );
+	    if (!forceFlag && (str = fopen( filename, "r" )))
+	       err_fatal( __FUNCTION__, "%s already exists\n", filename );
+	    if (!(str = fopen( filename, "w" )))
+	       err_fatal_errno( __FUNCTION__,
+				"Cannot open %s for write\n", filename );
+	    header = dict_data_open( argv[i], 0 );
+	    if (!size) size = header->length;
+	    len = header->chunkLength;
+	    for (i = 0; i < size; i += len) {
+	       if (i + len >= size) len = size - i;
+	       buf = dict_data_read( header, i, len, pre, post );
+	       fwrite( buf, len, 1, str );
+	       fflush( str );
+	       xfree( buf );
+	    }	    
+	    dict_data_close( header );
+	    if (!keepFlag && unlink( argv[i] ))
+	       err_fatal_errno( __FUNCTION__, "Cannot unlink %s\n", argv[i] );
+	 }
       } else {
 	 sprintf( buffer, "%s.dz", argv[i] );
 	 if (!dict_data_zip( argv[i], buffer, pre, post )) {

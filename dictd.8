@@ -1,6 +1,6 @@
 .\" dictd.1 -- 
 .\" Created: Mon Mar 10 16:10:03 1997 by faith@cs.unc.edu
-.\" Revised: Fri Jun 20 20:09:56 1997 by faith@acm.org
+.\" Revised: Sun Jun 22 20:54:02 1997 by faith@acm.org
 .\" Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
 .\" 
 .\" Permission is granted to make and distribute verbatim copies of this
@@ -23,12 +23,12 @@
 .\" Formatted or processed versions of this manual, if unaccompanied by
 .\" the source, must acknowledge the copyright and authors of this work.
 .\" 
-.TH DICTD 1 "10 Mar 1997" "" "Linux Programmer's Manual"
-.SH NAME
+.TH DICTD 8 "29 July 1997" "" "Linux Programmer's Manual"
+.SH "NAME"
 dictd - a dictionary database server
-.SH SYNOPSIS
+.SH "SYNOPSIS"
 .BI dictd " [options]"
-.SH DESCRIPTION
+.SH "DESCRIPTION"
 .B dictd
 is a server for the Dictionary Server Protocol (DICT), a TCP transaction
 based query/response protocol that allows a client to access dictionary
@@ -36,10 +36,49 @@ definitions from a set of natural language dictionary databases.
 .P
 Since startup time is significant, the server is designed to run
 continuously, and should
-.B not
+.I not
 be run from
 .BR inetd (8).
-.SH OPTIONS
+.P
+Databases are distributed seperately from the server.
+.SH "BACKGROUND"
+For many years, the Internet community has relied on the "webster" protocol
+for access to natural language definitions.  The webster protocol supports
+access to a single dictionary and (optionally) to a single thesaurus.  In
+recent years, the number of publicly available webster servers on the
+Internet has dramatically decreased.
+.P
+Fortunately, several freely-distributable dictionaries and lexicons have
+recently become available on the Internet.  However, these
+freely-distributable databases are not accessible via a uniform interface,
+and are not accessible from a single site.  They are often small and
+incomplete individually, but would collectively provide an interesting and
+useful database of English words.  Examples include the Jargon file, the
+WordNet database, MICRA's version of the 1913 Webster's Revised Unabridged
+Dictionary, and the Free Online Dictionary of Computing.  (See the DICT
+protocol specification (RFC) for references.)  Translating and non-English
+dictionaries are also becoming available (for example, the FOLDOC
+dictionary is being translated into Spanish).
+.P
+The webster protocol is not suitable for providing access to a large
+number of separate dictionary databases, and extensions to the current
+webster protocol were not felt to be a clean solution to the
+dictionary database problem.
+.P
+The DICT protocol is designed to provide access to multiple databases.
+Word definitions can be requested, the word index can be searched
+(using an easily extended set of algorithms), information about the
+server can be provided (e.g., which index search strategies are
+supported, or which databases are available), and information about a
+database can be provided (e.g., copyright, citation, or distribution
+information).  Further, the DICT protocol has hooks that can be used
+to restrict access to some or all of the databases.
+.P
+.BR dictd (8)
+is a server that implements the DICT protocol.  Bret Martin implemented
+another server, and several people (including Bret and myself) have
+implemented clients in a variety of languages.
+.SH "OPTIONS"
 .TP 2
 .BR \-V " or " \-\-version
 Display version information.
@@ -87,7 +126,7 @@ RFC.  The default is 600 seconds (10 minutes), but may be changed in the
 .I dictd.h
 file at compile time (DICT_DEFAULT_DELAY).
 .TP
-.B \-\-limit " children"
+.BI \-\-limit " children"
 Specifies the number of daemons that may be running simultaneously.  Each
 daemon services a single connection.  If the limit is exceeded, a
 (serialized) connection will be made by the server process, and a response
@@ -99,20 +138,26 @@ the
 .I dictd.h
 file at compile time (DICT_DAEMON_LIMIT).
 .TP
-.BI \-l " option"
+.BI \-l " option\fR or " \-\-log " option"
 Specify a logging option.  Some of the more verbose options are used
 primarily for debugging the server code, and are not practical for normal
 use.
 .RS
 .TP
+.B server
+Log server diagnostics.  This is extrememly verbose.
+.TP
 .B connect
 Log all connections.
 .TP
-.B fork
-Log all children forks.  This is extrememly verbose.
+.B stats
+Log all children terminations.
 .TP
 .B commands
 Log all commands.  This is extrememly verbose.
+.TP
+.B client
+Log results of CLIENT command.
 .TP
 .B found
 Log all words found in the databases.
@@ -122,14 +167,60 @@ Log all words not found in the databases.
 .TP
 .B timestamp
 When logging to a file, use a full timestamp like that which syslog would
-produce.  Otherwise, no timestamp is made, making the files shorter (and
-more anonymous).
+produce.  Otherwise, no timestamp is made, making the files shorter.
 .TP
-.B syslog
+.B host
+Log name of foreign host.
+.TP
+.B min
+Set a minimal number of options.  If logging is activated (to a file, or
+via syslog), and no options are set, then the minimal set of options will
+be used.
+.TP
+.B all
+Set all of the options.
+.TP
+.B none
+Clear all of the options.
+.P
+To facilitate location of interesting information in the log file, entries
+are marked with initial letters indicating the class of the line being
+logged:
+.TP
+.B I
+Information about the server, connections, or termination statistics.
+These lines are generally not designed to be parsed automatically.
+.TP
+.B E
+Error messages.
+.TP
+.B C
+CLIENT command information.
+.TP
+.B D
+Definitions found in the databases searched.
+.TP
+.B M
+Matches found in the database searched.
+.PT
+.B N
+Matches which were not found in the databases searched.
+.P
+To preserve anonymity of the client, do
+.I not
+use the
+.B connect
+or
+.B host
+options.  Clients may or may not send host information using the CLIENT
+command, but this should be an option that is selectable on the client
+side.
+.RE
+.TP
+.B \-s
 Log using the
 .BR syslog (3)
 facility.
-.RE
 .TP
 .BI \-L " file"
 Specify the file for logging.
@@ -179,6 +270,251 @@ This option implies
 and is most useful for using a debugger to find the point at which daemon
 processes are dumping core.
 .RE
+.SH "CONFIGURATION FILE"
+The configuration file defaults to
+.IR /etc/dict.conf ,
+but can be specified on the command line with the
+.B \-c
+option (see above).  The configuration file has four distinct sections.
+At this time, each section must appear in the specified order, although
+only the Database section is required.
+.TP
+.B Syntax
+The following keywords are valid in a configuration file: access, allow,
+deby, group, database, data, index, filter, prefilter, postfilter, name,
+user, authonly, site.  Keywords are case sensitive.  String arguments that
+contain spaces should be surrounded by double quotes.  Without quoting,
+strings may contain alphanumeric characters and _, -, ., and *, but not
+spaces.  Strings must be on a single line and cannot be continued between
+lines.  Comments start with # and extend to the end of the line.
+.TP
+.B Access Specification
+Access specifications may occur in the Access Section or in the Database
+Section.  The access specification will be described here.
+.P
+.RS
+For allow, deny, and authonly, a star (*) may be used as a wild card that
+matches any number of characters.  A question mark (?) may be used as a
+wildcard that matches a single character.  For example, 10.0.0.* and *.edu
+are valid strings.
+.P
+The syntax is as follows:
+.RS
+.TP
+.BI allow " string"
+The string specifies a domain name or IP address which is allows access the
+server (in the Access Section) or to a database (in the Database Section).
+.TP
+.BI deny " string"
+The string specifies a domain name or IP address which is denies access to
+the server (in the Access Section) or to a database (in the Database
+Section).  Note that if reverse DNS is not working, then only the IP number
+will be checked.  Therefore, it is essential to deny networks based on IP
+number, since a denial based on domain name may not always be checked.
+.TP
+.BI authonly " string"
+This form is only useful in the Access Section.  The string specifies a
+domain name or IP address which is allowed access to the server but not to
+any of the databases.  All commands are valid except DEFINE, MATCH, and
+SHOW DB.  More specifically AUTH is a valid command, and commands which
+access the databases are not allowed.
+.TP
+.BI user "string"
+This form is only useful in the Database Section.  The string specifies a
+username that is allowed to access this database after a successful AUTH
+command is executed.
+.RE
+.RE
+.TP
+.BI site " string"
+Used to specify the filename for the site information file, a flat text
+file which will be displayed in response to the SHOW SERVER command.  This
+section, if present, must be first.
+.TP
+.BI "access {" " access specification " "}"
+This section, the second if the Site Section is present, contiains access
+restrictions for the server and all of the databases collectively.
+Per-database control is specified in the Database Section
+.TP
+.BI database " string " "{ " "database specification " "}"
+This section is required.  The string specifies the name of the database
+(e.g., wn or web1913).  The database specification describes the database:
+.RS
+.TP
+.BI data " string"
+Specifies the filename for the flat text database.
+.TP
+.BI index " string"
+Specifies the filename for the index file.
+.TP
+.BI prefilter " string"
+Specifies the  prefilter command.  When  a chunk of the compressed database
+is  read, it will be filtered  with  this filter before being decompressed.
+This may be  used to provide  some additional compression  that knows about
+the data and can provide better compression than the LZ77 algorithm used by
+zlib.
+.TP
+.BI postfilter " string"
+Specifies the postfilter command.  When a chunk of the compressed database
+is read, it will be filtered with this filter before the offset and length
+for the entry are used to access data.  This is provided for symmetry with
+the prefilter command, and may also be useful for providing additional
+database compression.
+.TP
+.BI filter " string"
+Specifies the filter command.  After the entry is extracted from the
+database, it will be filtered with this filter.  This may be used to
+provide formatting for the entry (e.g., for html).
+.B Warning:
+This is not currently implemented.
+.TP
+.BI name " string"
+Specifies the short name of the database (e.g., "1913 Webster's").  If the
+string begins with @, then it specifies the headword to look up in the
+dictionary to fine the short name of the database.  The default is
+"@00-database-short", but this may be changed in the
+.TP
+.BI "access {" " access specification " "}"
+Used to restrict access to this particular database.
+.I dictd.h
+file at compile time (DICT_SHORT_ENTRY_NAME).
+.RE
+.TP
+.BI user " string" " string"
+The first string specifies the username, and the second string specifies
+the shared secret for this username.  When the AUTH command is used, the
+client will provide the username and a hashed version of the shared
+secret.  If the shared secret matches, the user is said to have
+authenticated, and will have access to databases whose access
+specifications allow that user (by name, or by wildcard).  If present, this
+section must appear last in the configuration file.  There may be many user
+entries.  The shared secret should be kept secret, as anyone who has access
+to it can access the shared databases (assuming access is not denied by
+domain name).
+.SH "DETERMINATION OF ACCESS LEVEL"
+When a client connects, the global access specification is scanned, in
+order, until a specification matches.  If no access specification exists,
+all access is allowed (e.g., the action is the same as if "allow *" was the
+only item in the specification).  For each item, both the hostname and IP
+are checked. For example, consider the following access specification:
+.RS
+allow 10.42.*
+authonly *.edu
+deny *
+.RE
+With this specification, all clients in the 10.42 network will be allowed
+access to unrestricted databases; all clients from *.edu sites will be
+allowed to authenticate, but will be denied access to all databases, even
+those which are otherwise unrestricted; and all other clients will have
+their connection terminated immediately.  The 10.42 network clients can
+send an AUTH command and gain access to restricted databases.  The *.edu
+clients must send an AUTH command to gain access to any databases,
+restricted or unrestricted.
+.P
+When the AUTH command is sent, the access list for each database is
+scanned, in order, just as the global access list is scanned.  However,
+after authentication, the client has an assocciated username.  For example,
+consider the following access specification:
+.RS
+user u1
+deny *.com
+user u2
+allow *
+.RE
+If the client authenticated as u1, then the client will have access to this
+database, even if the client comes from a *.com site.  In contrast, if the
+client authenticated as u2, the client will only have access if it does not
+come from a *.com site.  In this case, the "user u2" is redundant, since
+that client would also match "allow *".
+.P
+.B Warning:
+Checks are performed for domain names and for IP addresses.  However, if
+reverse DNS for a specific site is not working, it is possible that a
+domain name may not be available for checking.  Make sure that all denials
+use IP addresses.  (And consider a future enhancement: if a domain name is
+not available, should denials that depend on a domain name match anything?
+This is the more conservative viewpoint, but it is not currently
+implemented.)
+.SH "SEARCH ALGORITHMS"
+The DICT standard specifies a few search algorithms that must be
+implemented, and permits others to be supported on a server-dependent
+basis.  The following search strategies are supported by this server.  Note
+that
+.I all
+strategies are case insensitive.  Most ignore non-alphanumeric,
+non-whitespace characters.
+.TP
+.B exact
+An exact match.  This algorithm uses a binary search and is one of the
+fastest search algorithms available.
+.TP
+.B prefix
+Prefix match.  This algorithm also uses a binary search and is very fast.
+.TP
+.B substring
+Match a substring anywhere in the headword.  This search strategy uses a
+modified Boyer-Moore-Horspool algorithm.  Since it must search the whole
+index file, it is not as fast as the exact and prefix matches.
+.TP
+.B suffix
+Suffix match.  This search strategy also uses a modified
+Boyer-Moore-Horspool algorithm, and is as fast as the substring search.
+.TP
+.B re
+POSIX 1003.2 (modern) regular expression search.  Modern regular
+expressions are the ones used by
+.BR egrep (1).
+These regular expressions allow predefined character classes (e.g.,
+[[:alnum:]], [[:alpha:]], [[:digit:]], and [[:xdigit:]] are useful for this
+application); uses * to match a sequence 0 or more matches of the previous
+atom; uses + to match a sequence of 1 or more matches of the previous atom;
+uses ? to match a sequence of 0 or 1 matches of the prevous atom; used ^ to
+match the beginning of a word, uses $ to match the end of a word, and
+allows nested subexpression and alternation with () and |.  For example,
+"(foo|bar)" matches all words that contain either "foo" or "bar".  To match
+these special characters, they must be quoted with two backslashes (due to
+the quoting characteristics of the server).
+.B Warning:
+Regular expression matches can take 10 to 300 times longer than substring
+matches.  On a busy server, with many databases, this can required more
+than 5 minutes of waiting time, depending on the complexity of the regular
+expression.
+.TP
+.B regexp
+Old (basic) regular expressions.  These regular expressions don't support
+|, +, or ?.  Groups use escaped parentheses.  While modern regular
+expressions are generally easier to use, basic regular expressions have a
+back reference feature.  This can be used to match a second occurrence of
+something that was already matched.  For example, the following expression
+finds all words that begin and end with the same three letters:
+.RS
+.nf
+    ^\\\\(...\\\\).*\\\\1$
+.fi
+.P
+Note the use of the double backslashes to escape the special characters.
+This is required by the DICT protocol string specification (a single
+backslash quotes the next character -- we use two to get a single backslash
+through to the regular expression engine).
+.B Warning:
+Note that the use of backtracking is even slower than the use of general
+regular expressions.
+.RE
+.TP
+.B soundex
+The Soundex algorithm, a classic algorithm for finding words that sound
+similar to each other.  The algorithm encodes each word using the first
+letter of the word and up to three digits.  Since the first letter is
+known, this search is relatively fast, and it sometimes good for correcting
+spelling errors when the Levenshtein algorithm doesn't help.
+.TP
+.B lev
+The Levenshtein algorithm (string edit distance of one).  This algorithm
+searches for all words which are within an edit distance of one from the
+target word.  An "edit" means an insertion, deletion, or transposition.
+This is a rapid algorithm for correcting spelling errors, since many
+spelling errors are within a Levenshtein distance of one from the oroginal
+word.
 .SH "DATABASE FORMAT"
 Databases for
 .B dictd
@@ -229,7 +565,7 @@ file using, for example,
 will destroy the random access characteristics of the file.  Always
 compress data files using
 .BR dictzip (1).)
-.SH ACKNOWLEDGEMENTS
+.SH "ACKNOWLEDGEMENTS"
 Special thanks to Jean-loup Gailly and Mark Adler for writing the zlib
 general purpose data compression library.  The version contained with
 .B dictd
@@ -249,7 +585,7 @@ is not necessarily an original version and
 .B may have been modified.
 For more information on regex, please see
 .IR ftp://zoo.toronto.edu/pub/regex.shar .
-.SH COPYING
+.SH "COPYING"
 The main source files for the
 .B dictd
 server and the
@@ -262,11 +598,16 @@ distributed under different terms, so you may be able to use the libraries
 for applications which are incompatible with the GPL -- please see the
 copyright notices and license information that come with the libraries for
 more information, and consult with your attorney to resolve these issues.
-.SH FILES
+.SH "BUGS"
+The substring, suffix, and regular expression searches do not ignore
+non-whitespace, non-alphanumeric characters as do the other searches.  In
+practice, this isn't much of a problem.
+.SH "FILES"
 .I /etc/dictd.conf
 .br
 .I /usr/lib/dictd
 .SH "SEE ALSO"
+.BR dict (1),
 .BR dictzip (1),
 .BR gunzip (1),
 .BR zcat (1),

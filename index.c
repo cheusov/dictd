@@ -1,6 +1,6 @@
 /* index.c -- 
  * Created: Wed Oct  9 14:52:23 1996 by faith@cs.unc.edu
- * Revised: Fri Jun 20 17:23:45 1997 by faith@acm.org
+ * Revised: Mon Jun 23 07:01:57 1997 by faith@acm.org
  * Copyright 1996, 1997 Rickard E. Faith (faith@cs.unc.edu)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.13 1997/06/21 01:05:48 faith Exp $
+ * $Id: index.c,v 1.14 1997/06/23 11:05:31 faith Exp $
  * 
  */
 
@@ -30,10 +30,13 @@
 #include <ctype.h>
 
 #define FIND_NEXT(pt,end) while (pt < end && *pt++ != '\n');
-#define OPTSTART     1
-#define MAXWORDLEN 512
+#define OPTSTART        1	/* Optimize search range for constant start */
+#define MAXWORDLEN    512
+#define BMH_THRESHOLD   3	/* When to start using Boyer-Moore-Hoorspool */
 
-int _dict_comparisons;
+       int _dict_comparisons;
+static int isspacealnumtab[256];
+#define isspacealnum(x) (isspacealnumtab[(unsigned char)x])
 
 /* Compare:
    
@@ -62,13 +65,17 @@ static int compare( const char *word, const char *start, const char *end )
    }
    
    ++_dict_comparisons;		/* counter for profiling */
-   for (; *word && start < end && *start != '\t';) {
-      if (*start != ' ' && !isalnum( *start )) {
+   while (*word && start < end && *start != '\t') {
+      if (!isspacealnum(*start)) {
 	 ++start;
 	 continue;
       }
+#if 0
       if (isspace( *start )) c = ' ';
-      else                   c = tolower( *start );
+      else                   c = tolower(*start);
+#else
+      c = tolower(*start);
+#endif
       if (*word != c) {
 	 PRINTF(DBG_SEARCH,("   result = %d\n", (*word < c) ? -1 : 1 ));
 	 return (*word < c) ? -2 : 1;
@@ -77,9 +84,8 @@ static int compare( const char *word, const char *start, const char *end )
       ++start;
    }
    
-   while (*start != '\t' && *start != ' ' && !isalnum(*start))
-      ++start;
-   
+   while (*start != '\t' && !isspacealnum(*start)) ++start;
+
    PRINTF(DBG_SEARCH,("   result = %d\n",
 		      *word ? 1 : ((*start != '\t') ? -1 : 0)));
    return  *word ? 1 : ((*start != '\t') ? -1 : 0);
@@ -273,61 +279,178 @@ static int dict_search_prefix( lst_List l,
    return count;
 }
 
+static int dict_search_brute( lst_List l,
+			      const char *word,
+			      dictDatabase *database,
+			      int suffix,
+			      int patlen )
+{
+   const char *start = database->index->start;
+   const char *end   = database->index->end;
+   const char *p, *pt;
+   int        count = 0;
+   dictWord   *datum;
+   int        result;
+
+   p = start;
+   while (p < end && !isspacealnum(*p)) ++p;
+   for (; p < end; ++p) {
+      if (*p == '\t') {
+	 while (p < end && *p != '\n') ++p;
+	 ++p;
+	 while (p < end && !isspacealnum(*p)) ++p;
+      }
+      if (tolower(*p) == *word) {
+         result = compare( word, p, end );
+         if (result == -1 || result == 0) {
+	    if (suffix && result) continue;
+	    for (pt = p; pt >= start && *pt != '\n'; --pt);
+            ++count;
+            datum = dict_word_create( pt + 1, database );
+#if 0
+            fprintf( stderr, "Adding %d %s\n",
+                     compare( word, p, end ),
+                     datum->word);
+#endif
+            lst_append( l, datum );
+	    FIND_NEXT(p,end);
+	    --p;
+         }
+      }
+   }
+   
+   return count;
+}
+
+/* dict_search_bmh implements a version of the Boyer-Moore-Horspool text
+   searching algorithm, as described in G. H. Gonnet and R. Baeza-Yates,
+   HANDBOOK OF ALGORITHMS AND DATA STRUCTURES: IN PASCAL AND C (2nd ed).
+   Addison-Wesley Publishing Co., 1991.  Pages 258-9. */
+
+static int dict_search_bmh( lst_List l,
+			    const char *word,
+			    dictDatabase *database,
+			    int suffix )
+{
+   const char *start = database->index->start;
+   const char *end   = database->index->end;
+   int        patlen = strlen( word );
+   int        skip[256];
+   int        i;
+   int        j;
+   const char *p, *pt;
+   int        count = 0;
+   const char *f = NULL;	/* Boolean flag, but has to be a pointer */
+   dictWord   *datum;
+   const char *wpt;
+
+   if (patlen < BMH_THRESHOLD)
+      return dict_search_brute( l, word, database, suffix, patlen );
+
+   for (i = 0; i < 256; i++) {
+      if (isspacealnum(i)) skip[i] = patlen;
+      else                 skip[i] = 1;
+   }
+   for (i = 0; i < patlen-1; i++) skip[(unsigned char)word[i]] = patlen-i-1;
+
+#define STRICT_BMH
+#ifdef STRICT_BMH
+   for (p = start+patlen-1; p < end; f ? (f=NULL) : (p += skip[tolower(*p)])) {
+      while (*p == '\t') {
+	 FIND_NEXT(p,end);
+	 p += patlen-1;
+      }
+      ++_dict_comparisons;		/* counter for profiling */
+      for (j = patlen - 1, pt = p, wpt = word + patlen - 1; j >= 0; j--) {
+	 if (pt < start) break;
+ 	 while (pt >= start && !isspacealnum(*pt)) --pt;
+	 if (tolower(*pt--) != *wpt--) break;
+      }
+      if (j == -1) {
+	 if (suffix && p[1] != '\t') continue;
+	 for (; pt > start && *pt != '\n' && *pt != '\t'; --pt);
+	 if (*pt == '\t') continue; /* Multilevel continue needed here */
+	 if (pt > start) ++pt;
+	 ++count;
+	 datum = dict_word_create( pt, database );
+#if 0
+	 fprintf( stderr, "Adding %d %s, word = %s\n",
+		  compare( word, p, database->index->end ),
+		  datum->word,
+		  word );
+#endif
+	 lst_append( l, datum );
+	 FIND_NEXT(p,end);
+	 f = p += patlen-1;	/* Set boolean flag to non-NULL value */
+      }
+   }
+#else
+				/* Try to make it a bit more correct, in
+                                   terms of skipping non-whitespace,
+                                   non-alphanumeric characters.  This
+                                   causes the search to be in the forward
+                                   direction, whereas BMH uses the backward
+                                   direction.  What difference does this
+                                   make?  Check Cormen, et al.? */
+   for (p = start+patlen-1; p < end; f ? (f=NULL) : (p += skip[tolower(*p)])) {
+      while (*p == '\t') {
+	 FIND_NEXT(p,end);
+	 f = p += patlen-1;
+      }
+      pt = p-patlen+1;
+      j = compare( word, pt, end );
+      if (j == -1 || j == 0) {
+	 if (suffix && j) continue;
+	 for (; pt >= start && *pt != '\n'; --pt);
+	 ++count;
+	 datum = dict_word_create( pt + 1, database );
+#if 0
+	 fprintf( stderr, "Adding %d %s\n",
+		  compare( word, p, end ),
+		  datum->word);
+#endif
+	 lst_append( l, datum );
+	 FIND_NEXT(p,end);
+	 f = p += patlen-1;
+      }
+   }
+#endif
+   
+   return count;
+}
+
 static int dict_search_substring( lst_List l,
 				  const char *word,
 				  dictDatabase *database )
 {
-   const char *pt   = database->index->start;
-   const char *end;
-   int        count = 0;
-   dictWord   *datum;
-   const char *p;
-   int        result;
+   return dict_search_bmh( l, word, database, 0 );
+}
 
-   end = database->index->end;
-   
-   while (pt && pt < end) {
-      for (p = pt; *p != '\t' && p < end; ++p) {
-	 result = compare( word, p, end );
-	 if (result == -1 || result == 0) {
-	    ++count;
-	    datum = dict_word_create( pt, database );
-#if 0
-	    fprintf( stderr, "Adding %d %s\n",
-		     compare( word, p, end ),
-		     datum->word);
-#endif
-	    lst_append( l, datum );
-	    break;
-	 }
-      }
-      FIND_NEXT( pt, end );
-   }
-
-   return count;
+static int dict_search_suffix( lst_List l,
+			       const char *word,
+			       dictDatabase *database )
+{
+   return dict_search_bmh( l, word, database, 1 );
 }
 
 static int dict_search_regexpr( lst_List l,
 				const char *word,
-				dictDatabase *database )
+				dictDatabase *database,
+				int type )
 {
-   const char    *pt;
-   const char    *start;
-   const char    *end;
+   const char    *start = database->index->start;
+   const char    *end = database->index->end;
+   const char    *p, *pt;
    int           count = 0;
    dictWord      *datum;
-   const char    *p;
    regex_t       re;
    char          erbuf[100];
    int           err;
    regmatch_t    subs[1];
    unsigned char first;
 
-   start = database->index->start;
-   end = database->index->end;
-
 #if OPTSTART
-   if (*word == '^' && (word[1] == ' ' || isalnum(word[1]))) {
+   if (*word == '^' && isspacealnum(word[1])) {
       first = word[1];
       end   = database->index->optStart[first+1];
       start = database->index->optStart[first];
@@ -335,7 +458,7 @@ static int dict_search_regexpr( lst_List l,
    }
 #endif
 
-   if ((err = regcomp(&re, word, REG_ICASE|REG_NOSUB))) {
+   if ((err = regcomp(&re, word, REG_ICASE|REG_NOSUB|type))) {
       regerror(err, &re, erbuf, sizeof(erbuf));
       log_info( "regcomp(%s): %s\n", word, erbuf );
       return 0;
@@ -352,17 +475,32 @@ static int dict_search_regexpr( lst_List l,
 	 datum = dict_word_create( pt, database );
 #if 0
 	 fprintf( stderr, "Adding %d %s\n",
-		  compare( word, p, end ),
+		  compare( word, pt, end ),
 		  datum->word);
 #endif
 	 lst_append( l, datum );
       }
+      pt = p + 1;
       FIND_NEXT( pt, end );
    }
 
    regfree(&re);
    
    return count;
+}
+
+static int dict_search_re( lst_List l,
+			   const char *word,
+			   dictDatabase *database )
+{
+   return dict_search_regexpr( l, word, database, REG_EXTENDED );
+}
+
+static int dict_search_regexp( lst_List l,
+			       const char *word,
+			       dictDatabase *database )
+{
+   return dict_search_regexpr( l, word, database, REG_BASIC );
 }
 
 static int dict_search_soundex( lst_List l,
@@ -394,7 +532,7 @@ static int dict_search_soundex( lst_List l,
    while (pt && pt < end) {
       for (i = 0, s = pt, d = buffer; i < MAXWORDLEN - 1; i++, ++s) {
 	 if (*s == '\t') break;
-	 if (*s != ' ' && !isalnum(*s)) continue;
+	 if (!isspacealnum(*s)) continue;
 	 *d++ = *s;
       }
       *d = '\0';
@@ -498,7 +636,7 @@ static int dict_search_levenshtein( lst_List l,
       }
    }
 
-   fprintf( stderr, "Got %d\n" ,count );
+   PRINTF(DBG_LEV,("  Got %d matches\n",count));
    set_destroy(s);
    
    return count;
@@ -533,7 +671,9 @@ int dict_search_database( lst_List l,
    case DICT_EXACT:       return dict_search_exact( l, buf, database );
    case DICT_PREFIX:      return dict_search_prefix( l, buf, database );
    case DICT_SUBSTRING:   return dict_search_substring( l, buf, database );
-   case DICT_REGEXP:      return dict_search_regexpr( l, word, database );
+   case DICT_SUFFIX:      return dict_search_suffix( l, buf, database );
+   case DICT_RE:          return dict_search_re( l, word, database );
+   case DICT_REGEXP:      return dict_search_regexp( l, word, database );
    case DICT_SOUNDEX:     return dict_search_soundex( l, buf, database );
    case DICT_LEVENSHTEIN: return dict_search_levenshtein( l, buf, database);
    default:
@@ -545,10 +685,20 @@ dictIndex *dict_index_open( const char *filename )
 {
    dictIndex   *i = xmalloc( sizeof( struct dictIndex ) );
    struct stat sb;
+   static int  tabInit = 0;
 #if OPTSTART
    int         j;
    char        buf[2];
 #endif
+
+   if (!tabInit) {
+      int k;
+      for (k = 0; k < 256; k++) {
+	 if (isspace(k) || isalnum(k)) isspacealnumtab[k] = 1;
+      }
+      isspacealnumtab['\t'] = isspacealnumtab['\n'] = 0; /* special */
+      ++tabInit;
+   }
 
    memset( i, 0, sizeof( struct dictIndex ) );
 

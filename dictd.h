@@ -1,6 +1,6 @@
 /* dictd.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Fri Jun 20 20:09:49 1997 by faith@acm.org
+ * Revised: Sun Jun 22 13:26:39 1997 by faith@acm.org
  * Copyright 1994, 1995, 1996, 1997 Rickard E. Faith (faith@acm.org)
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -47,7 +47,6 @@
 #define DICT_DAEMON_LIMIT        100 /* maximum simultaneous daemons */
 #define DICT_PERSISTENT_PRESTART 3 /* not implemented */
 #define DICT_PERSISTENT_LIMIT    5 /* not implemented */
-#define DICT_CONFIG_FILE         "/etc/dict.conf"
 #define DICT_SHORT_ENTRY_NAME    "00-database-short"
 #define DICT_LONG_ENTRY_NAME     "00-database-long"
 #define DICT_INFO_ENTRY_NAME     "00-database-info"
@@ -57,15 +56,6 @@
 
 
 #define BUFFERSIZE 10240
-
-#define LOG_SERVER      (0<<30|1<< 0) /* Log server information             */
-#define LOG_CONNECT     (0<<30|1<< 1) /* Log connection information         */
-#define LOG_FORK        (0<<30|1<< 2) /* Log fork/children information      */
-#define LOG_COMMANDS    (0<<30|1<< 3) /* Log commands                       */
-#define LOG_FOUND       (0<<30|1<< 4) /* Log words found                    */
-#define LOG_NOTFOUND    (0<<30|1<< 5) /* Log words not found                */
-#define LOG_TIMESTAMP   (0<<30|1<< 6) /* Log with timestamps                */
-#define LOG_SYSLOG      (0<<30|1<< 7) /* Log using syslog(3)                */
 
 #define DBG_VERBOSE     (0<<30|1<< 0) /* Verbose                            */
 #define DBG_ZIP         (0<<30|1<< 1) /* Zip                                */
@@ -80,12 +70,17 @@
 #define DBG_NODETACH    (0<<30|1<<10) /* Don't detach as a background proc. */
 #define DBG_NOFORK      (0<<30|1<<11) /* Don't fork (single threaded)       */
 
-#define DICT_UNKNOWN    0
-#define DICT_TEXT       1
-#define DICT_GZIP       2
-#define DICT_DZIP       3
-
-#define DICT_CACHE_SIZE 5
+#define LOG_SERVER      (0<<30|1<< 0) /* Log server diagnostics             */
+#define LOG_CONNECT     (0<<30|1<< 1) /* Log connection information         */
+#define LOG_STATS       (0<<30|1<< 2) /* Log termination information        */
+#define LOG_COMMAND     (0<<30|1<< 3) /* Log commands                       */
+#define LOG_FOUND       (0<<30|1<< 4) /* Log words found                    */
+#define LOG_NOTFOUND    (0<<30|1<< 5) /* Log words not found                */
+#define LOG_CLIENT      (0<<30|1<< 6) /* Log client                         */
+#define LOG_HOST        (0<<30|1<< 7) /* Log remote host name               */
+#define LOG_TIMESTAMP   (0<<30|1<< 8) /* Log with timestamps                */
+#define LOG_SYSLOG      (0<<30|1<< 9) /* Log using syslog(3)                */
+#define LOG_MIN         (0<<30|1<<10) /* Log a few minimal things           */
 
 #define DICT_LOG_TERM    0
 #define DICT_LOG_DEFINE  1
@@ -93,6 +88,14 @@
 #define DICT_LOG_NOMATCH 3
 #define DICT_LOG_CLIENT  4
 #define DICT_LOG_TRACE   5
+#define DICT_LOG_COMMAND 6
+
+#define DICT_UNKNOWN    0
+#define DICT_TEXT       1
+#define DICT_GZIP       2
+#define DICT_DZIP       3
+
+#define DICT_CACHE_SIZE 5
 
 typedef struct dictCache {
    int           chunk;
@@ -173,12 +176,14 @@ typedef struct dictConfig {
    const char    *site;
 } dictConfig;
 
-#define DICT_EXACT        1
-#define DICT_PREFIX       2
-#define DICT_SUBSTRING    3
-#define DICT_REGEXP       4
-#define DICT_SOUNDEX      5
-#define DICT_LEVENSHTEIN  6
+#define DICT_EXACT        1	/* Exact */
+#define DICT_PREFIX       2	/* Prefix */
+#define DICT_SUBSTRING    3	/* Substring */
+#define DICT_SUFFIX       4	/* Suffix */
+#define DICT_RE           5	/* POSIX 1003.2 (modern) regular expressions */
+#define DICT_REGEXP       6	/* old (basic) regular expresions */
+#define DICT_SOUNDEX      7	/* Soundex */
+#define DICT_LEVENSHTEIN  8	/* Levenshtein */
 
 
 typedef struct dictWord {
@@ -218,8 +223,11 @@ extern void       dict_destroy_list( lst_List list );
 
 /* dictd.c */
 
+extern void       dict_initsetproctitle( int argc, char **argv, char **envp );
+extern void       dict_setproctitle( const char *format, ... );
+extern const char *dict_format_time( double t );
 extern const char *dict_get_hostname( void );
-extern const char *dict_get_banner( void );
+extern const char *dict_get_banner( int shortFlag );
 
 extern dictConfig *DictConfig;  /* GLOBAL VARIABLE */
 extern int        _dict_comparisons; /* GLOBAL VARIABLE */

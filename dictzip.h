@@ -1,7 +1,7 @@
-/* dict.h -- Header file for dict program
+/* dictzip.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@cs.unc.edu
- * Revised: Wed Mar 26 13:24:59 1997 by faith@cs.unc.edu
- * Copyright 1994, 1995, 1996 Rickard E. Faith (faith@cs.unc.edu)
+ * Revised: Sun Jun 22 20:54:03 1997 by faith@acm.org
+ * Copyright 1994, 1995, 1996, 1997 Rickard E. Faith (faith@acm.org)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -42,7 +42,7 @@
 /* Use of the FEXTRA fields.  The FEXTRA area can be 0xffff bytes long, 2
    bytes of which are used for the subfield ID, and 2 bytes of which are
    used for the subfield length.  This leaves 0xfffb bytes (0x7ffd 2-byte
-   entries or 0x3ffe 4-byte entries.  Given that the zip output buffer must
+   entries or 0x3ffe 4-byte entries).  Given that the zip output buffer must
    be 10% + 12 bytes larger than the input buffer, we can store 58969 bytes
    per entry, or about 1.8GB if the 2-byte entries are used.  If this
    becomes a limiting factor, another format version can be selected and
