@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.45 2003/04/09 17:09:04 cheusov Exp $
+dnl $Id: configure.in,v 1.46 2003/04/10 18:52:32 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -36,7 +36,7 @@ define(VERSION, 1.9.8)
 
 
 AC_PREREQ(2.52)
-AC_REVISION($Revision: 1.45 $)
+AC_REVISION($Revision: 1.46 $)
 
 AC_INIT(dict, VERSION, "dict-beta@dict.org")
 
@@ -195,8 +195,12 @@ fi
 AC_ARG_ENABLE([plugin],[  --disable-plugin        without plugin support])
 if test "x${enableval}" != xno; then
     CFLAGS="$CFLAGS -DUSE_PLUGIN"
-	AC_CHECK_LIB(ltdl,lt_dlopen,REALLIBS="$REALLIBS -lltdl")
-	USE_PLUGIN=1
+    AC_CHECK_LIB(dl, dlopen,
+        [REALLIBS="$REALLIBS -ldl"; USE_PLUGIN=2],
+        AC_CHECK_LIB(ltdl,lt_dlopen,
+            [REALLIBS="$REALLIBS -lltdl"; USE_PLUGIN=1],
+            [AC_MSG_ERROR([Install ltdl library and appropriate header files
+                           or run ./configure --disable-plugin])]))
 fi
 
 dnl Checks for programs.
@@ -298,18 +302,33 @@ echo Checking for header files
 AC_HEADER_STDC
 AC_HEADER_TIME
 
+if test "x${USE_PLUGIN}" = "x2"; then
+   # We use native dlopen
+
+   AC_CHECK_HEADERS(dlfcn.h,
+		[AC_DEFINE(HAVE_DLFCN_H, 1,
+			[Define if you have the <dlfcn.h> header file.])],
+			[AC_MSG_ERROR([Install dl library and appropriate header files
+                           or run ./configure --disable-plugin])])
+fi
+
 if test "x${USE_PLUGIN}" = "x1"; then
+   # We use libltdl
+
    AC_CHECK_HEADERS(ltdl.h,
 		[AC_DEFINE(HAVE_LTDL_H, 1,
 			[Define if you have the <ltdl.h> header file.])],
-			[AC_MSG_ERROR([Install ltdl library and appropriate header files])])
+			[AC_MSG_ERROR([Install ltdl library and appropriate header files
+                           or run ./configure --disable-plugin])])
 fi
 
 AC_CHECK_HEADERS(unistd.h strings.h limits.h)
 AC_CHECK_HEADERS(sys/resource.h sys/time.h sys/param.h sys/wait.h)
 AC_CHECK_HEADERS(wctype.h wchar.h)
 
-AC_CHECK_TYPES([wint_t, mbstate_t, wchar_t], , , [#include <wchar.h>])
+AC_CHECK_TYPES(wint_t)
+AC_CHECK_TYPES(mbstate_t, , , [#include <wchar.h>])
+AC_CHECK_TYPES(wchar_t,   , , [#include <stddef.h>])
 
 echo .
 echo Checking for system constants
@@ -339,7 +358,7 @@ AC_CHECK_FUNCS(socket strcasecmp strchr strrchr strstr uname)
 AC_CHECK_FUNCS(iswspace iswalnum towlower)
 #AC_REPLACE_FUNCS(wcrtomb wctomb mbrlen mbrtowc mbstowcs mbtowc)
 AC_CHECK_FUNCS(wcrtomb wctomb mbrlen mbrtowc mbstowcs mbtowc)
-#AC_CHECK_FUNCS(dlopen)
+AC_CHECK_FUNCS(dlopen)
 
 AC_REPLACE_FUNCS(snprintf vsnprintf)
 

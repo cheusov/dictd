@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.83 2003/04/07 14:21:14 cheusov Exp $
+ * $Id: dictd.c,v 1.84 2003/04/10 18:52:32 cheusov Exp $
  * 
  */
 
@@ -666,7 +666,7 @@ static int log_database_info( const void *datum )
 
 static void dict_ltdl_init ()
 {
-#ifdef USE_PLUGIN
+#if USE_PLUGIN && !HAVE_DLFCN_H
    if (lt_dlinit ())
       err_fatal( __FUNCTION__, "Can not initialize 'ltdl' library\n" );
 #endif
@@ -674,7 +674,7 @@ static void dict_ltdl_init ()
 
 static void dict_ltdl_close ()
 {
-#ifdef USE_PLUGIN
+#if USE_PLUGIN && !HAVE_DLFCN_H
    if (lt_dlexit ())
       err_fatal( __FUNCTION__, "Can not deinitialize 'ltdl' library\n" );
 #endif
@@ -795,7 +795,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.83 2003/04/07 14:21:14 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.84 2003/04/10 18:52:32 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;

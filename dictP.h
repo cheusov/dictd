@@ -19,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.9 2003/04/09 17:09:05 cheusov Exp $
+ * $Id: dictP.h,v 1.10 2003/04/10 18:52:32 cheusov Exp $
  * 
  */
 
@@ -96,19 +96,19 @@ extern int vsnprintf(char *str, size_t size, const char *format, va_list ap);
 #define inet_aton(a,b) (b)->s_addr = inet_addr(a)
 #endif
 
-#if HAVE_WINT_T && HAVE_WCHAR_H
+#if HAVE_WINT_T
 #include <wchar.h>
 #else
 typedef unsigned int wint_t;
 #endif
 
-#if HAVE_WCHAR_T && HAVE_WCHAR_H
-#include <wchar.h>
+#if HAVE_WCHAR_T
+#include <stddef.h>
 #else
 typedef unsigned int wchar_t;
 #endif
 
-#if HAVE_MBSTATE_T && HAVE_WCHAR_H
+#if HAVE_MBSTATE_T
 #include <wchar.h>
 #else
 typedef char mbstate_t;
@@ -136,6 +136,19 @@ extern size_t mbstowcs (wchar_t *dest, const char *src, size_t n);
 
 #if !HAVE_MBTOWC
 extern int mbtowc (wchar_t *pwc, const char *s, size_t n);
+#endif
+
+#if USE_PLUGIN
+# if HAVE_DLFCN_H
+#  include <dlfcn.h>
+   typedef void *  lt_dlhandle;
+#  define lt_dlsym dlsym
+#  define lt_dlopen(filename) dlopen(filename, RTLD_NOW)
+#  define lt_dlclose dlclose
+#  define lt_dlerror dlerror
+# else
+#  include <ltdl.h>
+# endif
 #endif
 
 /* Get time functions */

@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.69 2003/03/19 16:43:11 cheusov Exp $
+# $Id: Makefile.in,v 1.70 2003/04/10 18:52:31 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -76,7 +76,7 @@ LDLIBS=		    @LIBOBJS@ @LIBS@ -Lregex -lregex
 
 EXES=	 	dict dictd dictzip dictfmt
 
-ifeq ($(USE_PLUGIN), 1)
+ifdef USE_PLUGIN
 	PLUGINS=    
 	LIBRARIES=  libdictdplugin.a
 	INCLUDES=   dictdplugin.h
@@ -101,7 +101,7 @@ endif
 HEADERS= 	./config.h @XTRAHEADERS@ dictzip.h dictd.h dict.h dictP.h \
                 codes.h md5.h strategy.h defs.h plugin.h data.h index.h
 
-ifeq ($(USE_PLUGIN), 1)
+ifdef USE_PLUGIN
 SRCHOBJS=       index.o data.o dictdplugin.o plugin.o
 else
 SRCHOBJS=       index.o data.o dictdplugin.o
@@ -247,7 +247,7 @@ install.dictfmt: dictfmt dictfmt_index2word dictfmt_index2suffix dictfmt_plugin
 	$(INSTALL_DATA) dictfmt_index2word.1 $(DESTDIR)$(man1_prefix); \
 	$(INSTALL_DATA) dictfmt_index2suffix.1 $(DESTDIR)$(man1_prefix); \
 	$(INSTALL_DATA) dictunformat.1 $(DESTDIR)$(man1_prefix); \
-	test _$(USE_PLUGIN) = _1 && \
+	test _$(USE_PLUGIN) != _ && \
 	    $(INSTALL_SCRIPT) dictfmt_plugin $(DESTDIR)$(bindir) || true
 
 install.dictd: dictd
@@ -261,17 +261,17 @@ install.dictd: dictd
 	$(INSTALL_DATA) dictd.8 $(DESTDIR)$(man8_prefix)/dictd.8
 
 install.libs: $(LIBRARIES)
-	test _$(USE_PLUGIN) = _1 && \
+	test _$(USE_PLUGIN) != _ && \
 	{ if test ! -d $(DESTDIR)$(libdir); then $(INSTALL) -d 755 $(DESTDIR)$(libdir); fi; \
 	$(INSTALL_DATA) $(LIBRARIES) $(DESTDIR)$(libdir); } || true
 
 install.includes:
-	test _$(USE_PLUGIN) = _1 && \
+	test _$(USE_PLUGIN) != _ && \
 	{ if test ! -d $(DESTDIR)$(includedir); then $(INSTALL) -d 755 $(DESTDIR)$(includedir); fi; \
     $(INSTALL_DATA) $(INCLUDES) $(DESTDIR)$(includedir); } || true
 
 install.plugins:
-	test _$(USE_PLUGIN) = _1 && \
+	test _$(USE_PLUGIN) != _ && \
 	{ if test ! -d $(DESTDIR)$(libexecdir); then $(INSTALL) -d 755 $(DESTDIR)$(libexecdir); fi; \
     $(INSTALL_DATA) $(PLUGINS) $(DESTDIR)$(libexecdir); } || true
 
@@ -280,7 +280,7 @@ install.plugins:
 install: \
 install.dict install.dictzip install.dictd install.dictfmt \
 install.libs install.includes install.plugins
-ifeq ($(USE_PLUGIN), 1)
+ifdef USE_PLUGIN
 	$(INSTALL_SCRIPT) dictdplugin-config $(DESTDIR)$(bindir)
 endif
 
@@ -305,20 +305,20 @@ uninstall.dictfmt:
 	$(DESTDIR)$(bindir)/dictfmt_index2word \
 	$(DESTDIR)$(bindir)/dictfmt_virtual \
 	$(DESTDIR)$(bindir)/dictunformat; \
-	test _$(USE_PLUGIN) = _1 && rm -f $(DESTDIR)$(bindir)/dictfmt_plugin || true
+	test _$(USE_PLUGIN) != _ && rm -f $(DESTDIR)$(bindir)/dictfmt_plugin || true
 
 uninstall.includes:
-ifeq ($(USE_PLUGIN), 1)
+ifdef USE_PLUGIN
 	rm -f $(addprefix $(DESTDIR)$(includedir)/, $(INCLUDES))
 endif
 
 uninstall.libs:
-ifeq ($(USE_PLUGIN), 1)
+ifdef USE_PLUGIN
 	rm -f $(addprefix $(DESTDIR)$(libdir)/, $(LIBRARIES))
 endif
 
 uninstall.plugins:
-ifeq ($(USE_PLUGIN), 1)
+ifdef USE_PLUGIN
 	rm -f $(addprefix $(DESTDIR)$(libexecdir), $(PLUGINS))
 endif
 
@@ -327,7 +327,7 @@ endif
 uninstall: \
 uninstall.dict uninstall.dictd uninstall.dictfmt uninstall.dictzip \
 uninstall.libs uninstall.includes uninstall.plugins
-ifeq ($(USE_PLUGIN), 1)
+ifdef USE_PLUGIN
 	rm -f $(DESTDIR)$(bindir)/dictdplugin-config
 endif
 

@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: defs.h,v 1.1 2003/03/19 16:43:16 cheusov Exp $
+ * $Id: defs.h,v 1.2 2003/04/10 18:52:32 cheusov Exp $
  */
 
 #ifndef _DEFS_H_
@@ -24,10 +24,6 @@
 
 #include "dictP.h"
 #include "dictdplugin.h"
-
-#ifdef USE_PLUGIN
-#include <ltdl.h>
-#endif
 
 #include <zlib.h>
 #include <maa.h>

@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: plugin.c,v 1.1 2003/03/19 16:43:27 cheusov Exp $
+ * $Id: plugin.c,v 1.2 2003/04/10 18:52:32 cheusov Exp $
  * 
  */
 
@@ -26,7 +26,12 @@
 #include "index.h"
 #include "dictd.h"
 
+#ifndef HAVE_DLFCN_H
 #include <ltdl.h>
+#else
+#include <dlfcn.h>
+#endif
+
 #include <maa.h>
 #include <stdlib.h>
 #include <ctype.h>
