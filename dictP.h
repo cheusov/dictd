@@ -19,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.12 2003/09/04 17:57:02 cheusov Exp $
+ * $Id: dictP.h,v 1.13 2003/10/26 12:57:55 cheusov Exp $
  * 
  */
 
@@ -69,6 +69,12 @@
 #  define memcpy(d, s, n) bcopy ((s), (d), (n))
 #  define memmove(d, s, n) bcopy ((s), (d), (n))
 # endif
+#endif
+
+#if HAVE_SIZE_T
+#include <stddef.h>
+#else
+typedef unsigned int size_t;
 #endif
 
 #if !HAVE_STRDUP
@@ -229,6 +235,19 @@ situations that we know about. */
 
 #if HAVE_LIMITS_H
 #include <limits.h>
+#endif
+
+/* Handle getopt correctly */
+#if HAVE_GETOPT_H
+# include <getopt.h>
+#else
+#if !HAVE_GETOPT_LONG
+int getopt_long(int argc, char * const argv[],
+                  const char *optstring,
+                  const struct option *longopts, int *longindex);
+extern int  optind;
+extern char *optarg;
+#endif
 #endif
 
 				/* Local stuff */
