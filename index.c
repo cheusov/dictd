@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.49 2003/01/09 14:53:33 cheusov Exp $
+ * $Id: index.c,v 1.50 2003/01/19 13:18:51 cheusov Exp $
  * 
  */
 
@@ -1965,8 +1965,23 @@ void dict_index_close( dictIndex *i )
 
 static void dict_plugin_test (dictIndex *i, int version, int ret)
 {
-   if (ret)
-      err_fatal (__FUNCTION__, "Cannot initialize plugin\n");
+   const char *err_msg = NULL;
+
+   if (ret){
+      err_msg = i -> plugin -> dictdb_error (
+	 i -> plugin -> data);
+
+      if (err_msg){
+	 err_fatal (
+	    __FUNCTION__,
+	    "%s\n",
+	    i -> plugin -> dictdb_error (i -> plugin -> data));
+      }else{
+	 err_fatal (
+	    __FUNCTION__,
+	    "Error code %i\n", ret);
+      }
+   }
 
    switch (version){
    case 0:
