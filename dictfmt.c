@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.12 2003/01/03 19:43:36 cheusov Exp $
+ * $Id: dictfmt.c,v 1.13 2003/01/19 15:08:12 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -58,6 +58,8 @@ static FILE *str;
 
 static int utf8_mode     = 0;
 static int allchars_mode = 0;
+
+static int quiet_mode    = 0;
 
 static const char *hw_separator = "";
 static int         without_hw     = 0;
@@ -292,17 +294,25 @@ static void fmt_newheadword( const char *word, int flag )
       }
    }
 
-   if (fmt_hwcount && !(fmt_hwcount % 100)) {
-      fprintf( stderr, "%10d headwords\r", fmt_hwcount );
+   if (!quiet_mode){
+      if (fmt_hwcount && !(fmt_hwcount % 100)) {
+	 fprintf( stderr, "%10d headwords\r", fmt_hwcount );
+      }
    }
+
    ++fmt_hwcount;
 }
 
 static void fmt_closeindex( void )
 {
    fmt_newheadword(NULL,0);
-   if (fmt_str) pclose( fmt_str );
-   fprintf( stderr, "%12d headwords\n", fmt_hwcount );
+   if (fmt_str){
+      pclose( fmt_str );
+   }
+
+   if (!quiet_mode){
+      fprintf( stderr, "%12d headwords\n", fmt_hwcount );
+   }
 }
 
 static void banner( FILE *out_stream )
@@ -351,7 +361,10 @@ static void help( FILE *out_stream )
      "-L        display copyright and license information",
      "-V        display version information",
      "-D        debug",
-     "--help    display this help message", 
+"--quiet\n\
+--silent\n\
+-q        quiet operation",
+"--help    display this help message", 
 "--locale   <locale> specifies the locale used for sorting.\n\
            if no locale is specified, the \"C\" locale is used.",
 "--allchars all characters (not only alphanumeric and space)\n\
@@ -420,11 +433,14 @@ int main( int argc, char **argv )
       { "without-header",       0, 0, 506 },
       { "without-url",          0, 0, 507 },
       { "without-time",         0, 0, 508 },
+      { "quiet",                0, 0, 'q' },
+      { "silent",               0, 0, 'q' },
    };
 
-   while ((c = getopt_long( argc, argv, "VLjfephDu:s:c:",
+   while ((c = getopt_long( argc, argv, "qVLjfephDu:s:c:",
                                     longopts, NULL )) != EOF)
       switch (c) {
+      case 'q': quiet_mode = 1;            break;
       case 'L': license(); exit(1);        break;
       case 'V': banner( stdout ); exit(1); break;
       case 501: help( stdout ); exit(1);   break;         
@@ -469,8 +485,8 @@ int main( int argc, char **argv )
       setenv("LC_ALL", locale, 1); /* this is for 'sort' subprocess */
 
    if (!setlocale(LC_ALL, locale)){
-	   fprintf (stderr, "invalid locale '%s'\n", locale);
-	   exit (2);
+      fprintf (stderr, "invalid locale '%s'\n", locale);
+      exit (2);
    }
 
    sprintf( indexname, "%s.index", argv[optind] );

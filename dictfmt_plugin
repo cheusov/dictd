@@ -56,4 +56,4 @@ _____\n\
 
 	cat
 } |
-dictfmt --without-header --without-url -c5 "$@"
+dictfmt -q --without-header --without-url -c5 "$@"
