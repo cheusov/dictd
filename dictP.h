@@ -19,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.15 2003/10/31 00:40:04 cheusov Exp $
+ * $Id: dictP.h,v 1.16 2004/01/06 16:42:42 cheusov Exp $
  * 
  */
 
@@ -161,6 +161,10 @@ extern int setenv(const char *name, const char *value, int overwrite);
 
 #if !HAVE_MBTOWC
 extern int mbtowc (wchar_t *pwc, const char *s, size_t n);
+#endif
+
+#if !HAVE_WCWIDTH
+#define wcwidth(x) (1)
 #endif
 
 #if USE_PLUGIN
