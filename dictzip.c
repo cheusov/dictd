@@ -1,7 +1,7 @@
 /* dictzip.c -- 
  * Created: Tue Jul 16 12:45:41 1996 by faith@acm.org
- * Revised: Sun Jul 20 21:00:20 1997 by faith@acm.org
- * Copyright 1996, 1997 Rickard E. Faith (faith@acm.org)
+ * Revised: Fri Feb 27 20:38:36 1998 by faith@acm.org
+ * Copyright 1996, 1997, 1998 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictzip.c,v 1.13 1997/09/01 01:23:25 faith Exp $
+ * $Id: dictzip.c,v 1.14 1998/03/01 11:32:52 faith Exp $
  * 
  */
 
@@ -307,6 +307,7 @@ static const char *id_string( const char *id )
    sprintf( buffer, "%s", DICT_VERSION );
    pt = buffer + strlen( buffer );
 
+#if 0
    a = arg_argify( id, 0 );
    if (arg_count(a) >= 2) {
       if ((dot = strchr( arg_get(a, 2), '.' )))
@@ -315,13 +316,14 @@ static const char *id_string( const char *id )
 	 sprintf( pt, ".%s", arg_get( a, 2 ) );
    }
    arg_destroy( a );
+#endif
    
    return buffer;
 }
 
 static void banner( void )
 {
-   const char *id = "$Id: dictzip.c,v 1.13 1997/09/01 01:23:25 faith Exp $";
+   const char *id = "$Id: dictzip.c,v 1.14 1998/03/01 11:32:52 faith Exp $";
    
    fprintf( stderr, "%s %s\n", err_program_name(), id_string( id ) );
    fprintf( stderr,
@@ -474,11 +476,18 @@ int main( int argc, char **argv )
 	 if (stdoutFlag) {
 	    header = dict_data_open( argv[i], 0 );
 	    if (!size) size = header->length;
-	    len = header->chunkLength;
-	    for (i = 0; i < size; i += len) {
-	       if (i + len >= size) len = size - i;
-	       buf = dict_data_read( header, i, len, pre, post );
-	       fwrite( buf, len, 1, stdout );
+	    if (!start) {
+	       len = header->chunkLength;
+	       for (i = 0; i < size; i += len) {
+		  if (i + len >= size) len = size - i;
+		  buf = dict_data_read( header, i, len, pre, post );
+		  fwrite( buf, len, 1, stdout );
+		  fflush( stdout );
+		  xfree( buf );
+	       }
+	    } else {
+	       buf = dict_data_read( header, start, size, pre, post );
+	       fwrite( buf, size, 1, stdout );
 	       fflush( stdout );
 	       xfree( buf );
 	    }

@@ -1,6 +1,6 @@
 /* daemon.c -- Server daemon
  * Created: Fri Feb 28 18:17:56 1997 by faith@cs.unc.edu
- * Revised: Thu Feb 19 21:09:22 1998 by faith@acm.org
+ * Revised: Sun Mar  1 06:06:06 1998 by faith@acm.org
  * Copyright 1997, 1998 Rickard E. Faith (faith@acm.org)
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.26 1998/02/20 02:23:20 faith Exp $
+ * $Id: daemon.c,v 1.27 1998/03/01 11:32:52 faith Exp $
  * 
  */
 
@@ -381,14 +381,19 @@ static void daemon_write( const char *buf, int len )
 
 static void daemon_crlf( char *d, const char *s, int dot )
 {
+   const char *s1 = s, *s2 = d;
+   int        first = 1;
+   
    while (*s) {
       if (*s == '\n') {
 	 *d++ = '\r';
 	 *d++ = '\n';
-	 if (dot && s[1] == '.' && s[2] != '\n')
-	    *d++ = '.'; /* double first dot on line */
+	 first = 1;
 	 ++s;
       } else {
+	 if (first && *s == '.' && s[1] == '\n')
+	    *d++ = '.'; /* double first dot on line */
+	 first = 0;
 	 *d++ = *s++;
       }
    }
@@ -398,6 +403,8 @@ static void daemon_crlf( char *d, const char *s, int dot )
       *d++ = '\n';
    }
    *d = '\0';
+   printf( "s1 = \"%s\"\n", s1 );
+   printf( "s2 = \"%s\"\n", s2 );
 }
 
 static void daemon_printf( const char *format, ... )
