@@ -1,4 +1,4 @@
-Sun Jan  4 10:14:37 1998, faith@cs.unc.edu
+Sun Feb 22 13:52:12 1998, faith@cs.unc.edu
 
 To build and install the client and the server:
 
@@ -15,3 +15,20 @@ make dict
 make install.dict
 
 Then see the man page or use dict --help
+
+*** See dict.conf for the configuration file used on dict.org sites ***
+
+If you want to do server development, please join dict-beta@dict.org.
+Please send all bug reports and patches to dict-beta@dict.org.
+
+****************** IF YOU RUN A SERVER JOIN dict-announce *********************
+
+If you run a server, please join dict-announce@dict.org: send "subscribe
+dict-announce" in the body of a message to majordomo@dict.org.  This is an
+ultra-low volume mailing list which will have announcements of new software
+and databases.
+
+****************** IF YOU RUN A SERVER JOIN dict-announce *********************
+
+
+
