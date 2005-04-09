@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.24 2005/03/30 10:33:06 cheusov Exp $
+ * $Id: servparse.y,v 1.25 2005/04/09 17:01:41 cheusov Exp $
  * 
  */
 
@@ -382,6 +382,7 @@ Spec_plugin : Spec__name
      | TOKEN_DATA TOKEN_STRING        { SET(plugin_data,$1,$2);}
      | Spec__invisible
      | Spec__disable_strat
+     | Spec__default_strat
      | Spec__access
      ;
 

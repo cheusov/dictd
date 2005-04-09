@@ -15,7 +15,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: plugin.c,v 1.18 2004/10/12 14:39:03 cheusov Exp $
+ * $Id: plugin.c,v 1.19 2005/04/09 17:01:42 cheusov Exp $
  * 
  */
 
@@ -56,14 +56,20 @@ int dict_search_plugin (
    dictWord           * def;
    int                  len;
 
+   int match         = strategy & DICT_MATCH_MASK;
+   int strategy_real = strategy & ~DICT_MATCH_MASK;
+
    assert (database);
    assert (database -> plugin);
 
-   if (strategy == DICT_STRAT_DOT){
-      strategy = database -> default_strategy;
+   if (strategy_real == DICT_STRAT_DOT){
+      strategy = (match | database -> default_strategy);
+      PRINTF (DBG_SEARCH, (":S:     def strategy for database '%s': %d\n",
+			   database -> databaseName, strategy));
    }
 
-   PRINTF (DBG_SEARCH, (":S:     searching\n"));
+   PRINTF (DBG_SEARCH, (":S:     searching for '%s' in '%s' using strat '%d'\n",
+			word, database -> databaseName, strategy));
 
    failed = database -> plugin -> dictdb_search (
       database -> plugin -> data,
