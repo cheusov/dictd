@@ -554,13 +554,13 @@ Version 1.7.0, by Rick Faith, 3 May 2002 10:02:11 -0400
   hard code a "user gcide gcide" in any example or distributed .dictrc
   files.  Thanks.
 
-Version 1.6.93-testonly
+Version 1.6.93-testonly, by Rick Faith
   (no information available)
 
-Version 1.5.5
+Version 1.5.5, by Rick Faith
   (no information available)
 
-Version 1.5.3
+Version 1.5.3, by Rick Faith
   (no information available)
 
 Version 1.5.0, by Rick Faith, 22 Dec 1999 10:43:37 -0500
@@ -587,10 +587,10 @@ Version 1.5.0, by Rick Faith, 22 Dec 1999 10:43:37 -0500
   provides a publicly accessible cvs repository and bug tracking.  Feel free
 *  to submit bugs via the SourceForge interface or via dict-beta@dict.org.
 
-Version 1.4.9
+Version 1.4.9, by Rick Faith
   (no information available)
 
-Version 1.4.8
+Version 1.4.8, by Rick Faith
   (no information available)
 
 Version 1.4.5, by Rick Faith, 23 Feb 1998 20:00:23 -0500
@@ -615,10 +615,10 @@ Version 1.4.5, by Rick Faith, 23 Feb 1998 20:00:23 -0500
   (within 5% of the expected ratio for dictionary data).  dictd(8) uses files
   stored in this format.
 
-Version 1.4.3
+Version 1.4.3, by Rick Faith
   (no information available)
 
-DICT protocol, 29 Oct 1997 19:34:58 -0500
+DICT protocol, by Rick Faith, 29 Oct 1997 19:34:58 -0500
 
   A new Request for Comments is now available in online RFC libraries.
 
@@ -638,7 +638,7 @@ DICT protocol, 29 Oct 1997 19:34:58 -0500
  The Dictionary Server Protocol (DICT) is a TCP transaction based
  query/response protocol that allows a client to access dictionary
  definitions from a set of natural language dictionary databases.
- 
+
  This memo provides information for the Internet community.  It does
  not specify an Internet standard of any kind.  Distribution of this
  memo is unlimited.
