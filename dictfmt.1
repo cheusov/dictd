@@ -273,6 +273,14 @@ This option may be useful, for example,
 for dictionaries containing mainly phrases but the single words.
 In any case, use this option
 if you are absolutely sure what you are doing.
+.TP
+.BI \-\-mime\-header " mime_header"
+When client sends
+.I OPTION MIME
+command to the
+.I dictd
+, definitions found in this database
+are prepanded by the specified MIME header.
 .SH CREDITS
 .B dictfmt
 was written by Rik Faith (faith@cs.unc.edu) as part of the dict-misc

@@ -115,6 +115,15 @@ or its contents).
 .BR \-I " or " \-\-serverinfo
 Query the server and display information about the server.
 .TP
+.BR \-M " or " \-\-mime
+Send
+.I OPTION MIME
+command to the server.
+.RS
+.B NOTE:
+Server's capabilities are not checked.
+.RE
+.TP
 .BR \-a " or " \-\-noauth
 Disable authentication (i.e., don't send an AUTH command).
 .TP
@@ -285,6 +294,12 @@ violates the RFC, and will be corrected in a future release.
 If a
 .B dict:
 URL contains a shared secret, it will not be parsed correctly.
+.P
+When
+.I OPTION MIME
+command is sent to the server
+.I (-M option)
+, server's capabilities are not checked.
 .SH FILES
 .I ~/.dictrc
 .br
