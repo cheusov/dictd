@@ -19,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.18 2004/10/06 14:59:10 cheusov Exp $
+ * $Id: dictP.h,v 1.19 2005/04/12 10:19:16 cheusov Exp $
  * 
  */
 
@@ -150,7 +150,7 @@ extern wint_t towlower__ (wint_t wc);
 typedef unsigned int wchar_t;
 #endif
 
-#if HAVE_LANGINFO_H
+#if HAVE_DECL_CODESET
 #include <langinfo.h>
 #else
 extern const char * nl_langinfo (int ITEM);

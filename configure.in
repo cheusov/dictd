@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.80 2004/12/23 18:56:44 cheusov Exp $
+dnl $Id: configure.in,v 1.81 2005/04/12 10:19:17 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -36,7 +36,7 @@ define(VERSION, 1.9.15)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.80 $)
+AC_REVISION($Revision: 1.81 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -383,7 +383,6 @@ AC_CHECK_HEADERS(sys/resource.h sys/time.h sys/param.h sys/wait.h)
 AC_CHECK_HEADERS(wctype.h wchar.h)
 AC_CHECK_HEADER([Judy.h], ,[JUDYLIB=])
 AC_CHECK_HEADER([dbi/dbi.h], ,[DBILIB=])
-AC_CHECK_HEADERS(langinfo.h)
 
 AC_CHECK_TYPES(wint_t,,, [#include <wchar.h>])
 AC_CHECK_TYPES(mbstate_t, , , [#include <wchar.h>])
@@ -428,11 +427,12 @@ AC_REPLACE_FUNCS(setenv)
 AC_REPLACE_FUNCS(wcrtomb wctomb mbrlen mbrtowc mbstowcs mbtowc)
 AC_REPLACE_FUNCS(strlcpy strlcat)
 AC_REPLACE_FUNCS(getopt_long)
-AC_REPLACE_FUNCS(nl_langinfo)
 #   [AC_LIBOBJ([getopt_long])
 #   AC_LIBOBJ([getopt])])
 AC_REPLACE_FUNCS(snprintf vsnprintf)
 AC_REPLACE_FUNCS(iswspace iswalnum towlower)
+
+AC_CHECK_DECLS(CODESET,, [AC_LIBOBJ(nl_langinfo)], [#include <langinfo.h>])
 
 echo .
 echo Making output files
