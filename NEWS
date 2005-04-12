@@ -1,3 +1,39 @@
+Version 1.10.0, by Aleksey Cheusov, Tue, 12 Apr 2005 20:51:01 +0300
+
+  dictd:
+    - Most parameters can be passed to `dictd' via configuration file.
+      See 'Global Setting section'
+      in dictd.8 for more information.
+
+      Also see example.conf for the sample config.
+
+    - Added: ability to create special databases that work
+      differently depending on
+      whether client sent OPTION MIME command or not.
+      This allows to provide dictionaries returning either plain text or
+      specially formatted (html, roff, TEI etc...) definitions depending on
+      client's capabilities or needs.
+
+      See example_mime.conf file for example and dictd.8 for documentation.
+
+    - fixed: `default_strategy' keyword was not implemented
+      for `database_plugin' section.
+
+    - fixed: compilation bugs on OpenBSD-3.4 which doesn't provide
+      CODESET macro in <langinfo.h>
+
+  dict:
+    - added: -M option for sending OPTION MIME command to DICT server.
+      NOTE: client doesn't check whether DICT server supports MIME or not)
+
+  dictfmt:
+    - added option `--mime-header <mime_header>'.
+      When database is accessed by client and OPTION MIME command
+      was previously sent, definitions are prepanded by the specified
+      MIME header. Ability to set the MIME header for the database is
+      useful in combination with `database_mime' keyword in dictd.conf,
+      See dictd.8 for more information.
+
 Version 1.9.15, by Aleksey Cheusov, Thu, 23 Dec 2004 21:16:03 +0200
 
   Format of .index files for 8-bit databases (not-ASCII and non-UTF8)
