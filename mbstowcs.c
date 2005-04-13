@@ -14,7 +14,7 @@
 
 #include <assert.h>
 
-size_t mbstowcs (wchar_t *dest, const char *src, size_t n)
+size_t mbstowcs__ (wchar_t *dest, const char *src, size_t n)
 {
    int ret = 0;
    int len = 0;
@@ -28,7 +28,7 @@ size_t mbstowcs (wchar_t *dest, const char *src, size_t n)
 
       if (c <= 0x7F)
 	 len = 1;
-      else if (MB_CUR_MAX == 1)
+      else if (MB_CUR_MAX__ == 1)
 	 len = 1;
       else if (c <= 0xBF)
 	 return (size_t) -1;

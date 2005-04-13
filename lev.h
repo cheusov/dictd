@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: lev.h,v 1.3 2004/11/17 12:39:45 cheusov Exp $
+ * $Id: lev.h,v 1.4 2005/04/13 18:12:34 cheusov Exp $
  * 
  */
 
@@ -115,9 +115,9 @@ static int dict_search_lev_utf8 (
    LEV_ARGS *args)
 {
    size_t    size  = strlen (word);
-   size_t    len   = mbstowcs (NULL, word, 0);
-   char      *buf  = xmalloc (size + MB_CUR_MAX + 1);
-   char      *buf2 = xmalloc (len * (MB_CUR_MAX + 1));
+   size_t    len   = mbstowcs__ (NULL, word, 0);
+   char      *buf  = xmalloc (size + MB_CUR_MAX__ + 1);
+   char      *buf2 = xmalloc (len * (MB_CUR_MAX__ + 1));
    char      *buf3;
    mbstate_t ps;
    int       count = 0;
@@ -138,14 +138,15 @@ static int dict_search_lev_utf8 (
 
    memset (&ps, 0, sizeof (ps));
 
-   PRINTF(DBG_LEV,("buf size = %d buf2 size %d\n", len + MB_CUR_MAX + 1, len * (MB_CUR_MAX + 1)));
+   PRINTF(DBG_LEV,("buf size = %d buf2 size %d\n", len + MB_CUR_MAX__ + 1,
+		   len * (MB_CUR_MAX__ + 1)));
 
    i = 0;
    for (p = word; *p; ){
-      char_len = mbrlen (p, MB_CUR_MAX, &ps);
+      char_len = mbrlen__ (p, MB_CUR_MAX__, &ps);
       assert (char_len > 0);
 
-      buf3 = buf2 + i * (MB_CUR_MAX + 1);
+      buf3 = buf2 + i * (MB_CUR_MAX__ + 1);
       memcpy (buf3, p, char_len);
       buf3 [char_len] = 0;
 
@@ -156,9 +157,9 @@ static int dict_search_lev_utf8 (
    /* Transpositions */
    for (i=1; i < len; ++i){
       d = copy_utf8_string (buf2, buf, i - 1);
-      d = copy_utf8_string (buf2 + (MB_CUR_MAX + 1) * i, d, 1);
-      d = copy_utf8_string (buf2 + (MB_CUR_MAX + 1) * (i - 1), d, 1);
-      d = copy_utf8_string (buf2 + (MB_CUR_MAX + 1) * (i + 1), d, len - i - 1);
+      d = copy_utf8_string (buf2 + (MB_CUR_MAX__ + 1) * i, d, 1);
+      d = copy_utf8_string (buf2 + (MB_CUR_MAX__ + 1) * (i - 1), d, 1);
+      d = copy_utf8_string (buf2 + (MB_CUR_MAX__ + 1) * (i + 1), d, len - i - 1);
 
       CHECK(buf, args);
       PRINTF(DBG_LEV,("query: `%s`\n", buf));
@@ -170,7 +171,7 @@ static int dict_search_lev_utf8 (
    p = alphabet;
 
    while (*p){
-      char_len = mbrlen (p, MB_CUR_MAX, &ps);
+      char_len = mbrlen__ (p, MB_CUR_MAX__, &ps);
       if (char_len == (size_t) -1)
 	 err_internal (__FUNCTION__, "Alphabet is not a valid utf-8 string\n");
 
@@ -189,12 +190,12 @@ static int dict_search_lev_utf8 (
       p = alphabet;
 
       /* Deletions */
-      copy_utf8_string (buf2 + (MB_CUR_MAX + 1) * (i + 1), d, len - i - 1);
+      copy_utf8_string (buf2 + (MB_CUR_MAX__ + 1) * (i + 1), d, len - i - 1);
       CHECK(buf, args);
       PRINTF(DBG_LEV,("query: `%s`\n", buf));
 
       while (*p){
-	 char_len = mbrlen (p, MB_CUR_MAX, &ps);
+	 char_len = mbrlen__ (p, MB_CUR_MAX__, &ps);
 	 if (char_len == (size_t) -1)
 	    err_internal (__FUNCTION__, "Alphabet is not a valid utf-8 string\n");
 
@@ -202,21 +203,21 @@ static int dict_search_lev_utf8 (
 	 p += char_len;
 
 	 /* Insertions */
-	 copy_utf8_string (buf2 + (MB_CUR_MAX + 1) * i, d + char_len, len - i);
+	 copy_utf8_string (buf2 + (MB_CUR_MAX__ + 1) * i, d + char_len, len - i);
 	 CHECK(buf, args);
 	 PRINTF(DBG_LEV,("query: `%s`\n", buf));
 
 	 /* Substitutions */
 #if 1
 	 d2 = d + char_len;
-	 char_len = mbrlen (d2, MB_CUR_MAX, &ps);
+	 char_len = mbrlen__ (d2, MB_CUR_MAX__, &ps);
 	 assert (char_len >= 0);
 
 	 while ((d2 [0] = d2 [char_len]) != 0){
 	    ++d2;
 	 }
 #else
-	 copy_utf8_string (buf2 + (MB_CUR_MAX + 1) * (i + 1), d + char_len, len - i - 1);
+	 copy_utf8_string (buf2 + (MB_CUR_MAX__ + 1) * (i + 1), d + char_len, len - i - 1);
 #endif
 	 CHECK(buf, args);
 	 PRINTF(DBG_LEV,("query: `%s`\n", buf));

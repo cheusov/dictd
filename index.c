@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.99 2005/03/30 10:35:26 cheusov Exp $
+ * $Id: index.c,v 1.100 2005/04/13 18:12:35 cheusov Exp $
  * 
  */
 
@@ -53,7 +53,12 @@ extern int mmap_mode;
 #define MAXWORDLEN    512
 #define BMH_THRESHOLD   3	/* When to start using Boyer-Moore-Hoorspool */
 
-int utf8_mode;          /* dictd uses UTF-8 dictionaries */
+#ifndef SYSTEM_UTF8_FUNCS
+int utf8_mode=1;        /* dictd uses UTF-8 dictionaries */
+#else
+int utf8_mode=0;        /* dictd uses UTF-8 dictionaries */
+#endif
+
 int bit8_mode;          /* dictd uses 8-BIT dictionaries */
 int optStart_mode = 1;	/* Optimize search range for constant start */
 
@@ -1260,7 +1265,7 @@ static int stranagram_utf8 (char *str)
    memset (&ps,  0, sizeof (ps));
 
    for (p = str; *p; ){
-      len = mbrlen (p, MB_CUR_MAX, &ps);
+      len = mbrlen__ (p, MB_CUR_MAX__, &ps);
       if ((int) len < 0)
 	 return 0; /* not a UTF-8 string */
 

@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.122 2005/03/29 17:55:50 cheusov Exp $
+ * $Id: dictd.c,v 1.123 2005/04/13 18:12:35 cheusov Exp $
  * 
  */
 
@@ -82,7 +82,7 @@ int _dict_daemon_limit_set; /* 1 if set by command line option */
 int        _dict_markTime = 0;
 int _dict_markTime_set; /* 1 if set by command line option */
 
-const char        *locale       = "C";
+const char        *locale       = NULL;
 int locale_set; /* 1 if set by command line option */
 
 int         client_delay        = DICT_DEFAULT_DELAY;
@@ -1118,7 +1118,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.122 2005/03/29 17:55:50 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.123 2005/04/13 18:12:35 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1379,7 +1379,7 @@ static void set_locale_and_flags (const char *loc)
 
    charset = nl_langinfo (CODESET);
 
-   utf8_mode = !strcmp (charset, "UTF-8");
+   utf8_mode = !strcmp (charset, "UTF-8") || !strcmp (charset, "utf-8");
 
 #if !HAVE_UTF8
    if (utf8_mode){
@@ -1812,7 +1812,8 @@ int main (int argc, char **argv, char **envp)
    tim_start( "dictd" );
    alarm(_dict_markTime);
 
-   set_locale_and_flags (locale);
+   if (locale)
+      set_locale_and_flags (locale);
 
    sanity(configFile);
 
@@ -1850,7 +1851,7 @@ int main (int argc, char **argv, char **envp)
    fflush(stdout);
    fflush(stderr);
 
-   if (strcmp(locale, "C"))
+   if (locale)
       log_info(":I: using locale \"%s\"\n", locale);
 
    if (dbg_test(DBG_VERBOSE))

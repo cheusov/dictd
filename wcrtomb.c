@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-size_t wcrtomb (char *s, wchar_t wc, mbstate_t *ps)
+size_t wcrtomb__ (char *s, wchar_t wc, mbstate_t *ps)
 {
    int i;
    int octet_count = 1;

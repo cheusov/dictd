@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.82 2005/04/12 17:53:09 cheusov Exp $
+dnl $Id: configure.in,v 1.83 2005/04/13 18:12:36 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -36,7 +36,7 @@ define(VERSION, 1.10.0)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.82 $)
+AC_REVISION($Revision: 1.83 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -205,6 +205,14 @@ AC_ARG_WITH(purify,
 [
 if test "x${withval}" = xyes; then
     REALCC="purify gcc"
+fi
+])
+
+AC_ARG_WITH(purify,
+[  --with-system-utf8-funcs     use system wcXXX and mbXXX functions],
+[
+if test "x${withval}" = xyes; then
+    SYSTEM_UTF8=1
 fi
 ])
 
@@ -420,17 +428,34 @@ AC_CHECK_FUNCS(socket strcasecmp strchr strrchr strstr uname)
 
 AC_CHECK_FUNCS(dlopen)
 AC_CHECK_FUNCS(getopt)
-AC_CHECK_FUNCS(wcwidth)
 AC_CHECK_FUNCS(initgroups)
 
 AC_REPLACE_FUNCS(setenv)
-AC_REPLACE_FUNCS(wcrtomb wctomb mbrlen mbrtowc mbstowcs mbtowc)
+
+if test "$SYSTEM_UTF8"; then
+	CFLAGS="$CFLAGS -DSYSTEM_UTF8_FUNCS"
+
+	AC_REPLACE_FUNCS(wcrtomb wctomb mbrlen mbrtowc mbstowcs mbtowc)
+	AC_REPLACE_FUNCS(iswspace iswalnum towlower)
+	AC_CHECK_FUNCS(wcwidth)
+else #not SYSTEM_UTF8
+	AC_LIBOBJ([wcrtomb])
+	AC_LIBOBJ([wctomb])
+	AC_LIBOBJ([mbrlen])
+	AC_LIBOBJ([mbrtowc])
+	AC_LIBOBJ([mbstowcs])
+	AC_LIBOBJ([mbtowc])
+	AC_LIBOBJ([iswspace])
+	AC_LIBOBJ([iswalnum])
+	AC_LIBOBJ([towlower])
+#	AC_LIBOBJ([wcwidth])
+fi #end of SYSTEM_UTF8
+
 AC_REPLACE_FUNCS(strlcpy strlcat)
 AC_REPLACE_FUNCS(getopt_long)
 #   [AC_LIBOBJ([getopt_long])
 #   AC_LIBOBJ([getopt])])
 AC_REPLACE_FUNCS(snprintf vsnprintf)
-AC_REPLACE_FUNCS(iswspace iswalnum towlower)
 
 AC_CHECK_DECLS(CODESET,, [AC_LIBOBJ(nl_langinfo)], [#include <langinfo.h>])
 

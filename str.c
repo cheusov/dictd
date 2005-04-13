@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: str.c,v 1.2 2004/01/08 17:35:26 cheusov Exp $
+ * $Id: str.c,v 1.3 2005/04/13 18:12:34 cheusov Exp $
  * 
  */
 
@@ -70,14 +70,14 @@ static int tolower_alnumspace_utf8 (
    memset (&ps2, 0, sizeof (ps2));
 
    while (src && src [0]){
-      len = mbrtowc (&ucs4_char, src, MB_CUR_MAX, &ps);
+      len = mbrtowc__ (&ucs4_char, src, MB_CUR_MAX__, &ps);
       if ((int) len < 0)
 	 return errno;
 
       if (iswspace (ucs4_char)){
 	 *dest++ = ' ';
-      }else if (allchars_mode || iswalnum (ucs4_char)){
-	 len2 = wcrtomb (dest, towlower (ucs4_char), &ps2);
+      }else if (allchars_mode || iswalnum__ (ucs4_char)){
+	 len2 = wcrtomb__ (dest, towlower__ (ucs4_char), &ps2);
 	 if (len2 < 0)
 	    return errno;
 
@@ -130,7 +130,7 @@ char *copy_utf8_string (
    const char *p;
 
    for (i=0; i < len; ++i){
-      p = src + i * (MB_CUR_MAX + 1);
+      p = src + i * (MB_CUR_MAX__ + 1);
 
       while (*p){
 	 *dest++ = *p++;

@@ -70,13 +70,13 @@ static const char * utf8_to_ucs4 (
    return ptr;
 }
 
-size_t mbrtowc (wchar_t *pwc, const char *s, size_t n, mbstate_t *ps)
+size_t mbrtowc__ (wchar_t *pwc, const char *s, size_t n, mbstate_t *ps)
 {
    const char *end;
 
    assert (s);
    assert (pwc);
-   assert (MB_CUR_MAX > 1);
+   assert (MB_CUR_MAX__ > 1);
 
    end = utf8_to_ucs4 (s, pwc);
    if (end)

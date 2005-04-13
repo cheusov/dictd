@@ -19,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.19 2005/04/12 10:19:16 cheusov Exp $
+ * $Id: dictP.h,v 1.20 2005/04/13 18:12:36 cheusov Exp $
  * 
  */
 
@@ -43,7 +43,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#ifdef HAVE_WCTYPE_H
+#if defined(HAVE_WCTYPE_H) && defined(SYSTEM_UTF8_FUNCS)
 #include <wctype.h>
 #endif
 
@@ -131,17 +131,20 @@ typedef unsigned int wint_t;
 
 #if !HAVE_ISWALNUM
 extern int iswalnum__ (wint_t wc);
-#define iswalnum iswalnum__
+#else
+#define iswalnum__ iswalnum
 #endif
 
 #if !HAVE_ISWSPACE
 extern int iswspace__ (wint_t wc);
-#define iswspace iswspace__
+#else
+#define iswspace__ iswspace
 #endif
 
 #if !HAVE_TOWLOWER
 extern wint_t towlower__ (wint_t wc);
-#define towlower towlower__
+#else
+#define towlower__ towlower
 #endif
 
 #if HAVE_WCHAR_T
@@ -155,6 +158,12 @@ typedef unsigned int wchar_t;
 #else
 extern const char * nl_langinfo (int ITEM);
 #define CODESET 1234
+#endif
+
+#ifndef SYSTEM_UTF8_FUNCS
+#define MB_CUR_MAX__ 7
+#else
+#define MB_CUR_MAX__ MB_CUR_MAX
 #endif
 
 #if HAVE_MBSTATE_T
@@ -172,23 +181,33 @@ size_t strlcat(char *dst, const char *src, size_t siz);
 #endif
 
 #if !HAVE_WCRTOMB
-extern size_t wcrtomb (char *s, wchar_t wc, mbstate_t *ps);
+extern size_t wcrtomb__ (char *s, wchar_t wc, mbstate_t *ps);
+#else
+#define wcrtomb__ wcrtomb
 #endif
 
 #if !HAVE_WCTOMB
-extern int wctomb (char *s, wchar_t wc);
+extern int wctomb__ (char *s, wchar_t wc);
+#else
+#define wctomb__ wctomb
 #endif
 
 #if !HAVE_MBRLEN
-extern size_t mbrlen (const char *s, size_t n, mbstate_t *ps);
+extern size_t mbrlen__ (const char *s, size_t n, mbstate_t *ps);
+#else
+#define mbrlen__ mbrlen
 #endif
 
 #if !HAVE_MBRTOWC
-extern size_t mbrtowc (wchar_t *pwc, const char *s, size_t n, mbstate_t *ps);
+extern size_t mbrtowc__ (wchar_t *pwc, const char *s, size_t n, mbstate_t *ps);
+#else
+#define mbrtowc__ mbrtowc
 #endif
 
 #if !HAVE_MBSTOWCS
-extern size_t mbstowcs (wchar_t *dest, const char *src, size_t n);
+extern size_t mbstowcs__ (wchar_t *dest, const char *src, size_t n);
+#else
+#define mbstowcs__ mbstowcs
 #endif
 
 #if !HAVE_SETENV
@@ -196,11 +215,13 @@ extern int setenv(const char *name, const char *value, int overwrite);
 #endif
 
 #if !HAVE_MBTOWC
-extern int mbtowc (wchar_t *pwc, const char *s, size_t n);
+extern int mbtowc__ (wchar_t *pwc, const char *s, size_t n);
+#else
+#define mbtowc__ mbtowc
 #endif
 
 #if !HAVE_WCWIDTH
-#define wcwidth(x) (1)
+#define wcwidth__(x) (1)
 #endif
 
 #if !HAVE_INITGROUPS

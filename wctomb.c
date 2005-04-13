@@ -16,7 +16,7 @@
 
 #include <stdlib.h>
 
-int wctomb (char *s, wchar_t wc)
+int wctomb__ (char *s, wchar_t wc)
 {
-   return (int) wcrtomb (s, wc, NULL);
+   return (int) wcrtomb__ (s, wc, NULL);
 }

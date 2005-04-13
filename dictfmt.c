@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.57 2005/04/01 11:20:52 cheusov Exp $
+ * $Id: dictfmt.c,v 1.58 2005/04/13 18:12:35 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -111,7 +111,7 @@ static int mbswidth_ (const char *s)
    memset (&ps, 0, sizeof (ps));
 
    while (*s){
-      len = mbrtowc (&wchar, s, MB_CUR_MAX, &ps);
+      len = mbrtowc__ (&wchar, s, MB_CUR_MAX__, &ps);
 
       switch (len){
       case (size_t) (-1):
@@ -119,7 +119,7 @@ static int mbswidth_ (const char *s)
 	 return -1;
 
       default:
-	 width = wcwidth (wchar);
+	 width = wcwidth__ (wchar);
 	 if (-1 == width)
 	    width = 1; /* we also count non-printable characters */
 
@@ -314,7 +314,7 @@ static int stranagram_utf8 (char *s)
    memset (&ps,  0, sizeof (ps));
 
    for (p = s; *p; ){
-      len = mbrlen (p, MB_CUR_MAX, &ps);
+      len = mbrlen__ (p, MB_CUR_MAX__, &ps);
       if ((int) len < 0)
 	 return 0; /* not a UTF-8 string */
 
@@ -352,7 +352,7 @@ static char *trim_right (char *s)
 	 abort ();
 
       do {
-	 len = mbtowc (&mbc, s, MB_CUR_MAX);
+	 len = mbtowc__ (&mbc, s, MB_CUR_MAX__);
 	 assert (len >= 0);
 
 	 if (len == 0 || !iswspace (mbc))
@@ -389,7 +389,7 @@ static char *trim_left (char *s)
    }else{
 #ifdef HAVE_UTF8
       do {
-	 len = mbtowc (&mbc, s, MB_CUR_MAX);
+	 len = mbtowc__ (&mbc, s, MB_CUR_MAX__);
 	 assert (len >= 0);
 
 	 if (len == 0 || !iswspace (mbc))
@@ -475,7 +475,7 @@ static void update_alphabet (const char *word)
    memset (&ps, 0, sizeof (ps));
 
    while (*p){
-      len = mbrlen (p, MB_CUR_MAX, &ps);
+      len = mbrlen__ (p, MB_CUR_MAX__, &ps);
       assert ((int) len >= 0);
 
       old_char = p [len];
