@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servparse.y,v 1.25 2005/04/09 17:01:41 cheusov Exp $
+ * $Id: servparse.y,v 1.26 2005/04/14 07:52:16 cheusov Exp $
  * 
  */
 
@@ -75,6 +75,7 @@ static dictDatabase *db;
 %token <token> TOKEN_SYSLOG
 %token <token> TOKEN_SYSLOG_FACILITY
 %token <token> TOKEN_LOG_FILE
+%token <token> TOKEN_PID_FILE
 %token <token> TOKEN_FAST_START
 %token <token> TOKEN_WITHOUT_MMAP
 
@@ -235,6 +236,12 @@ GlobalSpec : TOKEN_PORT             TOKEN_STRING
      {
 	if (!logFile_set){
 	   logFile     = str_copy ($2.string);
+	}
+     }
+   | TOKEN_PID_FILE         TOKEN_STRING
+     {
+	if (!pidFile_set){
+	   pidFile     = str_copy ($2.string);
 	}
      }
    | TOKEN_FAST_START

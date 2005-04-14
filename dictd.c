@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.123 2005/04/13 18:12:35 cheusov Exp $
+ * $Id: dictd.c,v 1.124 2005/04/14 07:52:16 cheusov Exp $
  * 
  */
 
@@ -72,6 +72,9 @@ int                logOptions   = 0;
 
 const char         *logFile     = NULL;
 int logFile_set; /* 1 if set by command line option */
+
+const char *pidFile     = "/var/run/dictd.pid";
+int pidFile_set; /* 1 if set by command line option */
 
 const char         *daemon_service     = DICT_DEFAULT_SERVICE;
 int daemon_service_set; /* 1 if set by command line option */
@@ -1118,7 +1121,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.123 2005/04/13 18:12:35 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.124 2005/04/14 07:52:16 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1195,6 +1198,7 @@ static void help( void )
       "   --facility <fac>   set syslog logging facility",
       "-d --debug <option>   select debug option",
       "-i --inetd            run from inetd",
+      "   --pid-file <path>  PID filename",
       "   --pp <prog>        set preprocessor for configuration file",
       "-f --force            force startup even if daemon running",
       "   --locale <locale>  specifies the locale used for searching.\n\
@@ -1560,7 +1564,25 @@ static void dict_test_show_info (const char *database)
 
    destroy ();
 
-   exit(0);
+   exit (0);
+}
+
+static void create_pid_file ()
+{
+   FILE *fd = fopen (pidFile, "w");
+
+   if (!fd){
+      log_info(":E: cannot open pif file '%s'\n:E:    err msg: %s\n",
+	       pidFile, strerror (errno));
+      exit (1);
+   }
+
+   fprintf (fd, "%lu", (unsigned long) getpid ());
+   if (fclose (fd)){
+      log_info(":E: cannot write to pif file '%s'\n:E:    err msg: %s\n",
+	       pidFile, strerror (errno));
+      exit (1);
+   }
 }
 
 int main (int argc, char **argv, char **envp)
@@ -1623,6 +1645,7 @@ int main (int argc, char **argv, char **envp)
       { "pp",               1, 0, 518 },
       { "listen-to",        1, 0, 519 },
       { "test-show-info",   1, 0, 520 },
+      { "pid-file",         1, 0, 521 },
       { 0,                  0, 0, 0  }
    };
 
@@ -1757,6 +1780,10 @@ int main (int argc, char **argv, char **envp)
 	 database_arg = str_copy(optarg);
 	 show_info_mode = 1;
 	 break;
+      case 521:
+	 pidFile     = str_copy(optarg);
+	 pidFile_set = 1;
+	 break;
       case 'h':
       default:  help(); exit(0);                          break;
       }
@@ -1793,12 +1820,13 @@ int main (int argc, char **argv, char **envp)
       postprocess_filenames (DictConfig);
    }
 
-   if (! inetd && detach)
+   if (detach)
       net_detach();
 
    if (logFile)   log_file ("dictd", logFile);
    if (useSyslog) log_syslog ("dictd");
    if (! inetd && ! detach)   log_stream ("dictd", stderr);
+   if (detach) create_pid_file ();
 
    release_root_privileges();
 

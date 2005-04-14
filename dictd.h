@@ -47,6 +47,7 @@ extern int depth;
 extern int _dict_daemon_limit;
 extern int _dict_markTime;
 extern const char *logFile;
+extern const char *pidFile;
 extern int logOptions;
 extern const char *bind_to;
 extern int useSyslog;
@@ -54,6 +55,7 @@ extern const char *logFile;
 
 extern int daemon_service_set;
 extern int logFile_set;
+extern int pidFile_set;
 extern int _dict_markTime_set;
 extern int client_delay_set;
 extern int depth_set;

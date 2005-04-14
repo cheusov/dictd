@@ -220,6 +220,13 @@ keyword in
 .I Global Settings Specification
 of configuration files.
 .TP
+.BI \-\-pid\-file " file"
+The same as
+.B pid_file
+keyword in
+.I Global Settings Specification
+of configuration files.
+.TP
 .BI \-m  " minutes \fR or "\-\-mark " minutes"
 Overrides the keyword
 .B timestamp
@@ -786,6 +793,13 @@ If
 does not have write permission for this file, it will silently fail.
 .RE
 .TP
+.BI pid_file " string"
+The specified filename will be created to contain
+the process id of the main
+.B dictd
+process. The default is
+.I /var/run/dictd.pid
+.TP
 .BI fast\_start
 By default, dictd creates (in memory) additional index
 to make the search faster.
@@ -1297,6 +1311,8 @@ library you build dictd with.
 .I /etc/dictd.conf
 .br
 .I /usr/sbin/dictd
+.br
+.I /var/run/dictd.pid
 .SH "SEE ALSO"
 .BR dictfmt (1),
 .BR dictfmt_virtual (1),

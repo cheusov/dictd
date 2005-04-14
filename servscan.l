@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: servscan.l,v 1.25 2005/03/29 16:12:52 cheusov Exp $
+ * $Id: servscan.l,v 1.26 2005/04/14 07:52:16 cheusov Exp $
  * 
  */
 
@@ -131,6 +131,7 @@ listen_to                   RETURN(TOKEN_LISTEN_TO);
 syslog                      RETURN(TOKEN_SYSLOG);
 syslog_facility             RETURN(TOKEN_SYSLOG_FACILITY);
 log_file                    RETURN(TOKEN_LOG_FILE);
+pid_file                    RETURN(TOKEN_PID_FILE);
 fast_start                  RETURN(TOKEN_FAST_START);
 without_mmap                RETURN(TOKEN_WITHOUT_MMAP);
 
