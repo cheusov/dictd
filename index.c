@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.100 2005/04/13 18:12:35 cheusov Exp $
+ * $Id: index.c,v 1.101 2005/05/28 12:51:18 cheusov Exp $
  * 
  */
 
@@ -54,12 +54,14 @@ extern int mmap_mode;
 #define BMH_THRESHOLD   3	/* When to start using Boyer-Moore-Hoorspool */
 
 #ifndef SYSTEM_UTF8_FUNCS
+/* defaults to run in UTF-8 mode */
 int utf8_mode=1;        /* dictd uses UTF-8 dictionaries */
 #else
+/* defaults to run in ASCII mode */
 int utf8_mode=0;        /* dictd uses UTF-8 dictionaries */
 #endif
+int bit8_mode = 0;      /* dictd uses 8-BIT dictionaries */
 
-int bit8_mode;          /* dictd uses 8-BIT dictionaries */
 int optStart_mode = 1;	/* Optimize search range for constant start */
 
 dictConfig *DictConfig;
