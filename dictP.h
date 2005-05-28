@@ -19,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.20 2005/04/13 18:12:36 cheusov Exp $
+ * $Id: dictP.h,v 1.21 2005/05/28 12:45:32 cheusov Exp $
  * 
  */
 
@@ -161,7 +161,7 @@ extern const char * nl_langinfo (int ITEM);
 #endif
 
 #ifndef SYSTEM_UTF8_FUNCS
-#define MB_CUR_MAX__ 7
+#define MB_CUR_MAX__ 6
 #else
 #define MB_CUR_MAX__ MB_CUR_MAX
 #endif
