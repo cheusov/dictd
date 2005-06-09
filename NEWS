@@ -1,4 +1,4 @@
-Version 1,10.1, by Aleksey Cheusov
+Version 1,10.1, by Aleksey Cheusov, Thu,  9 Jun 2005 20:03:22 +0300
 
  fixes:
     - compilation bug on smarc64/{Free,Open,Net}BSD has been fixed
@@ -13,6 +13,11 @@ Version 1,10.1, by Aleksey Cheusov
       In contrast with 'dictd', 'dictfmt' is run in ASCII mode
       by default. In order to create utf-8 dictionary,
       run 'dictfmt' with --utf8 option.
+      Thus both 'dictd' and 'dictfmt' should work the same way
+      on all platforms even if it doesn't provide necessary functions
+      or UTF-8 locale. Tested on MS Interix 3.5.
+      If you dislike this feature, ./configure dict with
+      --with-system-utf8-funcs option.
 
  dictd:
     - By default dictd, when running as daemon, writes a PID
