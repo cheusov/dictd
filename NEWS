@@ -1,3 +1,30 @@
+Version 1,10.1, by Aleksey Cheusov
+
+ fixes:
+    - compilation bug on smarc64/{Free,Open,Net}BSD has been fixed
+     Thanks to micha137 for bu report and patch.
+
+ dictd/dictfmt:
+    - By default, local implementations of UCS-2/UTF-8 functions
+      are used. As a result 'dictd' run
+      with no option works in UTF-8 mode,
+      but ASCII one. The option '--locale xx_YY.UTF-8'
+      is no more requied for both dictd and dictfmt.
+      In contrast with 'dictd', 'dictfmt' is run in ASCII mode
+      by default. In order to create utf-8 dictionary,
+      run 'dictfmt' with --utf8 option.
+
+ dictd:
+    - By default dictd, when running as daemon, writes a PID
+      to /var/run/dictd.pid file. This can be overriden by
+      'pid_file' keyword in dictd.conf (See dictd.8) of command line
+      option '--pid-file'.
+      Thanks to Josef Novak for sudgestion and patch.
+
+ documentation:
+    - fixed: dictd.8 says that 'lev' strategy doesn't work
+      with UTF-8 dictionaries, but it does since release 1.9.13
+
 Version 1.10.0, by Aleksey Cheusov, Tue, 12 Apr 2005 20:51:01 +0300
 
   dictd:
