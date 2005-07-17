@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.101 2005/05/28 12:51:18 cheusov Exp $
+ * $Id: index.c,v 1.102 2005/07/17 16:10:57 cheusov Exp $
  * 
  */
 
@@ -49,7 +49,9 @@
 
 extern int mmap_mode;
 
-#define FIND_NEXT(pt,end) while (pt < end && *pt++ != '\n');
+#define FIND_PREV(begin, pt) while (pt > begin && pt [-1] != '\n') --pt;
+#define FIND_NEXT(pt, end) while (pt < end && *pt++ != '\n');
+
 #define MAXWORDLEN    512
 #define BMH_THRESHOLD   3	/* When to start using Boyer-Moore-Hoorspool */
 
@@ -411,14 +413,15 @@ static const char *binary_search(
    PRINTF(DBG_SEARCH,("%s %p %p\n", word, start, end));
 
    pt = start + (end-start)/2;
-   FIND_NEXT(pt,end);
-   while (pt < end) {
+   FIND_PREV(start, pt);
+   while (start < end) {
       switch (compare( word, dbindex, pt, end )){
 	 case -2: case -1: case 0:
 	    end = pt;
 	    break;
 	 case 1:
 	    start = pt;
+	    FIND_NEXT(start, end)
 	    break;
 	 case  2:
 	    return end;     /* ERROR!!! */
@@ -427,7 +430,7 @@ static const char *binary_search(
       }
       PRINTF(DBG_SEARCH,("%s %p %p\n",word,start,end));
       pt = start + (end-start)/2;
-      FIND_NEXT(pt,end);
+      FIND_PREV(start, pt);
    }
 
    return start;
@@ -448,8 +451,8 @@ static const char *binary_search_8bit(
    PRINTF(DBG_SEARCH,("word/start/end %s/%p/%p\n",word,start,end));
 
    pt = start + (end-start)/2;
-   FIND_NEXT(pt,end);
-   while (pt < end) {
+   FIND_PREV(start, pt);
+   while (start < end) {
       if (dbg_test(DBG_SEARCH)) {
          for (
 	    d = buf, s = pt;
@@ -473,20 +476,21 @@ static const char *binary_search_8bit(
       }
 
       switch (cmp){
-	 case -2: case -1: case 0:
-	    end = pt;
-	    break;
-	 case 1:
-	    start = pt;
-	    break;
-	 case  2:
-	    return end;     /* ERROR!!! */
-	 default:
-	    assert (0);
+      case -2: case -1: case 0:
+	 end = pt;
+	 break;
+      case 1:
+	 start = pt;
+	 FIND_NEXT(start, end)
+	 break;
+      case  2:
+	 return end;     /* ERROR!!! */
+      default:
+	 assert (0);
       }
       PRINTF(DBG_SEARCH,("%s %p %p\n",word,start,end));
       pt = start + (end-start)/2;
-      FIND_NEXT(pt,end);
+      FIND_PREV(start, pt);
    }
 
    return start;
@@ -548,6 +552,10 @@ static const char *dict_index_search( const char *word, dictIndex *idx )
 
       end   = idx->optStart [last];
       start = idx->optStart [first];
+#if 0
+      fprintf (stderr, "start1 = %p\n", start);
+      fprintf (stderr, "end1   = %p\n", end);
+#endif
    }else{
       start = idx->start;
       end   = idx->end;
@@ -1040,6 +1048,8 @@ static int dict_search_regexpr( lst_List l,
 
    assert (dbindex);
 
+#if 1
+   /* optimization code */
    if (optStart_mode){
       if (
 	 *word == '^'
@@ -1051,10 +1061,18 @@ static int dict_search_regexpr( lst_List l,
 	 end   = dbindex->optStart[i2c(c2i(first)+1)];
 	 start = dbindex->optStart[first];
 
+#if 0
+	 fprintf (stderr, "optStart_regexp [%i] = %p\n", first, start);
+	 fprintf (stderr, "optStart_regexp [%i] = %p\n", i2c(c2i(first)+1), end);
+#endif
+
 	 if (end < start)
 	    end = dbindex->end;
+
+//	 FIND_NEXT(end, dbindex -> end);
       }
    }
+#endif
 
    if ((err = regcomp(&re, word, REG_ICASE|REG_NOSUB|type))) {
       regerror(err, &re, erbuf, sizeof(erbuf));
@@ -1711,19 +1729,6 @@ dictIndex *dict_index_open(
 
 	    i->optStart [first_char_uc] = i->optStart [first_char];
 	 }
-
-	 if (dbg_test (DBG_SEARCH)){
-	    if (!utf8_mode || first_char <= CHAR_MAX)
-	       printf (
-		  "optStart [%c] = %p\n",
-		  first_char,
-		  i->optStart [first_char]);
-	    else
-	       printf (
-		  "optStart [%i] = %p\n",
-		  first_char,
-		  i->optStart [first_char]);
-	 }
       }
 
       for (j = '0'; j <= '9'; j++) {
@@ -1734,6 +1739,23 @@ dictIndex *dict_index_open(
 
       i->optStart[UCHAR_MAX]   = i->end;
       i->optStart[UCHAR_MAX+1] = i->end;
+
+      if (dbg_test (DBG_SEARCH)){
+	 for (j=0; j <= UCHAR_MAX; ++j){
+	    if (!utf8_mode || j <= CHAR_MAX)
+	       printf (
+		  "optStart [%c] = (%p) %10s\n",
+		  j,
+		  i->optStart [j],
+		  i->optStart [j]);
+	    else
+	       printf (
+		  "optStart [%i] = (%p) %10s\n",
+		  j,
+		  i->optStart [j],
+		  i->optStart [j]);
+	 }
+      }
    }
 
    return i;
