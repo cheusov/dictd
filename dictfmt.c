@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.60 2005/06/08 18:35:45 cheusov Exp $
+ * $Id: dictfmt.c,v 1.61 2005/07/20 16:14:21 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -755,7 +755,7 @@ static void set_utf8bit_mode (const char *locale_)
 #ifndef SYSTEM_UTF8_FUNCS
    if (utf8_mode){
       fprintf (stderr, "Using --locale xx_YY.UTF-8 for creating utf-8 database is deprecated,\n\
-use --utf-8 option instead.\n");
+use --utf8 option instead.\n");
    }
 #endif
 }
