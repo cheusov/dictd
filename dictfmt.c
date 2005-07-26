@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.61 2005/07/20 16:14:21 cheusov Exp $
+ * $Id: dictfmt.c,v 1.62 2005/07/26 16:06:58 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -168,9 +168,9 @@ static void fmt_openindex( const char *filename )
       return;
 
    if (bit8_mode || utf8_mode || allchars_mode)
-      snprintf( buffer, sizeof (buffer), "sort > %s\n", filename );
+      snprintf( buffer, sizeof (buffer), "sort -t '\t' -k 1,1 > %s\n", filename );
    else
-      snprintf( buffer, sizeof (buffer), "sort -df > %s\n", filename );
+      snprintf( buffer, sizeof (buffer), "sort -t '\t' -df -k 1,1 > %s\n", filename );
 
    if (!(fmt_str = popen( buffer, "w" ))) {
       fprintf( stderr, "Cannot open %s for write\n", buffer );
