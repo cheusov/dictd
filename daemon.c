@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.82 2005/04/01 11:21:23 cheusov Exp $
+ * $Id: daemon.c,v 1.83 2005/07/26 16:16:42 cheusov Exp $
  * 
  */
 
@@ -1091,6 +1091,9 @@ static void daemon_show_db( const char *cmdline, int argc, const char **argv )
       daemon_mime();
       while ((db = next_database(&databasePosition, "*"))) {
 	 assert (!db->invisible);
+
+	 if (db -> exit_db)
+	    continue;
 
 	 daemon_printf(
 	    "%s \"%s\"\n",
