@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.62 2005/07/26 16:06:58 cheusov Exp $
+ * $Id: dictfmt.c,v 1.63 2005/08/13 17:47:36 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -57,6 +57,7 @@
 #define HITCHCOCK 5
 #define CIA1995   6
 #define VERA      7
+#define INDEXONLY 8
 
 #define BSIZE 10240
 
@@ -98,6 +99,8 @@ static const char *default_strategy = NULL;
 static const char *mime_header = NULL;
 
 static str_Pool alphabet_pool = NULL;
+
+static int      type = 0;
 
 /* analog to wcswidth(3) */
 static int mbswidth_ (const char *s)
@@ -183,6 +186,10 @@ static void fmt_newline( void )
 {
    int i;
 
+   if (!str){
+      return;
+   }
+
    if (fmt_ignore_headword){
       return;
    }
@@ -237,6 +244,9 @@ static void fmt_string( const char *s )
    char *t;
 #endif
    size_t  len;
+
+   if (!str)
+      return;
 
    assert (s);
 
@@ -625,7 +635,10 @@ static void fmt_newheadword( const char *word )
 
 static void fmt_closeindex( void )
 {
-   fmt_newheadword (NULL);
+   if (type != INDEXONLY){
+      fmt_newheadword (NULL);
+   }
+
    if (fmt_str){
       pclose( fmt_str );
    }
@@ -668,7 +681,7 @@ static void license( void )
 static void help( FILE *out_stream )
 {
    static const char *help_msg[] = {
-   "Usage: dictfmt [-c5|-t|-e|-f|-h|-j|-p] -u url -s name [options] basename",
+   "Usage: dictfmt [-c5|-t|-e|-f|-h|-j|-p|-i] -u url -s name [options] basename",
    "Create a dictionary databse and index file for use by a dictd server",
    "",
      "-c5       headwords are preceded by a line containing at least \n\
@@ -678,6 +691,7 @@ static void help( FILE *out_stream )
      "-f        headwords start in col 0, definitions start in col 8",
      "-j        headwords are set off by colons",
      "-p        headwords are preceded by %p, with %d on following line",
+     "-i        creates .index file only, stdin has three column format",
      "-u <url>  URL of site where database was obtained",
      "-s <name> name of the database", 
      "--license\n\
@@ -915,6 +929,9 @@ static void fmt_headword_for_allchars (void)
 /* ...before reading the input */
 static void fmt_predefined_headwords_before ()
 {
+   if (type == INDEXONLY)
+      return;
+
    fmt_headword_for_utf8 ();
    fmt_headword_for_8bit ();
    fmt_headword_for_allchars ();
@@ -943,6 +960,9 @@ static void fmt_predefined_headwords_before ()
 /* ...after reading the input */
 static void fmt_predefined_headwords_after ()
 {
+   if (type == INDEXONLY)
+      return;
+
    fmt_headword_for_url ();
    fmt_headword_for_shortname ();
    fmt_headword_for_alphabet ();
@@ -951,7 +971,6 @@ static void fmt_predefined_headwords_after ()
 int main( int argc, char **argv )
 {
    int        c;
-   int        type = 0;
    char       buffer[BSIZE];
    char       buffer2[BSIZE];
    char       indexname[1024];
@@ -985,7 +1004,7 @@ int main( int argc, char **argv )
 
    init (argv[0]);
 
-   while ((c = getopt_long( argc, argv, "qVLjvfephDu:s:c:t",
+   while ((c = getopt_long( argc, argv, "qVLjvfepihDu:s:c:t",
                                     longopts, NULL )) != EOF)
       switch (c) {
       case 'q': quiet_mode = 1;            break;
@@ -1002,6 +1021,7 @@ int main( int argc, char **argv )
       case 'f': type = FOLDOC;             break;
       case 'e': type = EASTON;             break;
       case 'p': type = PERIODIC;           break;
+      case 'i': type = INDEXONLY;           break;
       case 'h':
 	 type = HITCHCOCK;
 	 without_hw = 1;
@@ -1089,7 +1109,7 @@ int main( int argc, char **argv )
    fmt_openindex( indexname );
    if (Debug) {
       str = stdout;
-   } else {
+   } else if (type != INDEXONLY){
       if (!(str = fopen(dataname, "w"))) {
 	 fprintf(stderr, "Cannot open %s for write\n", dataname);
 
@@ -1302,6 +1322,43 @@ int main( int argc, char **argv )
 	    }
  	 }
  	 break;
+      case INDEXONLY:
+	 {
+	    const char *headword = NULL;
+	    const char *offset   = NULL;
+	    const char *size     = NULL;
+
+	    size_t len = strlen (buffer);
+
+	    int i_offset = 0;
+	    int i_size   = 0;
+
+	    headword = strtok (buffer, "\t");
+	    if (!headword){
+	       fprintf (stderr, "strtok failed 1\n");
+	       exit (1);
+	    }
+
+	    offset = strtok (NULL, "\t");
+	    if (!offset){
+	       fprintf (stderr, "strtok failed 2\n");
+	       exit (1);
+	    }
+
+	    size = strtok (NULL, "\t");
+	    if (!size){
+	       fprintf (stderr, "strtok failed 3\n");
+	       exit (1);
+	    }
+
+	    fprintf (stderr, "`%s`\t`%s`\t`%s`\n", headword, offset, size);
+
+	    i_offset = atoi (offset);
+	    i_size   = atoi (size);
+
+	    write_hw_to_index (headword, i_offset, i_offset + i_size);
+	 }
+	 break;
       default:
 	 fprintf(stderr, "Unknown input format type %d\n", type );
 
@@ -1319,7 +1376,9 @@ int main( int argc, char **argv )
    fmt_predefined_headwords_after ();
 
    fmt_closeindex();
-   fclose(str);
+
+   if (str)
+      fclose(str);
 
    destroy ();
 
