@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.63 2005/08/13 17:47:36 cheusov Exp $
+ * $Id: dictfmt.c,v 1.64 2005/08/14 15:56:44 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -1092,9 +1092,9 @@ int main( int argc, char **argv )
    if (locale)
       set_utf8bit_mode (locale);
 
-   if (bit8_mode || utf8_mode)
+   if (bit8_mode || utf8_mode || allchars_mode)
       setenv("LC_ALL", "C", 1); /* this is for 'sort' subprocess */
-   else
+   else if (locale)
       setenv("LC_ALL", locale, 1); /* this is for 'sort' subprocess */
 
    if (
