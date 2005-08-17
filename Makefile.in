@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.103 2004/12/13 19:12:55 cheusov Exp $
+# $Id: Makefile.in,v 1.104 2005/08/17 21:46:48 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -435,6 +435,7 @@ clean:
 	-rm -f *.dct *.idx y.output TAGS
 	-rm -f *.dict *.index
 	-rm -f *.exe *.dll
+	-rm -f test/_* test/testdb.t.txt
 
 recursive-clean: clean
 	@for subdir in `echo $(subdirs)`; do \
@@ -471,6 +472,10 @@ deps:
       gcc -MM $$i 2>/dev/null; \
    done | awk '{gsub(/ \/[^ ]+/, ""); print}' | \
    sed 's,\(.*[.]\)o,\1o \1os,1' > deps
+
+.PHONY: test
+test: $(EXES) $(LIBRARIES)
+	@cd $(srcdir)/test && sh ./dictd_test
 
 # The following is based on the "Automatic Remaking" node in the GNU
 # Autoconf documentation:

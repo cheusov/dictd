@@ -1,62 +1,70 @@
 #!/bin/sh
 
-DICTFMT='../dictfmt --without-time'
+DICTFMT='../dictfmt --without-time --silent'
 DICTUNFORMAT='../dictunformat'
-DICT='../dictfmt'
-DICTD='../dictfmt'
+DICT='../dict'
+DICTD='../dictd'
 
 DIFF='diff -u'
 
-###############################################################
+##################################################
+##################################################
+echo '                       DICTFMT!!!'
+
+##################################################
+echo 'Comparing .dict and .index files (except those created by dictfmt -h)'
+
 rm -f _*
 
 $DICTFMT -c5 _db.c5 < testdb.c5.txt || exit 1
-$DICTFMT -e  _db.e  < testdb.e.txt  || exit 1
-$DICTFMT -f  _db.f  < testdb.f.txt  || exit 1
 $DICTFMT -h  _db.h  < testdb.h.txt  || exit 1
-$DICTFMT -j  _db.j  < testdb.j.txt  || exit 1
-$DICTFMT -p  _db.p  < testdb.p.txt  || exit 1
+$DICTUNFORMAT _db.c5.index < _db.c5.dict > testdb.t.txt || exit 1
 
-$DICTUNFORMAT _db.c5.index < _db.c5.dict > _db.t.txt || exit 1
-$DICTFMT -t _db.t   < _db.t.txt     || exit 1
+###
 
-#
-# comparing .dict and .index files (except those created by dictfmt -h)
-#
-$DIFF _db.c5.index _db.e.index || exit 1
-$DIFF _db.e.index  _db.f.index || exit 1
-$DIFF _db.f.index  _db.j.index || exit 1
-$DIFF _db.j.index  _db.p.index || exit 1
-$DIFF _db.c5.index _db.t.index || exit 1
+dictfmt_X_eq_Y (){
+    printf "   $1 == $2 ..."
+    $DICTFMT -$2  _db.$2  < testdb.$2.txt  || exit 1
+    $DIFF _db.$1.index _db.$2.index || exit 1
+    $DIFF _db.$1.dict _db.$2.dict || exit 1
+    printf 'passed\n'
+}
 
-$DIFF _db.c5.dict _db.e.dict || exit 1
-$DIFF _db.e.dict  _db.f.dict || exit 1
-$DIFF _db.f.dict  _db.j.dict || exit 1
-$DIFF _db.j.dict  _db.p.dict || exit 1
-$DIFF _db.c5.dict _db.t.dict || exit 1
+dictfmt_X_eq_Y c5 e
+dictfmt_X_eq_Y c5 f
+dictfmt_X_eq_Y c5 j
+dictfmt_X_eq_Y c5 p
+dictfmt_X_eq_Y c5 t
 
+###
+printf "   c5 == expected ..."
 $DIFF _db.c5.index db.expect.index || exit 1
 $DIFF _db.c5.dict db.expect.dict || exit 1
+printf "passed\n"
 
-#
-# test for different dictfmt's options
-#
-$DICTFMT -c5 _db.smiley_1 < testdb.smiley.txt || exit 1
-$DIFF _db.smiley_1.dict  db.expect.smiley_1.dict || exit 1
-$DIFF _db.smiley_1.index db.expect.smiley_1.index || exit 1
+##################################################
+printf "Test for different dictfmt\'s options\n"
 
-$DICTFMT --allchars -u 'somewhere in Internet' \
-	-c5 _db.smiley_2 < testdb.smiley.txt || exit 1
-$DIFF _db.smiley_2.dict  db.expect.smiley_2.dict || exit 1
-$DIFF _db.smiley_2.index db.expect.smiley_2.index || exit 1
+dictfmt_diff_opts (){
+    num=$1
+    shift
 
-$DICTFMT --allchars --headword-separator '-' \
-	-c5 _db.smiley_3 testdb.smiley.txt || exit 1
-$DIFF _db.smiley_3.dict  db.expect.smiley_3.dict || exit 1
-$DIFF _db.smiley_3.index db.expect.smiley_3.index || exit 1
+    dbname=$1
+    shift
 
-{ printf 'information\nabout\ndatabase\n'; cat testdb.smiley.txt; } | \
-$DICTFMT --allchars --without-headword --without-header \
-	--without-url -c5 _db.smiley_4 || exit 1
-$DIFF _db.smiley_4.dict  db.expect.smiley_4.dict || exit 1
-$DIFF _db.smiley_4.index db.expect.smiley_4.index || exit 1
+    printf "   test $num..."
+
+    $DICTFMT "$@" _db.${dbname}_$num < testdb.${dbname}.txt || exit 1
+    $DIFF _db.${dbname}_$num.dict  db.expect.${dbname}_$num.dict || exit 1
+    $DIFF _db.${dbname}_$num.index db.expect.${dbname}_$num.index || exit 1
+
+    printf 'passed\n'
+}
+
+dictfmt_diff_opts 1 smiley -c5
+dictfmt_diff_opts 2 smiley --allchars -u 'somewhere in Internet' -c5
+dictfmt_diff_opts 3 smiley --allchars --headword-separator '-' -c5
+dictfmt_diff_opts 4 smiley --allchars --without-headword \
+   --without-header --without-url -c5
+dictfmt_diff_opts 5 smiley --allchars --without-headword \
+   --columns 15 --default-strategy lev --without-info -c5
