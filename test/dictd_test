@@ -1,0 +1,62 @@
+#!/bin/sh
+
+DICTFMT='../dictfmt --without-time'
+DICTUNFORMAT='../dictunformat'
+DICT='../dictfmt'
+DICTD='../dictfmt'
+
+DIFF='diff -u'
+
+###############################################################
+rm -f _*
+
+$DICTFMT -c5 _db.c5 < testdb.c5.txt || exit 1
+$DICTFMT -e  _db.e  < testdb.e.txt  || exit 1
+$DICTFMT -f  _db.f  < testdb.f.txt  || exit 1
+$DICTFMT -h  _db.h  < testdb.h.txt  || exit 1
+$DICTFMT -j  _db.j  < testdb.j.txt  || exit 1
+$DICTFMT -p  _db.p  < testdb.p.txt  || exit 1
+
+$DICTUNFORMAT _db.c5.index < _db.c5.dict > _db.t.txt || exit 1
+$DICTFMT -t _db.t   < _db.t.txt     || exit 1
+
+#
+# comparing .dict and .index files (except those created by dictfmt -h)
+#
+$DIFF _db.c5.index _db.e.index || exit 1
+$DIFF _db.e.index  _db.f.index || exit 1
+$DIFF _db.f.index  _db.j.index || exit 1
+$DIFF _db.j.index  _db.p.index || exit 1
+$DIFF _db.c5.index _db.t.index || exit 1
+
+$DIFF _db.c5.dict _db.e.dict || exit 1
+$DIFF _db.e.dict  _db.f.dict || exit 1
+$DIFF _db.f.dict  _db.j.dict || exit 1
+$DIFF _db.j.dict  _db.p.dict || exit 1
+$DIFF _db.c5.dict _db.t.dict || exit 1
+
+$DIFF _db.c5.index db.expect.index || exit 1
+$DIFF _db.c5.dict db.expect.dict || exit 1
+
+#
+# test for different dictfmt's options
+#
+$DICTFMT -c5 _db.smiley_1 < testdb.smiley.txt || exit 1
+$DIFF _db.smiley_1.dict  db.expect.smiley_1.dict || exit 1
+$DIFF _db.smiley_1.index db.expect.smiley_1.index || exit 1
+
+$DICTFMT --allchars -u 'somewhere in Internet' \
+	-c5 _db.smiley_2 < testdb.smiley.txt || exit 1
+$DIFF _db.smiley_2.dict  db.expect.smiley_2.dict || exit 1
+$DIFF _db.smiley_2.index db.expect.smiley_2.index || exit 1
+
+$DICTFMT --allchars --headword-separator '-' \
+	-c5 _db.smiley_3 testdb.smiley.txt || exit 1
+$DIFF _db.smiley_3.dict  db.expect.smiley_3.dict || exit 1
+$DIFF _db.smiley_3.index db.expect.smiley_3.index || exit 1
+
+{ printf 'information\nabout\ndatabase\n'; cat testdb.smiley.txt; } | \
+$DICTFMT --allchars --without-headword --without-header \
+	--without-url -c5 _db.smiley_4 || exit 1
+$DIFF _db.smiley_4.dict  db.expect.smiley_4.dict || exit 1
+$DIFF _db.smiley_4.index db.expect.smiley_4.index || exit 1
