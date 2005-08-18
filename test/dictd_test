@@ -61,10 +61,20 @@ dictfmt_diff_opts (){
     printf 'passed\n'
 }
 
+# ASCII database
 dictfmt_diff_opts 1 smiley -c5
 dictfmt_diff_opts 2 smiley --allchars -u 'somewhere in Internet' -c5
 dictfmt_diff_opts 3 smiley --allchars --headword-separator '-' -c5
 dictfmt_diff_opts 4 smiley --allchars --without-headword \
    --without-header --without-url -c5
 dictfmt_diff_opts 5 smiley --allchars --without-headword \
+   --columns 15 --default-strategy lev --without-info -c5
+
+# UTF-8 database
+dictfmt_diff_opts 1 hello --utf8 -c5
+dictfmt_diff_opts 2 hello --utf8 --allchars -u 'somewhere in Internet' -c5
+dictfmt_diff_opts 3 hello --utf8 --allchars --headword-separator '-' -c5
+dictfmt_diff_opts 4 hello --utf8 --allchars --without-headword \
+   --without-header --without-url -c5
+dictfmt_diff_opts 5 hello --utf8 --allchars --without-headword \
    --columns 15 --default-strategy lev --without-info -c5
