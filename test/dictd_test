@@ -26,7 +26,7 @@ dictfmt_X_eq_Y (){
     printf "   $1 == $2 ..."
     $DICTFMT -$2  _db.$2  < testdb.$2.txt  || exit 1
     $DIFF _db.$1.index _db.$2.index || exit 1
-    $DIFF _db.$1.dict _db.$2.dict || exit 1
+    $DIFF _db.$1.dict  _db.$2.dict || exit 1
     printf 'passed\n'
 }
 
@@ -38,8 +38,8 @@ dictfmt_X_eq_Y c5 t
 
 ###
 printf "   c5 == expected ..."
-$DIFF _db.c5.index db.expect.index || exit 1
-$DIFF _db.c5.dict db.expect.dict || exit 1
+$DIFF db.expect.index _db.c5.index || exit 1
+$DIFF db.expect.dict  _db.c5.dict || exit 1
 printf "passed\n"
 
 ##################################################
@@ -55,8 +55,8 @@ dictfmt_diff_opts (){
     printf "   test $num..."
 
     $DICTFMT "$@" _db.${dbname}_$num < testdb.${dbname}.txt || exit 1
-    $DIFF _db.${dbname}_$num.dict  db.expect.${dbname}_$num.dict || exit 1
-    $DIFF _db.${dbname}_$num.index db.expect.${dbname}_$num.index || exit 1
+    $DIFF db.expect.${dbname}_$num.dict  _db.${dbname}_$num.dict || exit 1
+    $DIFF db.expect.${dbname}_$num.index _db.${dbname}_$num.index || exit 1
 
     printf 'passed\n'
 }
