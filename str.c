@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: str.c,v 1.3 2005/04/13 18:12:34 cheusov Exp $
+ * $Id: str.c,v 1.4 2005/09/02 16:20:42 cheusov Exp $
  * 
  */
 
@@ -74,7 +74,7 @@ static int tolower_alnumspace_utf8 (
       if ((int) len < 0)
 	 return errno;
 
-      if (iswspace (ucs4_char)){
+      if (iswspace__ (ucs4_char)){
 	 *dest++ = ' ';
       }else if (allchars_mode || iswalnum__ (ucs4_char)){
 	 len2 = wcrtomb__ (dest, towlower__ (ucs4_char), &ps2);
