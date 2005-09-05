@@ -19,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.21 2005/05/28 12:45:32 cheusov Exp $
+ * $Id: dictP.h,v 1.22 2005/09/05 18:00:02 cheusov Exp $
  * 
  */
 
@@ -61,6 +61,7 @@
 # define HAVE_ALLOCA_H 1
 #endif
 
+#ifndef HAVE_ALLOCA
 #if HAVE_ALLOCA_H
 # include <alloca.h>
 #else
@@ -73,6 +74,7 @@
 #  endif
 #  endif
 # endif
+#endif
 #endif
 
 /* Get string functions */
