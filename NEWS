@@ -2,7 +2,7 @@ Version 1,10.1, by Aleksey Cheusov, Thu,  9 Jun 2005 20:03:22 +0300
 
  fixes:
     - compilation bug on smarc64/{Free,Open,Net}BSD has been fixed
-     Thanks to micha137 for bug report and patch.
+     Thanks to koresh for bug report and patch.
 
  dictd/dictfmt:
     - By default, local implementations of UCS-2/UTF-8 functions
