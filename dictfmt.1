@@ -224,7 +224,18 @@ display a help message
 .TP
 .BI \--locale " locale"
 specifies the locale used for sorting.  if no locale is specified, the
-"C" locale is used. 
+"C" locale is used.
+.RS
+.B Note:
+This option is deprecated.
+Use it for creating 8-bit (non-UTF8) dictionaries only.
+In order to create UTF-8 dictionary, use
+.I \--utf8
+option instead.
+.RE
+.TP
+.BI \--utf8
+If specified, UTF-8 database is created.
 .TP
 .BI \--allchars
 use all characters (not only alphanumeric and space) in sorting the index
