@@ -1187,6 +1187,34 @@ when compared with the usual base 10 encoding, while still permitting tab
 characters (ASCII 9) to be used for delimiting fields in a record.  Each
 record ends with a newline (ASCII 10), so the index file is human readable.
 .P
+Some headwords are used for the special purposes.
+.TP
+.BI 00-database-info
+Containts the informarion about database 
+.br
+(returned by SHOW INFO command),
+unless it is specified in the configuration file.
+.TP
+.BI 00-database-short
+Containts the short name of the database
+.br
+(returned by SHOW DB command),
+unless it is specified in the configuration file.
+.TP
+.BI 00-database-url
+URL where original dictionary sources were obtained from.
+.br
+(See dictfmt -u)
+.TP
+.BI 00-database-utf8
+Presents if dictionary is UTF-8 one.
+(See dictfmt --utf8)
+.TP
+.BI 00-database-8bit-new
+Presents if dictionary is 8-BIT one (non-ASCII and non-UTF8).
+.br
+(See dictfmt --locale)
+.P
 The flat text file may be compressed using
 .BR gzip (1)
 (not recommended) or
