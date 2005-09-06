@@ -32,9 +32,6 @@ Version 1.10.2, by Aleksey Cheusov
       before running 'sort'.
       It is recommended to rebuild existing databases.
 
- dictfmt:
-    - added -i option, see dictfmt.1 for a documentation.
-
 Version 1.10.1, by Aleksey Cheusov, Thu,  9 Jun 2005 20:03:22 +0300
 
  ADDED:
