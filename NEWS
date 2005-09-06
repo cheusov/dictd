@@ -1,5 +1,10 @@
 Version 1.10.2, by Aleksey Cheusov, Tue,  6 Sep 2005 20:31:29 +0300
 
+ I started to create selftests for dict project.
+ There are a few tests yet.
+ Run 'make test' on your platform and notify me if
+ some errors happend.
+
  FIXES:
 
     - fixed: compilation bugs on FreeBSD4, Solaris and Max OS-X
@@ -33,12 +38,6 @@ Version 1.10.2, by Aleksey Cheusov, Tue,  6 Sep 2005 20:31:29 +0300
       It is recommended to rebuild existing databases.
 
 Version 1.10.1, by Aleksey Cheusov, Thu,  9 Jun 2005 20:03:22 +0300
-
- ADDED:
-    I started to create selftests for dict project.
-    There are a few tests yet.
-    Run 'make test' on your platform and notify me if
-    some errors happend.
 
  fixes:
     - compilation bugs on sparc64/{Free,Open,Net}BSD has been fixed
