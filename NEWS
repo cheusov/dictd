@@ -1,7 +1,44 @@
-Version 1,10.1, by Aleksey Cheusov, Thu,  9 Jun 2005 20:03:22 +0300
+Version 1.10.2, by Aleksey Cheusov
+
+ FIXES:
+
+    - fixed: compilation bugs on FreeBSD4, Solaris and Max OS-X
+      Affected versions: 1.10.1
+
+    dictd:
+    - because of optimization code and strange binary search
+      the 'regexp' strategy may work incorrectly
+
+      Thanks to Slava Kravchenko for bug report.
+      Affected versions: 1.4.9(?) - 1.10.1
+
+    - 'SHOW DB' command shows the special entry '--exit--'
+      as a normal database which cannot be used used for searching.
+      This contradicts rfc-2229.
+      To see when the default search stops, use 'SHOW SERVER' command
+      instead.
+
+    dictfmt:
+    - because not only index part of .index file was used for sorting
+      bu 'sort' utility, 'dictfmt' may create incorrect index file.
+      Now sort is run with '-t <tab> -k 1,3' options.
+      Affected dictfmt versions: 1.6.1-1.10.1
+      It is recommended to rebuild existing databases.
+
+    - because 'sort' utility inherits LANG and LC_... variables
+      from 'dictfmt', incorrect .index files may be created if
+      you run dictfmt with non_C locale even if you create ascii (non-utf8)
+      database. To fix this LC_ALL environment variable is always set to C
+      before running 'sort'.
+      It is recommended to rebuild existing databases.
+
+ dictfmt:
+    - added -i option, see dictfmt.1 for a documentation.
+
+Version 1.10.1, by Aleksey Cheusov, Thu,  9 Jun 2005 20:03:22 +0300
 
  fixes:
-    - compilation bug on smarc64/{Free,Open,Net}BSD has been fixed
+    - compilation bugs on sparc64/{Free,Open,Net}BSD has been fixed
      Thanks to koresh for bug report and patch.
 
  dictd/dictfmt:
