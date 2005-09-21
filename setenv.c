@@ -11,10 +11,10 @@ int setenv(const char *name, const char *value, int overwrite)
       strcpy (p, name);
       strcat (p, "=");
       strcat (p, value);
-      fprintf (stderr, "%s\n", p);
+
       return putenv (p);
    }
 #else
-   abort();
+   #error setenv can not be implemented
 #endif
 }
