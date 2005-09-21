@@ -17,7 +17,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: decl.h,v 1.8 2000/12/31 21:14:18 faith Exp $
+ * $Id: decl.h,v 1.9 2005/09/21 19:03:37 cheusov Exp $
  * 
  */
 
@@ -39,7 +39,7 @@ extern char   *index( const char *, int c );
 				/* Just Solaris */
 extern int    gethostname(char *name, int namelen);
 extern int    getdtablesize(void);
-extern pid_t  wait3(int *statusp, int options, struct rusage *rusage);
+/* extern pid_t  wait3(int *statusp, int options, struct rusage *rusage); */
 #include <termios.h>
 #else
 				/* Old braindamage for SunOS only */
