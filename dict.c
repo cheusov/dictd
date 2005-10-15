@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.c,v 1.45 2005/03/30 10:32:46 cheusov Exp $
+ * $Id: dict.c,v 1.46 2005/10/15 12:45:27 cheusov Exp $
  * 
  */
 
@@ -679,8 +679,8 @@ end:				/* Ready to send buffer, but are we
 	    }
 	 }
          client_close_pager();
-	 fprintf (stderr,
-		  "Cannot connect to any servers (use -v to see why)\n");
+	 fprintf (stderr, "Cannot connect to any servers%s\n",\
+		  dbg_test(DBG_VERBOSE) ? "" : " (use -v to see why)" );
 	 exit (EXST_CONNECTION_FAILED);
       }
       cmd_reply.host    = c->host;
@@ -1120,7 +1120,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.45 2005/03/30 10:32:46 cheusov Exp $";
+   const char        *id = "$Id: dict.c,v 1.46 2005/10/15 12:45:27 cheusov Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
