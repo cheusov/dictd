@@ -43,7 +43,7 @@ $DIFF db.expect.dict  _db.c5.dict || exit 1
 printf "passed\n"
 
 ##################################################
-printf "Test for different dictfmt\'s options\n"
+printf "Test for different dictfmt's options\n"
 
 dictfmt_diff_opts (){
     num=$1
