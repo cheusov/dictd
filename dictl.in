@@ -37,7 +37,9 @@ fi
 
 charset2charset (){
     if test "$DICTL_USE_ICONV"; then
-	iconv -f $1 -t $2
+	# `iconv --help' gives more options than `man iconv' (on my SuSE 9.0 system at least)
+	# the -c makes iconv omit invalid characters from output
+	iconv -c -f $1 -t $2
     else if test "$DICTL_USE_KONWERT"; then
 	konwert $1-$2
     else
@@ -65,17 +67,17 @@ fi
 
 if test "$DICTL_USE_ICONV"; then
     if ! which iconv >/dev/null 2>&1; then
-	echo "'iconv' is not availbale. See dictl(1) for a help." 1>&2
+	echo "'iconv' is not available. See dictl(1) for help." 1>&2
 	exit 2
     fi
 elif test "$DICTL_USE_KONWERT"; then
     if ! which konwert >/dev/null 2>&1; then
-	echo "'konwert' is not availbale. See dictl(1) for a help." 1>&2
+	echo "'konwert' is not available. See dictl(1) for help." 1>&2
 	exit 2
     fi
 else
     if ! which recode >/dev/null 2>&1; then
-	echo "'recode' is not availbale. See dictl(1) for a help." 1>&2
+	echo "'recode' is not available. See dictl(1) for help." 1>&2
 	exit 2
     fi
 fi
@@ -93,10 +95,13 @@ while test $# -ne 0; do
 	    DICTL_PAGER=$2
 	    shift;;
 	*)
-	    p=`echo "$1" | charset2charset $DICTL_CHARSET $DICTL_SERVER_CHARSET`
+	    p=`echo "$1" |
+		charset2charset $DICTL_CHARSET $DICTL_SERVER_CHARSET |
+		sed "s/'/'\"'\"'/g"`
+
 	    params="$params '$p'"
 
-	    # ...to be comatible with dict
+	    # ...to be compatible with dict
 	    if echo $1 |
 		awk '{
 		    exit ($0 !~ /^(-L|--license|-V|--version|--help)$/)
