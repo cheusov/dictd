@@ -43,7 +43,7 @@ is converted to the user's preferred character set.
 Because
 .B
 iconv
-exits with error if conversion is not possible,
+omits characters from output that are invalid,
 .br
 .B
 recode -f
@@ -91,6 +91,6 @@ This manual page was written by Robert D. Hilliard <hilliard@debian.org>
 and Aleksey Cheusov <vle@gmx.net>
 .SH "SEE ALSO"
 .BR dict (1),
-.BR recode (1)
-.BR iconv (1)
+.BR recode (1),
+.BR iconv (1),
 .BR konwert (1)

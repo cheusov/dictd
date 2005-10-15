@@ -190,7 +190,7 @@ is formatted with `%h' in column 0, followed by a blank, followed by the
 .B headword,
 optionally followed by a line containing `%d' in column 0.  The
 definition starts on the following line.  The first line beginning
-\'%h\' and any lines beginnning '%d' are stripped from the .dict
+\'%h\' and any lines beginning '%d' are stripped from the .dict
 file, and '%h ' is stripped from in front of the headword.  All
 text before the first headword is included in the headers.
 .B The second line beginning '%h' is taken as the first headword.  
@@ -223,8 +223,11 @@ output debugging information
 display a help message
 .TP
 .BI \--locale " locale"
-specifies the locale used for sorting.  if no locale is specified, the
-"C" locale is used.
+Specifies the locale used for sorting.  If no locale is specified, the
+"C" locale is used. For using UTF-8 mode, --utf8 is recommended.
+.TP
+.BI \--utf8
+generate database in UTF-8 mode
 .RS
 .B Note:
 This option is deprecated.
@@ -292,7 +295,7 @@ When client sends
 command to the
 .I dictd
 , definitions found in this database
-are prepanded by the specified MIME header.
+are prepended by the specified MIME header.
 .SH CREDITS
 .B dictfmt
 was written by Rik Faith (faith@cs.unc.edu) as part of the dict-misc
