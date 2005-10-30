@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.83 2005/07/26 16:16:42 cheusov Exp $
+ * $Id: daemon.c,v 1.84 2005/10/30 09:45:49 cheusov Exp $
  * 
  */
 
@@ -35,7 +35,7 @@
 
 static int          _dict_defines, _dict_matches;
 static int          daemonS_in  = 0;
-static int          daemonS_out = 0;
+static int          daemonS_out = 1;
 static const char   *daemonHostname  = NULL;
 static const char   *daemonIP        = NULL;
 static int          daemonPort       = -1;
@@ -1483,7 +1483,7 @@ int dict_inetd (char ***argv0, int delay, int error)
    daemonHostname = daemonIP;
 
    daemonS_in        = 0;
-   daemonS_out       = 0;
+   daemonS_out       = 1;
 
    return _handleconn(delay, error);
 }
