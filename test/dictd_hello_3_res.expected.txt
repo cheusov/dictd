@@ -1,0 +1,189 @@
+220
+150 1 definitions retrieved
+151 "00-database-allchars" testdb "unknown"
+
+.
+250
+150 1 definitions retrieved
+151 "00-database-allchars" testdb "unknown"
+
+.
+250
+152 1 matches found
+testdb "00-database-allchars"
+.
+250
+150 1 definitions retrieved
+151 "00-database-alphabet" testdb "unknown"
+ытhвrнaіbеlпdóeир аnýo
+.
+250
+150 1 definitions retrieved
+151 "00-database-alphabet" testdb "unknown"
+ытhвrнaіbеlпdóeир аnýo
+.
+250
+152 1 matches found
+testdb "00-database-alphabet"
+.
+250
+150 1 definitions retrieved
+151 "00-database-info" testdb "unknown"
+The original data is available from:
+     unknown
+
+The original data was distributed with the notice shown below. No
+additional restrictions are claimed.  Please redistribute this changed
+version under the same conditions and restriction that apply to the
+original version.
+
+.
+250
+150 1 definitions retrieved
+151 "00-database-info" testdb "unknown"
+The original data is available from:
+     unknown
+
+The original data was distributed with the notice shown below. No
+additional restrictions are claimed.  Please redistribute this changed
+version under the same conditions and restriction that apply to the
+original version.
+
+.
+250
+152 1 matches found
+testdb "00-database-info"
+.
+250
+150 1 definitions retrieved
+151 "00-database-short" testdb "unknown"
+00-database-short
+     unknown
+.
+250
+150 1 definitions retrieved
+151 "00-database-short" testdb "unknown"
+00-database-short
+     unknown
+.
+250
+152 1 matches found
+testdb "00-database-short"
+.
+250
+150 1 definitions retrieved
+151 "00-database-url" testdb "unknown"
+unknown
+.
+250
+150 1 definitions retrieved
+151 "00-database-url" testdb "unknown"
+unknown
+.
+250
+152 1 matches found
+testdb "00-database-url"
+.
+250
+150 1 definitions retrieved
+151 "00-database-utf8" testdb "unknown"
+
+.
+250
+150 1 definitions retrieved
+151 "00-database-utf8" testdb "unknown"
+
+.
+250
+152 1 matches found
+testdb "00-database-utf8"
+.
+250
+150 1 definitions retrieved
+151 "dobrý den" testdb "unknown"
+dobrý den
+   hello6
+.
+250
+501 syntax error, illegal parameters
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "haló" testdb "unknown"
+haló
+   hello5
+.
+250
+150 1 definitions retrieved
+151 "haló" testdb "unknown"
+haló
+   hello5
+.
+250
+152 1 matches found
+testdb "haló"
+.
+250
+150 1 definitions retrieved
+151 "hello" testdb "unknown"
+Hello
+   hello3
+.
+250
+150 1 definitions retrieved
+151 "hello" testdb "unknown"
+Hello
+   hello3
+.
+250
+152 1 matches found
+testdb "hello"
+.
+250
+150 1 definitions retrieved
+151 "привет" testdb "unknown"
+Привет
+   hello1
+.
+250
+150 1 definitions retrieved
+151 "привет" testdb "unknown"
+Привет
+   hello1
+.
+250
+152 1 matches found
+testdb "привет"
+.
+250
+150 1 definitions retrieved
+151 "привіт" testdb "unknown"
+Привіт
+   hello4
+.
+250
+150 1 definitions retrieved
+151 "привіт" testdb "unknown"
+Привіт
+   hello4
+.
+250
+152 1 matches found
+testdb "привіт"
+.
+250
+150 1 definitions retrieved
+151 "прывітанне" testdb "unknown"
+Прывітанне
+   hello2
+.
+250
+150 1 definitions retrieved
+151 "прывітанне" testdb "unknown"
+Прывітанне
+   hello2
+.
+250
+152 1 matches found
+testdb "прывітанне"
+.
+250
