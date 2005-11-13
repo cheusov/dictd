@@ -19,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.22 2005/09/05 18:00:02 cheusov Exp $
+ * $Id: dictP.h,v 1.23 2005/11/13 16:12:13 cheusov Exp $
  * 
  */
 
@@ -49,10 +49,6 @@
 
 #ifdef HAVE_CTYPE_H
 #include <ctype.h>
-#endif
-
-#ifndef __GNUC__
-#define __FUNCTION__ __FILE__
 #endif
 
 /* AIX requires this to be the first thing in the file.  */
