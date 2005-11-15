@@ -3,7 +3,7 @@
 DICTFMT='../dictfmt --without-time --silent'
 DICTUNFORMAT='../dictunformat'
 DICT='../dict'
-DICTD="../dictd -L $PWD/_dictd.log"
+DICTD="../dictd -L `pwd`/_dictd.log"
 
 DIFF='diff -u'
 
@@ -114,7 +114,7 @@ dictd_test_inetd (){
     dbtype=$1
     conf_file=_testdb.$dbtype.conf
 
-    m4 -DCURR_DIR="$PWD" testdb.$dbtype.conf >$conf_file || exit 1
+    m4 -DCURR_DIR=`pwd` testdb.$dbtype.conf >$conf_file || exit 1
 
     index_file=`sed -n 's,^.*/\(.*[.]index\).*$,\1,p' $conf_file`
 
