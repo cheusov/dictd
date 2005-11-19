@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.103 2005/08/14 15:58:52 cheusov Exp $
+ * $Id: index.c,v 1.104 2005/11/19 21:59:53 cheusov Exp $
  * 
  */
 
@@ -717,7 +717,9 @@ static int dict_search_exact( lst_List l,
 static int dict_search_prefix( lst_List l,
 			       const char *word,
 			       const dictDatabase *database,
-			       dictIndex *dbindex)
+			       dictIndex *dbindex,
+			       int skip_count,
+			       int item_count)
 {
    const char *pt   = dict_index_search( word, dbindex );
    int        count = 0;
@@ -726,6 +728,10 @@ static int dict_search_prefix( lst_List l,
 
    assert (dbindex);
 
+   if (item_count <= 0){
+      return 0;
+   }
+
    while (pt && pt < dbindex->end) {
       switch (compare( word, dbindex, pt, dbindex->end )) {
 	 case -2:
@@ -733,9 +739,18 @@ static int dict_search_prefix( lst_List l,
 	 case -1:
 	 case 0:
 	    if (!previous || altcompare(previous, pt, dbindex->end)) {
-	       ++count;
-	       datum = dict_word_create( previous = pt, database, dbindex );
-	       lst_append( l, datum );
+	       if (skip_count == 0){
+		  ++count;
+		  datum = dict_word_create( previous = pt, database, dbindex );
+		  lst_append( l, datum );
+
+		  --item_count;
+		  if (!item_count){
+		     return count;
+		  }
+	       }else{
+		  --skip_count;
+	       }
 	    }
 	    break;
 	 case 1:
@@ -1350,7 +1365,7 @@ static int dict_search_suffix(
       count = lst_length (l);
 
       PRINTF(DBG_SEARCH, ("'%s'\n", buf));
-      ret = dict_search_prefix ( l, buf, database, database->index_suffix);
+      ret = dict_search_prefix (l, buf, database, database->index_suffix, 0, INT_MAX);
 
       LST_ITERATE (l, p, dw) {
 	 if (count-- <= 0){
@@ -1374,7 +1389,7 @@ error: The request is not a valid UTF-8 string";
 */
 int dict_search_database_ (
    lst_List l,
-   const char *const word,
+   const char *word,
    const dictDatabase *database,
    int strategy )
 {
@@ -1382,12 +1397,22 @@ int dict_search_database_ (
 #if HAVE_UTF8
    dictWord   *dw       = NULL;
 #endif
+   unsigned int skip_count       = 0;
+   unsigned int item_count       = INT_MAX;
 
    assert (database);
    assert (database -> index);
 
    if (strategy == DICT_STRAT_DOT){
       strategy = database -> default_strategy;
+   }
+
+   if (strategy == DICT_STRAT_NPREFIX){
+      if (2 == sscanf (word, "%u#%u#", &skip_count, &item_count)){
+	 while (*word++ != '#');
+	 ++word;
+	 while (*word++ != '#');
+      }
    }
 
    buf = alloca( strlen( word ) + 1 );
@@ -1409,7 +1434,7 @@ int dict_search_database_ (
       dw -> word     = strdup (word);
       
       lst_append (l, dw);
-      
+
       return -1;
    }
 #else
@@ -1425,23 +1450,14 @@ int dict_search_database_ (
       return 0;
    }
 
-/*
-   if (!database->index)
-      database->index =
-	  dict_index_open( database->indexFilename, 1, 0, 0 );
-   if (!database->index_suffix && database->indexsuffixFilename)
-      database->index_suffix =
-	  dict_index_open(
-	      database->indexsuffixFilename,
-	      0, database->index->flag_utf8, database->index->flag_allchars );
-*/
-
    switch (strategy) {
    case DICT_STRAT_EXACT:
       return dict_search_exact( l, buf, database, database->index );
 
    case DICT_STRAT_PREFIX:
-      return dict_search_prefix( l, buf, database, database->index );
+   case DICT_STRAT_NPREFIX:
+      return dict_search_prefix (l, buf, database, database->index,
+				 skip_count, item_count);
 
    case DICT_STRAT_SUBSTRING:
       return dict_search_substring( l, buf, database, database->index );
@@ -1465,10 +1481,8 @@ int dict_search_database_ (
       return dict_search_word( l, buf, database);
 
    default:
+      /* plugins may support unusual search strategies */
       return 0;
-/*
-      err_internal( __FUNCTION__, "Search strategy %d unknown\n", strategy );
-*/
    }
 }
 

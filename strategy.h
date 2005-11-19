@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: strategy.h,v 1.6 2004/11/17 12:39:45 cheusov Exp $
+ * $Id: strategy.h,v 1.7 2005/11/19 21:59:53 cheusov Exp $
  */
 
 #ifndef _STRATEGY_H_
@@ -35,6 +35,7 @@
 #define DICT_STRAT_SOUNDEX      7     /* Soundex */ 
 #define DICT_STRAT_LEVENSHTEIN  8     /* Levenshtein */ 
 #define DICT_STRAT_WORD         9     /* Word */
+#define DICT_STRAT_NPREFIX      10    /* NPrefix */ 
 
 typedef struct dictStrategy {
    const char *name;

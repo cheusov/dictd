@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: index.h,v 1.4 2005/03/29 16:12:52 cheusov Exp $
+ * $Id: index.h,v 1.5 2005/11/19 21:59:53 cheusov Exp $
  */
 
 #ifndef _INDEX_H_
@@ -37,7 +37,7 @@ extern void dict_index_close (dictIndex *i);
 //   dictIndex *idx);
 extern int dict_search_database_ (
    lst_List l,
-   const char *const word,
+   const char *word,
    const dictDatabase *database,
    int strategy );
 extern int dict_search (

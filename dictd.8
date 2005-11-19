@@ -1108,6 +1108,36 @@ word.
 .B prefix
 Prefix match.  This algorithm also uses a binary search and is very fast.
 .TP
+.B nprefix
+Like
+.I prefix
+but returns the specified range of matches. For example,
+when
+.I prefix
+strategy returns 1000 matches,
+you can get only 100 ones skipping the first 800 matches.
+This is made by specified these limits in a query like this:
+800#100#app, where 800 is skip count, 100 is a number of matches
+you want to get and "app" is your query.
+This strategy allows to implement DICT client with fast autocompletion
+(although it is not trivial)
+just like many standalone dictionary programs do.
+.P
+.RS
+.B NOTE:
+If you access the dictionary "*" (or virtual one) with
+.I nprefix
+strategy,
+the same range is set for each database in it,
+but globally for all matches found in all databases.
+.RE
+.P
+.RS
+.B NOTE:
+In case you access non-english dictionary the returned matches
+may be (and mostly will be) NOT ordered in alphabetic order.
+.RE
+.TP
 .B re
 POSIX 1003.2 (modern) regular expression search.  Modern regular
 expressions are the ones used by
