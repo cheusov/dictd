@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.105 2005/08/25 18:43:03 cheusov Exp $
+# $Id: Makefile.in,v 1.106 2005/11/20 00:16:53 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -111,8 +111,8 @@ all: plugins
 samples         : dictdplugin_exit.so dictdplugin_popen.so man_popen.dict
 install.samples : samples
 	{ \
-    if test ! -d $(DESTDIR)$(libexecdir); then $(INSTALL) -d 755 $(DESTDIR)$(libexecdir); fi; \
-    if test ! -d $(DESTDIR)$(datadir); then $(INSTALL) -d 755 $(DESTDIR)$(datadir); fi; \
+    if test ! -d $(DESTDIR)$(libexecdir); then mkdir -p $(DESTDIR)$(libexecdir); fi; \
+    if test ! -d $(DESTDIR)$(datadir); then mkdir -p $(DESTDIR)$(datadir); fi; \
     $(INSTALL_DATA) dictdplugin_exit.so dictdplugin_popen.so $(DESTDIR)$(libexecdir); \
     $(INSTALL_DATA) man_popen.{dict,index} $(DESTDIR)$(datadir); \
     $(INSTALL_SCRIPT) search_man $(DESTDIR)$(libexecdir); \
@@ -254,10 +254,10 @@ clientparse.o: clientparse.c
 
 install.dict: dict
 	if test ! -d $(DESTDIR)$(bindir); then \
-        $(INSTALL) -d 755 $(DESTDIR)$(bindir); \
+        mkdir -p $(DESTDIR)$(bindir); \
     fi; \
 	if test ! -d $(DESTDIR)$(man1_prefix); then \
-        $(INSTALL) -d 755 $(DESTDIR)$(man1_prefix); \
+        mkdir -p $(DESTDIR)$(man1_prefix); \
     fi; \
 	$(INSTALL_PROGRAM) dict$(EXEEXT) $(DESTDIR)$(bindir); \
 	$(INSTALL_DATA) dict.1 $(DESTDIR)$(man1_prefix)/dict.1; \
@@ -266,30 +266,30 @@ install.dict: dict
 
 install.colorit: colorit
 	if test ! -d $(DESTDIR)$(bindir); then \
-        $(INSTALL) -d 755 $(DESTDIR)$(bindir); \
+        mkdir -p $(DESTDIR)$(bindir); \
     fi; \
 	if test ! -d $(DESTDIR)$(man1_prefix); then \
-        $(INSTALL) -d 755 $(DESTDIR)$(man1_prefix); \
+        mkdir -p $(DESTDIR)$(man1_prefix); \
     fi; \
 	$(INSTALL_SCRIPT) colorit $(DESTDIR)$(bindir); \
 	$(INSTALL_DATA) colorit.1 $(DESTDIR)$(man1_prefix)
 
 install.dictzip: dictzip
 	if test ! -d $(DESTDIR)$(bindir); then \
-        $(INSTALL) -d 755 $(DESTDIR)$(bindir); \
+        mkdir -p $(DESTDIR)$(bindir); \
     fi; \
 	if test ! -d $(DESTDIR)$(man1_prefix); then \
-        $(INSTALL) -d 755 $(DESTDIR)$(man1_prefix); \
+        mkdir -p $(DESTDIR)$(man1_prefix); \
     fi; \
 	$(INSTALL_PROGRAM) dictzip$(EXEEXT) $(DESTDIR)$(bindir); \
 	$(INSTALL_DATA) dictzip.1 $(DESTDIR)$(man1_prefix)/dictzip.1
 
 install.dictfmt: dictfmt dictfmt_index2word dictfmt_index2suffix dictfmt_plugin
 	if test ! -d $(DESTDIR)$(bindir); then \
-        $(INSTALL) -d 755 $(DESTDIR)$(bindir); \
+        mkdir -p $(DESTDIR)$(bindir); \
     fi; \
 	if test ! -d $(DESTDIR)$(man1_prefix); then \
-        $(INSTALL) -d 755 $(DESTDIR)$(man1_prefix); \
+        mkdir -p $(DESTDIR)$(man1_prefix); \
     fi; \
 	$(INSTALL_PROGRAM) dictfmt$(EXEEXT) $(DESTDIR)$(bindir); \
 	$(INSTALL_SCRIPT) dictfmt_index2suffix $(DESTDIR)$(bindir); \
@@ -305,27 +305,27 @@ install.dictfmt: dictfmt dictfmt_index2word dictfmt_index2suffix dictfmt_plugin
 
 install.dictd: dictd
 	if test ! -d $(DESTDIR)$(sbindir); then \
-        $(INSTALL) -d 755 $(DESTDIR)$(sbindir); \
+        mkdir -p $(DESTDIR)$(sbindir); \
     fi; \
 	if test ! -d $(DESTDIR)$(man8_prefix); then \
-        $(INSTALL) -d 755 $(DESTDIR)$(man8_prefix); \
+        mkdir -p $(DESTDIR)$(man8_prefix); \
     fi; \
 	$(INSTALL_PROGRAM) dictd$(EXEEXT) $(DESTDIR)$(sbindir); \
 	$(INSTALL_DATA) dictd.8 $(DESTDIR)$(man8_prefix)/dictd.8
 
 install.libs: $(LIBRARIES)
 	test _$(USE_PLUGIN) != _ && \
-	{ if test ! -d $(DESTDIR)$(libdir); then $(INSTALL) -d 755 $(DESTDIR)$(libdir); fi; \
+	{ if test ! -d $(DESTDIR)$(libdir); then mkdir -p $(DESTDIR)$(libdir); fi; \
 	$(INSTALL_DATA) $(LIBRARIES) $(DESTDIR)$(libdir); } || true
 
 install.includes:
 	test _$(USE_PLUGIN) != _ && \
-	{ if test ! -d $(DESTDIR)$(includedir); then $(INSTALL) -d 755 $(DESTDIR)$(includedir); fi; \
+	{ if test ! -d $(DESTDIR)$(includedir); then mkdir -p $(DESTDIR)$(includedir); fi; \
     $(INSTALL_DATA) $(INCLUDES) $(DESTDIR)$(includedir); } || true
 
 install.plugins:
 	test _$(USE_PLUGIN) != _ && \
-	{ if test ! -d $(DESTDIR)$(libexecdir); then $(INSTALL) -d 755 $(DESTDIR)$(libexecdir); fi; \
+	{ if test ! -d $(DESTDIR)$(libexecdir); then mkdir -p $(DESTDIR)$(libexecdir); fi; \
     test $(PLUGINS) && \
         $(INSTALL_DATA) $(PLUGINS) $(DESTDIR)$(libexecdir); } || true
 
