@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.124 2005/04/14 07:52:16 cheusov Exp $
+ * $Id: dictd.c,v 1.125 2005/11/20 18:50:33 cheusov Exp $
  * 
  */
 
@@ -1121,7 +1121,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.124 2005/04/14 07:52:16 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.125 2005/11/20 18:50:33 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1574,14 +1574,16 @@ static void create_pid_file ()
    if (!fd){
       log_info(":E: cannot open pif file '%s'\n:E:    err msg: %s\n",
 	       pidFile, strerror (errno));
-      exit (1);
+      err_fatal(__FUNCTION__,
+		":E: terminating due to errors. See log file\n");
    }
 
    fprintf (fd, "%lu", (unsigned long) getpid ());
    if (fclose (fd)){
       log_info(":E: cannot write to pif file '%s'\n:E:    err msg: %s\n",
 	       pidFile, strerror (errno));
-      exit (1);
+      err_fatal(__FUNCTION__,
+		":E: terminating due to errors. See log file\n");
    }
 }
 
