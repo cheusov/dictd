@@ -7,7 +7,7 @@ Version 1.10.2, by Aleksey Cheusov, Tue,  6 Sep 2005 20:31:29 +0300
 
  FIXES:
 
-    - fixed: compilation bugs on FreeBSD4, Solaris and Max OS-X
+    - fixed: compilation bugs on FreeBSD4, Solaris and MacOS-X
       Affected versions: 1.10.1
 
     dictd:
