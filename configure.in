@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.86 2005/09/21 19:02:12 cheusov Exp $
+dnl $Id: configure.in,v 1.87 2005/11/30 21:26:40 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -36,7 +36,7 @@ define(VERSION, 1.10.2)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.86 $)
+AC_REVISION($Revision: 1.87 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -494,6 +494,15 @@ AC_CONFIG_FILES([Makefile doc/Makefile include_regex.h])
 AC_CONFIG_FILES([dictdplugin-config], [chmod +x dictdplugin-config])
 AC_CONFIG_FILES([dictl], [chmod +x dictl])
 AC_CONFIG_FILES([colorit], [chmod +x colorit])
+
+AC_CONFIG_FILES(colorit.1)
+AC_CONFIG_FILES(dict.1)
+AC_CONFIG_FILES(dictfmt.1)
+AC_CONFIG_FILES(dictfmt_index2suffix.1)
+AC_CONFIG_FILES(dictfmt_index2word.1)
+AC_CONFIG_FILES(dictl.1)
+AC_CONFIG_FILES(dictunformat.1)
+AC_CONFIG_FILES(dictzip.1)
 
 AC_OUTPUT
 
