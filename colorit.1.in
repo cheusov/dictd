@@ -57,8 +57,16 @@ Specify a pager (- for none). The default is
 .BI \-\-pp " preprocessor"
 Specify a preprocessor (- for none).
 .SH "FILES"
-\fB\fI ~/.coloritrc
-\fB\fI @SYSCONFDIR@/colorit.conf
+.TP
+.I ~/.coloritrc
+User's
+.B colorit
+configuration file
+.TP
+.I @SYSCONFDIR@/colorit.conf
+System
+.B colorit
+configuration file
 .SH "CONFIG FILE"
 Empty lines or lines beginning with sharp sign (`#')
 are ignored. All other lines have this structure:

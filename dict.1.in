@@ -301,9 +301,16 @@ command is sent to the server
 .I (-M option)
 , server's capabilities are not checked.
 .SH FILES
+.TP
 .I ~/.dictrc
-.br
+User's
+.B dict
+configuration file
+.TP
 .I @SYSCONFDIR@/dict.conf
+System
+.B dict
+configuration file
 .SH "SEE ALSO"
 .BR dictd (8),
 .BR dictzip (1),

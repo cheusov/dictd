@@ -1360,16 +1360,22 @@ library you build dictd with.
 .SH "FILES"
 .TP
 .I @SYSCONFDIR@/dictd.conf
-dictd configuration file
+.B dictd
+configuration file
 .TP
 .I @SBINDIR@/dictd
-dictd daemon itself
+.B dictd
+daemon itself
 .TP
 .I /var/run/dictd.pid
-File for storing pid of dictd daemon
+File for storing pid of
+.B dictd
+daemon
 .TP
 .I @DATADIR@
-The default directory for dictd databases (.index and .dict[.dz] files)
+The default directory for
+.B dictd
+databases (.index and .dict[.dz] files)
 .SH "SEE ALSO"
 .BR dictfmt (1),
 .BR dict (1),
