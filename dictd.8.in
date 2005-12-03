@@ -488,6 +488,7 @@ This form is only useful in the Database Section.  The string specifies a
 username that is allowed to access this database after a successful AUTH
 command is executed.
 .RE
+.RE
 .TP
 .B Global Settings Specification
 .RS
