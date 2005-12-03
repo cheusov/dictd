@@ -48,7 +48,7 @@ Shows help information.
 Specify configuration file.  The default is
 .I ~/.coloritrc
 or
-.I /etc/colorit.conf
+.I @SYSCONFDIR@/colorit.conf
 .TP
 .BI \-P " pager\fR or "  \-\-pager " pager"
 Specify a pager (- for none). The default is
@@ -58,7 +58,7 @@ Specify a pager (- for none). The default is
 Specify a preprocessor (- for none).
 .SH "FILES"
 \fB\fI ~/.coloritrc
-\fB\fI /etc/colorit.conf
+\fB\fI @SYSCONFDIR@/colorit.conf
 .SH "CONFIG FILE"
 Empty lines or lines beginning with sharp sign (`#')
 are ignored. All other lines have this structure:

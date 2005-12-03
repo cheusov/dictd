@@ -1370,9 +1370,9 @@ library you build dictd with.
 Whether 're' and 'regex' strategies support utf8 depends on 
 library you build dictd with.
 .SH "FILES"
-.I /etc/dictd.conf
+.I @SYSCONFDIR@/dictd.conf
 .br
-.I /usr/sbin/dictd
+.I @SBINDIR@/dictd
 .br
 .I /var/run/dictd.pid
 .SH "SEE ALSO"

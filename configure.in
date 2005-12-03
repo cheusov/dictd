@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.87 2005/11/30 21:26:40 cheusov Exp $
+dnl $Id: configure.in,v 1.88 2005/12/03 18:44:41 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -36,7 +36,7 @@ define(VERSION, 1.10.2)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.87 $)
+AC_REVISION($Revision: 1.88 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -466,6 +466,16 @@ echo Making output files
 CC="$REALCC"
 LIBS="$REALLIBS $LIBS"
 
+test "_$exec_prefix" = _NONE && exec_prefix='${prefix}'
+
+eval3 () { eval echo $(eval echo $(eval echo $@)); }
+
+SYSCONFDIR=`eval3 $sysconfdir`
+BINDIR=`eval3 $bindir`
+SBINDIR=`eval3 $sbindir`
+LIBEXECDIR=`eval3 $libexecdir`
+DATADIR=`eval3 $datadir`
+
 AC_SUBST(DICT_VERSION)
 
 AC_SUBST(WCFLAGS)
@@ -490,6 +500,12 @@ AC_SUBST(local_libmaa)
 AC_SUBST(JUDYLIB)
 AC_SUBST(DBILIB)
 
+AC_SUBST(SYSCONFDIR)
+AC_SUBST(BINDIR)
+AC_SUBST(SBINDIR)
+AC_SUBST(LIBEXECDIR)
+AC_SUBST(DATADIR)
+
 AC_CONFIG_FILES([Makefile doc/Makefile include_regex.h])
 AC_CONFIG_FILES([dictdplugin-config], [chmod +x dictdplugin-config])
 AC_CONFIG_FILES([dictl], [chmod +x dictl])
@@ -503,6 +519,7 @@ AC_CONFIG_FILES(dictfmt_index2word.1)
 AC_CONFIG_FILES(dictl.1)
 AC_CONFIG_FILES(dictunformat.1)
 AC_CONFIG_FILES(dictzip.1)
+AC_CONFIG_FILES(dictd.8)
 
 AC_OUTPUT
 

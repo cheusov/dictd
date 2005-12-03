@@ -94,7 +94,7 @@ words are provided.  This option disables the generation of this list.
 Specify the configuration file.  The default is to try
 .I ~/.dictrc
 and
-.IR /etc/dict.conf ,
+.IR @SYSCONFDIR@/dict.conf ,
 using the first file that exists.  If a specific configuration file is
 specified, then the defaults will not be tried.
 .TP
@@ -303,7 +303,7 @@ command is sent to the server
 .SH FILES
 .I ~/.dictrc
 .br
-.I /etc/dict.conf
+.I @SYSCONFDIR@/dict.conf
 .SH "SEE ALSO"
 .BR dictd (8),
 .BR dictzip (1),
