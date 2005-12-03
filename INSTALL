@@ -94,12 +94,12 @@ INSTALLATION
         make dictd
         make samples
         make install.samples
-        ./dictd -p 2627 -dnofork -c example_popen.conf
+        ./dictd -dnodetach -dnofork -c examples/dictd_popen.conf
 
     and then from another terminal run
 
-        ./dict -h localhost -p 2627 man
-        ./dict -h localhost -p 2627 -s substring -m malloc
+        ./dict -h localhost man
+        ./dict -h localhost -s substring -m malloc
 
     NOTE: If you configure 'dictd' with '--disable-plugin' option,
           this test will fail.

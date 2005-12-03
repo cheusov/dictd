@@ -144,7 +144,7 @@ like
 .I " m4"
 or
 .I " cpp".
-See example_complex.conf file
+See examples/dictd_complex.conf file
 from distribution. By default configuration file is parsed without
 preprocessor.
 .TP
@@ -415,7 +415,7 @@ commands return texts prepanded with empty line only.
 .BI database_exit
 Excludes following databases from the '*' database.
 By default '*' means all databases available.
-Look at 'example_virtual.conf' file for example configuration.
+Look at 'examples/dictd_virtual.conf' file for example configuration.
 .RS
 .P
 .B NOTE:
@@ -889,7 +889,7 @@ database sections).
 Disables the specified strategy for database.
 This may be useful for slow dictionaries (plugins)
 or for dictionaries included to virtual ones.
-For an example see file example_complex.conf.
+For an example see file examples/dictd_complex.conf.
 .TP
 .BI default_strategy " string"
 Specifies the strategy which will be used
