@@ -334,6 +334,11 @@ with # and extend to the end of the line.
 Used to set global
 .B dictd
 setting such as log file, syslog faility, locale and so on.
+.TP
+.B EXAMPLE:
+See
+.I examples/dictd4.conf
+file from the distribution.
 .RE
 .TP
 .B Site Section
@@ -343,6 +348,11 @@ setting such as log file, syslog faility, locale and so on.
 Used to specify the filename for the site information file, a flat text
 file which will be displayed in response to the SHOW SERVER command.  This
 section, if present, must be first.
+.TP
+.B EXAMPLE:
+See
+.I examples/dictd4.conf
+file from the distribution.
 .RE
 .TP
 .B Access Section
@@ -352,6 +362,11 @@ section, if present, must be first.
 This section, the second if the Site Section is present, contains access
 restrictions for the server and all of the databases collectively.
 Per-database control is specified in the Database Section.
+.TP
+.B EXAMPLE:
+See
+.I examples/dictd3.conf
+file from the distribution.
 .RE
 .TP
 .B Database Section
@@ -364,6 +379,13 @@ administrator, and is not necessarily related to the file name or any
 name listed in the data file.  A short, easy to type name is often
 selected for easy use with 
 .BR "dict -d".)
+.P
+.RS
+.B EXAMPLE:
+See
+.I examples/dictd*.conf
+files from the distribution.
+.RE
 .RS
 .P
 .B NOTE:
@@ -376,12 +398,30 @@ This section specifies the virtual database.
 The
 .I string
 specifies the name of the database (e.g., en-ru or fren).
+.P
+.RS
+.B EXAMPLE:
+See
+.I examples/dictd_virtual.conf
+or
+.I examples/dictd_complex.conf
+files from the distribution.
+.RE
 .TP
 .BI database_plugin " string " "{ " "plugin specification " "}"
 This section specifies the plugin.
 The
 .I string
 specifies the name of the database.
+.P
+.RS
+.B EXAMPLE:
+See
+.I examples/dictd_plugin_dbi.conf
+or
+.I examples/dictd_complex.conf
+files from the distribution.
+.RE
 .TP
 .BI database_mime " string " "{ " "mime specification " "}"
 Traditionally, databases created for
@@ -410,6 +450,13 @@ All this is about
 command only.
 .I MATCH, SHOW DB, SHOW STRAT, SHOW INFO, SHOW SERVER and HELP
 commands return texts prepanded with empty line only.
+.RE
+.P
+.RS
+.B EXAMPLE:
+See
+.I examples/dictd_mime.conf
+file from the distribution.
 .RE
 .TP
 .BI database_exit
@@ -1378,6 +1425,7 @@ The default directory for
 .B dictd
 databases (.index and .dict[.dz] files)
 .SH "SEE ALSO"
+.BR examples/dictd*.conf,
 .BR dictfmt (1),
 .BR dict (1),
 .BR dictzip (1),
