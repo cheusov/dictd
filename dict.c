@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.c,v 1.46 2005/10/15 12:45:27 cheusov Exp $
+ * $Id: dict.c,v 1.47 2005/12/03 17:55:40 cheusov Exp $
  * 
  */
 
@@ -73,6 +73,8 @@ unsigned long client_defines;
 unsigned long client_bytes;
 unsigned long client_pipesize = PIPESIZE;
 char          *client_text    = NULL;
+
+int option_mime = 0;
 
 int ex_status = 0;
 static void set_ex_status (int status)
@@ -307,6 +309,7 @@ static void client_print_matches( lst_List l, int flag, const char *word )
    int          pos = 0;
    int          len;
    int          count;
+   int          empty_line_found = 0;
 
    count = 0;
    if (l) {
@@ -325,6 +328,14 @@ static void client_print_matches( lst_List l, int flag, const char *word )
 
    last = NULL;
    LST_ITERATE(l,p,e) {
+      /* skip MIME header */
+      if (option_mime && !empty_line_found){
+	 empty_line_found = (e [0] == 0 ||
+			     (e [0] == '\r' && e [1] == 0));
+	 continue;
+      }
+
+      /* */
       if (last && !strcmp(last,e)) continue;
       last = e;
       a = arg_argify( e, 0 );
@@ -363,9 +374,18 @@ static void client_print_listed( lst_List l )
    int          colWidth = 10; /* minimum size of first column */
    int          colMax = 16; /* maximum size of unragged first column */
    char         format[32];
+   int          empty_line_found = 0;
 
    if (!l) return;
    LST_ITERATE(l,p,e) {
+      /* skip MIME header */
+      if (option_mime && !empty_line_found){
+	 empty_line_found = (e [0] == 0 ||
+			     (e [0] == '\r' && e [1] == 0));
+	 continue;
+      }
+
+      /* */
       int len;
       a = arg_argify( e, 0 );
       if (arg_count(a) != 2)
@@ -379,8 +399,20 @@ static void client_print_listed( lst_List l )
 
       arg_destroy(a);
    }
+
    snprintf( format, sizeof (format), " %%-%ds %%s\n", colWidth );
+
+   empty_line_found = 0;
+
    LST_ITERATE(l,p,e) {
+      /* skip MIME header */
+      if (option_mime && !empty_line_found){
+	 empty_line_found = (e [0] == 0 ||
+			     (e [0] == '\r' && e [1] == 0));
+	 continue;
+      }
+
+      /* */
       a = arg_argify( e, 0 );
       fprintf( dict_output, format, arg_get(a,0), arg_get(a,1) );
       arg_destroy(a);
@@ -986,11 +1018,24 @@ static void process( void )
 	 break;
       case CMD_WIND:
 	  if (cmd_reply.matches) {
+	    int empty_line_found = 0;
+
 	    if (!cmd_reply.data)
 	       err_internal( __FUNCTION__,
 			     "%d matches, but no list\n", cmd_reply.matches );
+
 	    for (i = cmd_reply.matches; i > 0; --i) {
+	       /* skip MIME header */
 	       const char *line = lst_nth_get( cmd_reply.data, i );
+	       if (option_mime){
+		  if (line [0] == 0 ||
+		      (line [0] == '\r' && line [1] == '\0'))
+		  {
+		     break;
+		  }
+	       }
+
+	       /* */
 	       arg_List   a = arg_argify( line, 0 );
 	       const char *orig, *s;
 	       char       *escaped, *d;
@@ -998,10 +1043,12 @@ static void process( void )
 		  err_internal( __FUNCTION__,
 				"MATCH command didn't return 2 args: \"%s\"\n",
 				line );
+
 	       prepend_command( make_command( CMD_DEFPRINT,
 					      str_find(arg_get(a,0)),
 					      str_copy(arg_get(a,1)),
 					      0 ) );
+
 				/* Escape " and \ in word before sending */
 	       orig    = arg_get(a,1);
 	       escaped = xmalloc(strlen(orig) * 2 + 1);
@@ -1120,7 +1167,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.46 2005/10/15 12:45:27 cheusov Exp $";
+   const char        *id = "$Id: dict.c,v 1.47 2005/12/03 17:55:40 cheusov Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -1280,7 +1327,7 @@ int main( int argc, char **argv )
       case 'D':                    function |= DBS;    break;
       case 'S':                    function |= STRATS; break;
       case 'H':                    function |= HELP;   break;
-      case 'M':             function |= OPTION_MIME;   break;
+      case 'M': option_mime = 1; function |= OPTION_MIME;   break;
       case 'c': configFile = optarg;                   break;
       case 'C': docorrect = 0;                         break;
       case 'a': doauth = 0;                            break;
