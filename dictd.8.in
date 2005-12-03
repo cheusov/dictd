@@ -67,14 +67,6 @@ header "00-database-utf8" which indicates that the database uses utf8
 encoding, and the "00-database-8bit-new" which indicates that the database
 is encoded and sorted according to a locale that uses an 8-bit
 encoding.
-.P
-A header "00-database-plugin" may also be present and is used for
-integrating plugins into dictd. See "dictfmt_plugin --help" and
-"dictdplugin.h" for more information.
-.P
-A header "00-database-virtual" identifies "virtual dictionaries",
-which are lists of real dictionaries to be searched by
-.B dictd.
 .SH "BACKGROUND"
 For many years, the Internet community has relied on the "webster" protocol
 for access to natural language definitions.  The webster protocol supports
@@ -934,10 +926,6 @@ Makes dictionary invisible to the clients. See
 Disables the specified strategy for database.
 See
 .I database specification
-.TP
-.B NOTE:
-Another way to implement a virtual database is to create
-database files by dictfmt_virtual executable
 .RE
 .TP
 .B Plugin Specification
@@ -1370,14 +1358,20 @@ library you build dictd with.
 Whether 're' and 'regex' strategies support utf8 depends on 
 library you build dictd with.
 .SH "FILES"
+.TP
 .I @SYSCONFDIR@/dictd.conf
-.br
+dictd configuration file
+.TP
 .I @SBINDIR@/dictd
-.br
+dictd daemon itself
+.TP
 .I /var/run/dictd.pid
+File for storing pid of dictd daemon
+.TP
+.I @DATADIR@
+The default directory for dictd databases (.index and .dict[.dz] files)
 .SH "SEE ALSO"
 .BR dictfmt (1),
-.BR dictfmt_virtual (1),
 .BR dict (1),
 .BR dictzip (1),
 .BR gunzip (1),

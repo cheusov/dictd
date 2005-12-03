@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.106 2005/11/20 00:16:53 cheusov Exp $
+# $Id: Makefile.in,v 1.107 2005/12/03 19:42:13 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -210,7 +210,7 @@ dictdplugin_dbi.so : heap.os dictdplugin_dbi.os str.os \
 .PHONY: plugins
 plugins: $(PLUGINS)
 
-man_popen.dict : dictdplugin-config dictfmt_plugin dictfmt
+man_popen.dict : dictdplugin-config dictfmt
 	PATH=`pwd`:$${PATH}; export PATH;  \
    { \
       echo `./dictdplugin-config --plugindir`'/search_man'; \
@@ -284,7 +284,7 @@ install.dictzip: dictzip
 	$(INSTALL_PROGRAM) dictzip$(EXEEXT) $(DESTDIR)$(bindir); \
 	$(INSTALL_DATA) dictzip.1 $(DESTDIR)$(man1_prefix)/dictzip.1
 
-install.dictfmt: dictfmt dictfmt_index2word dictfmt_index2suffix dictfmt_plugin
+install.dictfmt: dictfmt dictfmt_index2word dictfmt_index2suffix
 	if test ! -d $(DESTDIR)$(bindir); then \
         mkdir -p $(DESTDIR)$(bindir); \
     fi; \
@@ -294,14 +294,11 @@ install.dictfmt: dictfmt dictfmt_index2word dictfmt_index2suffix dictfmt_plugin
 	$(INSTALL_PROGRAM) dictfmt$(EXEEXT) $(DESTDIR)$(bindir); \
 	$(INSTALL_SCRIPT) dictfmt_index2suffix $(DESTDIR)$(bindir); \
 	$(INSTALL_SCRIPT) dictfmt_index2word $(DESTDIR)$(bindir); \
-	$(INSTALL_SCRIPT) dictfmt_virtual $(DESTDIR)$(bindir); \
 	$(INSTALL_SCRIPT) dictunformat $(DESTDIR)$(bindir); \
 	$(INSTALL_DATA) dictfmt.1 $(DESTDIR)$(man1_prefix); \
 	$(INSTALL_DATA) dictfmt_index2word.1 $(DESTDIR)$(man1_prefix); \
 	$(INSTALL_DATA) dictfmt_index2suffix.1 $(DESTDIR)$(man1_prefix); \
 	$(INSTALL_DATA) dictunformat.1 $(DESTDIR)$(man1_prefix); \
-	test _$(USE_PLUGIN) != _ && \
-	    $(INSTALL_SCRIPT) dictfmt_plugin $(DESTDIR)$(bindir) || true
 
 install.dictd: dictd
 	if test ! -d $(DESTDIR)$(sbindir); then \
@@ -358,10 +355,7 @@ uninstall.dictfmt:
     $(DESTDIR)$(man1_prefix)/dictunformat.1 \
 	$(DESTDIR)$(bindir)/dictfmt_index2suffix \
 	$(DESTDIR)$(bindir)/dictfmt_index2word \
-	$(DESTDIR)$(bindir)/dictfmt_virtual \
 	$(DESTDIR)$(bindir)/dictunformat; \
-	test _$(USE_PLUGIN) != _ && \
-		rm -f $(DESTDIR)$(bindir)/dictfmt_plugin || true
 
 uninstall.colorit:
 	rm -f $(DESTDIR)$(bindir)/colorit $(DESTDIR)$(man1_prefix)/colorit.1
