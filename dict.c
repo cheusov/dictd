@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dict.c,v 1.47 2005/12/03 17:55:40 cheusov Exp $
+ * $Id: dict.c,v 1.48 2005/12/05 17:35:28 cheusov Exp $
  * 
  */
 
@@ -375,6 +375,7 @@ static void client_print_listed( lst_List l )
    int          colMax = 16; /* maximum size of unragged first column */
    char         format[32];
    int          empty_line_found = 0;
+   int len;
 
    if (!l) return;
    LST_ITERATE(l,p,e) {
@@ -386,7 +387,6 @@ static void client_print_listed( lst_List l )
       }
 
       /* */
-      int len;
       a = arg_argify( e, 0 );
       if (arg_count(a) != 2)
 	 err_internal( __FUNCTION__,
@@ -1027,6 +1027,10 @@ static void process( void )
 	    for (i = cmd_reply.matches; i > 0; --i) {
 	       /* skip MIME header */
 	       const char *line = lst_nth_get( cmd_reply.data, i );
+	       arg_List   a;
+	       const char *orig, *s;
+	       char       *escaped, *d;
+
 	       if (option_mime){
 		  if (line [0] == 0 ||
 		      (line [0] == '\r' && line [1] == '\0'))
@@ -1036,9 +1040,7 @@ static void process( void )
 	       }
 
 	       /* */
-	       arg_List   a = arg_argify( line, 0 );
-	       const char *orig, *s;
-	       char       *escaped, *d;
+	       a = arg_argify( line, 0 );
 	       if (arg_count(a) != 2)
 		  err_internal( __FUNCTION__,
 				"MATCH command didn't return 2 args: \"%s\"\n",
@@ -1167,7 +1169,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.47 2005/12/03 17:55:40 cheusov Exp $";
+   const char        *id = "$Id: dict.c,v 1.48 2005/12/05 17:35:28 cheusov Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
