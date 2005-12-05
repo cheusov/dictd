@@ -19,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.23 2005/11/13 16:12:13 cheusov Exp $
+ * $Id: dictP.h,v 1.24 2005/12/05 17:21:20 cheusov Exp $
  * 
  */
 
@@ -57,20 +57,20 @@
 # define HAVE_ALLOCA_H 1
 #endif
 
-#ifndef HAVE_ALLOCA
 #if HAVE_ALLOCA_H
 # include <alloca.h>
-#else
-# ifdef _AIX
-# pragma alloca
-# else
-#  ifndef alloca /* predefined by HP cc +Olibcalls */
-#  if !defined(__svr4__) && !defined(__sgi__)	/* not on IRIX */
-    char *alloca ();
-#  endif
+#endif
+
+#ifndef HAVE_ALLOCA
+# ifndef alloca /* predefined by HP cc +Olibcalls */
+#  ifdef _AIX
+#   pragma alloca
+#  else
+#   if !defined(__svr4__) && !defined(__sgi__)	/* not on IRIX */
+     void *alloca(size_t size);
+#   endif
 #  endif
 # endif
-#endif
 #endif
 
 /* Get string functions */
