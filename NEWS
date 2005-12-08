@@ -1,5 +1,9 @@
 ----------------------------------------------------------------------
-Version 1.10.3, by Aleksey Cheusov, Thu,  8 Dec 2005 20:41:50 +0200
+Version 1.10.3, by Aleksey Cheusov, Thu,  8 Dec 2005 20:54:23 +0200
+
+ REGEX/ZLIB libraries have been removed from dictd CVS tree.
+    Most UNIX-like OS'es and distributions have these libraries
+    in a prebuilt form. Otherwise, build and install them yourself.
 
  MAKE TEST:
     - lots of new tests for 'dictd'.
