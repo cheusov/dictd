@@ -1,3 +1,85 @@
+----------------------------------------------------------------------
+Version 1.10.3, by Aleksey Cheusov, Thu,  8 Dec 2005 20:41:50 +0200
+
+ MAKE TEST:
+    - lots of new tests for 'dictd'.
+    - fixes, code clean-ups and improvements of tests for 'dictfmt'
+
+ DICTD/DICT/DICTFMT/DICTZIP
+    config.sub and config.guess have been updated (GNU/kFreeBSD)
+
+ DICTD
+    -ADDED: new search strategy `nprefix'.
+
+       dictd.8:
+       ...
+       nprefix
+
+         Like prefix but returns the specified range of matches. For
+         example, when prefix strategy returns 1000 matches, you can
+         get only 100 ones skipping the first 800 matches.  This is
+         made by specified these limits in a query like this:
+         800#100#app, where 800 is skip count, 100 is a number of
+         matches you want to get and "app" is your query.  This
+         strategy allows to implement DICT client with fast
+         autocompletion (although it is not trivial) just like many
+         standalone dictionary programs do.
+
+         NOTE: If you access the dictionary "*" (or virtual one) with
+         nprefix strategy, the same range is set for each database in
+         it, but globally for all matches found in all databases.
+
+         NOTE: In case you access non-english dictionary the returned
+         matches may be (and mostly will be) NOT ordered in alphabetic
+         order.
+
+    -fixed: setenv.c (Solaris)
+    -fixed: compilation bug under Solaris (decl.h)
+    -fixed: strange segfault in log_info function under Interix 3.5
+            (4096-byte array on stack + va_XXX calls)
+    -FIXED: buffer overflow (segfault) in log_{error,info} functions.
+            This may happen when dictd is run with -L option
+            and it definitely segfaults on condition that:
+            - -dinit option is enabled;
+
+            - Japanese of Chinese dictionary created by dictfmt-1.9.14
+              (or later) is in dictd.conf
+            - -L
+
+            This happens due to too long 00-database-alphabet "definition"
+
+            Affected versions: all?
+
+ DICTL
+    -fixed: sf.net bugs #1223489 and #1227624, patches by micha137
+
+ DICT
+    -minor fixes with pager, patches by Kirk Hilliard
+    -fixed: assert(3)
+           Affected dict calls:
+             dict -M -S
+             dict -M -D
+             dict -M <query>
+
+ LIBMAA
+    -fixed: compilation bug (alloca)
+
+ Documentation:
+    - Samples configuration files for 'dictd' and 'dict' have been moved
+      to samples/ subdirectory.
+    - File names directories in manual pages
+      are specified according to ./configure options
+    - A few references to samples/ are added to dictd.8.
+      I hope this will make dictd.8 a bit simplier for new users.
+    - minor fixes and improvents
+
+ removed: dictfmt_virtual, dictfmt_plugin utilities.
+ The only way to configure plugin or virtual databases
+ is by using dictd.conf file.
+ I hope nobody used these utilities.
+ Otherwise, sorry for inconvenience.
+
+----------------------------------------------------------------------
 Version 1.10.2, by Aleksey Cheusov, Tue,  6 Sep 2005 20:31:29 +0300
 
  I started to create selftests for dict project.
@@ -37,6 +119,7 @@ Version 1.10.2, by Aleksey Cheusov, Tue,  6 Sep 2005 20:31:29 +0300
       before running 'sort'.
       It is recommended to rebuild existing databases.
 
+----------------------------------------------------------------------
 Version 1.10.1, by Aleksey Cheusov, Thu,  9 Jun 2005 20:03:22 +0300
 
  fixes:
@@ -69,6 +152,7 @@ Version 1.10.1, by Aleksey Cheusov, Thu,  9 Jun 2005 20:03:22 +0300
     - fixed: dictd.8 says that 'lev' strategy doesn't work
       with UTF-8 dictionaries, but it does since release 1.9.13
 
+----------------------------------------------------------------------
 Version 1.10.0, by Aleksey Cheusov, Tue, 12 Apr 2005 20:51:01 +0300
 
   dictd:
@@ -105,6 +189,7 @@ Version 1.10.0, by Aleksey Cheusov, Tue, 12 Apr 2005 20:51:01 +0300
       useful in combination with `database_mime' keyword in dictd.conf,
       See dictd.8 for more information.
 
+----------------------------------------------------------------------
 Version 1.9.15, by Aleksey Cheusov, Thu, 23 Dec 2004 21:16:03 +0200
 
   Format of .index files for 8-bit databases (not-ASCII and non-UTF8)
@@ -171,6 +256,7 @@ Version 1.9.15, by Aleksey Cheusov, Thu, 23 Dec 2004 21:16:03 +0200
 
   Documentation update
 
+----------------------------------------------------------------------
 Version 1.9.14, by Aleksey Cheusov, Sun,  6 Jun 2004 21:18:19 +0300
 
   dictd:
@@ -222,6 +308,7 @@ Version 1.9.14, by Aleksey Cheusov, Sun,  6 Jun 2004 21:18:19 +0300
       Testing program has also been reimplemeneted.
       See ChangeLog for details.
 
+----------------------------------------------------------------------
 Version 1.9.13, by Aleksey Cheusov, 24 Mar 2004 11:32:53 +0200
 
   FIXED: if database has no 00-database-alphabet headword,
@@ -268,6 +355,7 @@ Version 1.9.13, by Aleksey Cheusov, 24 Mar 2004 11:32:53 +0200
     for every DEFINE/MATCH command.
     This slows down plugin and should be fixed.
 
+----------------------------------------------------------------------
 Version 1.9.12, by Aleksey Cheusov, 10 Mar 2004 18:45:15 +0200
 
   Both dictd and Judy-plugin correctly implement
@@ -335,6 +423,7 @@ Version 1.9.12, by Aleksey Cheusov, 10 Mar 2004 18:45:15 +0200
       fixed: if a requested headword has more than one definition,
          DEFINE command always returns the first one
 
+----------------------------------------------------------------------
 Version 1.9.11, by Aleksey Cheusov, 8 Dec 2003 20:55:31 +0200
 
   NEWS file added
@@ -415,6 +504,7 @@ Version 1.9.11, by Aleksey Cheusov, 8 Dec 2003 20:55:31 +0200
 
   other fixes and improvements
 
+----------------------------------------------------------------------
 Version 1.9.10, by Aleksey Cheusov, 22 Jul 2003 19:37:22 +0300
 
   dictd-1.9.10 has been released.
@@ -452,6 +542,7 @@ Version 1.9.10, by Aleksey Cheusov, 22 Jul 2003 19:37:22 +0300
   - predefined DICT servers dict.org and alt0.dict.org 
   are not used by default by 'dict' client
 
+----------------------------------------------------------------------
 Version 1.9.9, by Aleksey Cheusov, 14 Apr 2003 19:30:54 +0300
 
   dictd-1.9.9 has been released and it is available for download from
@@ -467,6 +558,7 @@ Version 1.9.9, by Aleksey Cheusov, 14 Apr 2003 19:30:54 +0300
 
   - bug fixes
 
+----------------------------------------------------------------------
 Version 1.9.8, by Aleksey Cheusov, 27 Mar 2003 15:33:34 +0200
 
   dictd-1.9.8 has been released and is available for download from
@@ -488,6 +580,7 @@ Version 1.9.8, by Aleksey Cheusov, 27 Mar 2003 15:33:34 +0200
   the dzip'ed file (dictzip doesn't create them)
   (affected versions: 1.4.9-1.9.7 (all?))
 
+----------------------------------------------------------------------
 Version 1.9.7, by Aleksey Cheusov, 09 Mar 2003 20:03:42 +0200
 
   dictd-1.9.7 is released
@@ -524,6 +617,7 @@ Version 1.9.7, by Aleksey Cheusov, 09 Mar 2003 20:03:42 +0200
   With this option applied, programs will be linked with
   the NEC socks5 library
 
+----------------------------------------------------------------------
 Version 1.9.6, by Aleksey Cheusov, 02 Mar 2003 14:19:37 +0200
 
   A bug fixing release is available for download
@@ -537,6 +631,7 @@ Version 1.9.6, by Aleksey Cheusov, 02 Mar 2003 14:19:37 +0200
 
   Affected versions: 1.4.9-1.9.5
 
+----------------------------------------------------------------------
 Version 1.9.5, by Aleksey Cheusov, 23 Feb 2003 20:28:32 +0200
 
   If the 'name' keyword is used in database section, and
@@ -563,6 +658,7 @@ Version 1.9.5, by Aleksey Cheusov, 23 Feb 2003 20:28:32 +0200
       if (!db->databaseShort)
          db->databaseShort = xstrdup (db->databaseName);
 
+----------------------------------------------------------------------
 Version 1.9.4, by Aleksey Cheusov, 20 Feb 2003 17:01:30 +0200
 
   dict-1.9.4 is released.
@@ -588,6 +684,7 @@ Version 1.9.4, by Aleksey Cheusov, 20 Feb 2003 17:01:30 +0200
   - 'dict --serverinfo' bug fixed
   - 'dictd --test-match' bug fixed
 
+----------------------------------------------------------------------
 Version 1.9.3, by Aleksey Cheusov, 24 Jan 2003 12:53:48 +0200
 
   dictd-1.9.3 has been released.
@@ -599,6 +696,7 @@ Version 1.9.3, by Aleksey Cheusov, 24 Jan 2003 12:53:48 +0200
       if access section in the configuration file is empty.
       Affected versions: 1.8.0, 1.9.1, 1.9.2
 
+----------------------------------------------------------------------
 Version 1.9.2, by Aleksey Cheusov, 16 Jan 2003 15:42:29 +0200
 
   dictd-1.9.2 has been released
@@ -617,6 +715,7 @@ Version 1.9.2, by Aleksey Cheusov, 16 Jan 2003 15:42:29 +0200
   - DESTDIR env. variable is used for installing/uninstalling
     This simplifies building RPMs.
 
+----------------------------------------------------------------------
 Version 1.9.1, by Aleksey Cheusov, 17 Dec 2002 17:32:40 +0200
 
   dictd-1.9.1 is available for download
@@ -631,6 +730,7 @@ Version 1.9.1, by Aleksey Cheusov, 17 Dec 2002 17:32:40 +0200
      ./configure --disable-plugin
   - bugs fixing
 
+----------------------------------------------------------------------
 Version 1.8.0, by Aleksey Cheusov, 15 Sep 2002 20:54:30 -0400
 
   - better 8bit, UTF-8, and i18n support
@@ -638,9 +738,11 @@ Version 1.8.0, by Aleksey Cheusov, 15 Sep 2002 20:54:30 -0400
   - dictd supports plugins
   - dictd will use system libz when possible
 
+----------------------------------------------------------------------
 Version 1.7.1
   (broken support for 8bit dictionaries)
 
+----------------------------------------------------------------------
 Version 1.7.0, by Rick Faith, 3 May 2002 10:02:11 -0400
 
   I've released dictd 1.7.0.  It's the same as 1.6.93, except:
@@ -661,15 +763,19 @@ Version 1.7.0, by Rick Faith, 3 May 2002 10:02:11 -0400
   hard code a "user gcide gcide" in any example or distributed .dictrc
   files.  Thanks.
 
+----------------------------------------------------------------------
 Version 1.6.93-testonly, by Rick Faith
   (no information available)
 
+----------------------------------------------------------------------
 Version 1.5.5, by Rick Faith
   (no information available)
 
+----------------------------------------------------------------------
 Version 1.5.3, by Rick Faith
   (no information available)
 
+----------------------------------------------------------------------
 Version 1.5.0, by Rick Faith, 22 Dec 1999 10:43:37 -0500
 
   dictd-1.5.0 has been released.  This is a bug fix release that should cover 
@@ -694,12 +800,15 @@ Version 1.5.0, by Rick Faith, 22 Dec 1999 10:43:37 -0500
   provides a publicly accessible cvs repository and bug tracking.  Feel free
 *  to submit bugs via the SourceForge interface or via dict-beta@dict.org.
 
+----------------------------------------------------------------------
 Version 1.4.9, by Rick Faith
   (no information available)
 
+----------------------------------------------------------------------
 Version 1.4.8, by Rick Faith
   (no information available)
 
+----------------------------------------------------------------------
 Version 1.4.5, by Rick Faith, 23 Feb 1998 20:00:23 -0500
 
   The DICT Development Group (www.dict.org) announces the dictd-1.4.x
@@ -722,6 +831,7 @@ Version 1.4.5, by Rick Faith, 23 Feb 1998 20:00:23 -0500
   (within 5% of the expected ratio for dictionary data).  dictd(8) uses files
   stored in this format.
 
+----------------------------------------------------------------------
 Version 1.4.3, by Rick Faith
   (no information available)
 
