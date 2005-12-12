@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: net.c,v 1.27 2004/10/06 14:43:03 cheusov Exp $
+ * $Id: net.c,v 1.28 2005/12/12 18:39:41 cheusov Exp $
  * 
  */
 
@@ -186,11 +186,9 @@ void net_detach( void )
       close(fd);
    }
 #endif
-   
+
    chdir("/");		/* cd to safe directory */
-   
-   umask(0);		/* set safe umask */
-   
+
    setpgid(0,getpid());	/* Get process group */
 
    fd = open("/dev/null", O_RDWR);    /* stdin */

@@ -1,4 +1,11 @@
 ----------------------------------------------------------------------
+Version 1.10.3, by Aleksey Cheusov, Mon, 12 Dec 2005 20:36:32 +0200
+
+ DICTD
+
+  FIXED: pid file was created with 0666 permissions.
+
+----------------------------------------------------------------------
 Version 1.10.3, by Aleksey Cheusov, Thu,  8 Dec 2005 20:54:23 +0200
 
  REGEX/ZLIB libraries have been removed from dictd CVS tree.
