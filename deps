@@ -1,59 +1,30 @@
-clientparse.o clientparse.os: clientparse.c dict.h dictP.h decl.h \
- \
- net.h codes.h
-clientscan.o clientscan.os: clientscan.c dict.h dictP.h decl.h \
- \
- net.h codes.h clientparse.h
-daemon.o daemon.os: daemon.c dictd.h dictP.h decl.h \
- codes.h defs.h dictdplugin.h net.h index.h data.h md5.h \
- strategy.h plugin.h
-data.o data.os: data.c dictP.h decl.h data.h defs.h dictdplugin.h dictzip.h \
- dictd.h codes.h net.h
-dict.o dict.os: dict.c dict.h dictP.h decl.h \
- net.h codes.h parse.h md5.h
-dictd.o dictd.os: dictd.c dictd.h dictP.h decl.h \
- codes.h defs.h dictdplugin.h net.h str.h servparse.h strategy.h \
- index.h data.h parse.h
 dictdplugin.o dictdplugin.os: dictdplugin.c dictdplugin.h
+dictdplugin_dbi.o dictdplugin_dbi.os: dictdplugin_dbi.c dictP.h dictdplugin.h str.h \
+  plugins_common.h heap.h
 dictdplugin_exit.o dictdplugin_exit.os: dictdplugin_exit.c dictdplugin.h
-dictdplugin_found.o dictdplugin_found.os: dictdplugin_found.c dictdplugin.h
-dictdplugin_judy.o dictdplugin_judy.os: dictdplugin_judy.c dictP.h decl.h dictdplugin.h \
- data.h defs.h str.h heap.h lev.h
-dictfmt.o dictfmt.os: dictfmt.c dictP.h decl.h str.h
-dictzip.o dictzip.os: dictzip.c dictzip.h \
- dictd.h dictP.h decl.h \
- codes.h defs.h dictdplugin.h net.h data.h
+dictdplugin_judy.o dictdplugin_judy.os: dictdplugin_judy.c dictP.h dictdplugin.h data.h \
+  defs.h str.h plugins_common.h heap.h lev.h
+dictdplugin_man.o dictdplugin_man.os: dictdplugin_man.c dictP.h dictdplugin.h str.h \
+  plugins_common.h heap.h
+dictfmt.o dictfmt.os: dictfmt.c dictP.h str.h
 getopt.o getopt.os: getopt.c
 getopt_long.o getopt_long.os: getopt_long.c getopt.c
-heap.o heap.os: heap.c dictP.h decl.h heap.h
-index.o index.os: index.c dictP.h decl.h dictzip.h \
- dictd.h codes.h defs.h \
- dictdplugin.h net.h index.h include_regex.h strategy.h str.h lev.h
-mbrlen.o mbrlen.os: mbrlen.c dictP.h decl.h
-mbrtowc.o mbrtowc.os: mbrtowc.c dictP.h decl.h
-mbstowcs.o mbstowcs.os: mbstowcs.c dictP.h decl.h
-mbtowc.o mbtowc.os: mbtowc.c dictP.h decl.h
+heap.o heap.os: heap.c dictP.h heap.h
+iswalnum.o iswalnum.os: iswalnum.c dictP.h
+iswspace.o iswspace.os: iswspace.c dictP.h
+mbrlen.o mbrlen.os: mbrlen.c dictP.h
+mbrtowc.o mbrtowc.os: mbrtowc.c dictP.h
+mbstowcs.o mbstowcs.os: mbstowcs.c dictP.h
+mbtowc.o mbtowc.os: mbtowc.c dictP.h
 md5.o md5.os: md5.c md5.h
-net.o net.os: net.c dictP.h decl.h dictd.h codes.h \
- defs.h dictdplugin.h net.h
-nl_langinfo.o nl_langinfo.os: nl_langinfo.c
-parse.o parse.os: parse.c dictP.h decl.h parse.h
-plugin.o plugin.os: plugin.c dictP.h decl.h dictd.h \
- codes.h defs.h dictdplugin.h net.h plugin.h strategy.h data.h index.h
-servparse.o servparse.os: servparse.c dictd.h dictP.h decl.h \
- codes.h defs.h dictdplugin.h net.h
-servscan.o servscan.os: servscan.c dictd.h dictP.h decl.h \
- codes.h defs.h dictdplugin.h net.h servparse.h
-setenv.o setenv.os: setenv.c dictP.h decl.h
-snprintf.o snprintf.os: snprintf.c dictP.h decl.h
-strategy.o strategy.os: strategy.c dictP.h decl.h strategy.h dictdplugin.h \
-
-str.o str.os: str.c dictP.h decl.h str.h
-strlcat.o strlcat.os: strlcat.c dictP.h decl.h
-strlcpy.o strlcpy.os: strlcpy.c dictP.h decl.h
-towlower.o towlower.os: towlower.c dictP.h decl.h
-vsnprintf.o vsnprintf.os: vsnprintf.c dictP.h decl.h
-wcrtomb.o wcrtomb.os: wcrtomb.c dictP.h decl.h
-wctomb.o wctomb.os: wctomb.c dictP.h decl.h
+nl_langinfo.o nl_langinfo.os: nl_langinfo.c dictP.h
+plugins_common.o plugins_common.os: plugins_common.c dictP.h plugins_common.h
+snprintf.o snprintf.os: snprintf.c dictP.h
+str.o str.os: str.c dictP.h str.h
+strlcat.o strlcat.os: strlcat.c dictP.h
+strlcpy.o strlcpy.os: strlcpy.c dictP.h
+towlower.o towlower.os: towlower.c dictP.h
+vsnprintf.o vsnprintf.os: vsnprintf.c dictP.h
+wcrtomb.o wcrtomb.os: wcrtomb.c dictP.h
+wctomb.o wctomb.os: wctomb.c dictP.h
 dictdplugin_popen.o dictdplugin_popen.os: dictdplugin_popen.cpp dictdplugin.h
-dictdplugin_tr.o dictdplugin_tr.os: dictdplugin_tr.cpp dictdplugin.h
