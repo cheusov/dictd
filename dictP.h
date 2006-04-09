@@ -19,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.25 2006/04/08 21:22:08 cheusov Exp $
+ * $Id: dictP.h,v 1.26 2006/04/09 08:52:55 cheusov Exp $
  * 
  */
 
@@ -52,7 +52,7 @@
 #endif
 
 /* AIX requires this to be the first thing in the file.  */
-#if defined(__svr4__) && defined(__sgi__) && !HAVE_ALLOCA_H /* IRIX */
+#if defined(__IRIX__) && defined(__sgi__) && !HAVE_ALLOCA_H
 # undef HAVE_ALLOCA_H
 # define HAVE_ALLOCA_H 1
 #endif
@@ -64,11 +64,9 @@
 #ifndef HAVE_ALLOCA
 # ifndef alloca /* predefined by HP cc +Olibcalls */
 #  ifdef _AIX
-#   pragma alloca
+#    pragma alloca
 #  else
-#   if !defined(__svr4__) && !defined(__sgi__)	/* not on IRIX */
      void *alloca(size_t size);
-#   endif
 #  endif
 # endif
 #endif
