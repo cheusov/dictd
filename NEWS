@@ -112,7 +112,7 @@ Version 1.10.2, by Aleksey Cheusov, Tue,  6 Sep 2005 20:31:29 +0300
       Affected versions: 1.4.9(?) - 1.10.1
 
     - 'SHOW DB' command shows the special entry '--exit--'
-      as a normal database which cannot be used used for searching.
+      as a normal database which cannot be used for searching.
       This contradicts rfc-2229.
       To see when the default search stops, use 'SHOW SERVER' command
       instead.
@@ -156,7 +156,7 @@ Version 1.10.1, by Aleksey Cheusov, Thu,  9 Jun 2005 20:03:22 +0300
  dictd:
     - By default dictd, when running as daemon, writes a PID
       to /var/run/dictd.pid file. This can be overriden by
-      'pid_file' keyword in dictd.conf (See dictd.8) of command line
+      'pid_file' keyword in dictd.conf (See dictd.8) or command line
       option '--pid-file'.
       Thanks to Josef Novak for sudgestion and patch.
 
