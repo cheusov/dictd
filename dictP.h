@@ -19,7 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictP.h,v 1.26 2006/04/09 08:52:55 cheusov Exp $
+ * $Id: dictP.h,v 1.27 2006/05/06 08:53:51 cheusov Exp $
  * 
  */
 
@@ -108,6 +108,10 @@ extern unsigned long int strtoul( const char *, char **, int );
 
 #if !HAVE_SNPRINTF
 extern int snprintf(char *str, size_t size, const char *format, ...);
+#endif
+
+#if !HAVE_DAEMON
+extern int daemon(int nochdir, int noclose);
 #endif
 
 #if !HAVE_VSNPRINTF
