@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.84 2005/10/30 09:45:49 cheusov Exp $
+ * $Id: daemon.c,v 1.85 2006/05/13 15:02:22 cheusov Exp $
  * 
  */
 
@@ -909,7 +909,8 @@ static int count_databases( void )
    while (NULL != (db = next_database (&databasePosition, "*"))){
       assert (!db -> invisible);
 
-      ++count;
+      if (!db -> exit_db)
+	 ++count;
    }
 
    return count;
