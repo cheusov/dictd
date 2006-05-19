@@ -1,4 +1,9 @@
-#include "dictP.h"
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/termios.h>
+#include <fcntl.h>
+
+#include "dictd.h"
 
 int daemon (int nochdir, int noclose)
 {
