@@ -1,4 +1,24 @@
 ----------------------------------------------------------------------
+Version 1.10.5, by Aleksey Cheusov, Fri, 26 May 2006 23:12:49 +0300
+
+ DICTD:
+   - FIXED: In case database_exit directive is used in dictd.conf
+     SHOW DB command returns incorrect number of databases available.
+
+     Afected versions: 1.10.2 -- 1.10.4
+
+   - As of dictd-1.9.14 dictd creates log file being root and then
+     releases root priviledges. This was my bad idea because log file
+     may have % sign and may be used as a **pattern for log files**.
+
+     NOW OLDER BEHAVIOUR IS RESTORED, i.e.
+     log file is created after releasing root priviledges.
+     If you want to create log file under /var/log directory, create
+     /var/log/dictd with appropriate permissions and create log files there.
+
+     I apologize for inconvenience and breaking backward compatibility.
+
+----------------------------------------------------------------------
 Version 1.10.4, by Aleksey Cheusov, Mon, 12 Dec 2005 20:36:32 +0200
 
  DICTD
