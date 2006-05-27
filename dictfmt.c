@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.66 2005/09/02 16:20:42 cheusov Exp $
+ * $Id: dictfmt.c,v 1.67 2006/05/27 14:25:58 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -67,6 +67,8 @@ static FILE *str;
 /* defaults to creating ASCII database */
 static int utf8_mode     = 0;
 static int bit8_mode     = 0;
+
+static int index_keep_orig_mode = 0;
 
 static int allchars_mode = 0;
 
@@ -417,10 +419,19 @@ static char *trim_left (char *s)
    }
 }
 
+/*
+  Remove spaces at the beginning and the end of the string
+ */
+static char *trim_lr (char *s)
+{
+   return trim_left (trim_right (s));
+}
+
 static void write_hw_to_index (const char *word, int start, int end)
 {
    int len = 0;
    char *new_word = NULL;
+   char *trimmed_new_word = NULL;
 
    if (!word)
        return;
@@ -441,10 +452,14 @@ static void write_hw_to_index (const char *word, int start, int end)
 	 destroy_and_exit (1);
       }
 
-      word = trim_right (new_word);
+      fprintf( fmt_str, "%s\t%s\t", new_word, b64_encode(start) );
+      fprintf( fmt_str, "%s", b64_encode(end-start) );
 
-      fprintf( fmt_str, "%s\t%s\t", word, b64_encode(start) );
-      fprintf( fmt_str, "%s\n", b64_encode(end-start) );
+      if (index_keep_orig_mode && strcmp (word, new_word)){
+	 fprintf( fmt_str, "\t%s\n", word);
+      }else{
+	 fprintf( fmt_str, "\n");
+      }
 
       free (new_word);
    }
@@ -591,7 +606,7 @@ static void fmt_newheadword( const char *word )
 	       *sep = 0;
 	 }
 
-	 write_hw_to_index (p, start, end);
+	 write_hw_to_index (trim_lr (p), start, end);
 
 	 if (!sep)
 	    break;
@@ -691,7 +706,7 @@ static void help( FILE *out_stream )
      "-f        headwords start in col 0, definitions start in col 8",
      "-j        headwords are set off by colons",
      "-p        headwords are preceded by %p, with %d on following line",
-     "-i        creates .index file only, stdin has three column format",
+     "-i        reformat stdin having three-column .index file format",
      "-u <url>  URL of site where database was obtained",
      "-s <name> name of the database", 
      "--license\n\
@@ -714,6 +729,8 @@ static void help( FILE *out_stream )
                      if '--headword-separator %%%' is supplied",
 "--break-headwords    multiple headwords will be written on separate lines\n\
                      in the .dict file.  For use with '--headword-separator.",
+"--index-keep-orig    fourth column in .index file stores original headword\n\
+                     which is returned by MATCH command",
 "--without-headword   headwords will not be copied to .dict file",
 "--without-header     header will not be copied to DB info entry",
 "--without-url        URL will not be copied to DB info entry",
@@ -1000,6 +1017,7 @@ int main( int argc, char **argv )
       { "default-strategy",     1, 0, 512 },
       { "mime-header",          1, 0, 513 },
       { "utf8",                 0, 0, 514 },
+      { "index-keep-orig",      0, 0, 515 },
    };
 
    init (argv[0]);
@@ -1069,6 +1087,9 @@ int main( int argc, char **argv )
       case 514:
 	 bit8_mode = 0;
 	 utf8_mode = 1;
+	 break;
+      case 515:
+	 index_keep_orig_mode = 1;
 	 break;
       case 't':
 	 without_info = 1;
@@ -1347,8 +1368,6 @@ int main( int argc, char **argv )
 	       fprintf (stderr, "strtok failed 3\n");
 	       exit (1);
 	    }
-
-	    fprintf (stderr, "`%s`\t`%s`\t`%s`\n", headword, offset, size);
 
 	    i_offset = atoi (offset);
 	    i_size   = atoi (size);

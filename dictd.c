@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.129 2006/05/06 08:53:51 cheusov Exp $
+ * $Id: dictd.c,v 1.130 2006/05/27 14:25:58 cheusov Exp $
  * 
  */
 
@@ -1121,7 +1121,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.129 2006/05/06 08:53:51 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.130 2006/05/27 14:25:58 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1832,20 +1832,22 @@ int main (int argc, char **argv, char **envp)
       postprocess_filenames (DictConfig);
    }
 
-   if (detach){
-     /* become a daemon */
-      daemon (0, 0);
-   }
+   log_stream ("dictd", stderr);
 
    if (detach) create_pid_file ();
-
    release_root_privileges();
 
    if (logFile)   log_file ("dictd", logFile);
+   log_stream ("dictd", NULL);
    if (useSyslog) log_syslog ("dictd");
    if (! inetd && ! detach)   log_stream ("dictd", stderr);
    if ((logFile || useSyslog || !detach) && !logOptions)
       set_minimal();
+
+   if (detach){
+     /* become a daemon */
+      daemon (0, 0);
+   }
 
    time(&startTime);
    log_info(":I: %d starting %s %24.24s\n",

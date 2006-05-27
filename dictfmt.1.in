@@ -253,6 +253,17 @@ will be indexed as  headwords, with the same definition.
 multiple headwords will be written on separate lines in the .dict
 file.  For use with '--headword-separator.
 .TP
+.BI \--index-keep-headword
+When \--utf-8 is specified headwords are lowercased and
+non-alphanumeric characters are removed from it
+before saving to .index file
+in order to simplify the search.
+When \--index-keep-headword option is used
+fourth column is created (if necessary) in .index file,
+and contains an original headword which is returned by MATCH command.
+This option may be useful to prevent converting " AT&T" to " ATT"
+or to keep proper nouns with uppercased first letter.
+.TP
 .BI \--without-headword
 headwords will not be included in .dict file
 .TP

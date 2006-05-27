@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.104 2005/11/19 21:59:53 cheusov Exp $
+ * $Id: index.c,v 1.105 2006/05/27 14:25:58 cheusov Exp $
  * 
  */
 
@@ -585,15 +585,16 @@ static dictWord *dict_word_create(
     const dictDatabase *database,
     dictIndex *dbindex)
 {
-   int        firstTab  = 0;
-   int        secondTab = 0;
-   int        newline   = 0;
+   int        offs_word   = 0;
+   int        offs_offset = 0;
+   int        offs_length = 0;
+   int        offset      = 0;
+
+   int        word_len    = 0;
+
    dictWord   *dw       = xmalloc( sizeof( struct dictWord ) );
-   char       *buf;
-   int        offset    = 0;
-   int        state     = 0;
    const char *pt       = entry;
-   char       *s, *d;
+   char       *d;
 
    assert (dbindex);
    assert (pt >= dbindex -> start && pt < dbindex -> end);
@@ -602,42 +603,48 @@ static dictWord *dict_word_create(
 
    for (;pt < dbindex->end && *pt != '\n'; pt++, offset++) {
       if (*pt == '\t') {
-	 switch (++state) {
-	 case 1: firstTab = offset;  break;
-	 case 2: secondTab = offset; break;
-	 default:
+	 if (!offs_offset)
+	    offs_offset = offset + 1;
+	 else if (!offs_length)
+	    offs_length = offset + 1;
+	 else if (!offs_word)
+	    offs_word = offset + 1;
+	 else{
 	    err_internal( __FUNCTION__,
 			  "Too many tabs in index entry \"%*.*s\"\n",
-			  secondTab, secondTab, entry );
+			  offs_length, offs_length, entry );
 	 }
       }
    }
-   newline = offset;
-   
-   if (state != 2)
+
+   if (!offs_length)
       err_internal( __FUNCTION__,
 		    "Too few tabs in index entry \"%20.20s\"\n", entry );
 
-   buf = alloca( newline + 1 );
-   memcpy (buf, entry, newline);
-   buf[firstTab] = buf[secondTab] = buf [newline] = '\0';
+   dw->start    = b64_decode_buf (entry + offs_offset, offs_length - offs_offset - 1);
+   if (offs_word > 0){
+      word_len  = offset - offs_word;
+      dw->end   = b64_decode_buf (entry + offs_length, offs_word - offs_length - 1);
+   }else{
+      word_len  = offs_offset - 1;
+      dw->end   = b64_decode_buf (entry + offs_length, offset - offs_length);
+   }
 
-   dw->start    = b64_decode( buf + firstTab + 1 );
-   dw->end      = b64_decode( buf + secondTab + 1 );
    dw->def      = NULL;
    dw->def_size = 0;
    dw->database = database;
 
 				/* Apply quoting to word */
-   dw->word     = xmalloc(strlen(buf) * 2 + 1);
-   for (s = buf, d = (char *)dw->word; *s;) {
-       switch (*s) {
+   dw->word     = xmalloc (word_len*2 + 1);
+   entry += offs_word;
+
+   for (d = (char *)dw->word; word_len--;) {
+       switch (*entry) {
        case '"':
        case '\\':
 	   *d++ = '\\';
-       default:
-	   *d++ = *s++;
        }
+       *d++ = *entry++;
    }
    *d = '\0';
 

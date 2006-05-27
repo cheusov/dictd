@@ -180,9 +180,13 @@ function skip (head_word){
 
 BEGIN {
 	FS = "\t"
-	while ((ret = getline < index_fn) > 0 && NF == 3){
+	while ((ret = getline < index_fn) > 0 && (NF == 3 || NF == 4)){
 		offset    = b64_decode($2)
-		head_word = $1
+		if (NF > 3){
+			head_word = $4
+		}else{
+			head_word = $1
+		}
 
 		if (offset in offs2word){
 			offs2word [offset] = \
@@ -197,7 +201,7 @@ BEGIN {
 		exit 4
 	}
 
-	if (NF != 3){
+	if (NF != 3 && NF != 4){
 		print "index file format error" > "/dev/stderr"
 		exit 5
 	}
