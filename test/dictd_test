@@ -125,12 +125,12 @@ dictd_test_inetd (){
     $DIFF dictd_${dbtype}_res.expected.txt _dictd_${dbtype}_res.txt || exit 1
 }
 
-dictd_test_inetd smiley_1
-printf 'smiley_1 passed\n'
+#dictd_test_inetd smiley_1
+#printf 'smiley_1 passed\n'
 dictd_test_inetd smiley_2
 printf 'smiley_2 passed\n'
-dictd_test_inetd smiley_3
-printf 'smiley_3 passed\n'
+#dictd_test_inetd smiley_3
+#printf 'smiley_3 passed\n'
 dictd_test_inetd smiley_4
 printf 'smiley_4 passed\n'
 dictd_test_inetd smiley_5
