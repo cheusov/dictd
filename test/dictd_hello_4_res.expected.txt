@@ -88,7 +88,11 @@ testdb "00-database-utf8"
    hello6
 .
 250
-501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "dobrý den" testdb "unknown"
+   hello6
+.
+250
 501 syntax error, illegal parameters
 150 1 definitions retrieved
 151 "haló" testdb "unknown"

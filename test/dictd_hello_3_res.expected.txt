@@ -105,7 +105,12 @@ dobrý den
    hello6
 .
 250
-501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "dobrý den" testdb "unknown"
+dobrý den
+   hello6
+.
+250
 501 syntax error, illegal parameters
 150 1 definitions retrieved
 151 "haló" testdb "unknown"

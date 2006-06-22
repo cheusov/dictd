@@ -597,11 +597,9 @@ testdb "8:-)"
 .
 250
 150 1 definitions retrieved
-151 ":-(" testdb "unknown"
-:-(
- Frowning smilie. User did not like that last statement or is upset
-       or depressed about something.
-
+151 ":'-(" testdb "unknown"
+:'-(
+ User is crying
 
 .
 250
@@ -617,11 +615,9 @@ testdb ":-("
 .
 250
 150 1 definitions retrieved
-151 ":-)" testdb "unknown"
-:-)
- Your basic smilie. This smilie is used to inflect a sarcastic or
-       joking statement since we can't hear voice inflection over Unix.
-
+151 ":'-)" testdb "unknown"
+:'-)
+ User is so happy, s/he is crying
 
 .
 250

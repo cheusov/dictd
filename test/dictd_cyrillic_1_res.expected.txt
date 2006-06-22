@@ -1,0 +1,6252 @@
+220
+150 1 definitions retrieved
+151 "00databasealphabet" testdb "rus words"
+ыктблувгьэфмнхдіеюж7яоцчп90шз1ир ащъйс3
+.
+250
+150 1 definitions retrieved
+151 "00databasealphabet" testdb "rus words"
+ыктблувгьэфмнхдіеюж7яоцчп90шз1ир ащъйс3
+.
+250
+152 1 matches found
+testdb "00databasealphabet"
+.
+250
+150 1 definitions retrieved
+151 "00databasedefaultstrategy" testdb "rus words"
+word
+.
+250
+150 1 definitions retrieved
+151 "00databasedefaultstrategy" testdb "rus words"
+word
+.
+250
+152 1 matches found
+testdb "00databasedefaultstrategy"
+.
+250
+150 1 definitions retrieved
+151 "00databaseinfo" testdb "rus words"
+The original data is available from:
+     URL here
+
+The original data was distributed with the notice shown below. No
+additional restrictions are claimed.  Please redistribute this changed
+version under the same conditions and restriction that apply to the
+original version.
+
+.
+250
+150 1 definitions retrieved
+151 "00databaseinfo" testdb "rus words"
+The original data is available from:
+     URL here
+
+The original data was distributed with the notice shown below. No
+additional restrictions are claimed.  Please redistribute this changed
+version under the same conditions and restriction that apply to the
+original version.
+
+.
+250
+152 1 matches found
+testdb "00databaseinfo"
+.
+250
+150 1 definitions retrieved
+151 "00databaseshort" testdb "rus words"
+00-database-short
+     rus words
+.
+250
+150 1 definitions retrieved
+151 "00databaseshort" testdb "rus words"
+00-database-short
+     rus words
+.
+250
+152 1 matches found
+testdb "00databaseshort"
+.
+250
+150 1 definitions retrieved
+151 "00databaseurl" testdb "rus words"
+URL here
+.
+250
+150 1 definitions retrieved
+151 "00databaseurl" testdb "rus words"
+URL here
+.
+250
+152 1 matches found
+testdb "00databaseurl"
+.
+250
+150 1 definitions retrieved
+151 "00databaseutf8" testdb "rus words"
+
+.
+250
+150 1 definitions retrieved
+151 "00databaseutf8" testdb "rus words"
+
+.
+250
+152 1 matches found
+testdb "00databaseutf8"
+.
+250
+150 1 definitions retrieved
+151 "абхазский университет" testdb "rus words"
+абхазский университет
+ <абхазский университет>
+.
+250
+150 1 definitions retrieved
+151 "абхазский университет" testdb "rus words"
+абхазский университет
+ <абхазский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "азербайджанский индустриальный университет" testdb "rus words"
+азербайджанский индустриальный университет
+ <азербайджанский индустриальный университет>
+.
+250
+150 1 definitions retrieved
+151 "азербайджанский индустриальный университет" testdb "rus words"
+азербайджанский индустриальный университет
+ <азербайджанский индустриальный университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "азербайджанский медицинский университет" testdb "rus words"
+азербайджанский медицинский университет
+ <азербайджанский медицинский университет>
+.
+250
+150 1 definitions retrieved
+151 "азербайджанский медицинский университет" testdb "rus words"
+азербайджанский медицинский университет
+ <азербайджанский медицинский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "азербайджанский университет" testdb "rus words"
+азербайджанский университет
+ <азербайджанский университет>
+.
+250
+150 1 definitions retrieved
+151 "азербайджанский университет" testdb "rus words"
+азербайджанский университет
+ <азербайджанский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "академический университет" testdb "rus words"
+академический университет
+ <академический университет>
+.
+250
+150 1 definitions retrieved
+151 "академический университет" testdb "rus words"
+академический университет
+ <академический университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "алтайский университет" testdb "rus words"
+алтайский университет
+ <алтайский университет>
+.
+250
+150 1 definitions retrieved
+151 "алтайский университет" testdb "rus words"
+алтайский университет
+ <алтайский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "барщиной или боярщиной  назывались  также  в  прежнее  время  имения" testdb "rus words"
+барщиной или боярщиной  назывались  также  в  прежнее  время  имения
+ <барщиной или боярщиной  назывались  также  в  прежнее  время  имения>
+.
+250
+150 1 definitions retrieved
+151 "барщиной или боярщиной  назывались  также  в  прежнее  время  имения" testdb "rus words"
+барщиной или боярщиной  назывались  также  в  прежнее  время  имения
+ <барщиной или боярщиной  назывались  также  в  прежнее  время  имения>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "батумский университет" testdb "rus words"
+батумский университет
+ <батумский университет>
+.
+250
+150 1 definitions retrieved
+151 "батумский университет" testdb "rus words"
+батумский университет
+ <батумский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "башкирский университет" testdb "rus words"
+башкирский университет
+ <башкирский университет>
+.
+250
+150 1 definitions retrieved
+151 "башкирский университет" testdb "rus words"
+башкирский университет
+ <башкирский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "белградский мир белградский университет" testdb "rus words"
+белградский мир белградский университет
+ <белградский мир белградский университет>
+.
+250
+150 1 definitions retrieved
+151 "белградский мир белградский университет" testdb "rus words"
+белградский мир белградский университет
+ <белградский мир белградский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "белорусский университет" testdb "rus words"
+белорусский университет
+ <белорусский университет>
+.
+250
+150 1 definitions retrieved
+151 "белорусский университет" testdb "rus words"
+белорусский университет
+ <белорусский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "берлинский университет" testdb "rus words"
+берлинский университет
+ <берлинский университет>
+.
+250
+150 1 definitions retrieved
+151 "берлинский университет" testdb "rus words"
+берлинский университет
+ <берлинский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "бизнесвремя" testdb "rus words"
+бизнесвремя
+ <бизнесвремя>
+.
+250
+150 1 definitions retrieved
+151 "бизнесвремя" testdb "rus words"
+бизнесвремя
+ <бизнесвремя>
+.
+250
+152 1 matches found
+testdb "бизнесвремя"
+.
+250
+150 1 definitions retrieved
+151 "болонский университет" testdb "rus words"
+болонский университет
+ <болонский университет>
+.
+250
+150 1 definitions retrieved
+151 "болонский университет" testdb "rus words"
+болонский университет
+ <болонский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "бомбейский университет" testdb "rus words"
+бомбейский университет
+ <бомбейский университет>
+.
+250
+150 1 definitions retrieved
+151 "бомбейский университет" testdb "rus words"
+бомбейский университет
+ <бомбейский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "боннский университет" testdb "rus words"
+боннский университет
+ <боннский университет>
+.
+250
+150 1 definitions retrieved
+151 "боннский университет" testdb "rus words"
+боннский университет
+ <боннский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "братиславский университет" testdb "rus words"
+братиславский университет
+ <братиславский университет>
+.
+250
+150 1 definitions retrieved
+151 "братиславский университет" testdb "rus words"
+братиславский университет
+ <братиславский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "будапештский университет" testdb "rus words"
+будапештский университет
+ <будапештский университет>
+.
+250
+150 1 definitions retrieved
+151 "будапештский университет" testdb "rus words"
+будапештский университет
+ <будапештский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "будущее время" testdb "rus words"
+будущее время
+ <будущее время>
+.
+250
+150 1 definitions retrieved
+151 "будущее время" testdb "rus words"
+будущее время
+ <будущее время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "бурный время" testdb "rus words"
+бурный время
+ <бурный время>
+.
+250
+150 1 definitions retrieved
+151 "бурный время" testdb "rus words"
+бурный время
+ <бурный время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "бухарестский университет" testdb "rus words"
+бухарестский университет
+ <бухарестский университет>
+.
+250
+150 1 definitions retrieved
+151 "бухарестский университет" testdb "rus words"
+бухарестский университет
+ <бухарестский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "бытие и время" testdb "rus words"
+бытие и время
+ <бытие и время>
+.
+250
+150 1 definitions retrieved
+151 "бытие и время" testdb "rus words"
+бытие и время
+ <бытие и время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "в ближайшее время" testdb "rus words"
+в ближайшее время
+ <в ближайшее время>
+.
+250
+150 1 definitions retrieved
+151 "в ближайшее время" testdb "rus words"
+в ближайшее время
+ <в ближайшее время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "в время незамедлительный пунктуальный" testdb "rus words"
+в время незамедлительный пунктуальный
+ <в время незамедлительный пунктуальный>
+.
+250
+150 1 definitions retrieved
+151 "в время незамедлительный пунктуальный" testdb "rus words"
+в время незамедлительный пунктуальный
+ <в время незамедлительный пунктуальный>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "в данное время" testdb "rus words"
+в данное время
+ <в данное время>
+.
+250
+150 1 definitions retrieved
+151 "в данное время" testdb "rus words"
+в данное время
+ <в данное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "в должное время" testdb "rus words"
+в должное время
+ <в должное время>
+.
+250
+150 1 definitions retrieved
+151 "в должное время" testdb "rus words"
+в должное время
+ <в должное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "в любое время" testdb "rus words"
+в любое время
+ <в любое время>
+.
+250
+150 1 definitions retrieved
+151 "в любое время" testdb "rus words"
+в любое время
+ <в любое время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "в надлежащее время" testdb "rus words"
+в надлежащее время
+ <в надлежащее время>
+.
+250
+150 1 definitions retrieved
+151 "в надлежащее время" testdb "rus words"
+в надлежащее время
+ <в надлежащее время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "в назначенное время" testdb "rus words"
+в назначенное время
+ <в назначенное время>
+.
+250
+150 1 definitions retrieved
+151 "в назначенное время" testdb "rus words"
+в назначенное время
+ <в назначенное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "в настоящее время" testdb "rus words"
+в настоящее время
+ <в настоящее время>
+.
+250
+150 1 definitions retrieved
+151 "в настоящее время" testdb "rus words"
+в настоящее время
+ <в настоящее время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "в последнее время с недавних пор" testdb "rus words"
+в последнее время с недавних пор
+ <в последнее время с недавних пор>
+.
+250
+150 1 definitions retrieved
+151 "в последнее время с недавних пор" testdb "rus words"
+в последнее время с недавних пор
+ <в последнее время с недавних пор>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "в самое ближайшее время" testdb "rus words"
+в самое ближайшее время
+ <в самое ближайшее время>
+.
+250
+150 1 definitions retrieved
+151 "в самое ближайшее время" testdb "rus words"
+в самое ближайшее время
+ <в самое ближайшее время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "в свое время" testdb "rus words"
+в свое время
+ <в свое время>
+.
+250
+150 1 definitions retrieved
+151 "в свое время" testdb "rus words"
+в свое время
+ <в свое время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "в такое время" testdb "rus words"
+в такое время
+ <в такое время>
+.
+250
+150 1 definitions retrieved
+151 "в такое время" testdb "rus words"
+в такое время
+ <в такое время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "в то время" testdb "rus words"
+в то время
+ <в то время>
+.
+250
+150 1 definitions retrieved
+151 "в то время" testdb "rus words"
+в то время
+ <в то время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "в то время  когда" testdb "rus words"
+в то время  когда
+ <в то время  когда>
+.
+250
+150 1 definitions retrieved
+151 "в то время  когда" testdb "rus words"
+в то время  когда
+ <в то время  когда>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "в то время как" testdb "rus words"
+в то время как
+ <в то время как>
+.
+250
+150 1 definitions retrieved
+151 "в то время как" testdb "rus words"
+в то время как
+ <в то время как>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "в то время как пока" testdb "rus words"
+в то время как пока
+ <в то время как пока>
+.
+250
+150 1 definitions retrieved
+151 "в то время как пока" testdb "rus words"
+в то время как пока
+ <в то время как пока>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "в то же время" testdb "rus words"
+в то же время
+ <в то же время>
+.
+250
+150 1 definitions retrieved
+151 "в то же время" testdb "rus words"
+в то же время
+ <в то же время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "в то же самое время" testdb "rus words"
+в то же самое время
+ <в то же самое время>
+.
+250
+150 1 definitions retrieved
+151 "в то же самое время" testdb "rus words"
+в то же самое время
+ <в то же самое время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "варшавский университет" testdb "rus words"
+варшавский университет
+ <варшавский университет>
+.
+250
+150 1 definitions retrieved
+151 "варшавский университет" testdb "rus words"
+варшавский университет
+ <варшавский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "венский университет" testdb "rus words"
+венский университет
+ <венский университет>
+.
+250
+150 1 definitions retrieved
+151 "венский университет" testdb "rus words"
+венский университет
+ <венский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "весь время" testdb "rus words"
+весь время
+ <весь время>
+.
+250
+150 1 definitions retrieved
+151 "весь время" testdb "rus words"
+весь время
+ <весь время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "вильнюсский университет" testdb "rus words"
+вильнюсский университет
+ <вильнюсский университет>
+.
+250
+150 1 definitions retrieved
+151 "вильнюсский университет" testdb "rus words"
+вильнюсский университет
+ <вильнюсский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "внерабочее время" testdb "rus words"
+внерабочее время
+ <внерабочее время>
+.
+250
+150 1 definitions retrieved
+151 "внерабочее время" testdb "rus words"
+внерабочее время
+ <внерабочее время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "во время" testdb "rus words"
+во время
+ <во время>
+.
+250
+150 1 definitions retrieved
+151 "во время" testdb "rus words"
+во время
+ <во время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "во время в продолжение в течение" testdb "rus words"
+во время в продолжение в течение
+ <во время в продолжение в течение>
+.
+250
+150 1 definitions retrieved
+151 "во время в продолжение в течение" testdb "rus words"
+во время в продолжение в течение
+ <во время в продолжение в течение>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "во время вашего визита" testdb "rus words"
+во время вашего визита
+ <во время вашего визита>
+.
+250
+150 1 definitions retrieved
+151 "во время вашего визита" testdb "rus words"
+во время вашего визита
+ <во время вашего визита>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "во время вашего пребывания" testdb "rus words"
+во время вашего пребывания
+ <во время вашего пребывания>
+.
+250
+150 1 definitions retrieved
+151 "во время вашего пребывания" testdb "rus words"
+во время вашего пребывания
+ <во время вашего пребывания>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "во время оно" testdb "rus words"
+во время оно
+ <во время оно>
+.
+250
+150 1 definitions retrieved
+151 "во время оно" testdb "rus words"
+во время оно
+ <во время оно>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "во время пребывания" testdb "rus words"
+во время пребывания
+ <во время пребывания>
+.
+250
+150 1 definitions retrieved
+151 "во время пребывания" testdb "rus words"
+во время пребывания
+ <во время пребывания>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "во время работы" testdb "rus words"
+во время работы
+ <во время работы>
+.
+250
+150 1 definitions retrieved
+151 "во время работы" testdb "rus words"
+во время работы
+ <во время работы>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "во всякое время" testdb "rus words"
+во всякое время
+ <во всякое время>
+.
+250
+150 1 definitions retrieved
+151 "во всякое время" testdb "rus words"
+во всякое время
+ <во всякое время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "вовремя" testdb "rus words"
+вовремя
+ <вовремя>
+.
+250
+150 1 definitions retrieved
+151 "вовремя" testdb "rus words"
+вовремя
+ <вовремя>
+.
+250
+152 1 matches found
+testdb "вовремя"
+.
+250
+150 1 definitions retrieved
+151 "вовремя прекращать невыгодное дело" testdb "rus words"
+вовремя прекращать невыгодное дело
+ <вовремя прекращать невыгодное дело>
+.
+250
+150 1 definitions retrieved
+151 "вовремя прекращать невыгодное дело" testdb "rus words"
+вовремя прекращать невыгодное дело
+ <вовремя прекращать невыгодное дело>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "военный время" testdb "rus words"
+военный время
+ <военный время>
+.
+250
+150 1 definitions retrieved
+151 "военный время" testdb "rus words"
+военный время
+ <военный время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "волгоградский университет" testdb "rus words"
+волгоградский университет
+ <волгоградский университет>
+.
+250
+150 1 definitions retrieved
+151 "волгоградский университет" testdb "rus words"
+волгоградский университет
+ <волгоградский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "волочить время дело" testdb "rus words"
+волочить время дело
+ <волочить время дело>
+.
+250
+150 1 definitions retrieved
+151 "волочить время дело" testdb "rus words"
+волочить время дело
+ <волочить время дело>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "воронежский университет" testdb "rus words"
+воронежский университет
+ <воронежский университет>
+.
+250
+150 1 definitions retrieved
+151 "воронежский университет" testdb "rus words"
+воронежский университет
+ <воронежский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время" testdb "rus words"
+время
+ <время>
+.
+250
+150 1 definitions retrieved
+151 "время" testdb "rus words"
+время
+ <время>
+.
+250
+152 1 matches found
+testdb "время"
+.
+250
+150 1 definitions retrieved
+151 "время встречи" testdb "rus words"
+время встречи
+ <время встречи>
+.
+250
+150 1 definitions retrieved
+151 "время встречи" testdb "rus words"
+время встречи
+ <время встречи>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время вступления в силу" testdb "rus words"
+время вступления в силу
+ <время вступления в силу>
+.
+250
+150 1 definitions retrieved
+151 "время вступления в силу" testdb "rus words"
+время вступления в силу
+ <время вступления в силу>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время вывода" testdb "rus words"
+время вывода
+ <время вывода>
+.
+250
+150 1 definitions retrieved
+151 "время вывода" testdb "rus words"
+время вывода
+ <время вывода>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время выполнения" testdb "rus words"
+время выполнения
+ <время выполнения>
+.
+250
+150 1 definitions retrieved
+151 "время выполнения" testdb "rus words"
+время выполнения
+ <время выполнения>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время года" testdb "rus words"
+время года
+ <время года>
+.
+250
+150 1 definitions retrieved
+151 "время года" testdb "rus words"
+время года
+ <время года>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время действия лицензии" testdb "rus words"
+время действия лицензии
+ <время действия лицензии>
+.
+250
+150 1 definitions retrieved
+151 "время действия лицензии" testdb "rus words"
+время действия лицензии
+ <время действия лицензии>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время до начала" testdb "rus words"
+время до начала
+ <время до начала>
+.
+250
+150 1 definitions retrieved
+151 "время до начала" testdb "rus words"
+время до начала
+ <время до начала>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время до полудня" testdb "rus words"
+время до полудня
+ <время до полудня>
+.
+250
+150 1 definitions retrieved
+151 "время до полудня" testdb "rus words"
+время до полудня
+ <время до полудня>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время доступа" testdb "rus words"
+время доступа
+ <время доступа>
+.
+250
+150 1 definitions retrieved
+151 "время доступа" testdb "rus words"
+время доступа
+ <время доступа>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время еды" testdb "rus words"
+время еды
+ <время еды>
+.
+250
+150 1 definitions retrieved
+151 "время еды" testdb "rus words"
+время еды
+ <время еды>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время и другой" testdb "rus words"
+время и другой
+ <время и другой>
+.
+250
+150 1 definitions retrieved
+151 "время и другой" testdb "rus words"
+время и другой
+ <время и другой>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время между входами" testdb "rus words"
+время между входами
+ <время между входами>
+.
+250
+150 1 definitions retrieved
+151 "время между входами" testdb "rus words"
+время между входами
+ <время между входами>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время на" testdb "rus words"
+время на
+ <время на>
+.
+250
+150 1 definitions retrieved
+151 "время на" testdb "rus words"
+время на
+ <время на>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время начала" testdb "rus words"
+время начала
+ <время начала>
+.
+250
+150 1 definitions retrieved
+151 "время начала" testdb "rus words"
+время начала
+ <время начала>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время не меньше чем 3 дня" testdb "rus words"
+время не меньше чем 3 дня
+ <время не меньше чем 3 дня>
+.
+250
+150 1 definitions retrieved
+151 "время не меньше чем 3 дня" testdb "rus words"
+время не меньше чем 3 дня
+ <время не меньше чем 3 дня>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время обнаружения" testdb "rus words"
+время обнаружения
+ <время обнаружения>
+.
+250
+150 1 definitions retrieved
+151 "время обнаружения" testdb "rus words"
+время обнаружения
+ <время обнаружения>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время ожидания" testdb "rus words"
+время ожидания
+ <время ожидания>
+.
+250
+150 1 definitions retrieved
+151 "время ожидания" testdb "rus words"
+время ожидания
+ <время ожидания>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время от времени" testdb "rus words"
+время от времени
+ <время от времени>
+.
+250
+150 1 definitions retrieved
+151 "время от времени" testdb "rus words"
+время от времени
+ <время от времени>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время отдыха машины" testdb "rus words"
+время отдыха машины
+ <время отдыха машины>
+.
+250
+150 1 definitions retrieved
+151 "время отдыха машины" testdb "rus words"
+время отдыха машины
+ <время отдыха машины>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время отклика" testdb "rus words"
+время отклика
+ <время отклика>
+.
+250
+150 1 definitions retrieved
+151 "время отклика" testdb "rus words"
+время отклика
+ <время отклика>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время отправления" testdb "rus words"
+время отправления
+ <время отправления>
+.
+250
+150 1 definitions retrieved
+151 "время отправления" testdb "rus words"
+время отправления
+ <время отправления>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время по гринвичу" testdb "rus words"
+время по гринвичу
+ <время по гринвичу>
+.
+250
+150 1 definitions retrieved
+151 "время по гринвичу" testdb "rus words"
+время по гринвичу
+ <время по гринвичу>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время после полудня" testdb "rus words"
+время после полудня
+ <время после полудня>
+.
+250
+150 1 definitions retrieved
+151 "время после полудня" testdb "rus words"
+время после полудня
+ <время после полудня>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время после трансплантации" testdb "rus words"
+время после трансплантации
+ <время после трансплантации>
+.
+250
+150 1 definitions retrieved
+151 "время после трансплантации" testdb "rus words"
+время после трансплантации
+ <время после трансплантации>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время прибытия" testdb "rus words"
+время прибытия
+ <время прибытия>
+.
+250
+150 1 definitions retrieved
+151 "время прибытия" testdb "rus words"
+время прибытия
+ <время прибытия>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время принятия пищи" testdb "rus words"
+время принятия пищи
+ <время принятия пищи>
+.
+250
+150 1 definitions retrieved
+151 "время принятия пищи" testdb "rus words"
+время принятия пищи
+ <время принятия пищи>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время прогона" testdb "rus words"
+время прогона
+ <время прогона>
+.
+250
+150 1 definitions retrieved
+151 "время прогона" testdb "rus words"
+время прогона
+ <время прогона>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время простоя" testdb "rus words"
+время простоя
+ <время простоя>
+.
+250
+150 1 definitions retrieved
+151 "время простоя" testdb "rus words"
+время простоя
+ <время простоя>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время разгона" testdb "rus words"
+время разгона
+ <время разгона>
+.
+250
+150 1 definitions retrieved
+151 "время разгона" testdb "rus words"
+время разгона
+ <время разгона>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время реакции" testdb "rus words"
+время реакции
+ <время реакции>
+.
+250
+150 1 definitions retrieved
+151 "время реакции" testdb "rus words"
+время реакции
+ <время реакции>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время спать" testdb "rus words"
+время спать
+ <время спать>
+.
+250
+150 1 definitions retrieved
+151 "время спать" testdb "rus words"
+время спать
+ <время спать>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время терпит" testdb "rus words"
+время терпит
+ <время терпит>
+.
+250
+150 1 definitions retrieved
+151 "время терпит" testdb "rus words"
+время терпит
+ <время терпит>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время технического обслуживания" testdb "rus words"
+время технического обслуживания
+ <время технического обслуживания>
+.
+250
+150 1 definitions retrieved
+151 "время технического обслуживания" testdb "rus words"
+время технического обслуживания
+ <время технического обслуживания>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "время ужина" testdb "rus words"
+время ужина
+ <время ужина>
+.
+250
+150 1 definitions retrieved
+151 "время ужина" testdb "rus words"
+время ужина
+ <время ужина>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "времяимпульсный" testdb "rus words"
+времяимпульсный
+ <времяимпульсный>
+.
+250
+150 1 definitions retrieved
+151 "времяимпульсный" testdb "rus words"
+времяимпульсный
+ <времяимпульсный>
+.
+250
+152 1 matches found
+testdb "времяимпульсный"
+.
+250
+150 1 definitions retrieved
+151 "времяимпульсный датчик" testdb "rus words"
+времяимпульсный датчик
+ <времяимпульсный датчик>
+.
+250
+150 1 definitions retrieved
+151 "времяимпульсный датчик" testdb "rus words"
+времяимпульсный датчик
+ <времяимпульсный датчик>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "времяисчисление" testdb "rus words"
+времяисчисление
+ <времяисчисление>
+.
+250
+150 1 definitions retrieved
+151 "времяисчисление" testdb "rus words"
+времяисчисление
+ <времяисчисление>
+.
+250
+152 1 matches found
+testdb "времяисчисление"
+.
+250
+150 1 definitions retrieved
+151 "времякоршун" testdb "rus words"
+времякоршун
+ <времякоршун>
+.
+250
+150 1 definitions retrieved
+151 "времякоршун" testdb "rus words"
+времякоршун
+ <времякоршун>
+.
+250
+152 1 matches found
+testdb "времякоршун"
+.
+250
+150 1 definitions retrieved
+151 "времямн" testdb "rus words"
+времямн
+ <времямн>
+.
+250
+150 1 definitions retrieved
+151 "времямн" testdb "rus words"
+времямн
+ <времямн>
+.
+250
+152 1 matches found
+testdb "времямн"
+.
+250
+150 1 definitions retrieved
+151 "времянка" testdb "rus words"
+времянка
+ <времянка>
+.
+250
+150 1 definitions retrieved
+151 "времянка" testdb "rus words"
+времянка
+ <времянка>
+.
+250
+152 1 matches found
+testdb "времянка"
+.
+250
+150 1 definitions retrieved
+151 "времяпредатель" testdb "rus words"
+времяпредатель
+ <времяпредатель>
+.
+250
+150 1 definitions retrieved
+151 "времяпредатель" testdb "rus words"
+времяпредатель
+ <времяпредатель>
+.
+250
+152 1 matches found
+testdb "времяпредатель"
+.
+250
+150 1 definitions retrieved
+151 "времяпрепровождение" testdb "rus words"
+времяпрепровождение
+ <времяпрепровождение>
+.
+250
+150 1 definitions retrieved
+151 "времяпрепровождение" testdb "rus words"
+времяпрепровождение
+ <времяпрепровождение>
+.
+250
+152 1 matches found
+testdb "времяпрепровождение"
+.
+250
+150 1 definitions retrieved
+151 "времяпровождение" testdb "rus words"
+времяпровождение
+ <времяпровождение>
+.
+250
+150 1 definitions retrieved
+151 "времяпровождение" testdb "rus words"
+времяпровождение
+ <времяпровождение>
+.
+250
+152 1 matches found
+testdb "времяпровождение"
+.
+250
+150 1 definitions retrieved
+151 "времяпространство" testdb "rus words"
+времяпространство
+ <времяпространство>
+.
+250
+150 1 definitions retrieved
+151 "времяпространство" testdb "rus words"
+времяпространство
+ <времяпространство>
+.
+250
+152 1 matches found
+testdb "времяпространство"
+.
+250
+150 1 definitions retrieved
+151 "времяс" testdb "rus words"
+времяс
+ <времяс>
+.
+250
+150 1 definitions retrieved
+151 "времяс" testdb "rus words"
+времяс
+ <времяс>
+.
+250
+152 1 matches found
+testdb "времяс"
+.
+250
+150 1 definitions retrieved
+151 "времятайм" testdb "rus words"
+времятайм
+ <времятайм>
+.
+250
+150 1 definitions retrieved
+151 "времятайм" testdb "rus words"
+времятайм
+ <времятайм>
+.
+250
+152 1 matches found
+testdb "времятайм"
+.
+250
+150 1 definitions retrieved
+151 "времячко" testdb "rus words"
+времячко
+ <времячко>
+.
+250
+150 1 definitions retrieved
+151 "времячко" testdb "rus words"
+времячко
+ <времячко>
+.
+250
+152 1 matches found
+testdb "времячко"
+.
+250
+150 1 definitions retrieved
+151 "все время" testdb "rus words"
+все время
+ <все время>
+.
+250
+150 1 definitions retrieved
+151 "все время" testdb "rus words"
+все время
+ <все время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "все хорошо в свое время" testdb "rus words"
+все хорошо в свое время
+ <все хорошо в свое время>
+.
+250
+150 1 definitions retrieved
+151 "все хорошо в свое время" testdb "rus words"
+все хорошо в свое время
+ <все хорошо в свое время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "всевремя" testdb "rus words"
+всевремя
+ <всевремя>
+.
+250
+150 1 definitions retrieved
+151 "всевремя" testdb "rus words"
+всевремя
+ <всевремя>
+.
+250
+152 1 matches found
+testdb "всевремя"
+.
+250
+150 1 definitions retrieved
+151 "всемирное время" testdb "rus words"
+всемирное время
+ <всемирное время>
+.
+250
+150 1 definitions retrieved
+151 "всемирное время" testdb "rus words"
+всемирное время
+ <всемирное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "всякому овощу свое время" testdb "rus words"
+всякому овощу свое время
+ <всякому овощу свое время>
+.
+250
+150 1 definitions retrieved
+151 "всякому овощу свое время" testdb "rus words"
+всякому овощу свое время
+ <всякому овощу свое время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "выигрывать время" testdb "rus words"
+выигрывать время
+ <выигрывать время>
+.
+250
+150 1 definitions retrieved
+151 "выигрывать время" testdb "rus words"
+выигрывать время
+ <выигрывать время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "гаванский университет" testdb "rus words"
+гаванский университет
+ <гаванский университет>
+.
+250
+150 1 definitions retrieved
+151 "гаванский университет" testdb "rus words"
+гаванский университет
+ <гаванский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "гарвардский университет" testdb "rus words"
+гарвардский университет
+ <гарвардский университет>
+.
+250
+150 1 definitions retrieved
+151 "гарвардский университет" testdb "rus words"
+гарвардский университет
+ <гарвардский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "гейдельбергский университет" testdb "rus words"
+гейдельбергский университет
+ <гейдельбергский университет>
+.
+250
+150 1 definitions retrieved
+151 "гейдельбергский университет" testdb "rus words"
+гейдельбергский университет
+ <гейдельбергский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "гельсингфорсский университет" testdb "rus words"
+гельсингфорсский университет
+ <гельсингфорсский университет>
+.
+250
+150 1 definitions retrieved
+151 "гельсингфорсский университет" testdb "rus words"
+гельсингфорсский университет
+ <гельсингфорсский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "геттингенский университет" testdb "rus words"
+геттингенский университет
+ <геттингенский университет>
+.
+250
+150 1 definitions retrieved
+151 "геттингенский университет" testdb "rus words"
+геттингенский университет
+ <геттингенский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "гладзорский университет" testdb "rus words"
+гладзорский университет
+ <гладзорский университет>
+.
+250
+150 1 definitions retrieved
+151 "гладзорский университет" testdb "rus words"
+гладзорский университет
+ <гладзорский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "гомельский университет" testdb "rus words"
+гомельский университет
+ <гомельский университет>
+.
+250
+150 1 definitions retrieved
+151 "гомельский университет" testdb "rus words"
+гомельский университет
+ <гомельский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "горячее время" testdb "rus words"
+горячее время
+ <горячее время>
+.
+250
+150 1 definitions retrieved
+151 "горячее время" testdb "rus words"
+горячее время
+ <горячее время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "гражданское время" testdb "rus words"
+гражданское время
+ <гражданское время>
+.
+250
+150 1 definitions retrieved
+151 "гражданское время" testdb "rus words"
+гражданское время
+ <гражданское время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "гремя" testdb "rus words"
+гремя
+ <гремя>
+.
+250
+150 1 definitions retrieved
+151 "гремя" testdb "rus words"
+гремя
+ <гремя>
+.
+250
+152 1 matches found
+testdb "гремя"
+.
+250
+150 1 definitions retrieved
+151 "гремят" testdb "rus words"
+гремят
+ <гремят>
+.
+250
+150 1 definitions retrieved
+151 "гремят" testdb "rus words"
+гремят
+ <гремят>
+.
+250
+152 1 matches found
+testdb "гремят"
+.
+250
+150 1 definitions retrieved
+151 "гремяцкий" testdb "rus words"
+гремяцкий
+ <гремяцкий>
+.
+250
+150 1 definitions retrieved
+151 "гремяцкий" testdb "rus words"
+гремяцкий
+ <гремяцкий>
+.
+250
+152 1 matches found
+testdb "гремяцкий"
+.
+250
+150 1 definitions retrieved
+151 "гремячинск" testdb "rus words"
+гремячинск
+ <гремячинск>
+.
+250
+150 1 definitions retrieved
+151 "гремячинск" testdb "rus words"
+гремячинск
+ <гремячинск>
+.
+250
+152 1 matches found
+testdb "гремячинск"
+.
+250
+150 1 definitions retrieved
+151 "гремящий" testdb "rus words"
+гремящий
+ <гремящий>
+.
+250
+150 1 definitions retrieved
+151 "гремящий" testdb "rus words"
+гремящий
+ <гремящий>
+.
+250
+152 1 matches found
+testdb "гремящий"
+.
+250
+150 1 definitions retrieved
+151 "греция древняя за все время независимого существования г в  истории" testdb "rus words"
+греция древняя за все время независимого существования г в  истории
+ <греция древняя за все время независимого существования г в  истории>
+.
+250
+150 1 definitions retrieved
+151 "греция древняя за все время независимого существования г в  истории" testdb "rus words"
+греция древняя за все время независимого существования г в  истории
+ <греция древняя за все время независимого существования г в  истории>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "гринвичское среднее время" testdb "rus words"
+гринвичское среднее время
+ <гринвичское среднее время>
+.
+250
+150 1 definitions retrieved
+151 "гринвичское среднее время" testdb "rus words"
+гринвичское среднее время
+ <гринвичское среднее время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "гродненский университет" testdb "rus words"
+гродненский университет
+ <гродненский университет>
+.
+250
+150 1 definitions retrieved
+151 "гродненский университет" testdb "rus words"
+гродненский университет
+ <гродненский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "грузинский аграрный университет" testdb "rus words"
+грузинский аграрный университет
+ <грузинский аграрный университет>
+.
+250
+150 1 definitions retrieved
+151 "грузинский аграрный университет" testdb "rus words"
+грузинский аграрный университет
+ <грузинский аграрный университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "грузинский технический университет" testdb "rus words"
+грузинский технический университет
+ <грузинский технический университет>
+.
+250
+150 1 definitions retrieved
+151 "грузинский технический университет" testdb "rus words"
+грузинский технический университет
+ <грузинский технический университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "гуттаперчевое дерево  долгое время под этим названием известно было" testdb "rus words"
+гуттаперчевое дерево  долгое время под этим названием известно было
+ <гуттаперчевое дерево  долгое время под этим названием известно было>
+.
+250
+150 1 definitions retrieved
+151 "гуттаперчевое дерево  долгое время под этим названием известно было" testdb "rus words"
+гуттаперчевое дерево  долгое время под этим названием известно было
+ <гуттаперчевое дерево  долгое время под этим названием известно было>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "давнопрошедший время" testdb "rus words"
+давнопрошедший время
+ <давнопрошедший время>
+.
+250
+150 1 definitions retrieved
+151 "давнопрошедший время" testdb "rus words"
+давнопрошедший время
+ <давнопрошедший время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "дагестанский университет" testdb "rus words"
+дагестанский университет
+ <дагестанский университет>
+.
+250
+150 1 definitions retrieved
+151 "дагестанский университет" testdb "rus words"
+дагестанский университет
+ <дагестанский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "дай время срок" testdb "rus words"
+дай время срок
+ <дай время срок>
+.
+250
+150 1 definitions retrieved
+151 "дай время срок" testdb "rus words"
+дай время срок
+ <дай время срок>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "дальневосточный университет" testdb "rus words"
+дальневосточный университет
+ <дальневосточный университет>
+.
+250
+150 1 definitions retrieved
+151 "дальневосточный университет" testdb "rus words"
+дальневосточный университет
+ <дальневосточный университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "дарданеллы с точки зрения международного права  в  то  время  когда" testdb "rus words"
+дарданеллы с точки зрения международного права  в  то  время  когда
+ <дарданеллы с точки зрения международного права  в  то  время  когда>
+.
+250
+150 1 definitions retrieved
+151 "дарданеллы с точки зрения международного права  в  то  время  когда" testdb "rus words"
+дарданеллы с точки зрения международного права  в  то  время  когда
+ <дарданеллы с точки зрения международного права  в  то  время  когда>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "даром терять время" testdb "rus words"
+даром терять время
+ <даром терять время>
+.
+250
+150 1 definitions retrieved
+151 "даром терять время" testdb "rus words"
+даром терять время
+ <даром терять время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "декретное время" testdb "rus words"
+декретное время
+ <декретное время>
+.
+250
+150 1 definitions retrieved
+151 "декретное время" testdb "rus words"
+декретное время
+ <декретное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "день дневное время" testdb "rus words"
+день дневное время
+ <день дневное время>
+.
+250
+150 1 definitions retrieved
+151 "день дневное время" testdb "rus words"
+день дневное время
+ <день дневное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "дерптский университет" testdb "rus words"
+дерптский университет
+ <дерптский университет>
+.
+250
+150 1 definitions retrieved
+151 "дерптский университет" testdb "rus words"
+дерптский университет
+ <дерптский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "днепропетровский аграрный университет" testdb "rus words"
+днепропетровский аграрный университет
+ <днепропетровский аграрный университет>
+.
+250
+150 1 definitions retrieved
+151 "днепропетровский аграрный университет" testdb "rus words"
+днепропетровский аграрный университет
+ <днепропетровский аграрный университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "днепропетровский университет" testdb "rus words"
+днепропетровский университет
+ <днепропетровский университет>
+.
+250
+150 1 definitions retrieved
+151 "днепропетровский университет" testdb "rus words"
+днепропетровский университет
+ <днепропетровский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "долгое время" testdb "rus words"
+долгое время
+ <долгое время>
+.
+250
+150 1 definitions retrieved
+151 "долгое время" testdb "rus words"
+долгое время
+ <долгое время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "донецкий университет" testdb "rus words"
+донецкий университет
+ <донецкий университет>
+.
+250
+150 1 definitions retrieved
+151 "донецкий университет" testdb "rus words"
+донецкий университет
+ <донецкий университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "дотягивать время" testdb "rus words"
+дотягивать время
+ <дотягивать время>
+.
+250
+150 1 definitions retrieved
+151 "дотягивать время" testdb "rus words"
+дотягивать время
+ <дотягивать время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "дохаживать свое последнее время" testdb "rus words"
+дохаживать свое последнее время
+ <дохаживать свое последнее время>
+.
+250
+150 1 definitions retrieved
+151 "дохаживать свое последнее время" testdb "rus words"
+дохаживать свое последнее время
+ <дохаживать свое последнее время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "ереванский университет" testdb "rus words"
+ереванский университет
+ <ереванский университет>
+.
+250
+150 1 definitions retrieved
+151 "ереванский университет" testdb "rus words"
+ереванский университет
+ <ереванский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "жизнь время жизни" testdb "rus words"
+жизнь время жизни
+ <жизнь время жизни>
+.
+250
+150 1 definitions retrieved
+151 "жизнь время жизни" testdb "rus words"
+жизнь время жизни
+ <жизнь время жизни>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "за последнее время" testdb "rus words"
+за последнее время
+ <за последнее время>
+.
+250
+150 1 definitions retrieved
+151 "за последнее время" testdb "rus words"
+за последнее время
+ <за последнее время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "загребский университет" testdb "rus words"
+загребский университет
+ <загребский университет>
+.
+250
+150 1 definitions retrieved
+151 "загребский университет" testdb "rus words"
+загребский университет
+ <загребский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "загремят" testdb "rus words"
+загремят
+ <загремят>
+.
+250
+150 1 definitions retrieved
+151 "загремят" testdb "rus words"
+загремят
+ <загремят>
+.
+250
+152 1 matches found
+testdb "загремят"
+.
+250
+150 1 definitions retrieved
+151 "занимать время" testdb "rus words"
+занимать время
+ <занимать время>
+.
+250
+150 1 definitions retrieved
+151 "занимать время" testdb "rus words"
+занимать время
+ <занимать время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "занимающий все время" testdb "rus words"
+занимающий все время
+ <занимающий все время>
+.
+250
+150 1 definitions retrieved
+151 "занимающий все время" testdb "rus words"
+занимающий все время
+ <занимающий все время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "звездное время" testdb "rus words"
+звездное время
+ <звездное время>
+.
+250
+150 1 definitions retrieved
+151 "звездное время" testdb "rus words"
+звездное время
+ <звездное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "и за это время" testdb "rus words"
+и за это время
+ <и за это время>
+.
+250
+150 1 definitions retrieved
+151 "и за это время" testdb "rus words"
+и за это время
+ <и за это время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "ивановский университет" testdb "rus words"
+ивановский университет
+ <ивановский университет>
+.
+250
+150 1 definitions retrieved
+151 "ивановский университет" testdb "rus words"
+ивановский университет
+ <ивановский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "игровой время" testdb "rus words"
+игровой время
+ <игровой время>
+.
+250
+150 1 definitions retrieved
+151 "игровой время" testdb "rus words"
+игровой время
+ <игровой время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "иногда время от времени" testdb "rus words"
+иногда время от времени
+ <иногда время от времени>
+.
+250
+150 1 definitions retrieved
+151 "иногда время от времени" testdb "rus words"
+иногда время от времени
+ <иногда время от времени>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "иногда изредка время от времени" testdb "rus words"
+иногда изредка время от времени
+ <иногда изредка время от времени>
+.
+250
+150 1 definitions retrieved
+151 "иногда изредка время от времени" testdb "rus words"
+иногда изредка время от времени
+ <иногда изредка время от времени>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "иркутский технический университет" testdb "rus words"
+иркутский технический университет
+ <иркутский технический университет>
+.
+250
+150 1 definitions retrieved
+151 "иркутский технический университет" testdb "rus words"
+иркутский технический университет
+ <иркутский технический университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "иркутский университет" testdb "rus words"
+иркутский университет
+ <иркутский университет>
+.
+250
+150 1 definitions retrieved
+151 "иркутский университет" testdb "rus words"
+иркутский университет
+ <иркутский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "истинное солнечное время" testdb "rus words"
+истинное солнечное время
+ <истинное солнечное время>
+.
+250
+150 1 definitions retrieved
+151 "истинное солнечное время" testdb "rus words"
+истинное солнечное время
+ <истинное солнечное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "йельский университет" testdb "rus words"
+йельский университет
+ <йельский университет>
+.
+250
+150 1 definitions retrieved
+151 "йельский университет" testdb "rus words"
+йельский университет
+ <йельский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "йенский университет" testdb "rus words"
+йенский университет
+ <йенский университет>
+.
+250
+150 1 definitions retrieved
+151 "йенский университет" testdb "rus words"
+йенский университет
+ <йенский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "кабардинобалкарский университет" testdb "rus words"
+кабардинобалкарский университет
+ <кабардинобалкарский университет>
+.
+250
+150 1 definitions retrieved
+151 "кабардинобалкарский университет" testdb "rus words"
+кабардинобалкарский университет
+ <кабардинобалкарский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "казахский национальный университет" testdb "rus words"
+казахский национальный университет
+ <казахский национальный университет>
+.
+250
+150 1 definitions retrieved
+151 "казахский национальный университет" testdb "rus words"
+казахский национальный университет
+ <казахский национальный университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "каирский университет" testdb "rus words"
+каирский университет
+ <каирский университет>
+.
+250
+150 1 definitions retrieved
+151 "каирский университет" testdb "rus words"
+каирский университет
+ <каирский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "калининградский университет" testdb "rus words"
+калининградский университет
+ <калининградский университет>
+.
+250
+150 1 definitions retrieved
+151 "калининградский университет" testdb "rus words"
+калининградский университет
+ <калининградский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "калифорнийский университет" testdb "rus words"
+калифорнийский университет
+ <калифорнийский университет>
+.
+250
+150 1 definitions retrieved
+151 "калифорнийский университет" testdb "rus words"
+калифорнийский университет
+ <калифорнийский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "калифорнийский университет в лосанджелесе" testdb "rus words"
+калифорнийский университет в лосанджелесе
+ <калифорнийский университет в лосанджелесе>
+.
+250
+150 1 definitions retrieved
+151 "калифорнийский университет в лосанджелесе" testdb "rus words"
+калифорнийский университет в лосанджелесе
+ <калифорнийский университет в лосанджелесе>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "калмыцкий университет" testdb "rus words"
+калмыцкий университет
+ <калмыцкий университет>
+.
+250
+150 1 definitions retrieved
+151 "калмыцкий университет" testdb "rus words"
+калмыцкий университет
+ <калмыцкий университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "калькуттский университет" testdb "rus words"
+калькуттский университет
+ <калькуттский университет>
+.
+250
+150 1 definitions retrieved
+151 "калькуттский университет" testdb "rus words"
+калькуттский университет
+ <калькуттский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "карагандинский университет" testdb "rus words"
+карагандинский университет
+ <карагандинский университет>
+.
+250
+150 1 definitions retrieved
+151 "карагандинский университет" testdb "rus words"
+карагандинский университет
+ <карагандинский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "каунасский технологический университет" testdb "rus words"
+каунасский технологический университет
+ <каунасский технологический университет>
+.
+250
+150 1 definitions retrieved
+151 "каунасский технологический университет" testdb "rus words"
+каунасский технологический университет
+ <каунасский технологический университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "каунасский университет" testdb "rus words"
+каунасский университет
+ <каунасский университет>
+.
+250
+150 1 definitions retrieved
+151 "каунасский университет" testdb "rus words"
+каунасский университет
+ <каунасский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "кельнский университет" testdb "rus words"
+кельнский университет
+ <кельнский университет>
+.
+250
+150 1 definitions retrieved
+151 "кельнский университет" testdb "rus words"
+кельнский университет
+ <кельнский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "кембриджский университет" testdb "rus words"
+кембриджский университет
+ <кембриджский университет>
+.
+250
+150 1 definitions retrieved
+151 "кембриджский университет" testdb "rus words"
+кембриджский университет
+ <кембриджский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "кемеровский университет" testdb "rus words"
+кемеровский университет
+ <кемеровский университет>
+.
+250
+150 1 definitions retrieved
+151 "кемеровский университет" testdb "rus words"
+кемеровский университет
+ <кемеровский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "киевский университет" testdb "rus words"
+киевский университет
+ <киевский университет>
+.
+250
+150 1 definitions retrieved
+151 "киевский университет" testdb "rus words"
+киевский университет
+ <киевский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "киотский университет" testdb "rus words"
+киотский университет
+ <киотский университет>
+.
+250
+150 1 definitions retrieved
+151 "киотский университет" testdb "rus words"
+киотский университет
+ <киотский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "киргизский университет" testdb "rus words"
+киргизский университет
+ <киргизский университет>
+.
+250
+150 1 definitions retrieved
+151 "киргизский университет" testdb "rus words"
+киргизский университет
+ <киргизский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "кишиневский университет" testdb "rus words"
+кишиневский университет
+ <кишиневский университет>
+.
+250
+150 1 definitions retrieved
+151 "кишиневский университет" testdb "rus words"
+кишиневский университет
+ <кишиневский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "клужский университет" testdb "rus words"
+клужский университет
+ <клужский университет>
+.
+250
+150 1 definitions retrieved
+151 "клужский университет" testdb "rus words"
+клужский университет
+ <клужский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "колорадский университет" testdb "rus words"
+колорадский университет
+ <колорадский университет>
+.
+250
+150 1 definitions retrieved
+151 "колорадский университет" testdb "rus words"
+колорадский университет
+ <колорадский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "колумбийский университет" testdb "rus words"
+колумбийский университет
+ <колумбийский университет>
+.
+250
+150 1 definitions retrieved
+151 "колумбийский университет" testdb "rus words"
+колумбийский университет
+ <колумбийский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "коммунистические университеты" testdb "rus words"
+коммунистические университеты
+ <коммунистические университеты>
+.
+250
+150 1 definitions retrieved
+151 "коммунистические университеты" testdb "rus words"
+коммунистические университеты
+ <коммунистические университеты>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "коммунистический университет" testdb "rus words"
+коммунистический университет
+ <коммунистический университет>
+.
+250
+150 1 definitions retrieved
+151 "коммунистический университет" testdb "rus words"
+коммунистический университет
+ <коммунистический университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "коммунистический университет национальных меньшинств запада" testdb "rus words"
+коммунистический университет национальных меньшинств запада
+ <коммунистический университет национальных меньшинств запада>
+.
+250
+150 1 definitions retrieved
+151 "коммунистический университет национальных меньшинств запада" testdb "rus words"
+коммунистический университет национальных меньшинств запада
+ <коммунистический университет национальных меньшинств запада>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "коммунистический университет трудящихся востока" testdb "rus words"
+коммунистический университет трудящихся востока
+ <коммунистический университет трудящихся востока>
+.
+250
+150 1 definitions retrieved
+151 "коммунистический университет трудящихся востока" testdb "rus words"
+коммунистический университет трудящихся востока
+ <коммунистический университет трудящихся востока>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "контрольный время" testdb "rus words"
+контрольный время
+ <контрольный время>
+.
+250
+150 1 definitions retrieved
+151 "контрольный время" testdb "rus words"
+контрольный время
+ <контрольный время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "координированное время" testdb "rus words"
+координированное время
+ <координированное время>
+.
+250
+150 1 definitions retrieved
+151 "координированное время" testdb "rus words"
+координированное время
+ <координированное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "копенгагенский университет" testdb "rus words"
+копенгагенский университет
+ <копенгагенский университет>
+.
+250
+150 1 definitions retrieved
+151 "копенгагенский университет" testdb "rus words"
+копенгагенский университет
+ <копенгагенский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "корнеллский университет  сша" testdb "rus words"
+корнеллский университет  сша
+ <корнеллский университет  сша>
+.
+250
+150 1 definitions retrieved
+151 "корнеллский университет  сша" testdb "rus words"
+корнеллский университет  сша
+ <корнеллский университет  сша>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "краб  у которого приближается время линьки" testdb "rus words"
+краб  у которого приближается время линьки
+ <краб  у которого приближается время линьки>
+.
+250
+150 1 definitions retrieved
+151 "краб  у которого приближается время линьки" testdb "rus words"
+краб  у которого приближается время линьки
+ <краб  у которого приближается время линьки>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "краковский университет" testdb "rus words"
+краковский университет
+ <краковский университет>
+.
+250
+150 1 definitions retrieved
+151 "краковский университет" testdb "rus words"
+краковский университет
+ <краковский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "красноярский университет" testdb "rus words"
+красноярский университет
+ <красноярский университет>
+.
+250
+150 1 definitions retrieved
+151 "красноярский университет" testdb "rus words"
+красноярский университет
+ <красноярский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "кубанский университет" testdb "rus words"
+кубанский университет
+ <кубанский университет>
+.
+250
+150 1 definitions retrieved
+151 "кубанский университет" testdb "rus words"
+кубанский университет
+ <кубанский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "кутаисский университет" testdb "rus words"
+кутаисский университет
+ <кутаисский университет>
+.
+250
+150 1 definitions retrieved
+151 "кутаисский университет" testdb "rus words"
+кутаисский университет
+ <кутаисский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "латвийский университет" testdb "rus words"
+латвийский университет
+ <латвийский университет>
+.
+250
+150 1 definitions retrieved
+151 "латвийский университет" testdb "rus words"
+латвийский университет
+ <латвийский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "лейденский университет" testdb "rus words"
+лейденский университет
+ <лейденский университет>
+.
+250
+150 1 definitions retrieved
+151 "лейденский университет" testdb "rus words"
+лейденский университет
+ <лейденский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "лейпцигский университет" testdb "rus words"
+лейпцигский университет
+ <лейпцигский университет>
+.
+250
+150 1 definitions retrieved
+151 "лейпцигский университет" testdb "rus words"
+лейпцигский университет
+ <лейпцигский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "летнее время" testdb "rus words"
+летнее время
+ <летнее время>
+.
+250
+150 1 definitions retrieved
+151 "летнее время" testdb "rus words"
+летнее время
+ <летнее время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "летний время" testdb "rus words"
+летний время
+ <летний время>
+.
+250
+150 1 definitions retrieved
+151 "летний время" testdb "rus words"
+летний время
+ <летний время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "лиссабонский университет" testdb "rus words"
+лиссабонский университет
+ <лиссабонский университет>
+.
+250
+150 1 definitions retrieved
+151 "лиссабонский университет" testdb "rus words"
+лиссабонский университет
+ <лиссабонский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "лондонский университет" testdb "rus words"
+лондонский университет
+ <лондонский университет>
+.
+250
+150 1 definitions retrieved
+151 "лондонский университет" testdb "rus words"
+лондонский университет
+ <лондонский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "львовский университет" testdb "rus words"
+львовский университет
+ <львовский университет>
+.
+250
+150 1 definitions retrieved
+151 "львовский университет" testdb "rus words"
+львовский университет
+ <львовский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "люблянский университет" testdb "rus words"
+люблянский университет
+ <люблянский университет>
+.
+250
+150 1 definitions retrieved
+151 "люблянский университет" testdb "rus words"
+люблянский университет
+ <люблянский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "мадрасский университет" testdb "rus words"
+мадрасский университет
+ <мадрасский университет>
+.
+250
+150 1 definitions retrieved
+151 "мадрасский университет" testdb "rus words"
+мадрасский университет
+ <мадрасский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "мадридский университет" testdb "rus words"
+мадридский университет
+ <мадридский университет>
+.
+250
+150 1 definitions retrieved
+151 "мадридский университет" testdb "rus words"
+мадридский университет
+ <мадридский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "марбургский университет" testdb "rus words"
+марбургский университет
+ <марбургский университет>
+.
+250
+150 1 definitions retrieved
+151 "марбургский университет" testdb "rus words"
+марбургский университет
+ <марбургский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "марийский университет" testdb "rus words"
+марийский университет
+ <марийский университет>
+.
+250
+150 1 definitions retrieved
+151 "марийский университет" testdb "rus words"
+марийский университет
+ <марийский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "машинное время" testdb "rus words"
+машинное время
+ <машинное время>
+.
+250
+150 1 definitions retrieved
+151 "машинное время" testdb "rus words"
+машинное время
+ <машинное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "мексиканский университет" testdb "rus words"
+мексиканский университет
+ <мексиканский университет>
+.
+250
+150 1 definitions retrieved
+151 "мексиканский университет" testdb "rus words"
+мексиканский университет
+ <мексиканский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "мельбурнский университет" testdb "rus words"
+мельбурнский университет
+ <мельбурнский университет>
+.
+250
+150 1 definitions retrieved
+151 "мельбурнский университет" testdb "rus words"
+мельбурнский университет
+ <мельбурнский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "местное время" testdb "rus words"
+местное время
+ <местное время>
+.
+250
+150 1 definitions retrieved
+151 "местное время" testdb "rus words"
+местное время
+ <местное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "миннесотский университет" testdb "rus words"
+миннесотский университет
+ <миннесотский университет>
+.
+250
+150 1 definitions retrieved
+151 "миннесотский университет" testdb "rus words"
+миннесотский университет
+ <миннесотский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "мирный время" testdb "rus words"
+мирный время
+ <мирный время>
+.
+250
+150 1 definitions retrieved
+151 "мирный время" testdb "rus words"
+мирный время
+ <мирный время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "мировое время" testdb "rus words"
+мировое время
+ <мировое время>
+.
+250
+150 1 definitions retrieved
+151 "мировое время" testdb "rus words"
+мировое время
+ <мировое время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "миссурийский университет" testdb "rus words"
+миссурийский университет
+ <миссурийский университет>
+.
+250
+150 1 definitions retrieved
+151 "миссурийский университет" testdb "rus words"
+миссурийский университет
+ <миссурийский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "мичиганский университет" testdb "rus words"
+мичиганский университет
+ <мичиганский университет>
+.
+250
+150 1 definitions retrieved
+151 "мичиганский университет" testdb "rus words"
+мичиганский университет
+ <мичиганский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "молдавский университет" testdb "rus words"
+молдавский университет
+ <молдавский университет>
+.
+250
+150 1 definitions retrieved
+151 "молдавский университет" testdb "rus words"
+молдавский университет
+ <молдавский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "мономах" testdb "rus words"
+мономах
+ <мономах>
+.
+250
+150 1 definitions retrieved
+151 "мономах" testdb "rus words"
+мономах
+ <мономах>
+.
+250
+152 1 matches found
+testdb "мономах"
+.
+250
+150 1 definitions retrieved
+151 "мономаха" testdb "rus words"
+мономаха
+ <мономаха>
+.
+250
+150 1 definitions retrieved
+151 "мономаха" testdb "rus words"
+мономаха
+ <мономаха>
+.
+250
+152 1 matches found
+testdb "мономаха"
+.
+250
+150 1 definitions retrieved
+151 "мономахе" testdb "rus words"
+мономахе
+ <мономахе>
+.
+250
+150 1 definitions retrieved
+151 "мономахе" testdb "rus words"
+мономахе
+ <мономахе>
+.
+250
+152 1 matches found
+testdb "мономахе"
+.
+250
+150 1 definitions retrieved
+151 "мономахові" testdb "rus words"
+мономахові
+ <мономахові>
+.
+250
+150 1 definitions retrieved
+151 "мономахові" testdb "rus words"
+мономахові
+ <мономахові>
+.
+250
+152 1 matches found
+testdb "мономахові"
+.
+250
+150 1 definitions retrieved
+151 "мономахом" testdb "rus words"
+мономахом
+ <мономахом>
+.
+250
+150 1 definitions retrieved
+151 "мономахом" testdb "rus words"
+мономахом
+ <мономахом>
+.
+250
+152 1 matches found
+testdb "мономахом"
+.
+250
+150 1 definitions retrieved
+151 "мономаху" testdb "rus words"
+мономаху
+ <мономаху>
+.
+250
+150 1 definitions retrieved
+151 "мономаху" testdb "rus words"
+мономаху
+ <мономаху>
+.
+250
+152 1 matches found
+testdb "мономаху"
+.
+250
+150 1 definitions retrieved
+151 "монреальский университет" testdb "rus words"
+монреальский университет
+ <монреальский университет>
+.
+250
+150 1 definitions retrieved
+151 "монреальский университет" testdb "rus words"
+монреальский университет
+ <монреальский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "мордовский университет" testdb "rus words"
+мордовский университет
+ <мордовский университет>
+.
+250
+150 1 definitions retrieved
+151 "мордовский университет" testdb "rus words"
+мордовский университет
+ <мордовский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "московский авиационный технологический университет" testdb "rus words"
+московский авиационный технологический университет
+ <московский авиационный технологический университет>
+.
+250
+150 1 definitions retrieved
+151 "московский авиационный технологический университет" testdb "rus words"
+московский авиационный технологический университет
+ <московский авиационный технологический университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "московский горный университет" testdb "rus words"
+московский горный университет
+ <московский горный университет>
+.
+250
+150 1 definitions retrieved
+151 "московский горный университет" testdb "rus words"
+московский горный университет
+ <московский горный университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "московский государственный университет" testdb "rus words"
+московский государственный университет
+ <московский государственный университет>
+.
+250
+150 1 definitions retrieved
+151 "московский государственный университет" testdb "rus words"
+московский государственный университет
+ <московский государственный университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "московский государственный университет имени мвломоносова" testdb "rus words"
+московский государственный университет имени мвломоносова
+ <московский государственный университет имени мвломоносова>
+.
+250
+150 1 definitions retrieved
+151 "московский государственный университет имени мвломоносова" testdb "rus words"
+московский государственный университет имени мвломоносова
+ <московский государственный университет имени мвломоносова>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "московский коммерческий университет" testdb "rus words"
+московский коммерческий университет
+ <московский коммерческий университет>
+.
+250
+150 1 definitions retrieved
+151 "московский коммерческий университет" testdb "rus words"
+московский коммерческий университет
+ <московский коммерческий университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "московский открытый университет" testdb "rus words"
+московский открытый университет
+ <московский открытый университет>
+.
+250
+150 1 definitions retrieved
+151 "московский открытый университет" testdb "rus words"
+московский открытый университет
+ <московский открытый университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "московский педагогический университет" testdb "rus words"
+московский педагогический университет
+ <московский педагогический университет>
+.
+250
+150 1 definitions retrieved
+151 "московский педагогический университет" testdb "rus words"
+московский педагогический университет
+ <московский педагогический университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "московский строительный университет" testdb "rus words"
+московский строительный университет
+ <московский строительный университет>
+.
+250
+150 1 definitions retrieved
+151 "московский строительный университет" testdb "rus words"
+московский строительный университет
+ <московский строительный университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "московский технический университет" testdb "rus words"
+московский технический университет
+ <московский технический университет>
+.
+250
+150 1 definitions retrieved
+151 "московский технический университет" testdb "rus words"
+московский технический университет
+ <московский технический университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "московский технический университет связи и информатики" testdb "rus words"
+московский технический университет связи и информатики
+ <московский технический университет связи и информатики>
+.
+250
+150 1 definitions retrieved
+151 "московский технический университет связи и информатики" testdb "rus words"
+московский технический университет связи и информатики
+ <московский технический университет связи и информатики>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "московский технологический университет станкин" testdb "rus words"
+московский технологический университет станкин
+ <московский технологический университет станкин>
+.
+250
+150 1 definitions retrieved
+151 "московский технологический университет станкин" testdb "rus words"
+московский технологический университет станкин
+ <московский технологический университет станкин>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "московский университет" testdb "rus words"
+московский университет
+ <московский университет>
+.
+250
+150 1 definitions retrieved
+151 "московский университет" testdb "rus words"
+московский университет
+ <московский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "московский университет инженеров геодезии  аэрофотосъемки и" testdb "rus words"
+московский университет инженеров геодезии  аэрофотосъемки и
+ <московский университет инженеров геодезии  аэрофотосъемки и>
+.
+250
+150 1 definitions retrieved
+151 "московский университет инженеров геодезии  аэрофотосъемки и" testdb "rus words"
+московский университет инженеров геодезии  аэрофотосъемки и
+ <московский университет инженеров геодезии  аэрофотосъемки и>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "московский университет леса" testdb "rus words"
+московский университет леса
+ <московский университет леса>
+.
+250
+150 1 definitions retrieved
+151 "московский университет леса" testdb "rus words"
+московский университет леса
+ <московский университет леса>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "московский университет путей сообщения" testdb "rus words"
+московский университет путей сообщения
+ <московский университет путей сообщения>
+.
+250
+150 1 definitions retrieved
+151 "московский университет путей сообщения" testdb "rus words"
+московский университет путей сообщения
+ <московский университет путей сообщения>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "мюнхенский университет" testdb "rus words"
+мюнхенский университет
+ <мюнхенский университет>
+.
+250
+150 1 definitions retrieved
+151 "мюнхенский университет" testdb "rus words"
+мюнхенский университет
+ <мюнхенский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "на будущее время" testdb "rus words"
+на будущее время
+ <на будущее время>
+.
+250
+150 1 definitions retrieved
+151 "на будущее время" testdb "rus words"
+на будущее время
+ <на будущее время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "на время" testdb "rus words"
+на время
+ <на время>
+.
+250
+150 1 definitions retrieved
+151 "на время" testdb "rus words"
+на время
+ <на время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "на время издания" testdb "rus words"
+на время издания
+ <на время издания>
+.
+250
+150 1 definitions retrieved
+151 "на время издания" testdb "rus words"
+на время издания
+ <на время издания>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "на короткое время" testdb "rus words"
+на короткое время
+ <на короткое время>
+.
+250
+150 1 definitions retrieved
+151 "на короткое время" testdb "rus words"
+на короткое время
+ <на короткое время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "на некоторое время" testdb "rus words"
+на некоторое время
+ <на некоторое время>
+.
+250
+150 1 definitions retrieved
+151 "на некоторое время" testdb "rus words"
+на некоторое время
+ <на некоторое время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "на первое время" testdb "rus words"
+на первое время
+ <на первое время>
+.
+250
+150 1 definitions retrieved
+151 "на первое время" testdb "rus words"
+на первое время
+ <на первое время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "настоящее время" testdb "rus words"
+настоящее время
+ <настоящее время>
+.
+250
+150 1 definitions retrieved
+151 "настоящее время" testdb "rus words"
+настоящее время
+ <настоящее время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "настоящее время грам" testdb "rus words"
+настоящее время грам
+ <настоящее время грам>
+.
+250
+150 1 definitions retrieved
+151 "настоящее время грам" testdb "rus words"
+настоящее время грам
+ <настоящее время грам>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "настоящее время современность" testdb "rus words"
+настоящее время современность
+ <настоящее время современность>
+.
+250
+150 1 definitions retrieved
+151 "настоящее время современность" testdb "rus words"
+настоящее время современность
+ <настоящее время современность>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "находить время" testdb "rus words"
+находить время
+ <находить время>
+.
+250
+150 1 definitions retrieved
+151 "находить время" testdb "rus words"
+находить время
+ <находить время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "не в сезонное время" testdb "rus words"
+не в сезонное время
+ <не в сезонное время>
+.
+250
+150 1 definitions retrieved
+151 "не в сезонное время" testdb "rus words"
+не в сезонное время
+ <не в сезонное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "не вовремя" testdb "rus words"
+не вовремя
+ <не вовремя>
+.
+250
+150 1 definitions retrieved
+151 "не вовремя" testdb "rus words"
+не вовремя
+ <не вовремя>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "неаполитанский университет" testdb "rus words"
+неаполитанский университет
+ <неаполитанский университет>
+.
+250
+150 1 definitions retrieved
+151 "неаполитанский университет" testdb "rus words"
+неаполитанский университет
+ <неаполитанский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "невовремя" testdb "rus words"
+невовремя
+ <невовремя>
+.
+250
+150 1 definitions retrieved
+151 "невовремя" testdb "rus words"
+невовремя
+ <невовремя>
+.
+250
+152 1 matches found
+testdb "невовремя"
+.
+250
+150 1 definitions retrieved
+151 "невремя" testdb "rus words"
+невремя
+ <невремя>
+.
+250
+150 1 definitions retrieved
+151 "невремя" testdb "rus words"
+невремя
+ <невремя>
+.
+250
+152 1 matches found
+testdb "невремя"
+.
+250
+150 1 definitions retrieved
+151 "неполное рабочее время" testdb "rus words"
+неполное рабочее время
+ <неполное рабочее время>
+.
+250
+150 1 definitions retrieved
+151 "неполное рабочее время" testdb "rus words"
+неполное рабочее время
+ <неполное рабочее время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "неполный рабочий время" testdb "rus words"
+неполный рабочий время
+ <неполный рабочий время>
+.
+250
+150 1 definitions retrieved
+151 "неполный рабочий время" testdb "rus words"
+неполный рабочий время
+ <неполный рабочий время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "неуниверситетские" testdb "rus words"
+неуниверситетские
+ <неуниверситетские>
+.
+250
+150 1 definitions retrieved
+151 "неуниверситетские" testdb "rus words"
+неуниверситетские
+ <неуниверситетские>
+.
+250
+152 1 matches found
+testdb "неуниверситетские"
+.
+250
+150 1 definitions retrieved
+151 "неуниверситетский" testdb "rus words"
+неуниверситетский
+ <неуниверситетский>
+.
+250
+150 1 definitions retrieved
+151 "неуниверситетский" testdb "rus words"
+неуниверситетский
+ <неуниверситетский>
+.
+250
+152 1 matches found
+testdb "неуниверситетский"
+.
+250
+150 1 definitions retrieved
+151 "неуниверситетских" testdb "rus words"
+неуниверситетских
+ <неуниверситетских>
+.
+250
+150 1 definitions retrieved
+151 "неуниверситетских" testdb "rus words"
+неуниверситетских
+ <неуниверситетских>
+.
+250
+152 1 matches found
+testdb "неуниверситетских"
+.
+250
+150 1 definitions retrieved
+151 "неуниверситетского" testdb "rus words"
+неуниверситетского
+ <неуниверситетского>
+.
+250
+150 1 definitions retrieved
+151 "неуниверситетского" testdb "rus words"
+неуниверситетского
+ <неуниверситетского>
+.
+250
+152 1 matches found
+testdb "неуниверситетского"
+.
+250
+150 1 definitions retrieved
+151 "неуниверситетской" testdb "rus words"
+неуниверситетской
+ <неуниверситетской>
+.
+250
+150 1 definitions retrieved
+151 "неуниверситетской" testdb "rus words"
+неуниверситетской
+ <неуниверситетской>
+.
+250
+152 1 matches found
+testdb "неуниверситетской"
+.
+250
+150 1 definitions retrieved
+151 "неуниверситетскую" testdb "rus words"
+неуниверситетскую
+ <неуниверситетскую>
+.
+250
+150 1 definitions retrieved
+151 "неуниверситетскую" testdb "rus words"
+неуниверситетскую
+ <неуниверситетскую>
+.
+250
+152 1 matches found
+testdb "неуниверситетскую"
+.
+250
+150 1 definitions retrieved
+151 "нижегородский университет" testdb "rus words"
+нижегородский университет
+ <нижегородский университет>
+.
+250
+150 1 definitions retrieved
+151 "нижегородский университет" testdb "rus words"
+нижегородский университет
+ <нижегородский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "новое время" testdb "rus words"
+новое время
+ <новое время>
+.
+250
+150 1 definitions retrieved
+151 "новое время" testdb "rus words"
+новое время
+ <новое время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "новороссийский университет" testdb "rus words"
+новороссийский университет
+ <новороссийский университет>
+.
+250
+150 1 definitions retrieved
+151 "новороссийский университет" testdb "rus words"
+новороссийский университет
+ <новороссийский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "новосибирский университет" testdb "rus words"
+новосибирский университет
+ <новосибирский университет>
+.
+250
+150 1 definitions retrieved
+151 "новосибирский университет" testdb "rus words"
+новосибирский университет
+ <новосибирский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "ночь ночное время" testdb "rus words"
+ночь ночное время
+ <ночь ночное время>
+.
+250
+150 1 definitions retrieved
+151 "ночь ночное время" testdb "rus words"
+ночь ночное время
+ <ночь ночное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "нукусский университет" testdb "rus words"
+нукусский университет
+ <нукусский университет>
+.
+250
+150 1 definitions retrieved
+151 "нукусский университет" testdb "rus words"
+нукусский университет
+ <нукусский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "нынешнее время" testdb "rus words"
+нынешнее время
+ <нынешнее время>
+.
+250
+150 1 definitions retrieved
+151 "нынешнее время" testdb "rus words"
+нынешнее время
+ <нынешнее время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "обеденный время" testdb "rus words"
+обеденный время
+ <обеденный время>
+.
+250
+150 1 definitions retrieved
+151 "обеденный время" testdb "rus words"
+обеденный время
+ <обеденный время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "общеуниверситетская" testdb "rus words"
+общеуниверситетская
+ <общеуниверситетская>
+.
+250
+150 1 definitions retrieved
+151 "общеуниверситетская" testdb "rus words"
+общеуниверситетская
+ <общеуниверситетская>
+.
+250
+152 1 matches found
+testdb "общеуниверситетская"
+.
+250
+150 1 definitions retrieved
+151 "общеуниверситетские" testdb "rus words"
+общеуниверситетские
+ <общеуниверситетские>
+.
+250
+150 1 definitions retrieved
+151 "общеуниверситетские" testdb "rus words"
+общеуниверситетские
+ <общеуниверситетские>
+.
+250
+152 1 matches found
+testdb "общеуниверситетские"
+.
+250
+150 1 definitions retrieved
+151 "общеуниверситетских" testdb "rus words"
+общеуниверситетских
+ <общеуниверситетских>
+.
+250
+150 1 definitions retrieved
+151 "общеуниверситетских" testdb "rus words"
+общеуниверситетских
+ <общеуниверситетских>
+.
+250
+152 1 matches found
+testdb "общеуниверситетских"
+.
+250
+150 1 definitions retrieved
+151 "общеуниверситетского" testdb "rus words"
+общеуниверситетского
+ <общеуниверситетского>
+.
+250
+150 1 definitions retrieved
+151 "общеуниверситетского" testdb "rus words"
+общеуниверситетского
+ <общеуниверситетского>
+.
+250
+152 1 matches found
+testdb "общеуниверситетского"
+.
+250
+150 1 definitions retrieved
+151 "общеуниверситетской" testdb "rus words"
+общеуниверситетской
+ <общеуниверситетской>
+.
+250
+150 1 definitions retrieved
+151 "общеуниверситетской" testdb "rus words"
+общеуниверситетской
+ <общеуниверситетской>
+.
+250
+152 1 matches found
+testdb "общеуниверситетской"
+.
+250
+150 1 definitions retrieved
+151 "одесский университет" testdb "rus words"
+одесский университет
+ <одесский университет>
+.
+250
+150 1 definitions retrieved
+151 "одесский университет" testdb "rus words"
+одесский университет
+ <одесский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "одновремя" testdb "rus words"
+одновремя
+ <одновремя>
+.
+250
+150 1 definitions retrieved
+151 "одновремя" testdb "rus words"
+одновремя
+ <одновремя>
+.
+250
+152 1 matches found
+testdb "одновремя"
+.
+250
+150 1 definitions retrieved
+151 "оксфордский университет" testdb "rus words"
+оксфордский университет
+ <оксфордский университет>
+.
+250
+150 1 definitions retrieved
+151 "оксфордский университет" testdb "rus words"
+оксфордский университет
+ <оксфордский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "омский университет" testdb "rus words"
+омский университет
+ <омский университет>
+.
+250
+150 1 definitions retrieved
+151 "омский университет" testdb "rus words"
+омский университет
+ <омский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "осло университет" testdb "rus words"
+осло университет
+ <осло университет>
+.
+250
+150 1 definitions retrieved
+151 "осло университет" testdb "rus words"
+осло университет
+ <осло университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "осуществляемый в данное время" testdb "rus words"
+осуществляемый в данное время
+ <осуществляемый в данное время>
+.
+250
+150 1 definitions retrieved
+151 "осуществляемый в данное время" testdb "rus words"
+осуществляемый в данное время
+ <осуществляемый в данное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "оттягивать время" testdb "rus words"
+оттягивать время
+ <оттягивать время>
+.
+250
+150 1 definitions retrieved
+151 "оттягивать время" testdb "rus words"
+оттягивать время
+ <оттягивать время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "парижский университет" testdb "rus words"
+парижский университет
+ <парижский университет>
+.
+250
+150 1 definitions retrieved
+151 "парижский университет" testdb "rus words"
+парижский университет
+ <парижский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "пенсильванский университет" testdb "rus words"
+пенсильванский университет
+ <пенсильванский университет>
+.
+250
+150 1 definitions retrieved
+151 "пенсильванский университет" testdb "rus words"
+пенсильванский университет
+ <пенсильванский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "пермский университет" testdb "rus words"
+пермский университет
+ <пермский университет>
+.
+250
+150 1 definitions retrieved
+151 "пермский университет" testdb "rus words"
+пермский университет
+ <пермский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "петрозаводский университет" testdb "rus words"
+петрозаводский университет
+ <петрозаводский университет>
+.
+250
+150 1 definitions retrieved
+151 "петрозаводский университет" testdb "rus words"
+петрозаводский университет
+ <петрозаводский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "по сие время" testdb "rus words"
+по сие время
+ <по сие время>
+.
+250
+150 1 definitions retrieved
+151 "по сие время" testdb "rus words"
+по сие время
+ <по сие время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "под ниже менее при во время в течение" testdb "rus words"
+под ниже менее при во время в течение
+ <под ниже менее при во время в течение>
+.
+250
+150 1 definitions retrieved
+151 "под ниже менее при во время в течение" testdb "rus words"
+под ниже менее при во время в течение
+ <под ниже менее при во время в течение>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "подробностьвремя" testdb "rus words"
+подробностьвремя
+ <подробностьвремя>
+.
+250
+150 1 definitions retrieved
+151 "подробностьвремя" testdb "rus words"
+подробностьвремя
+ <подробностьвремя>
+.
+250
+152 1 matches found
+testdb "подробностьвремя"
+.
+250
+150 1 definitions retrieved
+151 "подходящий удобный во время" testdb "rus words"
+подходящий удобный во время
+ <подходящий удобный во время>
+.
+250
+150 1 definitions retrieved
+151 "подходящий удобный во время" testdb "rus words"
+подходящий удобный во время
+ <подходящий удобный во время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "пока между тем как в то время как" testdb "rus words"
+пока между тем как в то время как
+ <пока между тем как в то время как>
+.
+250
+150 1 definitions retrieved
+151 "пока между тем как в то время как" testdb "rus words"
+пока между тем как в то время как
+ <пока между тем как в то время как>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "полезный время" testdb "rus words"
+полезный время
+ <полезный время>
+.
+250
+150 1 definitions retrieved
+151 "полезный время" testdb "rus words"
+полезный время
+ <полезный время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "полтавская битва  весною 1709 г во время северной войны шведский" testdb "rus words"
+полтавская битва  весною 1709 г во время северной войны шведский
+ <полтавская битва  весною 1709 г во время северной войны шведский>
+.
+250
+150 1 definitions retrieved
+151 "полтавская битва  весною 1709 г во время северной войны шведский" testdb "rus words"
+полтавская битва  весною 1709 г во время северной войны шведский
+ <полтавская битва  весною 1709 г во время северной войны шведский>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "полувремя" testdb "rus words"
+полувремя
+ <полувремя>
+.
+250
+150 1 definitions retrieved
+151 "полувремя" testdb "rus words"
+полувремя
+ <полувремя>
+.
+250
+152 1 matches found
+testdb "полувремя"
+.
+250
+150 1 definitions retrieved
+151 "попусту терять время" testdb "rus words"
+попусту терять время
+ <попусту терять время>
+.
+250
+150 1 definitions retrieved
+151 "попусту терять время" testdb "rus words"
+попусту терять время
+ <попусту терять время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "после полудня послеобеденное время" testdb "rus words"
+после полудня послеобеденное время
+ <после полудня послеобеденное время>
+.
+250
+150 1 definitions retrieved
+151 "после полудня послеобеденное время" testdb "rus words"
+после полудня послеобеденное время
+ <после полудня послеобеденное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "последнее время" testdb "rus words"
+последнее время
+ <последнее время>
+.
+250
+150 1 definitions retrieved
+151 "последнее время" testdb "rus words"
+последнее время
+ <последнее время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "потребляющий время" testdb "rus words"
+потребляющий время
+ <потребляющий время>
+.
+250
+150 1 definitions retrieved
+151 "потребляющий время" testdb "rus words"
+потребляющий время
+ <потребляющий время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "поясное время" testdb "rus words"
+поясное время
+ <поясное время>
+.
+250
+150 1 definitions retrieved
+151 "поясное время" testdb "rus words"
+поясное время
+ <поясное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "поясной время" testdb "rus words"
+поясной время
+ <поясной время>
+.
+250
+150 1 definitions retrieved
+151 "поясной время" testdb "rus words"
+поясной время
+ <поясной время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "пражский университет" testdb "rus words"
+пражский университет
+ <пражский университет>
+.
+250
+150 1 definitions retrieved
+151 "пражский университет" testdb "rus words"
+пражский университет
+ <пражский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "предполагаемый время прибытия" testdb "rus words"
+предполагаемый время прибытия
+ <предполагаемый время прибытия>
+.
+250
+150 1 definitions retrieved
+151 "предполагаемый время прибытия" testdb "rus words"
+предполагаемый время прибытия
+ <предполагаемый время прибытия>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "примерно в это время" testdb "rus words"
+примерно в это время
+ <примерно в это время>
+.
+250
+150 1 definitions retrieved
+151 "примерно в это время" testdb "rus words"
+примерно в это время
+ <примерно в это время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "принстонский университет" testdb "rus words"
+принстонский университет
+ <принстонский университет>
+.
+250
+150 1 definitions retrieved
+151 "принстонский университет" testdb "rus words"
+принстонский университет
+ <принстонский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "приходить вовремя" testdb "rus words"
+приходить вовремя
+ <приходить вовремя>
+.
+250
+150 1 definitions retrieved
+151 "приходить вовремя" testdb "rus words"
+приходить вовремя
+ <приходить вовремя>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "проводить время" testdb "rus words"
+проводить время
+ <проводить время>
+.
+250
+150 1 definitions retrieved
+151 "проводить время" testdb "rus words"
+проводить время
+ <проводить время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "проводить какоел время в спячке" testdb "rus words"
+проводить какоел время в спячке
+ <проводить какоел время в спячке>
+.
+250
+150 1 definitions retrieved
+151 "проводить какоел время в спячке" testdb "rus words"
+проводить какоел время в спячке
+ <проводить какоел время в спячке>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "пространство и время" testdb "rus words"
+пространство и время
+ <пространство и время>
+.
+250
+150 1 definitions retrieved
+151 "пространство и время" testdb "rus words"
+пространство и время
+ <пространство и время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "пространствовремя" testdb "rus words"
+пространствовремя
+ <пространствовремя>
+.
+250
+150 1 definitions retrieved
+151 "пространствовремя" testdb "rus words"
+пространствовремя
+ <пространствовремя>
+.
+250
+152 1 matches found
+testdb "пространствовремя"
+.
+250
+150 1 definitions retrieved
+151 "пространствовремя минковского" testdb "rus words"
+пространствовремя минковского
+ <пространствовремя минковского>
+.
+250
+150 1 definitions retrieved
+151 "пространствовремя минковского" testdb "rus words"
+пространствовремя минковского
+ <пространствовремя минковского>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "пхеньянский университет" testdb "rus words"
+пхеньянский университет
+ <пхеньянский университет>
+.
+250
+150 1 definitions retrieved
+151 "пхеньянский университет" testdb "rus words"
+пхеньянский университет
+ <пхеньянский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "работа в ночное время" testdb "rus words"
+работа в ночное время
+ <работа в ночное время>
+.
+250
+150 1 definitions retrieved
+151 "работа в ночное время" testdb "rus words"
+работа в ночное время
+ <работа в ночное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "рабочее время" testdb "rus words"
+рабочее время
+ <рабочее время>
+.
+250
+150 1 definitions retrieved
+151 "рабочее время" testdb "rus words"
+рабочее время
+ <рабочее время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "рабочий время" testdb "rus words"
+рабочий время
+ <рабочий время>
+.
+250
+150 1 definitions retrieved
+151 "рабочий время" testdb "rus words"
+рабочий время
+ <рабочий время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "раньше в прежнее время" testdb "rus words"
+раньше в прежнее время
+ <раньше в прежнее время>
+.
+250
+150 1 definitions retrieved
+151 "раньше в прежнее время" testdb "rus words"
+раньше в прежнее время
+ <раньше в прежнее время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "реальное время" testdb "rus words"
+реальное время
+ <реальное время>
+.
+250
+150 1 definitions retrieved
+151 "реальное время" testdb "rus words"
+реальное время
+ <реальное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "реальный время" testdb "rus words"
+реальный время
+ <реальный время>
+.
+250
+150 1 definitions retrieved
+151 "реальный время" testdb "rus words"
+реальный время
+ <реальный время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "рейнский университет" testdb "rus words"
+рейнский университет
+ <рейнский университет>
+.
+250
+150 1 definitions retrieved
+151 "рейнский университет" testdb "rus words"
+рейнский университет
+ <рейнский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "рижский технический университет" testdb "rus words"
+рижский технический университет
+ <рижский технический университет>
+.
+250
+150 1 definitions retrieved
+151 "рижский технический университет" testdb "rus words"
+рижский технический университет
+ <рижский технический университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "римский университет" testdb "rus words"
+римский университет
+ <римский университет>
+.
+250
+150 1 definitions retrieved
+151 "римский университет" testdb "rus words"
+римский университет
+ <римский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "российский гуманитарный университет" testdb "rus words"
+российский гуманитарный университет
+ <российский гуманитарный университет>
+.
+250
+150 1 definitions retrieved
+151 "российский гуманитарный университет" testdb "rus words"
+российский гуманитарный университет
+ <российский гуманитарный университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "российский медицинский университет" testdb "rus words"
+российский медицинский университет
+ <российский медицинский университет>
+.
+250
+150 1 definitions retrieved
+151 "российский медицинский университет" testdb "rus words"
+российский медицинский университет
+ <российский медицинский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "российский открытый университет" testdb "rus words"
+российский открытый университет
+ <российский открытый университет>
+.
+250
+150 1 definitions retrieved
+151 "российский открытый университет" testdb "rus words"
+российский открытый университет
+ <российский открытый университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "российский педагогический университет" testdb "rus words"
+российский педагогический университет
+ <российский педагогический университет>
+.
+250
+150 1 definitions retrieved
+151 "российский педагогический университет" testdb "rus words"
+российский педагогический университет
+ <российский педагогический университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "российский православный университет" testdb "rus words"
+российский православный университет
+ <российский православный университет>
+.
+250
+150 1 definitions retrieved
+151 "российский православный университет" testdb "rus words"
+российский православный университет
+ <российский православный университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "российский университет дружбы народов" testdb "rus words"
+российский университет дружбы народов
+ <российский университет дружбы народов>
+.
+250
+150 1 definitions retrieved
+151 "российский университет дружбы народов" testdb "rus words"
+российский университет дружбы народов
+ <российский университет дружбы народов>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "российский химикотехнологический университет" testdb "rus words"
+российский химикотехнологический университет
+ <российский химикотехнологический университет>
+.
+250
+150 1 definitions retrieved
+151 "российский химикотехнологический университет" testdb "rus words"
+российский химикотехнологический университет
+ <российский химикотехнологический университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "ростовский университет" testdb "rus words"
+ростовский университет
+ <ростовский университет>
+.
+250
+150 1 definitions retrieved
+151 "ростовский университет" testdb "rus words"
+ростовский университет
+ <ростовский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "ростокский университет" testdb "rus words"
+ростокский университет
+ <ростокский университет>
+.
+250
+150 1 definitions retrieved
+151 "ростокский университет" testdb "rus words"
+ростокский университет
+ <ростокский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "саламанкский университет" testdb "rus words"
+саламанкский университет
+ <саламанкский университет>
+.
+250
+150 1 definitions retrieved
+151 "саламанкский университет" testdb "rus words"
+саламанкский университет
+ <саламанкский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "самаркандский университет" testdb "rus words"
+самаркандский университет
+ <самаркандский университет>
+.
+250
+150 1 definitions retrieved
+151 "самаркандский университет" testdb "rus words"
+самаркандский университет
+ <самаркандский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "самарский университет" testdb "rus words"
+самарский университет
+ <самарский университет>
+.
+250
+150 1 definitions retrieved
+151 "самарский университет" testdb "rus words"
+самарский университет
+ <самарский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "сараевский университет" testdb "rus words"
+сараевский университет
+ <сараевский университет>
+.
+250
+150 1 definitions retrieved
+151 "сараевский университет" testdb "rus words"
+сараевский университет
+ <сараевский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "саратовский университет" testdb "rus words"
+саратовский университет
+ <саратовский университет>
+.
+250
+150 1 definitions retrieved
+151 "саратовский университет" testdb "rus words"
+саратовский университет
+ <саратовский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "сверхурочное время" testdb "rus words"
+сверхурочное время
+ <сверхурочное время>
+.
+250
+150 1 definitions retrieved
+151 "сверхурочное время" testdb "rus words"
+сверхурочное время
+ <сверхурочное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "сверхурочный время" testdb "rus words"
+сверхурочный время
+ <сверхурочный время>
+.
+250
+150 1 definitions retrieved
+151 "сверхурочный время" testdb "rus words"
+сверхурочный время
+ <сверхурочный время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "свободное время" testdb "rus words"
+свободное время
+ <свободное время>
+.
+250
+150 1 definitions retrieved
+151 "свободное время" testdb "rus words"
+свободное время
+ <свободное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "свободное время досуг" testdb "rus words"
+свободное время досуг
+ <свободное время досуг>
+.
+250
+150 1 definitions retrieved
+151 "свободное время досуг" testdb "rus words"
+свободное время досуг
+ <свободное время досуг>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "североосетинский университет" testdb "rus words"
+североосетинский университет
+ <североосетинский университет>
+.
+250
+150 1 definitions retrieved
+151 "североосетинский университет" testdb "rus words"
+североосетинский университет
+ <североосетинский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "сенат в императорское время внешние формы выработанные с для своих" testdb "rus words"
+сенат в императорское время внешние формы выработанные с для своих
+ <сенат в императорское время внешние формы выработанные с для своих>
+.
+250
+150 1 definitions retrieved
+151 "сенат в императорское время внешние формы выработанные с для своих" testdb "rus words"
+сенат в императорское время внешние формы выработанные с для своих
+ <сенат в императорское время внешние формы выработанные с для своих>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "сибирский медицинский университет" testdb "rus words"
+сибирский медицинский университет
+ <сибирский медицинский университет>
+.
+250
+150 1 definitions retrieved
+151 "сибирский медицинский университет" testdb "rus words"
+сибирский медицинский университет
+ <сибирский медицинский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "сиднейский университет" testdb "rus words"
+сиднейский университет
+ <сиднейский университет>
+.
+250
+150 1 definitions retrieved
+151 "сиднейский университет" testdb "rus words"
+сиднейский университет
+ <сиднейский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "симферопольский университет" testdb "rus words"
+симферопольский университет
+ <симферопольский университет>
+.
+250
+150 1 definitions retrieved
+151 "симферопольский университет" testdb "rus words"
+симферопольский университет
+ <симферопольский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "скопье университет" testdb "rus words"
+скопье университет
+ <скопье университет>
+.
+250
+150 1 definitions retrieved
+151 "скопье университет" testdb "rus words"
+скопье университет
+ <скопье университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "скоро в скором времени в ближайшее время" testdb "rus words"
+скоро в скором времени в ближайшее время
+ <скоро в скором времени в ближайшее время>
+.
+250
+150 1 definitions retrieved
+151 "скоро в скором времени в ближайшее время" testdb "rus words"
+скоро в скором времени в ближайшее время
+ <скоро в скором времени в ближайшее время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "смутное время" testdb "rus words"
+смутное время
+ <смутное время>
+.
+250
+150 1 definitions retrieved
+151 "смутное время" testdb "rus words"
+смутное время
+ <смутное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "собственное время" testdb "rus words"
+собственное время
+ <собственное время>
+.
+250
+150 1 definitions retrieved
+151 "собственное время" testdb "rus words"
+собственное время
+ <собственное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "сокращенное рабочее время" testdb "rus words"
+сокращенное рабочее время
+ <сокращенное рабочее время>
+.
+250
+150 1 definitions retrieved
+151 "сокращенное рабочее время" testdb "rus words"
+сокращенное рабочее время
+ <сокращенное рабочее время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "солнечное время" testdb "rus words"
+солнечное время
+ <солнечное время>
+.
+250
+150 1 definitions retrieved
+151 "солнечное время" testdb "rus words"
+солнечное время
+ <солнечное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "софийский университет" testdb "rus words"
+софийский университет
+ <софийский университет>
+.
+250
+150 1 definitions retrieved
+151 "софийский университет" testdb "rus words"
+софийский университет
+ <софийский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "среднеазиатский университет" testdb "rus words"
+среднеазиатский университет
+ <среднеазиатский университет>
+.
+250
+150 1 definitions retrieved
+151 "среднеазиатский университет" testdb "rus words"
+среднеазиатский университет
+ <среднеазиатский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "среднее солнечное время" testdb "rus words"
+среднее солнечное время
+ <среднее солнечное время>
+.
+250
+150 1 definitions retrieved
+151 "среднее солнечное время" testdb "rus words"
+среднее солнечное время
+ <среднее солнечное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "средний время" testdb "rus words"
+средний время
+ <средний время>
+.
+250
+150 1 definitions retrieved
+151 "средний время" testdb "rus words"
+средний время
+ <средний время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "сталлийное время" testdb "rus words"
+сталлийное время
+ <сталлийное время>
+.
+250
+150 1 definitions retrieved
+151 "сталлийное время" testdb "rus words"
+сталлийное время
+ <сталлийное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "стамбульский университет" testdb "rus words"
+стамбульский университет
+ <стамбульский университет>
+.
+250
+150 1 definitions retrieved
+151 "стамбульский университет" testdb "rus words"
+стамбульский университет
+ <стамбульский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "станфордский университет" testdb "rus words"
+станфордский университет
+ <станфордский университет>
+.
+250
+150 1 definitions retrieved
+151 "станфордский университет" testdb "rus words"
+станфордский университет
+ <станфордский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "стокгольмский университет" testdb "rus words"
+стокгольмский университет
+ <стокгольмский университет>
+.
+250
+150 1 definitions retrieved
+151 "стокгольмский университет" testdb "rus words"
+стокгольмский университет
+ <стокгольмский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "страсбурский университет" testdb "rus words"
+страсбурский университет
+ <страсбурский университет>
+.
+250
+150 1 definitions retrieved
+151 "страсбурский университет" testdb "rus words"
+страсбурский университет
+ <страсбурский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "сыктывкарский университет" testdb "rus words"
+сыктывкарский университет
+ <сыктывкарский университет>
+.
+250
+150 1 definitions retrieved
+151 "сыктывкарский университет" testdb "rus words"
+сыктывкарский университет
+ <сыктывкарский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "таджикский университет" testdb "rus words"
+таджикский университет
+ <таджикский университет>
+.
+250
+150 1 definitions retrieved
+151 "таджикский университет" testdb "rus words"
+таджикский университет
+ <таджикский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "тартуский университет" testdb "rus words"
+тартуский университет
+ <тартуский университет>
+.
+250
+150 1 definitions retrieved
+151 "тартуский университет" testdb "rus words"
+тартуский университет
+ <тартуский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "татевский университет" testdb "rus words"
+татевский университет
+ <татевский университет>
+.
+250
+150 1 definitions retrieved
+151 "татевский университет" testdb "rus words"
+татевский университет
+ <татевский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "тбилисский университет" testdb "rus words"
+тбилисский университет
+ <тбилисский университет>
+.
+250
+150 1 definitions retrieved
+151 "тбилисский университет" testdb "rus words"
+тбилисский университет
+ <тбилисский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "тверской университет" testdb "rus words"
+тверской университет
+ <тверской университет>
+.
+250
+150 1 definitions retrieved
+151 "тверской университет" testdb "rus words"
+тверской университет
+ <тверской университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "тегеранский университет" testdb "rus words"
+тегеранский университет
+ <тегеранский университет>
+.
+250
+150 1 definitions retrieved
+151 "тегеранский университет" testdb "rus words"
+тегеранский университет
+ <тегеранский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "тиранский университет" testdb "rus words"
+тиранский университет
+ <тиранский университет>
+.
+250
+150 1 definitions retrieved
+151 "тиранский университет" testdb "rus words"
+тиранский университет
+ <тиранский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "тогда в то время" testdb "rus words"
+тогда в то время
+ <тогда в то время>
+.
+250
+150 1 definitions retrieved
+151 "тогда в то время" testdb "rus words"
+тогда в то время
+ <тогда в то время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "тогда в то время разве все же когда ну" testdb "rus words"
+тогда в то время разве все же когда ну
+ <тогда в то время разве все же когда ну>
+.
+250
+150 1 definitions retrieved
+151 "тогда в то время разве все же когда ну" testdb "rus words"
+тогда в то время разве все же когда ну
+ <тогда в то время разве все же когда ну>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "токийский университет" testdb "rus words"
+токийский университет
+ <токийский университет>
+.
+250
+150 1 definitions retrieved
+151 "токийский университет" testdb "rus words"
+токийский университет
+ <токийский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "томский политехнический университет" testdb "rus words"
+томский политехнический университет
+ <томский политехнический университет>
+.
+250
+150 1 definitions retrieved
+151 "томский политехнический университет" testdb "rus words"
+томский политехнический университет
+ <томский политехнический университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "томский университет" testdb "rus words"
+томский университет
+ <томский университет>
+.
+250
+150 1 definitions retrieved
+151 "томский университет" testdb "rus words"
+томский университет
+ <томский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "торонтский университет" testdb "rus words"
+торонтский университет
+ <торонтский университет>
+.
+250
+150 1 definitions retrieved
+151 "торонтский университет" testdb "rus words"
+торонтский университет
+ <торонтский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "точно в назначенное время" testdb "rus words"
+точно в назначенное время
+ <точно в назначенное время>
+.
+250
+150 1 definitions retrieved
+151 "точно в назначенное время" testdb "rus words"
+точно в назначенное время
+ <точно в назначенное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "точно вовремя" testdb "rus words"
+точно вовремя
+ <точно вовремя>
+.
+250
+150 1 definitions retrieved
+151 "точно вовремя" testdb "rus words"
+точно вовремя
+ <точно вовремя>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "трудный время" testdb "rus words"
+трудный время
+ <трудный время>
+.
+250
+150 1 definitions retrieved
+151 "трудный время" testdb "rus words"
+трудный время
+ <трудный время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "туркестанский университет" testdb "rus words"
+туркестанский университет
+ <туркестанский университет>
+.
+250
+150 1 definitions retrieved
+151 "туркестанский университет" testdb "rus words"
+туркестанский университет
+ <туркестанский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "тюменский университет" testdb "rus words"
+тюменский университет
+ <тюменский университет>
+.
+250
+150 1 definitions retrieved
+151 "тюменский университет" testdb "rus words"
+тюменский университет
+ <тюменский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "тяжелый время" testdb "rus words"
+тяжелый время
+ <тяжелый время>
+.
+250
+150 1 definitions retrieved
+151 "тяжелый время" testdb "rus words"
+тяжелый время
+ <тяжелый время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "тянуть время" testdb "rus words"
+тянуть время
+ <тянуть время>
+.
+250
+150 1 definitions retrieved
+151 "тянуть время" testdb "rus words"
+тянуть время
+ <тянуть время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "у около во время" testdb "rus words"
+у около во время
+ <у около во время>
+.
+250
+150 1 definitions retrieved
+151 "у около во время" testdb "rus words"
+у около во время
+ <у около во время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "убивать время" testdb "rus words"
+убивать время
+ <убивать время>
+.
+250
+150 1 definitions retrieved
+151 "убивать время" testdb "rus words"
+убивать время
+ <убивать время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "удмуртский университет" testdb "rus words"
+удмуртский университет
+ <удмуртский университет>
+.
+250
+150 1 definitions retrieved
+151 "удмуртский университет" testdb "rus words"
+удмуртский университет
+ <удмуртский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "ужгородский университет" testdb "rus words"
+ужгородский университет
+ <ужгородский университет>
+.
+250
+150 1 definitions retrieved
+151 "ужгородский университет" testdb "rus words"
+ужгородский университет
+ <ужгородский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "уланбаторский университет" testdb "rus words"
+уланбаторский университет
+ <уланбаторский университет>
+.
+250
+150 1 definitions retrieved
+151 "уланбаторский университет" testdb "rus words"
+уланбаторский университет
+ <уланбаторский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "улучить время" testdb "rus words"
+улучить время
+ <улучить время>
+.
+250
+150 1 definitions retrieved
+151 "улучить время" testdb "rus words"
+улучить время
+ <улучить время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "уменьшать время операции" testdb "rus words"
+уменьшать время операции
+ <уменьшать время операции>
+.
+250
+150 1 definitions retrieved
+151 "уменьшать время операции" testdb "rus words"
+уменьшать время операции
+ <уменьшать время операции>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "университет" testdb "rus words"
+университет
+ <университет>
+.
+250
+150 1 definitions retrieved
+151 "университет" testdb "rus words"
+университет
+ <университет>
+.
+250
+152 1 matches found
+testdb "университет"
+.
+250
+150 1 definitions retrieved
+151 "университет по землеустройству" testdb "rus words"
+университет по землеустройству
+ <университет по землеустройству>
+.
+250
+150 1 definitions retrieved
+151 "университет по землеустройству" testdb "rus words"
+университет по землеустройству
+ <университет по землеустройству>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "университет штата коннектикут" testdb "rus words"
+университет штата коннектикут
+ <университет штата коннектикут>
+.
+250
+150 1 definitions retrieved
+151 "университет штата коннектикут" testdb "rus words"
+университет штата коннектикут
+ <университет штата коннектикут>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "университет южной калифорнии" testdb "rus words"
+университет южной калифорнии
+ <университет южной калифорнии>
+.
+250
+150 1 definitions retrieved
+151 "университет южной калифорнии" testdb "rus words"
+университет южной калифорнии
+ <университет южной калифорнии>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "университета" testdb "rus words"
+университета
+ <университета>
+.
+250
+150 1 definitions retrieved
+151 "университета" testdb "rus words"
+университета
+ <университета>
+.
+250
+152 1 matches found
+testdb "университета"
+.
+250
+150 1 definitions retrieved
+151 "университетам" testdb "rus words"
+университетам
+ <университетам>
+.
+250
+150 1 definitions retrieved
+151 "университетам" testdb "rus words"
+университетам
+ <университетам>
+.
+250
+152 1 matches found
+testdb "университетам"
+.
+250
+150 1 definitions retrieved
+151 "университетами" testdb "rus words"
+университетами
+ <университетами>
+.
+250
+150 1 definitions retrieved
+151 "университетами" testdb "rus words"
+университетами
+ <университетами>
+.
+250
+152 1 matches found
+testdb "университетами"
+.
+250
+150 1 definitions retrieved
+151 "университетах" testdb "rus words"
+университетах
+ <университетах>
+.
+250
+150 1 definitions retrieved
+151 "университетах" testdb "rus words"
+университетах
+ <университетах>
+.
+250
+152 1 matches found
+testdb "университетах"
+.
+250
+150 1 definitions retrieved
+151 "университетбиблиотека" testdb "rus words"
+университетбиблиотека
+ <университетбиблиотека>
+.
+250
+150 1 definitions retrieved
+151 "университетбиблиотека" testdb "rus words"
+университетбиблиотека
+ <университетбиблиотека>
+.
+250
+152 1 matches found
+testdb "университетбиблиотека"
+.
+250
+150 1 definitions retrieved
+151 "университете" testdb "rus words"
+университете
+ <университете>
+.
+250
+150 1 definitions retrieved
+151 "университете" testdb "rus words"
+университете
+ <университете>
+.
+250
+152 1 matches found
+testdb "университете"
+.
+250
+150 1 definitions retrieved
+151 "университетов" testdb "rus words"
+университетов
+ <университетов>
+.
+250
+150 1 definitions retrieved
+151 "университетов" testdb "rus words"
+университетов
+ <университетов>
+.
+250
+152 1 matches found
+testdb "университетов"
+.
+250
+150 1 definitions retrieved
+151 "университетом" testdb "rus words"
+университетом
+ <университетом>
+.
+250
+150 1 definitions retrieved
+151 "университетом" testdb "rus words"
+университетом
+ <университетом>
+.
+250
+152 1 matches found
+testdb "университетом"
+.
+250
+150 1 definitions retrieved
+151 "университетская" testdb "rus words"
+университетская
+ <университетская>
+.
+250
+150 1 definitions retrieved
+151 "университетская" testdb "rus words"
+университетская
+ <университетская>
+.
+250
+152 1 matches found
+testdb "университетская"
+.
+250
+150 1 definitions retrieved
+151 "университетская реформа" testdb "rus words"
+университетская реформа
+ <университетская реформа>
+.
+250
+150 1 definitions retrieved
+151 "университетская реформа" testdb "rus words"
+университетская реформа
+ <университетская реформа>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "университетские" testdb "rus words"
+университетские
+ <университетские>
+.
+250
+150 1 definitions retrieved
+151 "университетские" testdb "rus words"
+университетские
+ <университетские>
+.
+250
+152 1 matches found
+testdb "университетские"
+.
+250
+150 1 definitions retrieved
+151 "университетские уставы" testdb "rus words"
+университетские уставы
+ <университетские уставы>
+.
+250
+150 1 definitions retrieved
+151 "университетские уставы" testdb "rus words"
+университетские уставы
+ <университетские уставы>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "университетский" testdb "rus words"
+университетский
+ <университетский>
+.
+250
+150 1 definitions retrieved
+151 "университетский" testdb "rus words"
+университетский
+ <университетский>
+.
+250
+152 1 matches found
+testdb "университетский"
+.
+250
+150 1 definitions retrieved
+151 "университетский городок" testdb "rus words"
+университетский городок
+ <университетский городок>
+.
+250
+150 1 definitions retrieved
+151 "университетский городок" testdb "rus words"
+университетский городок
+ <университетский городок>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "университетским" testdb "rus words"
+университетским
+ <университетским>
+.
+250
+150 1 definitions retrieved
+151 "университетским" testdb "rus words"
+университетским
+ <университетским>
+.
+250
+152 1 matches found
+testdb "университетским"
+.
+250
+150 1 definitions retrieved
+151 "университетскими" testdb "rus words"
+университетскими
+ <университетскими>
+.
+250
+150 1 definitions retrieved
+151 "университетскими" testdb "rus words"
+университетскими
+ <университетскими>
+.
+250
+152 1 matches found
+testdb "университетскими"
+.
+250
+150 1 definitions retrieved
+151 "университетских" testdb "rus words"
+университетских
+ <университетских>
+.
+250
+150 1 definitions retrieved
+151 "университетских" testdb "rus words"
+университетских
+ <университетских>
+.
+250
+152 1 matches found
+testdb "университетских"
+.
+250
+150 1 definitions retrieved
+151 "университетского" testdb "rus words"
+университетского
+ <университетского>
+.
+250
+150 1 definitions retrieved
+151 "университетского" testdb "rus words"
+университетского
+ <университетского>
+.
+250
+152 1 matches found
+testdb "университетского"
+.
+250
+150 1 definitions retrieved
+151 "университетское" testdb "rus words"
+университетское
+ <университетское>
+.
+250
+150 1 definitions retrieved
+151 "университетское" testdb "rus words"
+университетское
+ <университетское>
+.
+250
+152 1 matches found
+testdb "университетское"
+.
+250
+150 1 definitions retrieved
+151 "университетской" testdb "rus words"
+университетской
+ <университетской>
+.
+250
+150 1 definitions retrieved
+151 "университетской" testdb "rus words"
+университетской
+ <университетской>
+.
+250
+152 1 matches found
+testdb "университетской"
+.
+250
+150 1 definitions retrieved
+151 "университетском" testdb "rus words"
+университетском
+ <университетском>
+.
+250
+150 1 definitions retrieved
+151 "университетском" testdb "rus words"
+университетском
+ <университетском>
+.
+250
+152 1 matches found
+testdb "университетском"
+.
+250
+150 1 definitions retrieved
+151 "университетскому" testdb "rus words"
+университетскому
+ <университетскому>
+.
+250
+150 1 definitions retrieved
+151 "университетскому" testdb "rus words"
+университетскому
+ <университетскому>
+.
+250
+152 1 matches found
+testdb "университетскому"
+.
+250
+150 1 definitions retrieved
+151 "университетскую" testdb "rus words"
+университетскую
+ <университетскую>
+.
+250
+150 1 definitions retrieved
+151 "университетскую" testdb "rus words"
+университетскую
+ <университетскую>
+.
+250
+152 1 matches found
+testdb "университетскую"
+.
+250
+150 1 definitions retrieved
+151 "университету" testdb "rus words"
+университету
+ <университету>
+.
+250
+150 1 definitions retrieved
+151 "университету" testdb "rus words"
+университету
+ <университету>
+.
+250
+152 1 matches found
+testdb "университету"
+.
+250
+150 1 definitions retrieved
+151 "университеты" testdb "rus words"
+университеты
+ <университеты>
+.
+250
+150 1 definitions retrieved
+151 "университеты" testdb "rus words"
+университеты
+ <университеты>
+.
+250
+152 1 matches found
+testdb "университеты"
+.
+250
+150 1 definitions retrieved
+151 "упсальский университет" testdb "rus words"
+упсальский университет
+ <упсальский университет>
+.
+250
+150 1 definitions retrieved
+151 "упсальский университет" testdb "rus words"
+упсальский университет
+ <упсальский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "уральский технический университет" testdb "rus words"
+уральский технический университет
+ <уральский технический университет>
+.
+250
+150 1 definitions retrieved
+151 "уральский технический университет" testdb "rus words"
+уральский технический университет
+ <уральский технический университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "уральский университет" testdb "rus words"
+уральский университет
+ <уральский университет>
+.
+250
+150 1 definitions retrieved
+151 "уральский университет" testdb "rus words"
+уральский университет
+ <уральский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "урвать время" testdb "rus words"
+урвать время
+ <урвать время>
+.
+250
+150 1 definitions retrieved
+151 "урвать время" testdb "rus words"
+урвать время
+ <урвать время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "урочное время" testdb "rus words"
+урочное время
+ <урочное время>
+.
+250
+150 1 definitions retrieved
+151 "урочное время" testdb "rus words"
+урочное время
+ <урочное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "утрехтский университет" testdb "rus words"
+утрехтский университет
+ <утрехтский университет>
+.
+250
+150 1 definitions retrieved
+151 "утрехтский университет" testdb "rus words"
+утрехтский университет
+ <утрехтский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "утро предобеденное время" testdb "rus words"
+утро предобеденное время
+ <утро предобеденное время>
+.
+250
+150 1 definitions retrieved
+151 "утро предобеденное время" testdb "rus words"
+утро предобеденное время
+ <утро предобеденное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "флорентийский университет" testdb "rus words"
+флорентийский университет
+ <флорентийский университет>
+.
+250
+150 1 definitions retrieved
+151 "флорентийский университет" testdb "rus words"
+флорентийский университет
+ <флорентийский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "фордуниверситет" testdb "rus words"
+фордуниверситет
+ <фордуниверситет>
+.
+250
+150 1 definitions retrieved
+151 "фордуниверситет" testdb "rus words"
+фордуниверситет
+ <фордуниверситет>
+.
+250
+152 1 matches found
+testdb "фордуниверситет"
+.
+250
+150 1 definitions retrieved
+151 "фрейбургский университет" testdb "rus words"
+фрейбургский университет
+ <фрейбургский университет>
+.
+250
+150 1 definitions retrieved
+151 "фрейбургский университет" testdb "rus words"
+фрейбургский университет
+ <фрейбургский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "ханойский университет" testdb "rus words"
+ханойский университет
+ <ханойский университет>
+.
+250
+150 1 definitions retrieved
+151 "ханойский университет" testdb "rus words"
+ханойский университет
+ <ханойский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "харьковский университет" testdb "rus words"
+харьковский университет
+ <харьковский университет>
+.
+250
+150 1 definitions retrieved
+151 "харьковский университет" testdb "rus words"
+харьковский университет
+ <харьковский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "хельсинкский университет" testdb "rus words"
+хельсинкский университет
+ <хельсинкский университет>
+.
+250
+150 1 definitions retrieved
+151 "хельсинкский университет" testdb "rus words"
+хельсинкский университет
+ <хельсинкский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "холостое время" testdb "rus words"
+холостое время
+ <холостое время>
+.
+250
+150 1 definitions retrieved
+151 "холостое время" testdb "rus words"
+холостое время
+ <холостое время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "хорошо провести время" testdb "rus words"
+хорошо провести время
+ <хорошо провести время>
+.
+250
+150 1 definitions retrieved
+151 "хорошо провести время" testdb "rus words"
+хорошо провести время
+ <хорошо провести время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "цюрихский университет" testdb "rus words"
+цюрихский университет
+ <цюрихский университет>
+.
+250
+150 1 definitions retrieved
+151 "цюрихский университет" testdb "rus words"
+цюрихский университет
+ <цюрихский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "челябинский технический университет" testdb "rus words"
+челябинский технический университет
+ <челябинский технический университет>
+.
+250
+150 1 definitions retrieved
+151 "челябинский технический университет" testdb "rus words"
+челябинский технический университет
+ <челябинский технический университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "челябинский университет" testdb "rus words"
+челябинский университет
+ <челябинский университет>
+.
+250
+150 1 definitions retrieved
+151 "челябинский университет" testdb "rus words"
+челябинский университет
+ <челябинский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "через некоторое время" testdb "rus words"
+через некоторое время
+ <через некоторое время>
+.
+250
+150 1 definitions retrieved
+151 "через некоторое время" testdb "rus words"
+через некоторое время
+ <через некоторое время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "черновицкий университет" testdb "rus words"
+черновицкий университет
+ <черновицкий университет>
+.
+250
+150 1 definitions retrieved
+151 "черновицкий университет" testdb "rus words"
+черновицкий университет
+ <черновицкий университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "чеченский университет" testdb "rus words"
+чеченский университет
+ <чеченский университет>
+.
+250
+150 1 definitions retrieved
+151 "чеченский университет" testdb "rus words"
+чеченский университет
+ <чеченский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "чикагский университет" testdb "rus words"
+чикагский университет
+ <чикагский университет>
+.
+250
+150 1 definitions retrieved
+151 "чикагский университет" testdb "rus words"
+чикагский университет
+ <чикагский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "чувашский университет" testdb "rus words"
+чувашский университет
+ <чувашский университет>
+.
+250
+150 1 definitions retrieved
+151 "чувашский университет" testdb "rus words"
+чувашский университет
+ <чувашский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "чудоуниверситет" testdb "rus words"
+чудоуниверситет
+ <чудоуниверситет>
+.
+250
+150 1 definitions retrieved
+151 "чудоуниверситет" testdb "rus words"
+чудоуниверситет
+ <чудоуниверситет>
+.
+250
+152 1 matches found
+testdb "чудоуниверситет"
+.
+250
+150 1 definitions retrieved
+151 "шанявского университет" testdb "rus words"
+шанявского университет
+ <шанявского университет>
+.
+250
+150 1 definitions retrieved
+151 "шанявского университет" testdb "rus words"
+шанявского университет
+ <шанявского университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "шапка мономаха" testdb "rus words"
+шапка мономаха
+ <шапка мономаха>
+.
+250
+150 1 definitions retrieved
+151 "шапка мономаха" testdb "rus words"
+шапка мономаха
+ <шапка мономаха>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "эдинбургский университет" testdb "rus words"
+эдинбургский университет
+ <эдинбургский университет>
+.
+250
+150 1 definitions retrieved
+151 "эдинбургский университет" testdb "rus words"
+эдинбургский университет
+ <эдинбургский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "эталонное время" testdb "rus words"
+эталонное время
+ <эталонное время>
+.
+250
+150 1 definitions retrieved
+151 "эталонное время" testdb "rus words"
+эталонное время
+ <эталонное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "эфемеридное время" testdb "rus words"
+эфемеридное время
+ <эфемеридное время>
+.
+250
+150 1 definitions retrieved
+151 "эфемеридное время" testdb "rus words"
+эфемеридное время
+ <эфемеридное время>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "юрьевский университет" testdb "rus words"
+юрьевский университет
+ <юрьевский университет>
+.
+250
+150 1 definitions retrieved
+151 "юрьевский университет" testdb "rus words"
+юрьевский университет
+ <юрьевский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "ягеллонский университет" testdb "rus words"
+ягеллонский университет
+ <ягеллонский университет>
+.
+250
+150 1 definitions retrieved
+151 "ягеллонский университет" testdb "rus words"
+ягеллонский университет
+ <ягеллонский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "якутский университет" testdb "rus words"
+якутский университет
+ <якутский университет>
+.
+250
+150 1 definitions retrieved
+151 "якутский университет" testdb "rus words"
+якутский университет
+ <якутский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "ярославский университет" testdb "rus words"
+ярославский университет
+ <ярославский университет>
+.
+250
+150 1 definitions retrieved
+151 "ярославский университет" testdb "rus words"
+ярославский университет
+ <ярославский университет>
+.
+250
+501 syntax error, illegal parameters
+150 1 definitions retrieved
+151 "ясский университет" testdb "rus words"
+ясский университет
+ <ясский университет>
+.
+250
+150 1 definitions retrieved
+151 "ясский университет" testdb "rus words"
+ясский университет
+ <ясский университет>
+.
+250
+501 syntax error, illegal parameters

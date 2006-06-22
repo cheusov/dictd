@@ -79,6 +79,10 @@ dictfmt_diff_opts '4' hello --utf8 --allchars --without-headword \
 dictfmt_diff_opts '5' hello --utf8 --allchars --without-headword \
    --columns 15 --default-strategy lev --without-info -c5
 
+# UTF-8 database (mostly cyrillic)
+dictfmt_diff_opts '1' cyrillic --utf8 -c5 -s 'rus words' \
+   -u 'URL here' --default-strategy word
+
 ##################################################
 ##################################################
 echo '                       DICTD!!!'
@@ -101,8 +105,8 @@ generate_commands (){
 	split(strats, strats_arr)
     }
     {
-	print "define \ttestdb\t \"" $0 "\""
-	print "define\ttestdb " $0
+	printf "define \ttestdb\t \"%s\"\n", $0
+	printf "define testdb \"%s\"\n", $0
 
 	for (i in strats_arr){
 	    printf "match\ttestdb %s\t%s\n", strats_arr [i], $0
@@ -146,3 +150,6 @@ dictd_test_inetd hello_4
 printf 'hello_4 passed\n'
 dictd_test_inetd hello_5
 printf 'hello_5 passed\n'
+
+dictd_test_inetd cyrillic_1
+printf 'cyrillic_1 passed\n'
