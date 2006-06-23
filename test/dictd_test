@@ -159,5 +159,5 @@ printf 'hello_4 passed\n'
 dictd_test_inetd hello_5
 printf 'hello_5 passed\n'
 
-dictd_test_inetd cyrillic_1 exact #word lev suffix prefix substring
+dictd_test_inetd cyrillic_1 exact word lev suffix prefix substring
 printf 'cyrillic_1 passed\n'
