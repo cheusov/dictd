@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.105 2006/05/27 14:25:58 cheusov Exp $
+ * $Id: index.c,v 1.106 2006/06/23 11:04:23 cheusov Exp $
  * 
  */
 
@@ -159,10 +159,10 @@ static void dict_table_init(void)
 	 }
       }
 
-      if (isspace(i) || ispunct(i)){
-	 isspacepuncttab [i] = 1;
-      }else{
+      if (utf8_mode && i >= 0x80){
 	 isspacepuncttab [i] = 0;
+      }else{
+	 isspacepuncttab [i] = isspace(i) || ispunct(i);
       }
 
       isspacealnumtab_allchars [i] = 1;
