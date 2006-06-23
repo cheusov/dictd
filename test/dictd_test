@@ -108,13 +108,13 @@ generate_commands (){
 
     awk -v strats="$strats" '
     BEGIN {
-	split(strats, strats_arr)
+	cnt=split(strats, strats_arr)
     }
     {
 	printf "define \ttestdb\t \"%s\"\n", $0
 	printf "define testdb \"%s\"\n", $0
 
-	for (i in strats_arr){
+	for (i=1; i <= cnt; ++i){
 	    printf "match\ttestdb %s\t\"%s\"\n", strats_arr [i], $0
 	}
     }'
@@ -130,7 +130,7 @@ dictd_test_inetd (){
 
     index_file=`sed -n 's,^.*/\(.*[.]index\).*$,\1,p' $conf_file`
 
-    cut -f 1 "$index_file" | generate_commands $conf_file "$@" |
+    cut -f 1 "$index_file" | generate_commands $conf_file "$@" | tee test.log |
     $DICTD -c $conf_file -i |
     awk '/^2[25]0 / { print $1; next; } {print}' \
 	> _dictd_${dbtype}_res.txt || exit 1
