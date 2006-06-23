@@ -682,7 +682,7 @@ testdb "8:-)"
 .
 250
 152 1 matches found
-testdb ":-("
+testdb ":'-("
 .
 250
 150 1 definitions retrieved
@@ -704,7 +704,7 @@ crying
 .
 250
 152 1 matches found
-testdb ":-)"
+testdb ":'-)"
 .
 250
 150 1 definitions retrieved

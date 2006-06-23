@@ -97,7 +97,10 @@ dobrý den
    hello6
 .
 250
-501 syntax error, illegal parameters
+152 1 matches found
+testdb "dobrý den"
+.
+250
 150 1 definitions retrieved
 151 "haló" testdb "unknown"
 haló
