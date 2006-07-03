@@ -1,4 +1,32 @@
 ----------------------------------------------------------------------
+Version 1.10.6, by Aleksey Cheusov, Tue,  4 Jul 2006 01:17:53 +0300
+
+ DICTD:
+    - FIXED: 'word' strategy works incorrectly with UTF-8
+      on non-glib systems, i.e. BSD, Solaris and probably others.
+    - new selftest added
+    - if opening a pid file of log file failed,
+      error messages are printed to stderr, older versions did not
+      generate error messages at all in this case.
+
+ DICTFMT:
+    - --index-keep-orig option is added to dictfmt.
+
+      When --utf-8 option is applied, headwords are lowercased and
+      non-alphanumeric characters are removed from it
+      before string them to .index file
+      in order to simplify the search.
+      With --index-keep-headword option
+      the fourth column is created (if necessary) in .index file,
+      and contains the original headword which is returned by MATCH command.
+      This option may be useful to prevent converting "AT&T" to "att"
+      or to keep German nouns with uppercased first letter.
+
+ LIBMAA:
+    - added: new function b64_decode_buf
+    - FIXED: sf.net bug #1463396 in hash.c
+
+----------------------------------------------------------------------
 Version 1.10.5, by Aleksey Cheusov, Fri, 26 May 2006 23:12:49 +0300
 
  DICTD:
