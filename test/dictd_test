@@ -8,6 +8,17 @@ DICTD="../dictd -L `pwd`/_dictd.log"
 DIFF='diff -u'
 
 ##################################################
+cmp_2_files (){
+    if ! $DIFF "$1" "$2" > log.txt; then
+	cat 1>&2 <<EOF
+$1 and $2 are different,
+see test/log.txt file a difference.
+EOF
+	exit 1
+    fi
+}
+
+##################################################
 ##################################################
 echo '                       DICTFMT!!!'
 
@@ -25,8 +36,8 @@ $DICTUNFORMAT _db.c5.index < _db.c5.dict > testdb.t.txt || exit 1
 dictfmt_X_eq_Y (){
     printf "   $1 == $2 ..."
     $DICTFMT -$2  _db.$2  < testdb.$2.txt  || exit 1
-    $DIFF _db.$1.index _db.$2.index || exit 1
-    $DIFF _db.$1.dict  _db.$2.dict || exit 1
+    cmp_2_files _db.$1.index _db.$2.index
+    cmp_2_files _db.$1.dict  _db.$2.dict
     printf 'passed\n'
 }
 
@@ -38,8 +49,8 @@ dictfmt_X_eq_Y c5 t
 
 ###
 printf "   c5 == expected ..."
-$DIFF db.expect.index _db.c5.index || exit 1
-$DIFF db.expect.dict  _db.c5.dict || exit 1
+cmp_2_files db.expect.index _db.c5.index
+cmp_2_files db.expect.dict  _db.c5.dict
 printf "passed\n"
 
 ##################################################
@@ -55,8 +66,8 @@ dictfmt_diff_opts (){
     printf "   test $num..."
 
     $DICTFMT "$@" _db.${dbname}_$num < testdb.${dbname}.txt || exit 1
-    $DIFF db.expect.${dbname}_$num.dict  _db.${dbname}_$num.dict || exit 1
-    $DIFF db.expect.${dbname}_$num.index _db.${dbname}_$num.index || exit 1
+    cmp_2_files db.expect.${dbname}_$num.dict  _db.${dbname}_$num.dict
+    cmp_2_files db.expect.${dbname}_$num.index _db.${dbname}_$num.index
 
     printf 'passed\n'
 }
@@ -134,7 +145,7 @@ dictd_test_inetd (){
     $DICTD -c $conf_file -i |
     awk '/^2[25]0 / { print $1; next; } {print}' \
 	> _dictd_${dbtype}_res.txt || exit 1
-    $DIFF dictd_${dbtype}_res.expected.txt _dictd_${dbtype}_res.txt || exit 1
+    cmp_2_files dictd_${dbtype}_res.expected.txt _dictd_${dbtype}_res.txt
 }
 
 #dictd_test_inetd smiley_1
