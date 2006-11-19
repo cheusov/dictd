@@ -1278,11 +1278,12 @@ This headword is not used by
 .I dictd
 .P
 .BI 00-database-utf8
-Presents if dictionary is UTF-8 one.
+Presents if dictionary is encoded using UTF-8.
 See dictfmt --utf8
 .P
 .BI 00-database-8bit-new
-Presents if dictionary is 8-BIT one (non-ASCII and non-UTF8).
+Presents if dictionary is encoded using 8-BIT character set
+(not ASCII and not UTF8).
 See dictfmt --locale.
 .P
 The flat text file may be compressed using
@@ -1344,42 +1345,6 @@ to unload databases,
 update files, and then send
 .B SUGHUP
 signal to load them again.
-.SH "ACKNOWLEDGEMENTS"
-Special thanks to Jean-loup Gailly and Mark Adler for writing the
-.B zlib
-general purpose data compression library.  The version contained with
-.B dictd
-is not necessarily an original version and
-.B may have been modified
-(unnecessary files may have been deleted to make the distribution
-smaller; makefiles may have been modified to ease compilation; see
-zlib/README.DICT for any significant changes).  For more information on
-.BR zlib ,
-please see the
-.B zlib
-home page at
-.RS
-.I http://www.gzip.org/zlib/
-.RE
-.P
-The key features of the
-.B dictzip
-random-access compression algorithm utilize a documented extension of the
-gzip format, and do not require any modifications to
-.BR zlib .
-.P
-Special thanks to Henry Spencer for his regex package.  The package
-contained with
-.B dictd
-is not necessarily an original version and
-.B may have been modified
-(unnecessary files may have been deleted to make the distribution
-smaller; makefiles may have been modified to ease compilation; see
-regex/README.DICT for any significant changes).  For more information on
-regex, please see
-.RS
-.I ftp://zoo.toronto.edu/pub/regex.shar
-.RE
 .SH "COPYING"
 The main source files for the
 .B dictd
