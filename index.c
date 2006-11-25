@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.107 2006/09/19 07:02:57 cheusov Exp $
+ * $Id: index.c,v 1.108 2006/11/25 13:30:23 cheusov Exp $
  * 
  */
 
@@ -415,9 +415,10 @@ static int altcompare(
    char *p;
    int ret;
 
-   for (; word < end && word [l] != '\t'; ++l);
+   for (; word < end && word [l] != '\t';)
+      ++l;
 
-   p = xmalloc (l);
+   p = xmalloc (l+1);
    memcpy (p, word, l);
    p [l] = 0;
 
@@ -715,7 +716,8 @@ void dict_destroy_list( lst_List list )
 static int dict_search_exact( lst_List l,
 			      const char *word,
 			      const dictDatabase *database,
-			      dictIndex *dbindex)
+			      dictIndex *dbindex,
+			      int uniq_only)
 {
    const char *pt   = NULL;
    int        count = 0;
@@ -728,7 +730,9 @@ static int dict_search_exact( lst_List l,
 
    while (pt && pt < dbindex->end) {
       if (!compare( word, dbindex, pt, dbindex->end )) {
-	 if (!previous || altcompare(previous, dbindex, pt, dbindex->end)) {
+	 if (!uniq_only || !previous
+	     || altcompare(previous, dbindex, pt, dbindex->end))
+	 {
 	    ++count;
 	    if (l){
 	       datum = dict_word_create( previous = pt, database, dbindex );
@@ -1011,13 +1015,13 @@ static int dict_search_word(
    assert (database -> index);
 
    if (database->index_word){
-      ret2 = dict_search_exact( l, word, database, database->index );
+      ret2 = dict_search_exact( l, word, database, database->index, 0 );
       if (ret2 < 0)
 	 return ret2;
 
       count = lst_length (l);
 
-      ret1 = dict_search_exact( l, word, database, database->index_word );
+      ret1 = dict_search_exact( l, word, database, database->index_word, 0 );
       if (ret1 < 0)
 	 return ret1;
 
@@ -1420,7 +1424,7 @@ int dict_search_database_ (
    lst_List l,
    const char *word,
    const dictDatabase *database,
-   int strategy )
+   int strategy_or_define )
 {
    char       *buf      = NULL;
 #if HAVE_UTF8
@@ -1428,6 +1432,8 @@ int dict_search_database_ (
 #endif
    unsigned int skip_count       = 0;
    unsigned int item_count       = INT_MAX;
+
+   int strategy = strategy_or_define & ~DICT_MATCH_MASK;
 
    assert (database);
    assert (database -> index);
@@ -1481,7 +1487,8 @@ int dict_search_database_ (
 
    switch (strategy) {
    case DICT_STRAT_EXACT:
-      return dict_search_exact( l, buf, database, database->index );
+      return dict_search_exact( l, buf, database, database->index,
+				strategy_or_define != strategy);
 
    case DICT_STRAT_PREFIX:
    case DICT_STRAT_NPREFIX:
@@ -1586,7 +1593,7 @@ int dict_search (
 
    if (database -> index){
       PRINTF (DBG_SEARCH, (":S:   database search\n"));
-      count = dict_search_database_ (l, word, database, norm_strategy);
+      count = dict_search_database_ (l, word, database, strategy);
    }
 
 #ifdef USE_PLUGIN
