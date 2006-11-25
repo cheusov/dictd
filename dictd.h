@@ -117,8 +117,8 @@ extern int  dict_inetd( char ***argv0, int delay_, int error );
 extern void daemon_terminate( int sig, const char *name );
 
 /* */
-extern int        utf8_mode;
-
+extern int utf8_mode;
+extern int stdin2stdout_mode;
 				/* dmalloc must be last */
 #ifdef DMALLOC_FUNC_CHECK
 # include "dmalloc.h"

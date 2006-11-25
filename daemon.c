@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: daemon.c,v 1.85 2006/05/13 15:02:22 cheusov Exp $
+ * $Id: daemon.c,v 1.86 2006/11/25 10:58:46 cheusov Exp $
  * 
  */
 
@@ -32,6 +32,8 @@
 
 #include <ctype.h>
 #include <setjmp.h>
+
+int stdin2stdout_mode = 0; /* copy stdin to stdout ( dict_dictd function ) */
 
 static int          _dict_defines, _dict_matches;
 static int          daemonS_in  = 0;
@@ -1545,6 +1547,10 @@ int _handleconn (int delay, int error) {
 
    alarm(delay);
    while ((count = daemon_read( buf, 4000 )) >= 0) {
+      if (stdin2stdout_mode){
+	 daemon_printf( "# %s\n", buf );
+      }
+
       alarm(0);
       tim_start( "c" );
       if (!count) {
