@@ -141,8 +141,12 @@ dictd_test_inetd (){
 
     index_file=`sed -n 's,^.*/\(.*[.]index\).*$,\1,p' $conf_file`
 
-    cut -f 1 "$index_file" | generate_commands $conf_file "$@" |
-    $DICTD -c $conf_file -i |
+    in_file=_dictd_${dbtype}_in.txt
+
+    cut -f 1 "$index_file" |
+    generate_commands $conf_file "$@" > "$in_file"
+
+    $DICTD -c $conf_file -i < "$in_file" |
     awk '/^2[25]0 / { print $1; next; } {print}' \
 	> _dictd_${dbtype}_res.txt || exit 1
     cmp_2_files dictd_${dbtype}_res.expected.txt _dictd_${dbtype}_res.txt
