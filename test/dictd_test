@@ -146,7 +146,8 @@ dictd_test_inetd (){
     cut -f 1 "$index_file" |
     generate_commands $conf_file "$@" > "$in_file"
 
-    $DICTD -c $conf_file -i < "$in_file" |
+    $DICTD -c $conf_file -i --stdin2stdout < "$in_file" |
+
     awk '/^2[25]0 / { print $1; next; } {print}' \
 	> _dictd_${dbtype}_res.txt || exit 1
     cmp_2_files dictd_${dbtype}_res.expected.txt _dictd_${dbtype}_res.txt

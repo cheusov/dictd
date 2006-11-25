@@ -1,4 +1,5 @@
 220
+# define 	testdb	 "%-)"
 150 1 definitions retrieved
 151 "%-)" testdb "unknown"
 %-)
@@ -6,6 +7,7 @@
 
 .
 250
+# define testdb "%-)"
 150 1 definitions retrieved
 151 "%-)" testdb "unknown"
 %-)
@@ -13,10 +15,12 @@
 
 .
 250
+# match	testdb exact	"%-)"
 152 1 matches found
 testdb "%-)"
 .
 250
+# define 	testdb	 "%-6"
 150 1 definitions retrieved
 151 "%-6" testdb "unknown"
 %-6
@@ -24,6 +28,7 @@ testdb "%-)"
 
 .
 250
+# define testdb "%-6"
 150 1 definitions retrieved
 151 "%-6" testdb "unknown"
 %-6
@@ -31,10 +36,12 @@ testdb "%-)"
 
 .
 250
+# match	testdb exact	"%-6"
 152 1 matches found
 testdb "%-6"
 .
 250
+# define 	testdb	 "(-:"
 150 1 definitions retrieved
 151 "(-:" testdb "unknown"
 (-:
@@ -42,6 +49,7 @@ testdb "%-6"
 
 .
 250
+# define testdb "(-:"
 150 1 definitions retrieved
 151 "(-:" testdb "unknown"
 (-:
@@ -49,10 +57,12 @@ testdb "%-6"
 
 .
 250
+# match	testdb exact	"(-:"
 152 1 matches found
 testdb "(-:"
 .
 250
+# define 	testdb	 "(8-o"
 150 1 definitions retrieved
 151 "(8-o" testdb "unknown"
 (8-o
@@ -60,6 +70,7 @@ testdb "(-:"
 
 .
 250
+# define testdb "(8-o"
 150 1 definitions retrieved
 151 "(8-o" testdb "unknown"
 (8-o
@@ -67,10 +78,12 @@ testdb "(-:"
 
 .
 250
+# match	testdb exact	"(8-o"
 152 1 matches found
 testdb "(8-o"
 .
 250
+# define 	testdb	 "(:-("
 150 1 definitions retrieved
 151 "(:-(" testdb "unknown"
 (:-(
@@ -78,6 +91,7 @@ testdb "(8-o"
 
 .
 250
+# define testdb "(:-("
 150 1 definitions retrieved
 151 "(:-(" testdb "unknown"
 (:-(
@@ -85,10 +99,12 @@ testdb "(8-o"
 
 .
 250
+# match	testdb exact	"(:-("
 152 1 matches found
 testdb "(:-("
 .
 250
+# define 	testdb	 "(:-)"
 150 1 definitions retrieved
 151 "(:-)" testdb "unknown"
 (:-)
@@ -96,6 +112,7 @@ testdb "(:-("
 
 .
 250
+# define testdb "(:-)"
 150 1 definitions retrieved
 151 "(:-)" testdb "unknown"
 (:-)
@@ -103,10 +120,12 @@ testdb "(:-("
 
 .
 250
+# match	testdb exact	"(:-)"
 152 1 matches found
 testdb "(:-)"
 .
 250
+# define 	testdb	 "(:i"
 150 1 definitions retrieved
 151 "(:i" testdb "unknown"
 (:i
@@ -115,6 +134,7 @@ testdb "(:-)"
 
 .
 250
+# define testdb "(:i"
 150 1 definitions retrieved
 151 "(:i" testdb "unknown"
 (:i
@@ -123,10 +143,12 @@ testdb "(:-)"
 
 .
 250
+# match	testdb exact	"(:i"
 152 1 matches found
 testdb "(:i"
 .
 250
+# define 	testdb	 "*:o)"
 150 1 definitions retrieved
 151 "*:o)" testdb "unknown"
 *:o)
@@ -134,6 +156,7 @@ testdb "(:i"
 
 .
 250
+# define testdb "*:o)"
 150 1 definitions retrieved
 151 "*:o)" testdb "unknown"
 *:o)
@@ -141,10 +164,12 @@ testdb "(:i"
 
 .
 250
+# match	testdb exact	"*:o)"
 152 1 matches found
 testdb "*:o)"
 .
 250
+# define 	testdb	 "+-:-)"
 150 1 definitions retrieved
 151 "+-:-)" testdb "unknown"
 +-:-)
@@ -152,6 +177,7 @@ testdb "*:o)"
 
 .
 250
+# define testdb "+-:-)"
 150 1 definitions retrieved
 151 "+-:-)" testdb "unknown"
 +-:-)
@@ -159,10 +185,12 @@ testdb "*:o)"
 
 .
 250
+# match	testdb exact	"+-:-)"
 152 1 matches found
 testdb "+-:-)"
 .
 250
+# define 	testdb	 "+:-)"
 150 1 definitions retrieved
 151 "+:-)" testdb "unknown"
 +:-)
@@ -170,6 +198,7 @@ testdb "+-:-)"
 
 .
 250
+# define testdb "+:-)"
 150 1 definitions retrieved
 151 "+:-)" testdb "unknown"
 +:-)
@@ -177,10 +206,12 @@ testdb "+-:-)"
 
 .
 250
+# match	testdb exact	"+:-)"
 152 1 matches found
 testdb "+:-)"
 .
 250
+# define 	testdb	 ",-)"
 150 1 definitions retrieved
 151 ",-)" testdb "unknown"
 ,-)
@@ -188,6 +219,7 @@ testdb "+:-)"
 
 .
 250
+# define testdb ",-)"
 150 1 definitions retrieved
 151 ",-)" testdb "unknown"
 ,-)
@@ -195,10 +227,12 @@ testdb "+:-)"
 
 .
 250
+# match	testdb exact	",-)"
 152 1 matches found
 testdb ",-)"
 .
 250
+# define 	testdb	 ",-}"
 150 1 definitions retrieved
 151 ",-}" testdb "unknown"
 ,-}
@@ -206,6 +240,7 @@ testdb ",-)"
 
 .
 250
+# define testdb ",-}"
 150 1 definitions retrieved
 151 ",-}" testdb "unknown"
 ,-}
@@ -213,10 +248,12 @@ testdb ",-)"
 
 .
 250
+# match	testdb exact	",-}"
 152 1 matches found
 testdb ",-}"
 .
 250
+# define 	testdb	 ",:-)"
 150 1 definitions retrieved
 151 ",:-)" testdb "unknown"
 ,:-)
@@ -224,6 +261,7 @@ testdb ",-}"
 
 .
 250
+# define testdb ",:-)"
 150 1 definitions retrieved
 151 ",:-)" testdb "unknown"
 ,:-)
@@ -231,10 +269,12 @@ testdb ",-}"
 
 .
 250
+# match	testdb exact	",:-)"
 152 1 matches found
 testdb ",:-)"
 .
 250
+# define 	testdb	 "-:-("
 150 1 definitions retrieved
 151 "-:-(" testdb "unknown"
 -:-(
@@ -242,6 +282,7 @@ testdb ",:-)"
 
 .
 250
+# define testdb "-:-("
 150 1 definitions retrieved
 151 "-:-(" testdb "unknown"
 -:-(
@@ -249,10 +290,12 @@ testdb ",:-)"
 
 .
 250
+# match	testdb exact	"-:-("
 152 1 matches found
 testdb "-:-("
 .
 250
+# define 	testdb	 "-:-)"
 150 1 definitions retrieved
 151 "-:-)" testdb "unknown"
 -:-)
@@ -260,6 +303,7 @@ testdb "-:-("
 
 .
 250
+# define testdb "-:-)"
 150 1 definitions retrieved
 151 "-:-)" testdb "unknown"
 -:-)
@@ -267,10 +311,12 @@ testdb "-:-("
 
 .
 250
+# match	testdb exact	"-:-)"
 152 1 matches found
 testdb "-:-)"
 .
 250
+# define 	testdb	 ".-)"
 150 1 definitions retrieved
 151 ".-)" testdb "unknown"
 .-)
@@ -278,6 +324,7 @@ testdb "-:-)"
 
 .
 250
+# define testdb ".-)"
 150 1 definitions retrieved
 151 ".-)" testdb "unknown"
 .-)
@@ -285,10 +332,12 @@ testdb "-:-)"
 
 .
 250
+# match	testdb exact	".-)"
 152 1 matches found
 testdb ".-)"
 .
 250
+# define 	testdb	 ".-]"
 150 1 definitions retrieved
 151 ".-]" testdb "unknown"
 .-]
@@ -296,6 +345,7 @@ testdb ".-)"
 
 .
 250
+# define testdb ".-]"
 150 1 definitions retrieved
 151 ".-]" testdb "unknown"
 .-]
@@ -303,38 +353,46 @@ testdb ".-)"
 
 .
 250
+# match	testdb exact	".-]"
 152 1 matches found
 testdb ".-]"
 .
 250
+# define 	testdb	 "00-database-allchars"
 150 1 definitions retrieved
 151 "00-database-allchars" testdb "unknown"
 
 .
 250
+# define testdb "00-database-allchars"
 150 1 definitions retrieved
 151 "00-database-allchars" testdb "unknown"
 
 .
 250
+# match	testdb exact	"00-database-allchars"
 152 1 matches found
 testdb "00-database-allchars"
 .
 250
+# define 	testdb	 "00-database-alphabet"
 150 1 definitions retrieved
 151 "00-database-alphabet" testdb "unknown"
 *pg+_,#=`$q>{i6-sa.%k?b/|@c7}'t8[ul90md1(~e)vf:]n;^xo3
 .
 250
+# define testdb "00-database-alphabet"
 150 1 definitions retrieved
 151 "00-database-alphabet" testdb "unknown"
 *pg+_,#=`$q>{i6-sa.%k?b/|@c7}'t8[ul90md1(~e)vf:]n;^xo3
 .
 250
+# match	testdb exact	"00-database-alphabet"
 152 1 matches found
 testdb "00-database-alphabet"
 .
 250
+# define 	testdb	 "00-database-info"
 150 1 definitions retrieved
 151 "00-database-info" testdb "unknown"
 information
@@ -342,6 +400,7 @@ about
 database
 .
 250
+# define testdb "00-database-info"
 150 1 definitions retrieved
 151 "00-database-info" testdb "unknown"
 information
@@ -349,40 +408,48 @@ about
 database
 .
 250
+# match	testdb exact	"00-database-info"
 152 1 matches found
 testdb "00-database-info"
 .
 250
+# define 	testdb	 "00-database-short"
 150 1 definitions retrieved
 151 "00-database-short" testdb "unknown"
 00-database-short
      unknown
 .
 250
+# define testdb "00-database-short"
 150 1 definitions retrieved
 151 "00-database-short" testdb "unknown"
 00-database-short
      unknown
 .
 250
+# match	testdb exact	"00-database-short"
 152 1 matches found
 testdb "00-database-short"
 .
 250
+# define 	testdb	 "00-database-url"
 150 1 definitions retrieved
 151 "00-database-url" testdb "unknown"
 unknown
 .
 250
+# define testdb "00-database-url"
 150 1 definitions retrieved
 151 "00-database-url" testdb "unknown"
 unknown
 .
 250
+# match	testdb exact	"00-database-url"
 152 1 matches found
 testdb "00-database-url"
 .
 250
+# define 	testdb	 "3:["
 150 1 definitions retrieved
 151 "3:[" testdb "unknown"
 3:[
@@ -390,6 +457,7 @@ testdb "00-database-url"
 
 .
 250
+# define testdb "3:["
 150 1 definitions retrieved
 151 "3:[" testdb "unknown"
 3:[
@@ -397,10 +465,12 @@ testdb "00-database-url"
 
 .
 250
+# match	testdb exact	"3:["
 152 1 matches found
 testdb "3:["
 .
 250
+# define 	testdb	 "3:]"
 150 1 definitions retrieved
 151 "3:]" testdb "unknown"
 3:]
@@ -408,6 +478,7 @@ testdb "3:["
 
 .
 250
+# define testdb "3:]"
 150 1 definitions retrieved
 151 "3:]" testdb "unknown"
 3:]
@@ -415,10 +486,12 @@ testdb "3:["
 
 .
 250
+# match	testdb exact	"3:]"
 152 1 matches found
 testdb "3:]"
 .
 250
+# define 	testdb	 "8-)"
 150 3 definitions retrieved
 151 "8-)" testdb "unknown"
 8-)
@@ -436,6 +509,7 @@ testdb "3:]"
 
 .
 250
+# define testdb "8-)"
 150 3 definitions retrieved
 151 "8-)" testdb "unknown"
 8-)
@@ -453,10 +527,12 @@ testdb "3:]"
 
 .
 250
+# match	testdb exact	"8-)"
 152 1 matches found
 testdb "8-)"
 .
 250
+# define 	testdb	 "8-)"
 150 3 definitions retrieved
 151 "8-)" testdb "unknown"
 8-)
@@ -474,6 +550,7 @@ testdb "8-)"
 
 .
 250
+# define testdb "8-)"
 150 3 definitions retrieved
 151 "8-)" testdb "unknown"
 8-)
@@ -491,10 +568,12 @@ testdb "8-)"
 
 .
 250
+# match	testdb exact	"8-)"
 152 1 matches found
 testdb "8-)"
 .
 250
+# define 	testdb	 "8-)"
 150 3 definitions retrieved
 151 "8-)" testdb "unknown"
 8-)
@@ -512,6 +591,7 @@ testdb "8-)"
 
 .
 250
+# define testdb "8-)"
 150 3 definitions retrieved
 151 "8-)" testdb "unknown"
 8-)
@@ -529,10 +609,12 @@ testdb "8-)"
 
 .
 250
+# match	testdb exact	"8-)"
 152 1 matches found
 testdb "8-)"
 .
 250
+# define 	testdb	 "8:-)"
 150 2 definitions retrieved
 151 "8:-)" testdb "unknown"
 8:-)
@@ -545,6 +627,7 @@ testdb "8-)"
 
 .
 250
+# define testdb "8:-)"
 150 2 definitions retrieved
 151 "8:-)" testdb "unknown"
 8:-)
@@ -557,10 +640,12 @@ testdb "8-)"
 
 .
 250
+# match	testdb exact	"8:-)"
 152 1 matches found
 testdb "8:-)"
 .
 250
+# define 	testdb	 "8:-)"
 150 2 definitions retrieved
 151 "8:-)" testdb "unknown"
 8:-)
@@ -573,6 +658,7 @@ testdb "8:-)"
 
 .
 250
+# define testdb "8:-)"
 150 2 definitions retrieved
 151 "8:-)" testdb "unknown"
 8:-)
@@ -585,10 +671,12 @@ testdb "8:-)"
 
 .
 250
+# match	testdb exact	"8:-)"
 152 1 matches found
 testdb "8:-)"
 .
 250
+# define 	testdb	 ":'-("
 150 1 definitions retrieved
 151 ":'-(" testdb "unknown"
 :'-(
@@ -596,6 +684,7 @@ testdb "8:-)"
 
 .
 250
+# define testdb ":'-("
 150 1 definitions retrieved
 151 ":'-(" testdb "unknown"
 :'-(
@@ -603,10 +692,12 @@ testdb "8:-)"
 
 .
 250
+# match	testdb exact	":'-("
 152 1 matches found
 testdb ":'-("
 .
 250
+# define 	testdb	 ":'-)"
 150 1 definitions retrieved
 151 ":'-)" testdb "unknown"
 :'-)
@@ -614,6 +705,7 @@ testdb ":'-("
 
 .
 250
+# define testdb ":'-)"
 150 1 definitions retrieved
 151 ":'-)" testdb "unknown"
 :'-)
@@ -621,10 +713,12 @@ testdb ":'-("
 
 .
 250
+# match	testdb exact	":'-)"
 152 1 matches found
 testdb ":'-)"
 .
 250
+# define 	testdb	 ":*)"
 150 1 definitions retrieved
 151 ":*)" testdb "unknown"
 :*)
@@ -632,6 +726,7 @@ testdb ":'-)"
 
 .
 250
+# define testdb ":*)"
 150 1 definitions retrieved
 151 ":*)" testdb "unknown"
 :*)
@@ -639,10 +734,12 @@ testdb ":'-)"
 
 .
 250
+# match	testdb exact	":*)"
 152 1 matches found
 testdb ":*)"
 .
 250
+# define 	testdb	 ":-#"
 150 2 definitions retrieved
 151 ":-#" testdb "unknown"
 :-#
@@ -655,6 +752,7 @@ testdb ":*)"
 
 .
 250
+# define testdb ":-#"
 150 2 definitions retrieved
 151 ":-#" testdb "unknown"
 :-#
@@ -667,10 +765,12 @@ testdb ":*)"
 
 .
 250
+# match	testdb exact	":-#"
 152 1 matches found
 testdb ":-#"
 .
 250
+# define 	testdb	 ":-#"
 150 2 definitions retrieved
 151 ":-#" testdb "unknown"
 :-#
@@ -683,6 +783,7 @@ testdb ":-#"
 
 .
 250
+# define testdb ":-#"
 150 2 definitions retrieved
 151 ":-#" testdb "unknown"
 :-#
@@ -695,10 +796,12 @@ testdb ":-#"
 
 .
 250
+# match	testdb exact	":-#"
 152 1 matches found
 testdb ":-#"
 .
 250
+# define 	testdb	 ":-#|"
 150 1 definitions retrieved
 151 ":-#|" testdb "unknown"
 :-#|
@@ -706,6 +809,7 @@ testdb ":-#"
 
 .
 250
+# define testdb ":-#|"
 150 1 definitions retrieved
 151 ":-#|" testdb "unknown"
 :-#|
@@ -713,10 +817,12 @@ testdb ":-#"
 
 .
 250
+# match	testdb exact	":-#|"
 152 1 matches found
 testdb ":-#|"
 .
 250
+# define 	testdb	 ":-$"
 150 1 definitions retrieved
 151 ":-$" testdb "unknown"
 :-$
@@ -724,6 +830,7 @@ testdb ":-#|"
 
 .
 250
+# define testdb ":-$"
 150 1 definitions retrieved
 151 ":-$" testdb "unknown"
 :-$
@@ -731,10 +838,12 @@ testdb ":-#|"
 
 .
 250
+# match	testdb exact	":-$"
 152 1 matches found
 testdb ":-$"
 .
 250
+# define 	testdb	 ":-%"
 150 1 definitions retrieved
 151 ":-%" testdb "unknown"
 :-%
@@ -742,6 +851,7 @@ testdb ":-$"
 
 .
 250
+# define testdb ":-%"
 150 1 definitions retrieved
 151 ":-%" testdb "unknown"
 :-%
@@ -749,10 +859,12 @@ testdb ":-$"
 
 .
 250
+# match	testdb exact	":-%"
 152 1 matches found
 testdb ":-%"
 .
 250
+# define 	testdb	 ":-("
 150 1 definitions retrieved
 151 ":-(" testdb "unknown"
 :-(
@@ -762,6 +874,7 @@ testdb ":-%"
 
 .
 250
+# define testdb ":-("
 150 1 definitions retrieved
 151 ":-(" testdb "unknown"
 :-(
@@ -771,10 +884,12 @@ testdb ":-%"
 
 .
 250
+# match	testdb exact	":-("
 152 1 matches found
 testdb ":-("
 .
 250
+# define 	testdb	 ":-)"
 150 1 definitions retrieved
 151 ":-)" testdb "unknown"
 :-)
@@ -784,6 +899,7 @@ testdb ":-("
 
 .
 250
+# define testdb ":-)"
 150 1 definitions retrieved
 151 ":-)" testdb "unknown"
 :-)
@@ -793,10 +909,12 @@ testdb ":-("
 
 .
 250
+# match	testdb exact	":-)"
 152 1 matches found
 testdb ":-)"
 .
 250
+# define 	testdb	 ":-)-8"
 150 1 definitions retrieved
 151 ":-)-8" testdb "unknown"
 :-)-8
@@ -804,6 +922,7 @@ testdb ":-)"
 
 .
 250
+# define testdb ":-)-8"
 150 1 definitions retrieved
 151 ":-)-8" testdb "unknown"
 :-)-8
@@ -811,10 +930,12 @@ testdb ":-)"
 
 .
 250
+# match	testdb exact	":-)-8"
 152 1 matches found
 testdb ":-)-8"
 .
 250
+# define 	testdb	 ":-)~"
 150 1 definitions retrieved
 151 ":-)~" testdb "unknown"
 :-)~
@@ -822,6 +943,7 @@ testdb ":-)-8"
 
 .
 250
+# define testdb ":-)~"
 150 1 definitions retrieved
 151 ":-)~" testdb "unknown"
 :-)~
@@ -829,10 +951,12 @@ testdb ":-)-8"
 
 .
 250
+# match	testdb exact	":-)~"
 152 1 matches found
 testdb ":-)~"
 .
 250
+# define 	testdb	 ":-*"
 150 2 definitions retrieved
 151 ":-*" testdb "unknown"
 :-*
@@ -845,6 +969,7 @@ testdb ":-)~"
 
 .
 250
+# define testdb ":-*"
 150 2 definitions retrieved
 151 ":-*" testdb "unknown"
 :-*
@@ -857,10 +982,12 @@ testdb ":-)~"
 
 .
 250
+# match	testdb exact	":-*"
 152 1 matches found
 testdb ":-*"
 .
 250
+# define 	testdb	 ":-*"
 150 2 definitions retrieved
 151 ":-*" testdb "unknown"
 :-*
@@ -873,6 +1000,7 @@ testdb ":-*"
 
 .
 250
+# define testdb ":-*"
 150 2 definitions retrieved
 151 ":-*" testdb "unknown"
 :-*
@@ -885,10 +1013,12 @@ testdb ":-*"
 
 .
 250
+# match	testdb exact	":-*"
 152 1 matches found
 testdb ":-*"
 .
 250
+# define 	testdb	 ":-/"
 150 2 definitions retrieved
 151 ":-/" testdb "unknown"
 :-/
@@ -901,6 +1031,7 @@ testdb ":-*"
 
 .
 250
+# define testdb ":-/"
 150 2 definitions retrieved
 151 ":-/" testdb "unknown"
 :-/
@@ -913,10 +1044,12 @@ testdb ":-*"
 
 .
 250
+# match	testdb exact	":-/"
 152 1 matches found
 testdb ":-/"
 .
 250
+# define 	testdb	 ":-/"
 150 2 definitions retrieved
 151 ":-/" testdb "unknown"
 :-/
@@ -929,6 +1062,7 @@ testdb ":-/"
 
 .
 250
+# define testdb ":-/"
 150 2 definitions retrieved
 151 ":-/" testdb "unknown"
 :-/
@@ -941,10 +1075,12 @@ testdb ":-/"
 
 .
 250
+# match	testdb exact	":-/"
 152 1 matches found
 testdb ":-/"
 .
 250
+# define 	testdb	 ":-0"
 150 2 definitions retrieved
 151 ":-0" testdb "unknown"
 :-0
@@ -957,6 +1093,7 @@ testdb ":-/"
 
 .
 250
+# define testdb ":-0"
 150 2 definitions retrieved
 151 ":-0" testdb "unknown"
 :-0
@@ -969,10 +1106,12 @@ testdb ":-/"
 
 .
 250
+# match	testdb exact	":-0"
 152 1 matches found
 testdb ":-0"
 .
 250
+# define 	testdb	 ":-0"
 150 2 definitions retrieved
 151 ":-0" testdb "unknown"
 :-0
@@ -985,6 +1124,7 @@ testdb ":-0"
 
 .
 250
+# define testdb ":-0"
 150 2 definitions retrieved
 151 ":-0" testdb "unknown"
 :-0
@@ -997,10 +1137,12 @@ testdb ":-0"
 
 .
 250
+# match	testdb exact	":-0"
 152 1 matches found
 testdb ":-0"
 .
 250
+# define 	testdb	 ":-1"
 150 1 definitions retrieved
 151 ":-1" testdb "unknown"
 :-1
@@ -1008,6 +1150,7 @@ testdb ":-0"
 
 .
 250
+# define testdb ":-1"
 150 1 definitions retrieved
 151 ":-1" testdb "unknown"
 :-1
@@ -1015,10 +1158,12 @@ testdb ":-0"
 
 .
 250
+# match	testdb exact	":-1"
 152 1 matches found
 testdb ":-1"
 .
 250
+# define 	testdb	 ":-6"
 150 1 definitions retrieved
 151 ":-6" testdb "unknown"
 :-6
@@ -1026,6 +1171,7 @@ testdb ":-1"
 
 .
 250
+# define testdb ":-6"
 150 1 definitions retrieved
 151 ":-6" testdb "unknown"
 :-6
@@ -1033,10 +1179,12 @@ testdb ":-1"
 
 .
 250
+# match	testdb exact	":-6"
 152 1 matches found
 testdb ":-6"
 .
 250
+# define 	testdb	 ":-7"
 150 2 definitions retrieved
 151 ":-7" testdb "unknown"
 :-7
@@ -1049,6 +1197,7 @@ testdb ":-6"
 
 .
 250
+# define testdb ":-7"
 150 2 definitions retrieved
 151 ":-7" testdb "unknown"
 :-7
@@ -1061,10 +1210,12 @@ testdb ":-6"
 
 .
 250
+# match	testdb exact	":-7"
 152 1 matches found
 testdb ":-7"
 .
 250
+# define 	testdb	 ":-7"
 150 2 definitions retrieved
 151 ":-7" testdb "unknown"
 :-7
@@ -1077,6 +1228,7 @@ testdb ":-7"
 
 .
 250
+# define testdb ":-7"
 150 2 definitions retrieved
 151 ":-7" testdb "unknown"
 :-7
@@ -1089,26 +1241,31 @@ testdb ":-7"
 
 .
 250
+# match	testdb exact	":-7"
 152 1 matches found
 testdb ":-7"
 .
 250
+# define 	testdb	 ":-8("
 150 1 definitions retrieved
 151 ":-8(" testdb "unknown"
 :-8(
  condescending stare
 .
 250
+# define testdb ":-8("
 150 1 definitions retrieved
 151 ":-8(" testdb "unknown"
 :-8(
  condescending stare
 .
 250
+# match	testdb exact	":-8("
 152 1 matches found
 testdb ":-8("
 .
 250
+# define 	testdb	 ":-9"
 150 1 definitions retrieved
 151 ":-9" testdb "unknown"
 :-9
@@ -1116,6 +1273,7 @@ testdb ":-8("
 
 .
 250
+# define testdb ":-9"
 150 1 definitions retrieved
 151 ":-9" testdb "unknown"
 :-9
@@ -1123,10 +1281,12 @@ testdb ":-8("
 
 .
 250
+# match	testdb exact	":-9"
 152 1 matches found
 testdb ":-9"
 .
 250
+# define 	testdb	 ":-:"
 150 2 definitions retrieved
 151 ":-:" testdb "unknown"
 :-:
@@ -1139,6 +1299,7 @@ testdb ":-9"
 
 .
 250
+# define testdb ":-:"
 150 2 definitions retrieved
 151 ":-:" testdb "unknown"
 :-:
@@ -1151,10 +1312,12 @@ testdb ":-9"
 
 .
 250
+# match	testdb exact	":-:"
 152 1 matches found
 testdb ":-:"
 .
 250
+# define 	testdb	 ":-:"
 150 2 definitions retrieved
 151 ":-:" testdb "unknown"
 :-:
@@ -1167,6 +1330,7 @@ testdb ":-:"
 
 .
 250
+# define testdb ":-:"
 150 2 definitions retrieved
 151 ":-:" testdb "unknown"
 :-:
@@ -1179,10 +1343,12 @@ testdb ":-:"
 
 .
 250
+# match	testdb exact	":-:"
 152 1 matches found
 testdb ":-:"
 .
 250
+# define 	testdb	 ":-=)"
 150 1 definitions retrieved
 151 ":-=)" testdb "unknown"
 :-=)
@@ -1190,6 +1356,7 @@ testdb ":-:"
 
 .
 250
+# define testdb ":-=)"
 150 1 definitions retrieved
 151 ":-=)" testdb "unknown"
 :-=)
@@ -1197,10 +1364,12 @@ testdb ":-:"
 
 .
 250
+# match	testdb exact	":-=)"
 152 1 matches found
 testdb ":-=)"
 .
 250
+# define 	testdb	 ":->"
 150 1 definitions retrieved
 151 ":->" testdb "unknown"
 :->
@@ -1208,6 +1377,7 @@ testdb ":-=)"
 
 .
 250
+# define testdb ":->"
 150 1 definitions retrieved
 151 ":->" testdb "unknown"
 :->
@@ -1215,10 +1385,12 @@ testdb ":-=)"
 
 .
 250
+# match	testdb exact	":->"
 152 1 matches found
 testdb ":->"
 .
 250
+# define 	testdb	 ":-?"
 150 2 definitions retrieved
 151 ":-?" testdb "unknown"
 :-?
@@ -1231,6 +1403,7 @@ testdb ":->"
 
 .
 250
+# define testdb ":-?"
 150 2 definitions retrieved
 151 ":-?" testdb "unknown"
 :-?
@@ -1243,10 +1416,12 @@ testdb ":->"
 
 .
 250
+# match	testdb exact	":-?"
 152 1 matches found
 testdb ":-?"
 .
 250
+# define 	testdb	 ":-?"
 150 2 definitions retrieved
 151 ":-?" testdb "unknown"
 :-?
@@ -1259,6 +1434,7 @@ testdb ":-?"
 
 .
 250
+# define testdb ":-?"
 150 2 definitions retrieved
 151 ":-?" testdb "unknown"
 :-?
@@ -1271,10 +1447,12 @@ testdb ":-?"
 
 .
 250
+# match	testdb exact	":-?"
 152 1 matches found
 testdb ":-?"
 .
 250
+# define 	testdb	 ":-@"
 150 1 definitions retrieved
 151 ":-@" testdb "unknown"
 :-@
@@ -1282,6 +1460,7 @@ testdb ":-?"
 
 .
 250
+# define testdb ":-@"
 150 1 definitions retrieved
 151 ":-@" testdb "unknown"
 :-@
@@ -1289,10 +1468,12 @@ testdb ":-?"
 
 .
 250
+# match	testdb exact	":-@"
 152 1 matches found
 testdb ":-@"
 .
 250
+# define 	testdb	 ":-["
 150 2 definitions retrieved
 151 ":-[" testdb "unknown"
 :-[
@@ -1305,6 +1486,7 @@ testdb ":-@"
 
 .
 250
+# define testdb ":-["
 150 2 definitions retrieved
 151 ":-[" testdb "unknown"
 :-[
@@ -1317,10 +1499,12 @@ testdb ":-@"
 
 .
 250
+# match	testdb exact	":-["
 152 1 matches found
 testdb ":-["
 .
 250
+# define 	testdb	 ":-["
 150 2 definitions retrieved
 151 ":-[" testdb "unknown"
 :-[
@@ -1333,6 +1517,7 @@ testdb ":-["
 
 .
 250
+# define testdb ":-["
 150 2 definitions retrieved
 151 ":-[" testdb "unknown"
 :-[
@@ -1345,10 +1530,12 @@ testdb ":-["
 
 .
 250
+# match	testdb exact	":-["
 152 1 matches found
 testdb ":-["
 .
 250
+# define 	testdb	 ":-]"
 150 1 definitions retrieved
 151 ":-]" testdb "unknown"
 :-]
@@ -1356,6 +1543,7 @@ testdb ":-["
 
 .
 250
+# define testdb ":-]"
 150 1 definitions retrieved
 151 ":-]" testdb "unknown"
 :-]
@@ -1363,10 +1551,12 @@ testdb ":-["
 
 .
 250
+# match	testdb exact	":-]"
 152 1 matches found
 testdb ":-]"
 .
 250
+# define 	testdb	 ":-`"
 150 1 definitions retrieved
 151 ":-`" testdb "unknown"
 :-`
@@ -1374,6 +1564,7 @@ testdb ":-]"
 
 .
 250
+# define testdb ":-`"
 150 1 definitions retrieved
 151 ":-`" testdb "unknown"
 :-`
@@ -1381,10 +1572,12 @@ testdb ":-]"
 
 .
 250
+# match	testdb exact	":-`"
 152 1 matches found
 testdb ":-`"
 .
 250
+# define 	testdb	 ":-b"
 150 1 definitions retrieved
 151 ":-b" testdb "unknown"
 :-b
@@ -1392,6 +1585,7 @@ testdb ":-`"
 
 .
 250
+# define testdb ":-b"
 150 1 definitions retrieved
 151 ":-b" testdb "unknown"
 :-b
@@ -1399,10 +1593,12 @@ testdb ":-`"
 
 .
 250
+# match	testdb exact	":-b"
 152 1 matches found
 testdb ":-b"
 .
 250
+# define 	testdb	 ":-c"
 150 1 definitions retrieved
 151 ":-c" testdb "unknown"
 :-c
@@ -1410,6 +1606,7 @@ testdb ":-b"
 
 .
 250
+# define testdb ":-c"
 150 1 definitions retrieved
 151 ":-c" testdb "unknown"
 :-c
@@ -1417,10 +1614,12 @@ testdb ":-b"
 
 .
 250
+# match	testdb exact	":-c"
 152 1 matches found
 testdb ":-c"
 .
 250
+# define 	testdb	 ":-d"
 150 2 definitions retrieved
 151 ":-d" testdb "unknown"
 :-d
@@ -1433,6 +1632,7 @@ testdb ":-c"
 
 .
 250
+# define testdb ":-d"
 150 2 definitions retrieved
 151 ":-d" testdb "unknown"
 :-d
@@ -1445,10 +1645,12 @@ testdb ":-c"
 
 .
 250
+# match	testdb exact	":-d"
 152 1 matches found
 testdb ":-d"
 .
 250
+# define 	testdb	 ":-d"
 150 2 definitions retrieved
 151 ":-d" testdb "unknown"
 :-d
@@ -1461,6 +1663,7 @@ testdb ":-d"
 
 .
 250
+# define testdb ":-d"
 150 2 definitions retrieved
 151 ":-d" testdb "unknown"
 :-d
@@ -1473,10 +1676,12 @@ testdb ":-d"
 
 .
 250
+# match	testdb exact	":-d"
 152 1 matches found
 testdb ":-d"
 .
 250
+# define 	testdb	 ":-e"
 150 2 definitions retrieved
 151 ":-e" testdb "unknown"
 :-e
@@ -1489,6 +1694,7 @@ testdb ":-d"
 
 .
 250
+# define testdb ":-e"
 150 2 definitions retrieved
 151 ":-e" testdb "unknown"
 :-e
@@ -1501,10 +1707,12 @@ testdb ":-d"
 
 .
 250
+# match	testdb exact	":-e"
 152 1 matches found
 testdb ":-e"
 .
 250
+# define 	testdb	 ":-e"
 150 2 definitions retrieved
 151 ":-e" testdb "unknown"
 :-e
@@ -1517,6 +1725,7 @@ testdb ":-e"
 
 .
 250
+# define testdb ":-e"
 150 2 definitions retrieved
 151 ":-e" testdb "unknown"
 :-e
@@ -1529,10 +1738,12 @@ testdb ":-e"
 
 .
 250
+# match	testdb exact	":-e"
 152 1 matches found
 testdb ":-e"
 .
 250
+# define 	testdb	 ":-f"
 150 1 definitions retrieved
 151 ":-f" testdb "unknown"
 :-f
@@ -1540,6 +1751,7 @@ testdb ":-e"
 
 .
 250
+# define testdb ":-f"
 150 1 definitions retrieved
 151 ":-f" testdb "unknown"
 :-f
@@ -1547,10 +1759,12 @@ testdb ":-e"
 
 .
 250
+# match	testdb exact	":-f"
 152 1 matches found
 testdb ":-f"
 .
 250
+# define 	testdb	 ":-i"
 150 2 definitions retrieved
 151 ":-i" testdb "unknown"
 :-i
@@ -1564,6 +1778,7 @@ testdb ":-f"
 
 .
 250
+# define testdb ":-i"
 150 2 definitions retrieved
 151 ":-i" testdb "unknown"
 :-i
@@ -1577,10 +1792,12 @@ testdb ":-f"
 
 .
 250
+# match	testdb exact	":-i"
 152 1 matches found
 testdb ":-i"
 .
 250
+# define 	testdb	 ":-i"
 150 2 definitions retrieved
 151 ":-i" testdb "unknown"
 :-i
@@ -1594,6 +1811,7 @@ testdb ":-i"
 
 .
 250
+# define testdb ":-i"
 150 2 definitions retrieved
 151 ":-i" testdb "unknown"
 :-i
@@ -1607,10 +1825,12 @@ testdb ":-i"
 
 .
 250
+# match	testdb exact	":-i"
 152 1 matches found
 testdb ":-i"
 .
 250
+# define 	testdb	 ":-k"
 150 1 definitions retrieved
 151 ":-k" testdb "unknown"
 :-k
@@ -1618,6 +1838,7 @@ testdb ":-i"
 
 .
 250
+# define testdb ":-k"
 150 1 definitions retrieved
 151 ":-k" testdb "unknown"
 :-k
@@ -1625,10 +1846,12 @@ testdb ":-i"
 
 .
 250
+# match	testdb exact	":-k"
 152 1 matches found
 testdb ":-k"
 .
 250
+# define 	testdb	 ":-l"
 150 1 definitions retrieved
 151 ":-l" testdb "unknown"
 :-l
@@ -1636,6 +1859,7 @@ testdb ":-k"
 
 .
 250
+# define testdb ":-l"
 150 1 definitions retrieved
 151 ":-l" testdb "unknown"
 :-l
@@ -1643,10 +1867,12 @@ testdb ":-k"
 
 .
 250
+# match	testdb exact	":-l"
 152 1 matches found
 testdb ":-l"
 .
 250
+# define 	testdb	 ":-o"
 150 2 definitions retrieved
 151 ":-o" testdb "unknown"
 :-o
@@ -1659,6 +1885,7 @@ testdb ":-l"
 
 .
 250
+# define testdb ":-o"
 150 2 definitions retrieved
 151 ":-o" testdb "unknown"
 :-o
@@ -1671,10 +1898,12 @@ testdb ":-l"
 
 .
 250
+# match	testdb exact	":-o"
 152 1 matches found
 testdb ":-o"
 .
 250
+# define 	testdb	 ":-o"
 150 2 definitions retrieved
 151 ":-o" testdb "unknown"
 :-o
@@ -1687,6 +1916,7 @@ testdb ":-o"
 
 .
 250
+# define testdb ":-o"
 150 2 definitions retrieved
 151 ":-o" testdb "unknown"
 :-o
@@ -1699,10 +1929,12 @@ testdb ":-o"
 
 .
 250
+# match	testdb exact	":-o"
 152 1 matches found
 testdb ":-o"
 .
 250
+# define 	testdb	 ":-p"
 150 1 definitions retrieved
 151 ":-p" testdb "unknown"
 :-p
@@ -1710,6 +1942,7 @@ testdb ":-o"
 
 .
 250
+# define testdb ":-p"
 150 1 definitions retrieved
 151 ":-p" testdb "unknown"
 :-p
@@ -1717,10 +1950,12 @@ testdb ":-o"
 
 .
 250
+# match	testdb exact	":-p"
 152 1 matches found
 testdb ":-p"
 .
 250
+# define 	testdb	 ":-q"
 150 3 definitions retrieved
 151 ":-q" testdb "unknown"
 :-q
@@ -1738,6 +1973,7 @@ testdb ":-p"
 
 .
 250
+# define testdb ":-q"
 150 3 definitions retrieved
 151 ":-q" testdb "unknown"
 :-q
@@ -1755,10 +1991,12 @@ testdb ":-p"
 
 .
 250
+# match	testdb exact	":-q"
 152 1 matches found
 testdb ":-q"
 .
 250
+# define 	testdb	 ":-q"
 150 3 definitions retrieved
 151 ":-q" testdb "unknown"
 :-q
@@ -1776,6 +2014,7 @@ testdb ":-q"
 
 .
 250
+# define testdb ":-q"
 150 3 definitions retrieved
 151 ":-q" testdb "unknown"
 :-q
@@ -1793,10 +2032,12 @@ testdb ":-q"
 
 .
 250
+# match	testdb exact	":-q"
 152 1 matches found
 testdb ":-q"
 .
 250
+# define 	testdb	 ":-q"
 150 3 definitions retrieved
 151 ":-q" testdb "unknown"
 :-q
@@ -1814,6 +2055,7 @@ testdb ":-q"
 
 .
 250
+# define testdb ":-q"
 150 3 definitions retrieved
 151 ":-q" testdb "unknown"
 :-q
@@ -1831,10 +2073,12 @@ testdb ":-q"
 
 .
 250
+# match	testdb exact	":-q"
 152 1 matches found
 testdb ":-q"
 .
 250
+# define 	testdb	 ":-s"
 150 2 definitions retrieved
 151 ":-s" testdb "unknown"
 :-s
@@ -1847,6 +2091,7 @@ testdb ":-q"
 
 .
 250
+# define testdb ":-s"
 150 2 definitions retrieved
 151 ":-s" testdb "unknown"
 :-s
@@ -1859,10 +2104,12 @@ testdb ":-q"
 
 .
 250
+# match	testdb exact	":-s"
 152 1 matches found
 testdb ":-s"
 .
 250
+# define 	testdb	 ":-s"
 150 2 definitions retrieved
 151 ":-s" testdb "unknown"
 :-s
@@ -1875,6 +2122,7 @@ testdb ":-s"
 
 .
 250
+# define testdb ":-s"
 150 2 definitions retrieved
 151 ":-s" testdb "unknown"
 :-s
@@ -1887,10 +2135,12 @@ testdb ":-s"
 
 .
 250
+# match	testdb exact	":-s"
 152 1 matches found
 testdb ":-s"
 .
 250
+# define 	testdb	 ":-t"
 150 1 definitions retrieved
 151 ":-t" testdb "unknown"
 :-t
@@ -1898,6 +2148,7 @@ testdb ":-s"
 
 .
 250
+# define testdb ":-t"
 150 1 definitions retrieved
 151 ":-t" testdb "unknown"
 :-t
@@ -1905,10 +2156,12 @@ testdb ":-s"
 
 .
 250
+# match	testdb exact	":-t"
 152 1 matches found
 testdb ":-t"
 .
 250
+# define 	testdb	 ":-v"
 150 1 definitions retrieved
 151 ":-v" testdb "unknown"
 :-v
@@ -1916,6 +2169,7 @@ testdb ":-t"
 
 .
 250
+# define testdb ":-v"
 150 1 definitions retrieved
 151 ":-v" testdb "unknown"
 :-v
@@ -1923,10 +2177,12 @@ testdb ":-t"
 
 .
 250
+# match	testdb exact	":-v"
 152 1 matches found
 testdb ":-v"
 .
 250
+# define 	testdb	 ":-x"
 150 2 definitions retrieved
 151 ":-x" testdb "unknown"
 :-x
@@ -1939,6 +2195,7 @@ testdb ":-v"
 
 .
 250
+# define testdb ":-x"
 150 2 definitions retrieved
 151 ":-x" testdb "unknown"
 :-x
@@ -1951,10 +2208,12 @@ testdb ":-v"
 
 .
 250
+# match	testdb exact	":-x"
 152 1 matches found
 testdb ":-x"
 .
 250
+# define 	testdb	 ":-x"
 150 2 definitions retrieved
 151 ":-x" testdb "unknown"
 :-x
@@ -1967,6 +2226,7 @@ testdb ":-x"
 
 .
 250
+# define testdb ":-x"
 150 2 definitions retrieved
 151 ":-x" testdb "unknown"
 :-x
@@ -1979,10 +2239,12 @@ testdb ":-x"
 
 .
 250
+# match	testdb exact	":-x"
 152 1 matches found
 testdb ":-x"
 .
 250
+# define 	testdb	 ":-{"
 150 2 definitions retrieved
 151 ":-{" testdb "unknown"
 :-{
@@ -1995,6 +2257,7 @@ testdb ":-x"
 
 .
 250
+# define testdb ":-{"
 150 2 definitions retrieved
 151 ":-{" testdb "unknown"
 :-{
@@ -2007,10 +2270,12 @@ testdb ":-x"
 
 .
 250
+# match	testdb exact	":-{"
 152 1 matches found
 testdb ":-{"
 .
 250
+# define 	testdb	 ":-{"
 150 2 definitions retrieved
 151 ":-{" testdb "unknown"
 :-{
@@ -2023,6 +2288,7 @@ testdb ":-{"
 
 .
 250
+# define testdb ":-{"
 150 2 definitions retrieved
 151 ":-{" testdb "unknown"
 :-{
@@ -2035,10 +2301,12 @@ testdb ":-{"
 
 .
 250
+# match	testdb exact	":-{"
 152 1 matches found
 testdb ":-{"
 .
 250
+# define 	testdb	 ":-{)"
 150 1 definitions retrieved
 151 ":-{)" testdb "unknown"
 :-{)
@@ -2046,6 +2314,7 @@ testdb ":-{"
 
 .
 250
+# define testdb ":-{)"
 150 1 definitions retrieved
 151 ":-{)" testdb "unknown"
 :-{)
@@ -2053,10 +2322,12 @@ testdb ":-{"
 
 .
 250
+# match	testdb exact	":-{)"
 152 1 matches found
 testdb ":-{)"
 .
 250
+# define 	testdb	 ":-{}"
 150 1 definitions retrieved
 151 ":-{}" testdb "unknown"
 :-{}
@@ -2064,6 +2335,7 @@ testdb ":-{)"
 
 .
 250
+# define testdb ":-{}"
 150 1 definitions retrieved
 151 ":-{}" testdb "unknown"
 :-{}
@@ -2071,10 +2343,12 @@ testdb ":-{)"
 
 .
 250
+# match	testdb exact	":-{}"
 152 1 matches found
 testdb ":-{}"
 .
 250
+# define 	testdb	 ":-|"
 150 1 definitions retrieved
 151 ":-|" testdb "unknown"
 :-|
@@ -2082,6 +2356,7 @@ testdb ":-{}"
 
 .
 250
+# define testdb ":-|"
 150 1 definitions retrieved
 151 ":-|" testdb "unknown"
 :-|
@@ -2089,10 +2364,12 @@ testdb ":-{}"
 
 .
 250
+# match	testdb exact	":-|"
 152 1 matches found
 testdb ":-|"
 .
 250
+# define 	testdb	 ":-}"
 150 2 definitions retrieved
 151 ":-}" testdb "unknown"
 :-}
@@ -2105,6 +2382,7 @@ testdb ":-|"
 
 .
 250
+# define testdb ":-}"
 150 2 definitions retrieved
 151 ":-}" testdb "unknown"
 :-}
@@ -2117,10 +2395,12 @@ testdb ":-|"
 
 .
 250
+# match	testdb exact	":-}"
 152 1 matches found
 testdb ":-}"
 .
 250
+# define 	testdb	 ":-}"
 150 2 definitions retrieved
 151 ":-}" testdb "unknown"
 :-}
@@ -2133,6 +2413,7 @@ testdb ":-}"
 
 .
 250
+# define testdb ":-}"
 150 2 definitions retrieved
 151 ":-}" testdb "unknown"
 :-}
@@ -2145,10 +2426,12 @@ testdb ":-}"
 
 .
 250
+# match	testdb exact	":-}"
 152 1 matches found
 testdb ":-}"
 .
 250
+# define 	testdb	 ":-~)"
 150 1 definitions retrieved
 151 ":-~)" testdb "unknown"
 :-~)
@@ -2156,6 +2439,7 @@ testdb ":-}"
 
 .
 250
+# define testdb ":-~)"
 150 1 definitions retrieved
 151 ":-~)" testdb "unknown"
 :-~)
@@ -2163,10 +2447,12 @@ testdb ":-}"
 
 .
 250
+# match	testdb exact	":-~)"
 152 1 matches found
 testdb ":-~)"
 .
 250
+# define 	testdb	 "::-)"
 150 1 definitions retrieved
 151 "::-)" testdb "unknown"
 ::-)
@@ -2174,6 +2460,7 @@ testdb ":-~)"
 
 .
 250
+# define testdb "::-)"
 150 1 definitions retrieved
 151 "::-)" testdb "unknown"
 ::-)
@@ -2181,10 +2468,12 @@ testdb ":-~)"
 
 .
 250
+# match	testdb exact	"::-)"
 152 1 matches found
 testdb "::-)"
 .
 250
+# define 	testdb	 ":=)"
 150 1 definitions retrieved
 151 ":=)" testdb "unknown"
 :=)
@@ -2192,6 +2481,7 @@ testdb "::-)"
 
 .
 250
+# define testdb ":=)"
 150 1 definitions retrieved
 151 ":=)" testdb "unknown"
 :=)
@@ -2199,10 +2489,12 @@ testdb "::-)"
 
 .
 250
+# match	testdb exact	":=)"
 152 1 matches found
 testdb ":=)"
 .
 250
+# define 	testdb	 ":^)"
 150 2 definitions retrieved
 151 ":^)" testdb "unknown"
 :^)
@@ -2215,6 +2507,7 @@ testdb ":=)"
 
 .
 250
+# define testdb ":^)"
 150 2 definitions retrieved
 151 ":^)" testdb "unknown"
 :^)
@@ -2227,10 +2520,12 @@ testdb ":=)"
 
 .
 250
+# match	testdb exact	":^)"
 152 1 matches found
 testdb ":^)"
 .
 250
+# define 	testdb	 ":^)"
 150 2 definitions retrieved
 151 ":^)" testdb "unknown"
 :^)
@@ -2243,6 +2538,7 @@ testdb ":^)"
 
 .
 250
+# define testdb ":^)"
 150 2 definitions retrieved
 151 ":^)" testdb "unknown"
 :^)
@@ -2255,10 +2551,12 @@ testdb ":^)"
 
 .
 250
+# match	testdb exact	":^)"
 152 1 matches found
 testdb ":^)"
 .
 250
+# define 	testdb	 ":_)"
 150 1 definitions retrieved
 151 ":_)" testdb "unknown"
 :_)
@@ -2266,6 +2564,7 @@ testdb ":^)"
 
 .
 250
+# define testdb ":_)"
 150 1 definitions retrieved
 151 ":_)" testdb "unknown"
 :_)
@@ -2273,10 +2572,12 @@ testdb ":^)"
 
 .
 250
+# match	testdb exact	":_)"
 152 1 matches found
 testdb ":_)"
 .
 250
+# define 	testdb	 ":n)"
 150 1 definitions retrieved
 151 ":n)" testdb "unknown"
 :n)
@@ -2285,6 +2586,7 @@ testdb ":_)"
 
 .
 250
+# define testdb ":n)"
 150 1 definitions retrieved
 151 ":n)" testdb "unknown"
 :n)
@@ -2293,10 +2595,12 @@ testdb ":_)"
 
 .
 250
+# match	testdb exact	":n)"
 152 1 matches found
 testdb ":n)"
 .
 250
+# define 	testdb	 ":u)"
 150 1 definitions retrieved
 151 ":u)" testdb "unknown"
 :u)
@@ -2304,6 +2608,7 @@ testdb ":n)"
 
 .
 250
+# define testdb ":u)"
 150 1 definitions retrieved
 151 ":u)" testdb "unknown"
 :u)
@@ -2311,10 +2616,12 @@ testdb ":n)"
 
 .
 250
+# match	testdb exact	":u)"
 152 1 matches found
 testdb ":u)"
 .
 250
+# define 	testdb	 ":v)"
 150 2 definitions retrieved
 151 ":v)" testdb "unknown"
 :v)
@@ -2327,6 +2634,7 @@ testdb ":u)"
 
 .
 250
+# define testdb ":v)"
 150 2 definitions retrieved
 151 ":v)" testdb "unknown"
 :v)
@@ -2339,10 +2647,12 @@ testdb ":u)"
 
 .
 250
+# match	testdb exact	":v)"
 152 1 matches found
 testdb ":v)"
 .
 250
+# define 	testdb	 ":v)"
 150 2 definitions retrieved
 151 ":v)" testdb "unknown"
 :v)
@@ -2355,6 +2665,7 @@ testdb ":v)"
 
 .
 250
+# define testdb ":v)"
 150 2 definitions retrieved
 151 ":v)" testdb "unknown"
 :v)
@@ -2367,10 +2678,12 @@ testdb ":v)"
 
 .
 250
+# match	testdb exact	":v)"
 152 1 matches found
 testdb ":v)"
 .
 250
+# define 	testdb	 ";-)"
 150 2 definitions retrieved
 151 ";-)" testdb "unknown"
 ;-)
@@ -2385,6 +2698,7 @@ testdb ":v)"
 
 .
 250
+# define testdb ";-)"
 150 2 definitions retrieved
 151 ";-)" testdb "unknown"
 ;-)
@@ -2399,10 +2713,12 @@ testdb ":v)"
 
 .
 250
+# match	testdb exact	";-)"
 152 1 matches found
 testdb ";-)"
 .
 250
+# define 	testdb	 ";-)"
 150 2 definitions retrieved
 151 ";-)" testdb "unknown"
 ;-)
@@ -2417,6 +2733,7 @@ testdb ";-)"
 
 .
 250
+# define testdb ";-)"
 150 2 definitions retrieved
 151 ";-)" testdb "unknown"
 ;-)
@@ -2431,10 +2748,12 @@ testdb ";-)"
 
 .
 250
+# match	testdb exact	";-)"
 152 1 matches found
 testdb ";-)"
 .
 250
+# define 	testdb	 "=:-)"
 150 2 definitions retrieved
 151 "=:-)" testdb "unknown"
 =:-)
@@ -2447,6 +2766,7 @@ testdb ";-)"
 
 .
 250
+# define testdb "=:-)"
 150 2 definitions retrieved
 151 "=:-)" testdb "unknown"
 =:-)
@@ -2459,10 +2779,12 @@ testdb ";-)"
 
 .
 250
+# match	testdb exact	"=:-)"
 152 1 matches found
 testdb "=:-)"
 .
 250
+# define 	testdb	 "=:-)"
 150 2 definitions retrieved
 151 "=:-)" testdb "unknown"
 =:-)
@@ -2475,6 +2797,7 @@ testdb "=:-)"
 
 .
 250
+# define testdb "=:-)"
 150 2 definitions retrieved
 151 "=:-)" testdb "unknown"
 =:-)
@@ -2487,10 +2810,12 @@ testdb "=:-)"
 
 .
 250
+# match	testdb exact	"=:-)"
 152 1 matches found
 testdb "=:-)"
 .
 250
+# define 	testdb	 ">:->"
 150 1 definitions retrieved
 151 ">:->" testdb "unknown"
 >:->
@@ -2498,6 +2823,7 @@ testdb "=:-)"
 
 .
 250
+# define testdb ">:->"
 150 1 definitions retrieved
 151 ">:->" testdb "unknown"
 >:->
@@ -2505,10 +2831,12 @@ testdb "=:-)"
 
 .
 250
+# match	testdb exact	">:->"
 152 1 matches found
 testdb ">:->"
 .
 250
+# define 	testdb	 ">;->"
 150 1 definitions retrieved
 151 ">;->" testdb "unknown"
 >;->
@@ -2516,6 +2844,7 @@ testdb ">:->"
 
 .
 250
+# define testdb ">;->"
 150 1 definitions retrieved
 151 ">;->" testdb "unknown"
 >;->
@@ -2523,10 +2852,12 @@ testdb ">:->"
 
 .
 250
+# match	testdb exact	">;->"
 152 1 matches found
 testdb ">;->"
 .
 250
+# define 	testdb	 "@:-)"
 150 1 definitions retrieved
 151 "@:-)" testdb "unknown"
 :-)
@@ -2534,6 +2865,7 @@ testdb ">;->"
 
 .
 250
+# define testdb "@:-)"
 150 1 definitions retrieved
 151 "@:-)" testdb "unknown"
 :-)
@@ -2541,10 +2873,12 @@ testdb ">;->"
 
 .
 250
+# match	testdb exact	"@:-)"
 152 1 matches found
 testdb "@:-)"
 .
 250
+# define 	testdb	 "@="
 150 1 definitions retrieved
 151 "@=" testdb "unknown"
 =
@@ -2552,6 +2886,7 @@ testdb "@:-)"
 
 .
 250
+# define testdb "@="
 150 1 definitions retrieved
 151 "@=" testdb "unknown"
 =
@@ -2559,10 +2894,12 @@ testdb "@:-)"
 
 .
 250
+# match	testdb exact	"@="
 152 1 matches found
 testdb "@="
 .
 250
+# define 	testdb	 "[:-)"
 150 1 definitions retrieved
 151 "[:-)" testdb "unknown"
 [:-)
@@ -2570,6 +2907,7 @@ testdb "@="
 
 .
 250
+# define testdb "[:-)"
 150 1 definitions retrieved
 151 "[:-)" testdb "unknown"
 [:-)
@@ -2577,10 +2915,12 @@ testdb "@="
 
 .
 250
+# match	testdb exact	"[:-)"
 152 1 matches found
 testdb "[:-)"
 .
 250
+# define 	testdb	 "[:]"
 150 1 definitions retrieved
 151 "[:]" testdb "unknown"
 [:]
@@ -2588,6 +2928,7 @@ testdb "[:-)"
 
 .
 250
+# define testdb "[:]"
 150 1 definitions retrieved
 151 "[:]" testdb "unknown"
 [:]
@@ -2595,10 +2936,12 @@ testdb "[:-)"
 
 .
 250
+# match	testdb exact	"[:]"
 152 1 matches found
 testdb "[:]"
 .
 250
+# define 	testdb	 "`:-)"
 150 1 definitions retrieved
 151 "`:-)" testdb "unknown"
 `:-)
@@ -2606,6 +2949,7 @@ testdb "[:]"
 
 .
 250
+# define testdb "`:-)"
 150 1 definitions retrieved
 151 "`:-)" testdb "unknown"
 `:-)
@@ -2613,10 +2957,12 @@ testdb "[:]"
 
 .
 250
+# match	testdb exact	"`:-)"
 152 1 matches found
 testdb "`:-)"
 .
 250
+# define 	testdb	 "b-)"
 150 2 definitions retrieved
 151 "b-)" testdb "unknown"
 B-)
@@ -2629,6 +2975,7 @@ B-)
 
 .
 250
+# define testdb "b-)"
 150 2 definitions retrieved
 151 "b-)" testdb "unknown"
 B-)
@@ -2641,10 +2988,12 @@ B-)
 
 .
 250
+# match	testdb exact	"b-)"
 152 1 matches found
 testdb "b-)"
 .
 250
+# define 	testdb	 "b-)"
 150 2 definitions retrieved
 151 "b-)" testdb "unknown"
 B-)
@@ -2657,6 +3006,7 @@ B-)
 
 .
 250
+# define testdb "b-)"
 150 2 definitions retrieved
 151 "b-)" testdb "unknown"
 B-)
@@ -2669,10 +3019,12 @@ B-)
 
 .
 250
+# match	testdb exact	"b-)"
 152 1 matches found
 testdb "b-)"
 .
 250
+# define 	testdb	 "b:-)"
 150 1 definitions retrieved
 151 "b:-)" testdb "unknown"
 B:-)
@@ -2680,6 +3032,7 @@ B:-)
 
 .
 250
+# define testdb "b:-)"
 150 1 definitions retrieved
 151 "b:-)" testdb "unknown"
 B:-)
@@ -2687,10 +3040,12 @@ B:-)
 
 .
 250
+# match	testdb exact	"b:-)"
 152 1 matches found
 testdb "b:-)"
 .
 250
+# define 	testdb	 "c=:-)"
 150 1 definitions retrieved
 151 "c=:-)" testdb "unknown"
 C=:-)
@@ -2698,6 +3053,7 @@ C=:-)
 
 .
 250
+# define testdb "c=:-)"
 150 1 definitions retrieved
 151 "c=:-)" testdb "unknown"
 C=:-)
@@ -2705,10 +3061,12 @@ C=:-)
 
 .
 250
+# match	testdb exact	"c=:-)"
 152 1 matches found
 testdb "c=:-)"
 .
 250
+# define 	testdb	 "c=}>;*{))mega-smilie..."
 150 1 definitions retrieved
 151 "c=}>;*{))mega-smilie..." testdb "unknown"
 C=}>;*{))mega-smilie...
@@ -2717,6 +3075,7 @@ C=}>;*{))mega-smilie...
 
 .
 250
+# define testdb "c=}>;*{))mega-smilie..."
 150 1 definitions retrieved
 151 "c=}>;*{))mega-smilie..." testdb "unknown"
 C=}>;*{))mega-smilie...
@@ -2725,10 +3084,12 @@ C=}>;*{))mega-smilie...
 
 .
 250
+# match	testdb exact	"c=}>;*{))mega-smilie..."
 152 1 matches found
 testdb "c=}>;*{))mega-smilie..."
 .
 250
+# define 	testdb	 "d8="
 150 1 definitions retrieved
 151 "d8=" testdb "unknown"
 d8=
@@ -2736,6 +3097,7 @@ d8=
 
 .
 250
+# define testdb "d8="
 150 1 definitions retrieved
 151 "d8=" testdb "unknown"
 d8=
@@ -2743,10 +3105,12 @@ d8=
 
 .
 250
+# match	testdb exact	"d8="
 152 1 matches found
 testdb "d8="
 .
 250
+# define 	testdb	 "e-:-)"
 150 1 definitions retrieved
 151 "e-:-)" testdb "unknown"
 E-:-)
@@ -2754,6 +3118,7 @@ E-:-)
 
 .
 250
+# define testdb "e-:-)"
 150 1 definitions retrieved
 151 "e-:-)" testdb "unknown"
 E-:-)
@@ -2761,10 +3126,12 @@ E-:-)
 
 .
 250
+# match	testdb exact	"e-:-)"
 152 1 matches found
 testdb "e-:-)"
 .
 250
+# define 	testdb	 "g-)"
 150 1 definitions retrieved
 151 "g-)" testdb "unknown"
 g-)
@@ -2772,6 +3139,7 @@ g-)
 
 .
 250
+# define testdb "g-)"
 150 1 definitions retrieved
 151 "g-)" testdb "unknown"
 g-)
@@ -2779,10 +3147,12 @@ g-)
 
 .
 250
+# match	testdb exact	"g-)"
 152 1 matches found
 testdb "g-)"
 .
 250
+# define 	testdb	 "o-)"
 150 1 definitions retrieved
 151 "o-)" testdb "unknown"
 O-)
@@ -2790,6 +3160,7 @@ O-)
 
 .
 250
+# define testdb "o-)"
 150 1 definitions retrieved
 151 "o-)" testdb "unknown"
 O-)
@@ -2797,10 +3168,12 @@ O-)
 
 .
 250
+# match	testdb exact	"o-)"
 152 1 matches found
 testdb "o-)"
 .
 250
+# define 	testdb	 "x-("
 150 1 definitions retrieved
 151 "x-(" testdb "unknown"
 X-(
@@ -2810,6 +3183,7 @@ X-(
 
 .
 250
+# define testdb "x-("
 150 1 definitions retrieved
 151 "x-(" testdb "unknown"
 X-(
@@ -2819,10 +3193,12 @@ X-(
 
 .
 250
+# match	testdb exact	"x-("
 152 1 matches found
 testdb "x-("
 .
 250
+# define 	testdb	 "{:-)"
 150 2 definitions retrieved
 151 "{:-)" testdb "unknown"
 {:-)
@@ -2835,6 +3211,7 @@ testdb "x-("
 
 .
 250
+# define testdb "{:-)"
 150 2 definitions retrieved
 151 "{:-)" testdb "unknown"
 {:-)
@@ -2847,10 +3224,12 @@ testdb "x-("
 
 .
 250
+# match	testdb exact	"{:-)"
 152 1 matches found
 testdb "{:-)"
 .
 250
+# define 	testdb	 "{:-)"
 150 2 definitions retrieved
 151 "{:-)" testdb "unknown"
 {:-)
@@ -2863,6 +3242,7 @@ testdb "{:-)"
 
 .
 250
+# define testdb "{:-)"
 150 2 definitions retrieved
 151 "{:-)" testdb "unknown"
 {:-)
@@ -2875,10 +3255,12 @@ testdb "{:-)"
 
 .
 250
+# match	testdb exact	"{:-)"
 152 1 matches found
 testdb "{:-)"
 .
 250
+# define 	testdb	 "|-i"
 150 1 definitions retrieved
 151 "|-i" testdb "unknown"
 |-i
@@ -2886,6 +3268,7 @@ testdb "{:-)"
 
 .
 250
+# define testdb "|-i"
 150 1 definitions retrieved
 151 "|-i" testdb "unknown"
 |-i
@@ -2893,10 +3276,12 @@ testdb "{:-)"
 
 .
 250
+# match	testdb exact	"|-i"
 152 1 matches found
 testdb "|-i"
 .
 250
+# define 	testdb	 "|-o"
 150 1 definitions retrieved
 151 "|-o" testdb "unknown"
 |-o
@@ -2904,6 +3289,7 @@ testdb "|-i"
 
 .
 250
+# define testdb "|-o"
 150 1 definitions retrieved
 151 "|-o" testdb "unknown"
 |-o
@@ -2911,10 +3297,12 @@ testdb "|-i"
 
 .
 250
+# match	testdb exact	"|-o"
 152 1 matches found
 testdb "|-o"
 .
 250
+# define 	testdb	 "}:-("
 150 1 definitions retrieved
 151 "}:-(" testdb "unknown"
 }:-(
@@ -2922,6 +3310,7 @@ testdb "|-o"
 
 .
 250
+# define testdb "}:-("
 150 1 definitions retrieved
 151 "}:-(" testdb "unknown"
 }:-(
@@ -2929,10 +3318,12 @@ testdb "|-o"
 
 .
 250
+# match	testdb exact	"}:-("
 152 1 matches found
 testdb "}:-("
 .
 250
+# define 	testdb	 "}:-)"
 150 1 definitions retrieved
 151 "}:-)" testdb "unknown"
 }:-)
@@ -2940,6 +3331,7 @@ testdb "}:-("
 
 .
 250
+# define testdb "}:-)"
 150 1 definitions retrieved
 151 "}:-)" testdb "unknown"
 }:-)
@@ -2947,10 +3339,12 @@ testdb "}:-("
 
 .
 250
+# match	testdb exact	"}:-)"
 152 1 matches found
 testdb "}:-)"
 .
 250
+# define 	testdb	 "}:^#})"
 150 1 definitions retrieved
 151 "}:^#})" testdb "unknown"
 }:^#})
@@ -2959,6 +3353,7 @@ testdb "}:-)"
 
 .
 250
+# define testdb "}:^#})"
 150 1 definitions retrieved
 151 "}:^#})" testdb "unknown"
 }:^#})
@@ -2967,6 +3362,7 @@ testdb "}:-)"
 
 .
 250
+# match	testdb exact	"}:^#})"
 152 1 matches found
 testdb "}:^#})"
 .
