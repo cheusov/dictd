@@ -195,12 +195,7 @@ convert_files_to_stdout (){
 
     {
 	for (i=0; i < mark_count; ++i){
-	    if ($0 ~ mark_re [i]){
-		$0 = gensub(mark_re [i],
-		    mark_beg [i] mark_repl [i] mark_end [i], "1", $0)
-
-		break
-	    }
+	    cnt = gsub(mark_re [i], (mark_beg [i] "&" mark_end [i]))
 	}
 
 	print $0
