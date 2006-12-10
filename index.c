@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.108 2006/11/25 13:30:23 cheusov Exp $
+ * $Id: index.c,v 1.109 2006/12/10 17:28:00 cheusov Exp $
  * 
  */
 
@@ -235,8 +235,7 @@ static int compare_allchars(
 
    PRINTF(DBG_SEARCH,("   We are inside index.c:compare_allchars\n"));
 
-   /* FIXME.  Optimize this inner loop. */
-   while (*word && start < end && *start != '\t') {
+   while (*word && *word != '\t' && start < end && *start != '\t') {
 //      if (!isspacealnum(*start)) {
 //	 ++start;
 //	 continue;
@@ -272,7 +271,7 @@ static int compare_allchars(
       ++start;
    }
 
-   result = (*word ? 1 : ((*start != '\t') ? -1 : 0));
+   result = (*word && *word != '\t' ? 1 : ((*start != '\t') ? -1 : 0));
 
    PRINTF(DBG_SEARCH,("   result = %d\n", result));
    return  result;
@@ -285,13 +284,14 @@ static int compare_alnumspace(
 {
    int c1, c2;
    int result;
+   int ret;
 
    assert (dbindex);
 
    PRINTF(DBG_SEARCH,("   We are inside index.c:compare_alnumspace\n"));
 
    /* FIXME.  Optimize this inner loop. */
-   while (*word && start < end && *start != '\t') {
+   while (*word && *word != '\t' && start < end && *start != '\t') {
       if (!dbindex -> isspacealnum[* (const unsigned char *) start]) {
 	 ++start;
 	 continue;
@@ -350,9 +350,11 @@ static int compare_alnumspace(
       ++start;
    }
 
-   PRINTF(DBG_SEARCH,("   result = %d\n",
-		      *word ? 1 : ((*start != '\t') ? -1 : 0)));
-   return  *word ? 1 : ((*start != '\t') ? -1 : 0);
+   ret = *word && *word != '\t' ? 1 : ((*start != '\t') ? -1 : 0);
+
+   PRINTF(DBG_SEARCH,("   result = %d\n", ret));
+
+   return ret;
 }
 
 /* Compare:
@@ -404,29 +406,6 @@ static int compare(
    }else{
       return compare_alnumspace( word, dbindex, start, end );
    }
-}
-
-static int altcompare(
-   const char *word,
-   const dictIndex *dbindex,
-   const char *start, const char *end )
-{
-   size_t l = 0;
-   char *p;
-   int ret;
-
-   for (; word < end && word [l] != '\t';)
-      ++l;
-
-   p = xmalloc (l+1);
-   memcpy (p, word, l);
-   p [l] = 0;
-
-   ret = compare (p, dbindex, start, end);
-
-   xfree (p);
-
-   return ret;
 }
 
 static const char *binary_search(
@@ -731,7 +710,7 @@ static int dict_search_exact( lst_List l,
    while (pt && pt < dbindex->end) {
       if (!compare( word, dbindex, pt, dbindex->end )) {
 	 if (!uniq_only || !previous
-	     || altcompare(previous, dbindex, pt, dbindex->end))
+	     || compare(previous, dbindex, pt, dbindex->end))
 	 {
 	    ++count;
 	    if (l){
@@ -770,7 +749,7 @@ static int dict_search_prefix( lst_List l,
 	    return count;
 	 case -1:
 	 case 0:
-	    if (!previous || altcompare(previous, dbindex, pt, dbindex->end)) {
+	    if (!previous || compare(previous, dbindex, pt, dbindex->end)) {
 	       if (skip_count == 0){
 		  ++count;
 		  datum = dict_word_create( pt, database, dbindex );
@@ -852,7 +831,7 @@ static int dict_search_brute( lst_List l,
 
 	    for (pt = p; pt >= start && *pt != '\n'; --pt)
 	       if (*pt == '\t') goto continue2;
-	    if (!previous || altcompare(previous, dbindex, pt + 1, end)) {
+	    if (!previous || compare(previous, dbindex, pt + 1, end)) {
 	       ++count;
 	       datum = dict_word_create( previous = pt + 1, database, dbindex );
 #if 0
@@ -967,7 +946,7 @@ static int dict_search_bmh( lst_List l,
 
 	 assert (pt >= start && pt < end);
 
-	 if (!previous || altcompare(previous, dbindex, pt, dbindex->end)) {
+	 if (!previous || compare(previous, dbindex, pt, dbindex->end)) {
 	    ++count;
 	    datum = dict_word_create( previous = pt, database, dbindex );
 #if 0
@@ -1140,7 +1119,7 @@ static int dict_search_regexpr( lst_List l,
       ++_dict_comparisons;
 
       if (dict_match (&re, pt, p - pt, 0)) {
-	 if (!previous || altcompare(previous, dbindex, pt, end)) {
+	 if (!previous || compare(previous, dbindex, pt, end)) {
 	    ++count;
 	    datum = dict_word_create( previous = pt, database, dbindex );
 #if 0
@@ -1218,7 +1197,7 @@ static int dict_search_soundex( lst_List l,
 
       txt_soundex2 (buffer, soundex2);
       if (!strcmp (soundex, soundex2)) {
-	 if (!previous || altcompare(previous, dbindex, pt, end)) {
+	 if (!previous || compare(previous, dbindex, pt, end)) {
 	    datum = dict_word_create( previous = pt, database, dbindex );
 	    lst_append( l, datum );
 	    ++count;
