@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.98 2006/12/10 20:58:42 cheusov Exp $
+dnl $Id: configure.in,v 1.99 2006/12/10 21:27:26 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -30,7 +30,7 @@ define(VERSION, 1.10.7)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.98 $)
+AC_REVISION($Revision: 1.99 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -228,14 +228,14 @@ echo .
 echo Checking for libraries
 
 if test "$local_libmaa" = 0; then
-    AC_CHECK_LIB(maa,maa_shutdown,REALLIBS="$REALLIBS -lmaa",local_libmaa=1)
+    AC_CHECK_LIB(maa,maa_shutdown,XLDFLAGS="$XLDFLAGS -lmaa",local_libmaa=1)
 fi
 
 if test "$local_libmaa" = 1; then
     AC_MSG_CHECKING(for libmaa in local source tree)
     if test -d libmaa; then
-        LDFLAGS="$LDFLAGS -Llibmaa -lmaa"
-        CPPFLAGS="$CPPFLAGS -Ilibmaa"
+        XLDFLAGS="$XLDFLAGS -Llibmaa -lmaa"
+        XCPPFLAGS="$XCPPFLAGS -Ilibmaa"
         subdirs="$subdirs libmaa"
 
         AC_CONFIG_SUBDIRS(libmaa)
@@ -373,6 +373,10 @@ BINDIR=`eval3 $bindir`
 SBINDIR=`eval3 $sbindir`
 LIBEXECDIR=`eval3 $libexecdir`
 DATADIR=`eval3 $datadir`
+
+CPPFLAGS="$CPPFLAGS $XCPPFLAGS"
+CFLAGS="$CFLAGS $XCFLAGS"
+LDFLAGS="$LDFLAGS $XLDFLAGS"
 
 AC_SUBST(DICT_VERSION)
 AC_SUBST(CPPFLAGS)
