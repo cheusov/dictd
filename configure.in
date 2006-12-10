@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.94 2006/07/16 18:52:18 cheusov Exp $
+dnl $Id: configure.in,v 1.95 2006/12/10 00:06:04 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -36,7 +36,7 @@ define(VERSION, 1.10.7)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.94 $)
+AC_REVISION($Revision: 1.95 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -81,7 +81,7 @@ else
 fi
 
 local_dmalloc=0
-local_libmaa=1 # will be remove later
+local_libmaa=0
 local_zlib=0
 local_regex=0
 
@@ -146,10 +146,10 @@ fi
 ])
 
 AC_ARG_WITH(local-libmaa,
-[  --with-local-libmaa     with libmaa built in local source tree],
+[  --without-local-libmaa     without libmaa built in local source tree],
 [
 if test "x${withval}" = xyes; then
-    local_libmaa=1
+    local_libmaa=0
 fi
 ])
 
@@ -247,16 +247,16 @@ dnl AC_PROG_LIBTOOL
 dnl AC_LIBTOOL_DLOPEN
 
 AC_PROG_YACC
-# if ! which `echo $YACC | cut -f 1 -d ' '` >/dev/null 2>&1; then
-#    AC_MSG_ERROR(['yacc' is missing on your system.
-# You can get `bison' from any GNU archive site.])
-# fi
+ if test -z "$YACC"; then
+    AC_MSG_ERROR(['yacc' is missing on your system.
+ You can get `bison' from any GNU archive site.])
+ fi
 
 AC_PROG_LEX
-# if ! which `echo $LEX | cut -f 1 -d ' '` >/dev/null 2>&1; then
-#    AC_MSG_ERROR(['lex' is missing on your system.
-# You can get `flex' from any GNU archive site.])
-# fi
+ if test -z "$LEX"; then
+    AC_MSG_ERROR(['lex' is missing on your system.
+ You can get `flex' from any GNU archive site.])
+ fi
 
 AC_CHECK_PROG(AR,ar,ar)
 
