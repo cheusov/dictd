@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.110 2006/12/10 12:54:02 cheusov Exp $
+# $Id: Makefile.in,v 1.111 2006/12/10 17:29:14 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -75,13 +75,9 @@ YACC=		@YACC@
 JUDYLIB=        @JUDYLIB@
 DBILIB=         @DBILIB@
 
-CFLAGS= @CFLAGS@ -DDICT_PLUGIN_PATH=\"$(PLUGIN_DIR)\" -DDICT_DICTIONARY_PATH=\"$(DICT_DIR)\" -DDICT_VERSION=\"$(DICT_VERSION)\" -DDICT_CONFIG_PATH=\"$(CONF_DIR)\"
+CFLAGS= @CPPFLAGS@ @DEFS@ @CFLAGS@ -DDICT_PLUGIN_PATH=\"$(PLUGIN_DIR)\" -DDICT_DICTIONARY_PATH=\"$(DICT_DIR)\" -DDICT_VERSION=\"$(DICT_VERSION)\" -DDICT_CONFIG_PATH=\"$(CONF_DIR)\" -I.
 
-SCFLAGS=        @SCFLAGS@
-LDFLAGS=        @LDFLAGS@
-XTRACFLAGS=     @WCFLAGS@ @XTRACFLAGS@ @DEFS@ @CPPFLAGS@ -I.
-XTRALDFLAGS=    @WLDFLAGS@ @XTRALDFLAGS@
-LDLIBS=		@LIBS@
+LDFLAGS=        @LDFLAGS@ @LIBS@
 LIBOBJS=        @LIBOBJS@
 EXES=	 	dict dictd dictzip dictfmt
 
@@ -157,23 +153,20 @@ local_zlib :
 		touch local_zlib
 endif
 
-ALLCFLAGS=$(XTRACFLAGS) $(CFLAGS)
-ALLLDFLAGS=$(XTRALDFLAGS) $(LDFLAGS) $(LDLIBS)
-
 %.o: %.c
-	libtool --mode=compile $(CC) -c $(ALLCFLAGS) $(SCFLAGS) $< -o $@
+	libtool --mode=compile $(CC) -c $(CFLAGS) $< -o $@
 %.o: %.cpp
-	libtool --mode=compile $(CXX) -c $(ALLCFLAGS) $(SCFLAGS) $< -o $@
+	libtool --mode=compile $(CXX) -c $(CFLAGS) $< -o $@
 
 %: %.o
 	libtool --mode=link $(CC) -o $@ -static \
 		$(filter-out local_regex local_zlib local_libmaa, $^) \
-		$(OBJS) $(ALLLDFLAGS)
+		$(OBJS) $(LDFLAGS)
 
 dictd: dictd.o
 	libtool --mode=link $(CC) -o $@ -static \
 		$(filter-out local_regex local_zlib local_libmaa, $^) \
-		$(DBILIB) $(OBJS) $(ALLLDFLAGS)
+		$(DBILIB) $(OBJS) $(LDFLAGS)
 
 include $(srcdir)/deps
 
@@ -189,28 +182,28 @@ lib%.a : %.o
 	libtool --mode=link $(CC) -o $@ -static -module \
 		$(filter-out local_regex local_zlib local_libmaa, $^) \
 		-rpath "${PLUGIN_DIR}" \
-		$(ALLLDFLAGS)
+		$(LDFLAGS)
 
 dictdplugin_man.la : data.o str.o heap.o dictdplugin_man.o \
                       plugins_common.o $(LIBOBJS)
 	libtool --mode=link $(CC) -o $@ -module \
 		$(filter-out local_regex local_zlib local_libmaa, $(^:.o=.lo)) \
 		-rpath "${PLUGIN_DIR}" \
-		$(ALLLDFLAGS)
+		$(LDFLAGS)
 
 dictdplugin_judy.la : data.o str.o heap.o dictdplugin_judy.o \
                       plugins_common.o $(LIBOBJS)
 	libtool --mode=link $(CC) -o $@ -module \
 		$(filter-out local_regex local_zlib local_libmaa, $(^:.o=.lo)) \
 		-rpath "${PLUGIN_DIR}" \
-		$(ALLLDFLAGS) $(JUDYLIB)
+		$(LDFLAGS) $(JUDYLIB)
 
 dictdplugin_dbi.la : heap.o dictdplugin_dbi.o str.o \
                      plugins_common.o $(LIBOBJS)
 	libtool --mode=link $(CC) -o $@ -module \
 		$(filter-out local_regex local_zlib local_libmaa, $(^:.o=.lo)) \
 		-rpath "${PLUGIN_DIR}" \
-		$(ALLLDFLAGS) $(DBILIB) -ldl
+		$(LDFLAGS) $(DBILIB) -ldl
 
 .PHONY: plugins
 plugins: $(PLUGINS)
@@ -297,19 +290,21 @@ install.dictd: dictd
 
 install.libs: $(LIBRARIES)
 	test _$(USE_PLUGIN) != _ && \
-	mkdir -p $(DESTDIR)$(libdir); \
-	$(INSTALL_DATA) $(LIBRARIES) $(DESTDIR)$(libdir)
+	mkdir -p $(DESTDIR)$(libdir) && \
+	if test "$(LIBRARIES)"; then \
+	$(INSTALL_DATA) $(LIBRARIES) $(DESTDIR)$(libdir); else true; fi
 
 install.includes:
 	test _$(USE_PLUGIN) != _ && \
-	mkdir -p $(DESTDIR)$(includedir); \
-	$(INSTALL_DATA) $(INCLUDES) $(DESTDIR)$(includedir)
+	mkdir -p $(DESTDIR)$(includedir) && \
+	if test "$(INCLUDES)"; then \
+	$(INSTALL_DATA) $(INCLUDES) $(DESTDIR)$(includedir); else true; fi
 
 install.plugins:
 	test _$(USE_PLUGIN) != _ && \
-	mkdir -p $(DESTDIR)$(libexecdir); \
-    test $(PLUGINS) && \
-        $(INSTALL_DATA) $(PLUGINS) $(DESTDIR)$(libexecdir)
+	mkdir -p $(DESTDIR)$(libexecdir) && \
+	if test $(PLUGINS); then \
+        $(INSTALL_DATA) $(PLUGINS) $(DESTDIR)$(libexecdir); else true; fi
 
 .PHONY: install
 
@@ -353,7 +348,9 @@ endif
 
 uninstall.libs:
 ifdef USE_PLUGIN
-	rm -f $(addprefix $(DESTDIR)$(libdir)/, $(LIBRARIES))
+	if test "$(LIBRARIES)"; \
+	  rm -f $(addprefix $(DESTDIR)$(libdir)/, $(LIBRARIES)); \
+	else true; fi
 endif
 
 uninstall.plugins:
