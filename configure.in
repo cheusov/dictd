@@ -18,25 +18,19 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.96 2006/12/10 17:29:14 cheusov Exp $
+dnl $Id: configure.in,v 1.97 2006/12/10 19:51:16 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
 dnl             for optimization and stripping.
-dnl     WCFLAGS and WLDFLAGS are warnings and stuff that we like (e.g., -pipe)
-dnl     XTRACFLAGS, XTRALDFLAGS are for things like dmalloc
 dnl     LIBOBJS is an automatically-generated list of extra objects we need
-dnl These aren't used for libmaa:
-dnl     XCFLAGS and XLDFLAGS are for X11
-dnl     YCFLAGS is for yacc
-dnl     LCFLAGS is for lex
 
 
 define(VERSION, 1.10.7)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.96 $)
+AC_REVISION($Revision: 1.97 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -278,8 +272,8 @@ fi
 if test "$local_libmaa" = 1; then
     AC_MSG_CHECKING(for libmaa in local source tree)
     if test -d libmaa; then
-        REALLIBS="$REALLIBS -Llibmaa -lmaa"
-        XTRACFLAGS="$XTRACFLAGS -Ilibmaa"
+        LDFLAGS="$LDFLAGS -Llibmaa -lmaa"
+        CPPFLAGS="$CPPFLAGS -Ilibmaa"
         subdirs="$subdirs libmaa"
 
         AC_CONFIG_SUBDIRS(libmaa)
@@ -299,8 +293,8 @@ fi
 if test "$local_zlib" = 1; then
     AC_MSG_CHECKING(for zlib in local source tree)
     if cd zlib && ./configure && cd ..; then
-        REALLIBS="$REALLIBS -Lzlib -lz"
-        XTRACFLAGS="$XTRACFLAGS -Izlib"
+        LDFLAGS="$LDFLAGS -Lzlib -lz"
+        CFLAGS="$CFLAGS -Izlib"
         allsubdirs="$allsubdirs zlib"
 
         AC_MSG_RESULT(yes)
@@ -317,8 +311,8 @@ fi
 if test "$local_regex" = 1; then
     AC_MSG_CHECKING(for regex in local source tree)
     if test -d regex; then
-        REALLIBS="$REALLIBS -Lregex -lregex"
-        XTRACFLAGS="$XTRACFLAGS -Iregex"
+        LDFLAGS="$LDFLAGS -Lregex -lregex"
+        CFLAGS="$CFLAGS -Iregex"
         allsubdirs="$allsubdirs regex"
 
         AC_MSG_RESULT(yes)
@@ -338,16 +332,16 @@ AC_CHECK_LIB(c,inet_ntoa,
 
 if test "$local_dmalloc" = 0 -a "$needs_dmalloc" = 1; then
     AC_CHECK_LIB(dmalloc,main,
-        REALLIBS="$REALLIBS -ldmalloc"
-        XTRACFLAGS="$XTRACFLAGS -DDMALLOC_FUNC_CHECK",
+        LDFLAGS="$LDFLAGS -ldmalloc"
+        CFLAGS="$CFLAGS -DDMALLOC_FUNC_CHECK",
     local_dmalloc=1)
 fi
 
 if test "$local_dmalloc" = 1; then
     AC_MSG_CHECKING(for dmalloc in local source tree)
     if test -d dmalloc; then
-        REALLIBS="$REALLIBS -Ldmalloc -ldmalloc"
-        XTRACFLAGS="$XTRACFLAGS -DDMALLOC_FUNC_CHECK -Idmalloc"
+        LDFLAGS="$LDFLAGS -Ldmalloc -ldmalloc"
+        CFLAGS="$CFLAGS -DDMALLOC_FUNC_CHECK -Idmalloc"
         XTRAHEADERS="$XTRAHEADERS dmalloc/dmalloc.h"
         allsubdirs="$allsubdirs dmalloc"
 
