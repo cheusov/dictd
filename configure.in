@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.97 2006/12/10 19:51:16 cheusov Exp $
+dnl $Id: configure.in,v 1.98 2006/12/10 20:58:42 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -30,7 +30,7 @@ define(VERSION, 1.10.7)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.97 $)
+AC_REVISION($Revision: 1.98 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -74,10 +74,7 @@ else
     CFLAGS='-g'
 fi
 
-local_dmalloc=0
 local_libmaa=0
-local_zlib=0
-local_regex=0
 
 AC_ARG_WITH(cflags,
 [  --with-cflags=FLAGS     use FLAGS for CFLAGS],
@@ -120,46 +117,11 @@ if test "x${withval}" = xyes; then
 fi
 ])
 
-AC_ARG_WITH(dmalloc,
-[  --with-dmalloc          with Gray Watson's debugging malloc],
-[
-if test "x${withval}" = xyes; then
-    needs_dmalloc=1
-    needs_xmalloc=0
-fi
-])
-
-AC_ARG_WITH(local-dmalloc,
-[  --with-local-dmalloc    with dmalloc built in local source tree],
-[
-if test "x${withval}" = xyes; then
-    needs_dmalloc=1
-    local_dmalloc=1
-    needs_xmalloc=0
-fi
-])
-
 AC_ARG_WITH(local-libmaa,
 [  --without-local-libmaa     without libmaa built in local source tree],
 [
 if test "x${withval}" = xyes; then
     local_libmaa=0
-fi
-])
-
-AC_ARG_WITH(local-zlib,
-[  --with-local-zlib       with zlib built in local source tree],
-[
-if test "x${withval}" = xyes; then
-    local_zlib=1
-fi
-])
-
-AC_ARG_WITH(local-regex,
-[  --with-local-regex      with regex built in local source tree],
-[
-if test "x${withval}" = xyes; then
-    local_regex=1
 fi
 ])
 
@@ -286,42 +248,6 @@ if test "$local_libmaa" = 1; then
     fi
 fi
 
-if test "$local_zlib" = 0; then
-    AC_CHECK_LIB(z,zlibVersion,LIBS="$LIBS -lz",local_zlib=1)
-fi
-
-if test "$local_zlib" = 1; then
-    AC_MSG_CHECKING(for zlib in local source tree)
-    if cd zlib && ./configure && cd ..; then
-        LDFLAGS="$LDFLAGS -Lzlib -lz"
-        CFLAGS="$CFLAGS -Izlib"
-        allsubdirs="$allsubdirs zlib"
-
-        AC_MSG_RESULT(yes)
-    else
-        AC_MSG_RESULT(no)
-        AC_MSG_ERROR([Zlib not found, cannot continue])
-    fi
-fi
-
-if test "$local_regex" = 0; then
-    AC_CHECK_LIB(c,regcomp,[true],local_regex=1)
-fi
-
-if test "$local_regex" = 1; then
-    AC_MSG_CHECKING(for regex in local source tree)
-    if test -d regex; then
-        LDFLAGS="$LDFLAGS -Lregex -lregex"
-        CFLAGS="$CFLAGS -Iregex"
-        allsubdirs="$allsubdirs regex"
-
-        AC_MSG_RESULT(yes)
-    else
-        AC_MSG_RESULT(no)
-        AC_MSG_ERROR([Regex not found, cannot continue])
-    fi
-fi
-
 AC_CHECK_LIB(Judy, JudySLNext, [JUDYLIB=-lJudy])
 AC_CHECK_LIB(dbi,  dbi_shutdown, [DBILIB=-ldbi])
 
@@ -329,30 +255,6 @@ AC_CHECK_LIB(socket,main)
 AC_CHECK_LIB(c,inet_ntoa,
 	[true],
 	[AC_CHECK_LIB(nsl,inet_ntoa)])
-
-if test "$local_dmalloc" = 0 -a "$needs_dmalloc" = 1; then
-    AC_CHECK_LIB(dmalloc,main,
-        LDFLAGS="$LDFLAGS -ldmalloc"
-        CFLAGS="$CFLAGS -DDMALLOC_FUNC_CHECK",
-    local_dmalloc=1)
-fi
-
-if test "$local_dmalloc" = 1; then
-    AC_MSG_CHECKING(for dmalloc in local source tree)
-    if test -d dmalloc; then
-        LDFLAGS="$LDFLAGS -Ldmalloc -ldmalloc"
-        CFLAGS="$CFLAGS -DDMALLOC_FUNC_CHECK -Idmalloc"
-        XTRAHEADERS="$XTRAHEADERS dmalloc/dmalloc.h"
-        allsubdirs="$allsubdirs dmalloc"
-
-        AC_CONFIG_SUBDIRS(dmalloc)
-
-        subdirs="$subdirs dmalloc"
-        AC_MSG_RESULT(yes)
-    else
-        AC_MSG_RESULT(no)
-    fi
-fi
 
 echo .
 echo Checking for header files
@@ -480,8 +382,6 @@ AC_SUBST(EXEEXT)
 AC_SUBST(allsubdirs)
 AC_SUBST(USE_DICT_ORG)
 AC_SUBST(REGEX_INCLUDE)
-AC_SUBST(local_regex)
-AC_SUBST(local_zlib)
 AC_SUBST(local_libmaa)
 AC_SUBST(JUDYLIB)
 AC_SUBST(DBILIB)
@@ -514,22 +414,6 @@ printf '\n\n'
 # MAA
 printf "maa:             "
 if test "_$local_libmaa" = "_0"; then
-  echo system
-else
-  echo local
-fi
-
-# ZLIB
-printf "zlib:            "
-if test "_$local_zlib" = "_0"; then
-  echo system
-else
-  echo local
-fi
-
-# REGEX
-printf "regex:           "
-if test "_$local_regex" = "_0"; then
   echo system
 else
   echo local
