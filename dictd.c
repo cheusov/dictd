@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.135 2006/12/12 21:09:09 cheusov Exp $
+ * $Id: dictd.c,v 1.136 2006/12/12 21:20:22 cheusov Exp $
  * 
  */
 
@@ -38,6 +38,8 @@
 #include <pwd.h>                /* getpwuid */
 #include <locale.h>             /* setlocale */
 #include <ctype.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #define MAXPROCTITLE 2048       /* Maximum amount of proc title we'll use. */
 #undef MIN
@@ -1121,7 +1123,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.135 2006/12/12 21:09:09 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.136 2006/12/12 21:20:22 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
