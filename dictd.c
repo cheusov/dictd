@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.134 2006/11/25 10:58:46 cheusov Exp $
+ * $Id: dictd.c,v 1.135 2006/12/12 21:09:09 cheusov Exp $
  * 
  */
 
@@ -1121,7 +1121,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.134 2006/11/25 10:58:46 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.135 2006/12/12 21:09:09 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1603,6 +1603,21 @@ static void pid_file_write ()
    }
 }
 
+void reopen_012 (void)
+{
+   int fd = open ("/dev/null", O_RDWR);
+   if (fd == -1)
+      err_fatal_errno (__FUNCTION__, ":E: can't open /dev/null");
+
+   close (0);
+   close (1);
+   close (2);
+
+   dup (fd);
+   dup (fd);
+   dup (fd);
+}
+
 int main (int argc, char **argv, char **envp)
 {
    int                childSocket;
@@ -1854,7 +1869,8 @@ int main (int argc, char **argv, char **envp)
 
    if (detach){
       /* become a daemon */
-      daemon (0, 0);
+      daemon (0, 1);
+      reopen_012 ();
 
       /* after fork from daemon(3) */
       pid_file_write ();
