@@ -9,7 +9,9 @@ DIFF='diff -u'
 
 ##################################################
 cmp_2_files (){
-    if ! $DIFF "$1" "$2" > log.txt; then
+    if $DIFF "$1" "$2" > log.txt; then
+    	true
+    else
 	cat 1>&2 <<EOF
 $1 and $2 are different,
 see test/log.txt file a difference.
@@ -104,7 +106,7 @@ generate_commands (){
 
     strats=`echo 'show strat' |
 	$DICTD -i -c $conf_file |
-	awk '!/^[0-9.]/ {print $1}' | LC_ALL=C sort`
+	@AWK@ '!/^[0-9.]/ {print $1}' | LC_ALL=C sort`
     if test $? -ne 0; then
 	exit 2
     fi
@@ -117,7 +119,7 @@ generate_commands (){
 	strats="$@"
     fi
 
-    awk -v strats="$strats" '
+    @AWK@ -v strats="$strats" '
     BEGIN {
 	cnt=split(strats, strats_arr)
     }
@@ -148,7 +150,7 @@ dictd_test_inetd (){
 
     $DICTD -c $conf_file -i --stdin2stdout < "$in_file" |
 
-    awk '/^2[25]0 / { print $1; next; } {print}' \
+    @AWK@ '/^2[25]0 / { print $1; next; } {print}' \
 	> _dictd_${dbtype}_res.txt || exit 1
     cmp_2_files dictd_${dbtype}_res.expected.txt _dictd_${dbtype}_res.txt
 }

@@ -8,7 +8,7 @@
 LC_ALL=C
 export LC_ALL
 
-exec awk '
+exec @AWK@ '
 BEGIN {
 	NL_size   = 1 # 2 for \r\n
 	separator = ";   "
