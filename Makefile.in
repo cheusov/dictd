@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.115 2006/12/10 21:46:59 cheusov Exp $
+# $Id: Makefile.in,v 1.116 2006/12/13 14:55:59 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -380,13 +380,13 @@ ChangeLog:
 	@(echo "***** Making new ChangeLog..."; \
 	rm -f ChangeLog; \
 	AWK=@AWK@ rcs2log -i 2 -r -d'1996-09-20<' . doc regex zlib libmaa \
-	| sed 's,/cvsroot/dict/dictd1/,,g; \
-	       s,/cvs/dict/dictd1/,,g;\
-	       s,cheusov@[^>]*,vle@gmx.net,g;\
-	       s,faith@[^>]*,faith@dict.org,g;\
-	       s,hilliard...hilliard@.*,Bob Hilliard  <hilliard@debian.org>,g; \
-	       s,tek...tek@.*,Julian Squires  <tek@wiw.org>,g; \
-           s,\(.*\)<\([^@<>]\+\)@\([^@<>]\+\)>\(.*\),\1<\2 at \3}\4,g' \
+	| sed -e 's,/cvsroot/dict/dictd1/,,g' \
+	      -e 's,/cvs/dict/dictd1/,,g' \
+	      -e 's,cheusov@[^>]*,vle@gmx.net,g' \
+	      -e 's,faith@[^>]*,faith@dict.org,g' \
+	      -e 's,hilliard...hilliard@.*,Bob Hilliard  <hilliard@debian.org>,g' \
+	      -e 's,tek...tek@.*,Julian Squires  <tek@wiw.org>,g' \
+              -e 's,\(.*\)<\([^@<>]\+\)@\([^@<>]\+\)>\(.*\),\1<\2 at \3}\4,g' \
 	> ChangeLog;)
 
 dist:
