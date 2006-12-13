@@ -1,4 +1,31 @@
 ----------------------------------------------------------------------
+Version 1.10.8, by Aleksey Cheusov, Wed, 13 Dec 2006 22:20:04 +0200
+
+ libtool is now used for building dictd and libmaa.
+    This makes them more portable, especially
+    libmaa with the shared object files support.
+
+ dictd:
+    - fixed: sourceforge bug #1554437 ('nprefix' strategy)
+    - added: --stdin2stdout option for debugging purposes.
+      See dictd(8)
+    - fixed: daemon3.c on Solaris
+
+ Minor selftests improvements.
+
+ ./configure.in|Makefile.in:
+    - WCFLAGS, XTRACFLAGS, WLDFLAGS, XTRALDFLAGS,
+      LDSHARED, XTRAHEADERS variables are no longer used.
+      For configuring dictd use CPPFLAGS, CFLAGS
+      and LDFLAGS variables only.
+    - fixed: finding lex and yacc (fails on NetBSD).
+    - --without-local-libmaa is the default now
+
+ Makefile.in:
+    - fixed: install target on Solaris
+      (Solaris install != BSD install)
+
+----------------------------------------------------------------------
 Version 1.10.7, by Aleksey Cheusov, Sun, 16 Jul 2006 21:36:49 +0300
  DICTD:
     - FIXED: pidof(dictd) != `cat /var/run/dictd.log` because writing
