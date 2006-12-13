@@ -277,6 +277,10 @@ keyword in
 .I Global Settings Specification
 of configuration files.
 .TP
+.BR \-\-stdin2stdout
+When applied with \-\-inetd, each command obtained from stdin is output
+to stdout. This option is for debugging only.
+.TP
 .BI \-l " option\fR or " \-\-log " option"
 The same as
 .B log_option
