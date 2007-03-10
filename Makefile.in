@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.116 2006/12/13 14:55:59 cheusov Exp $
+# $Id: Makefile.in,v 1.117 2007/03/10 21:29:46 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -251,7 +251,7 @@ clientparse.o: clientparse.c
         install.libs install.includes install.colorit
 
 install.dict: dict
-        mkdir -p $(DESTDIR)$(bindir) && \
+	mkdir -p $(DESTDIR)$(bindir) && \
         mkdir -p $(DESTDIR)$(man1_prefix) && \
 	libtool --mode=install $(INSTALL_PROGRAM) dict$(EXEEXT) $(DESTDIR)$(bindir) && \
 	$(INSTALL_DATA) dict.1 $(DESTDIR)$(man1_prefix)/dict.1 && \
