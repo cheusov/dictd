@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: data.c,v 1.24 2004/10/12 12:55:14 cheusov Exp $
+ * $Id: data.c,v 1.25 2007/05/06 19:39:30 cheusov Exp $
  * 
  */
 
@@ -36,6 +36,8 @@
 #ifdef HAVE_MMAP
 #include <sys/mman.h>
 #endif
+
+#include <sys/stat.h>
 
 #define USE_CACHE 1
 

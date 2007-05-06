@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.109 2006/12/10 17:28:00 cheusov Exp $
+ * $Id: index.c,v 1.110 2007/05/06 19:39:30 cheusov Exp $
  * 
  */
 
@@ -46,6 +46,7 @@
 #endif
 
 #include <stdio.h>
+#include <sys/stat.h>
 
 extern int mmap_mode;
 
