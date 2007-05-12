@@ -249,6 +249,15 @@ definition.  For example, if \'--headword-separator %%%' is given,
 and the input file contains \'autumn%%%fall', both 'autumn' and 'fall'
 will be indexed as  headwords, with the same definition.
 .TP
+.BI \--index-data-separator " sep"
+sets the index/data separator, which allows to set the first and fourth
+columns of .index file independently. That is
+the first column can be treated as an index column
+(where the MATCH command searches) and the fourth column as a result column
+(where the MATCH gets things to be returned),
+and they (1-st and 4-th columns) are completely independant of each other.
+The default value for this separator is ASCII symbol " \\034".
+.TP
 .BI \--break-headwords
 multiple headwords will be written on separate lines in the .dict
 file.  For use with '--headword-separator.
