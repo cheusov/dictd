@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: index.h,v 1.5 2005/11/19 21:59:53 cheusov Exp $
+ * $Id: index.h,v 1.6 2007/05/12 13:53:32 cheusov Exp $
  */
 
 #ifndef _INDEX_H_
@@ -25,10 +25,12 @@
 #include "dictP.h"
 #include "defs.h"
 
-/* initialize .index file */
+/* init dictIndex structure (.index file) */
 extern dictIndex  *dict_index_open(
    const char *filename,
-   int init_flags, int flag_utf8, int flag_allchars );
+   int init_flags,
+   const dictIndex *base);
+
 /* */
 extern void dict_index_close (dictIndex *i);
 

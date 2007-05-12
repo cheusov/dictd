@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.67 2006/05/27 14:25:58 cheusov Exp $
+ * $Id: dictfmt.c,v 1.68 2007/05/12 13:53:32 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -61,6 +61,8 @@
 
 #define BSIZE 10240
 
+#define IDXDATSEP "\034"
+
 static int  Debug;
 static FILE *str;
 
@@ -71,6 +73,7 @@ static int bit8_mode     = 0;
 static int index_keep_orig_mode = 0;
 
 static int allchars_mode = 0;
+static int cs_mode       = 0;
 
 static int quiet_mode    = 0;
 
@@ -96,6 +99,7 @@ static int ignore_hw_shortname = 0;
 static int ignore_hw_info      = 0;
 static int ignore_hw_def_strat = 0;
 
+static const char *idxdatsep   = IDXDATSEP;
 static const char *locale      = NULL;
 static const char *default_strategy = NULL;
 static const char *mime_header = NULL;
@@ -446,7 +450,9 @@ static void write_hw_to_index (const char *word, int start, int end)
 	 destroy_and_exit (1);
       }
 
-      if (tolower_alnumspace (word, new_word, allchars_mode, utf8_mode)){
+      if (tolower_alnumspace (
+	     word, new_word, allchars_mode, cs_mode, utf8_mode))
+      {
 	 fprintf (stderr, "'%s' is not a UTF-8 string", word);
 
 	 destroy_and_exit (1);
@@ -496,7 +502,7 @@ static void update_alphabet (const char *word)
 
    len = strlen (word);
    p = (char *) alloca (len + 1);
-   tolower_alnumspace (word, p, allchars_mode, utf8_mode);
+   tolower_alnumspace (word, p, allchars_mode, cs_mode, utf8_mode);
 
    memset (&ps, 0, sizeof (ps));
 
@@ -513,14 +519,9 @@ static void update_alphabet (const char *word)
    }
 }
 
-static void fmt_newheadword( const char *word )
+/* return 1 if word should be skipped */
+static int fmt_newheadword_special (const char *word)
 {
-   static char prev[1024] = "";
-   static int  start = 0;
-   static int  end;
-   char *      sep   = NULL;
-   char *      p;
-
    if (
       word &&
       (!strcmp (word, "00-database-default-strategy") ||
@@ -528,7 +529,7 @@ static void fmt_newheadword( const char *word )
    {
       if (ignore_hw_def_strat){
 	 fmt_ignore_headword = 1;
-	 return;
+	 return 1;
       }
 
       /* we will ignore following occurences of 00-database-default-strategy*/
@@ -542,7 +543,7 @@ static void fmt_newheadword( const char *word )
    {
       if (ignore_hw_url){
 	 fmt_ignore_headword = 1;
-	 return;
+	 return 1;
       }
 
       /* we will ignore all the following occurences of 00-database-url*/
@@ -556,7 +557,7 @@ static void fmt_newheadword( const char *word )
    {
       if (ignore_hw_shortname){
 	 fmt_ignore_headword = 1;
-	 return;
+	 return 1;
       }
 
       /* we will ignore all the following occurences of 00-database-short*/
@@ -570,12 +571,26 @@ static void fmt_newheadword( const char *word )
    {
       if (ignore_hw_info){
 	 fmt_ignore_headword = 1;
-	 return;
+	 return 1;
       }
 
       /* we will ignore all the following occurences of 00-database-short*/
       ignore_hw_info = 1;
    }
+
+   return 0;
+}
+
+static void fmt_newheadword( const char *word )
+{
+   static char prev[1024] = "";
+   static int  start = 0;
+   static int  end;
+   char *      sep   = NULL;
+   char *      p;
+
+   if (fmt_newheadword_special (word))
+      return;
 
    update_alphabet (word);
 
@@ -731,6 +746,7 @@ static void help( FILE *out_stream )
                      in the .dict file.  For use with '--headword-separator.",
 "--index-keep-orig    fourth column in .index file stores original headword\n\
                      which is returned by MATCH command",
+"--case-sensitive     Create .index/.dict files for case sensitive search",
 "--without-headword   headwords will not be copied to .dict file",
 "--without-header     header will not be copied to DB info entry",
 "--without-url        URL will not be copied to DB info entry",
@@ -943,6 +959,14 @@ static void fmt_headword_for_allchars (void)
    }
 }
 
+static void fmt_headword_for_casesensitive (void)
+{
+   if (cs_mode){
+      fmt_newheadword("00-database-case-sensitive");
+      fmt_newline();
+   }
+}
+
 /* ...before reading the input */
 static void fmt_predefined_headwords_before ()
 {
@@ -952,6 +976,7 @@ static void fmt_predefined_headwords_before ()
    fmt_headword_for_utf8 ();
    fmt_headword_for_8bit ();
    fmt_headword_for_allchars ();
+   fmt_headword_for_casesensitive ();
    fmt_headword_for_def_strat ();
    fmt_headword_for_MIME_header ();
 
@@ -1018,6 +1043,7 @@ int main( int argc, char **argv )
       { "mime-header",          1, 0, 513 },
       { "utf8",                 0, 0, 514 },
       { "index-keep-orig",      0, 0, 515 },
+      { "case-sensitive",       0, 0, 516 },
    };
 
    init (argv[0]);
@@ -1090,6 +1116,9 @@ int main( int argc, char **argv )
 	 break;
       case 515:
 	 index_keep_orig_mode = 1;
+	 break;
+      case 516:
+	 cs_mode = 1;
 	 break;
       case 't':
 	 without_info = 1;

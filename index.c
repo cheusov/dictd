@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: index.c,v 1.110 2007/05/06 19:39:30 cheusov Exp $
+ * $Id: index.c,v 1.111 2007/05/12 13:53:32 cheusov Exp $
  * 
  */
 
@@ -297,20 +297,15 @@ static int compare_alnumspace(
 	 ++start;
 	 continue;
       }
-#if 0
-      if (isspace( (unsigned char) *start ))
-	 c2 = ' ';
-      else
-	 c2 = tolowertab [* (unsigned char *) start];
 
-      if (isspace( (unsigned char) *word ))
-	 c1 = ' ';
-      else
-	 c1 = tolowertab [* (unsigned char *) word];
-#else
-      c2 = tolowertab [* (unsigned char *) start];
-      c1 = tolowertab [* (unsigned char *) word];
-#endif
+      c1 = (unsigned char) *word;
+      c2 = (unsigned char) *start;
+
+      if (!dbindex -> flag_casesensitive){
+	 c2 = tolowertab [c2];
+	 c1 = tolowertab [c1];
+      }
+
       if (c1 != c2) {
 	 if (utf8_mode){
 	    if (
@@ -799,6 +794,7 @@ static int dict_search_brute( lst_List l,
    dictWord   *datum;
    int        result;
    const char *previous = NULL;
+   int c;
 
    assert (dbindex);
 
@@ -810,7 +806,13 @@ static int dict_search_brute( lst_List l,
 	 ++p;
 	 while (p < end && !dbindex -> isspacealnum[*p]) ++p;
       }
-      if (tolowertab [*p] == *word) {
+
+      c = *p;
+      if (!dbindex -> flag_casesensitive){
+	 c = tolowertab [c];
+      }
+
+      if (c == *word) {
 	 result = compare( word, dbindex, p, end );
 	 if (result == -1 || result == 0) {
 	    switch (flag){
@@ -870,6 +872,7 @@ static int dict_search_bmh( lst_List l,
    int        skip[UCHAR_MAX + 1];
    int        i;
    int        j;
+   int c;
 #if 0
    int k;
 #endif
@@ -894,7 +897,7 @@ static int dict_search_bmh( lst_List l,
    for (i = 0; i < patlen-1; i++)
       skip[(unsigned char)word[i]] = patlen-i-1;
 
-   for (p = start+patlen-1; p < end; f ? (f=NULL) : (p += skip [tolowertab [*p]])) {
+   for (p = start+patlen-1; p < end; ) {
       while (*p == '\t') {
 	 FIND_NEXT(p,end);
 	 p += patlen-1;
@@ -915,7 +918,12 @@ static int dict_search_bmh( lst_List l,
 	    --pt;
 	 }
 
-	 if (tolowertab [*pt--] != *wpt--)
+	 c = *pt--;
+	 if (!dbindex -> flag_casesensitive){
+	    c = tolowertab [c];
+	 }
+
+	 if (c != *wpt--)
 	    break;
       }
 
@@ -925,16 +933,16 @@ static int dict_search_bmh( lst_List l,
 	    break;
 	 case BMH_SUFFIX:
 	    if (p[1] != '\t')
-	       continue;
+	       goto continue2;
 
 	    break;
 	 case BMH_WORD:
 	    ptr = p - patlen + 1;
 
 	    if (ptr > start && !isspacepuncttab [ptr [-1]])
-	       continue;
+	       goto continue2;
 	    if (p < end && !isspacepuncttab [p [1]])
-	       continue;
+	       goto continue2;
 
 	    break;
 	 }
@@ -964,7 +972,15 @@ static int dict_search_bmh( lst_List l,
 	 if (p > end) return count;
       }
 continue2:
-      ;
+      if (f){
+	 f = NULL;
+      }else{
+	 c = *p;
+	 if (!dbindex -> flag_casesensitive){
+	    c = tolowertab [c];
+	 }
+	 p += skip [c];
+      }
    }
 
    return count;
@@ -1436,7 +1452,10 @@ int dict_search_database_ (
    if (
       !strcmp(utf8_err_msg, word) ||
       tolower_alnumspace (
-	 word, buf, database -> index -> flag_allchars, utf8_mode))
+	 word, buf,
+	 database -> index -> flag_allchars,
+	 database -> index -> flag_casesensitive,
+	 utf8_mode))
    {
       PRINTF(DBG_SEARCH, ("tolower_... ERROR!!!\n"));
       
@@ -1453,7 +1472,11 @@ int dict_search_database_ (
       return -1;
    }
 #else
-   tolower_alnumspace (word, buf, database -> index -> flag_allchars, utf8_mode);
+   tolower_alnumspace (
+      word, buf,
+      database -> index -> flag_allchars,
+      database -> index -> flag_casesensitive,
+      utf8_mode);
 #endif
 
    if (!buf [0] && word [0]){
@@ -1633,7 +1656,8 @@ int dict_search (
 
 dictIndex *dict_index_open(
    const char *filename,
-   int init_flags, int flag_utf8, int flag_allchars)
+   int init_flags,
+   const dictIndex *base)
 {
    struct stat sb;
    static int  tabInit = 0;
@@ -1691,8 +1715,11 @@ dictIndex *dict_index_open(
    i->end = i->start + i->size;
 
    i->flag_8bit     = 0;
-   i->flag_utf8     = flag_utf8;
-   i->flag_allchars = flag_allchars;
+   if (base){
+      i->flag_utf8          = base -> flag_utf8;
+      i->flag_allchars      = base -> flag_allchars;
+      i->flag_casesensitive = base -> flag_casesensitive;
+   }
    i->isspacealnum  = isspacealnumtab;
 
    if (optStart_mode){
@@ -1704,19 +1731,26 @@ dictIndex *dict_index_open(
       memset (&db, 0, sizeof (db));
       db.index = i;
 
+      /* for exact search */
       i->flag_allchars = 1;
       i->isspacealnum = isspacealnumtab_allchars;
 
+      /* allchars flag */
       i->flag_allchars =
 	 0 != dict_search_database_ (NULL, DICT_FLAG_ALLCHARS, &db, DICT_STRAT_EXACT);
       PRINTF(DBG_INIT, (":I:     \"%s\": flag_allchars=%i\n", filename, i->flag_allchars));
+
+      /* case-sensitive flag */
+      i->flag_casesensitive =
+	 0 != dict_search_database_ (NULL, DICT_FLAG_CASESENSITIVE, &db, DICT_STRAT_EXACT);
+      PRINTF(DBG_INIT, (":I:     \"%s\": flag_casesensitive=%i\n", filename, i->flag_casesensitive));
 
       /* utf8 flag */
       if (!i -> flag_allchars)
 	 i -> isspacealnum = isspacealnumtab;
 
       i->flag_utf8 =
-	 0 != dict_search_database_ (NULL, DICT_FLAG_UTF8, &db, DICT_STRAT_EXACT);
+         0 != dict_search_database_ (NULL, DICT_FLAG_UTF8, &db, DICT_STRAT_EXACT);
       PRINTF(DBG_INIT, (":I:     \"%s\": flag_utf8=%i\n", filename, i->flag_utf8));
       if (i->flag_utf8 && !utf8_mode){
 	 log_info( ":E: locale '%s' can not be used for utf-8 dictionaries. Exiting\n", locale );
@@ -1817,11 +1851,6 @@ void dict_index_close( dictIndex *i )
       if (i -> start)
 	 xfree ((char *) i -> start);
    }
-
-   i->start = i->end = NULL;
-   i->flag_utf8      = 0;
-   i->flag_allchars  = 0;
-   i->isspacealnum   = NULL;
 
    xfree (i);
 }

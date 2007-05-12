@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictd.c,v 1.136 2006/12/12 21:20:22 cheusov Exp $
+ * $Id: dictd.c,v 1.137 2007/05/12 13:53:32 cheusov Exp $
  * 
  */
 
@@ -839,7 +839,7 @@ static int init_database( const void *datum )
       PRINTF (DBG_INIT, (":I:   Opening indices\n"));
    }
 
-   db->index        = dict_index_open( db->indexFilename, 1, 0, 0 );
+   db->index        = dict_index_open( db->indexFilename, 1, NULL );
 
    if (db->indexFilename){
       PRINTF (DBG_INIT, (":I:     .index <ok>\n"));
@@ -848,10 +848,10 @@ static int init_database( const void *datum )
    if (db->index){
       db->index_suffix = dict_index_open(
 	 db->indexsuffixFilename,
-	 0, db->index->flag_utf8, db->index->flag_allchars);
+	 0, db->index);
       db->index_word = dict_index_open(
 	 db->indexwordFilename,
-	 0, db->index->flag_utf8, db->index->flag_allchars);
+	 0, db->index);
    }
 
    if (db->index_suffix){
@@ -1123,7 +1123,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.136 2006/12/12 21:20:22 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.137 2007/05/12 13:53:32 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;

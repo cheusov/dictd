@@ -65,7 +65,7 @@ dictfmt_diff_opts (){
     dbname=$1
     shift
 
-    printf "   test $num..."
+    printf "%s" "   test $dbname $num..."
 
     $DICTFMT "$@" _db.${dbname}_$num < testdb.${dbname}.txt || exit 1
     cmp_2_files db.expect.${dbname}_$num.dict  _db.${dbname}_$num.dict
@@ -95,6 +95,10 @@ dictfmt_diff_opts '5' hello --utf8 --allchars --without-headword \
 # UTF-8 database (mostly cyrillic)
 dictfmt_diff_opts '1' cyrillic --utf8 -c5 -s 'rus words' \
    -u 'URL here' --default-strategy word
+
+# UTF-8 database, case sensitive (mostly cyrillic)
+dictfmt_diff_opts '1' mixedcase --utf8 -c5 -s 'mixed case words' \
+   -u 'URL here' --without-headword --case-sensitive
 
 ##################################################
 ##################################################
@@ -137,10 +141,11 @@ dictd_test_inetd (){
     dbtype=$1
     shift
 
+    #
     conf_file=_testdb.$dbtype.conf
-
     m4 -DCURR_DIR=`pwd` testdb.$dbtype.conf >$conf_file || exit 1
 
+    #
     index_file=`sed -n 's,^.*/\(.*[.]index\).*$,\1,p' $conf_file`
 
     in_file=_dictd_${dbtype}_in.txt
@@ -148,10 +153,32 @@ dictd_test_inetd (){
     cut -f 1 "$index_file" |
     generate_commands $conf_file "$@" > "$in_file"
 
+    #
     $DICTD -c $conf_file -i --stdin2stdout < "$in_file" |
-
     @AWK@ '/^2[25]0 / { print $1; next; } {print}' \
 	> _dictd_${dbtype}_res.txt || exit 1
+
+    #
+    cmp_2_files dictd_${dbtype}_res.expected.txt _dictd_${dbtype}_res.txt
+}
+
+dictd_test_inetd2 (){
+    dbtype=$1
+    shift
+
+    #
+    conf_file=_testdb.$dbtype.conf
+    m4 -DCURR_DIR=`pwd` testdb.$dbtype.conf >$conf_file || exit 1
+
+    #
+    in_file=input.${dbtype}.txt
+
+    #
+    $DICTD -c $conf_file -i --stdin2stdout < "$in_file" |
+    @AWK@ '/^2[25]0 / { print $1; next; } {print}' \
+	> _dictd_${dbtype}_res.txt || exit 1
+
+    #
     cmp_2_files dictd_${dbtype}_res.expected.txt _dictd_${dbtype}_res.txt
 }
 
@@ -179,3 +206,6 @@ printf 'hello_5 passed\n'
 
 dictd_test_inetd cyrillic_1 exact word lev suffix prefix substring
 printf 'cyrillic_1 passed\n'
+
+dictd_test_inetd2 mixedcase_1
+printf 'mixedcase_1 passed\n'

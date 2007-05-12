@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: str.c,v 1.4 2005/09/02 16:20:42 cheusov Exp $
+ * $Id: str.c,v 1.5 2007/05/12 13:53:32 cheusov Exp $
  * 
  */
 
@@ -32,7 +32,8 @@
 */
 static int tolower_alnumspace_8bit (
    const char *src, char *dest,
-   int allchars_mode)
+   int allchars_mode,
+   int cs_mode)
 {
    int c;
 
@@ -42,7 +43,10 @@ static int tolower_alnumspace_8bit (
       if (isspace (c)) {
          *dest++ = ' ';
       }else if (allchars_mode || isalnum (c)){
-	 *dest++ = tolower (c);
+	 if (!cs_mode)
+	    c = tolower (c);
+
+	 *dest++ = c;
       }
    }
 
@@ -57,7 +61,8 @@ static int tolower_alnumspace_8bit (
 */
 static int tolower_alnumspace_utf8 (
    const char *src, char *dest,
-   int allchars_mode)
+   int allchars_mode,
+   int cs_mode)
 {
    wchar_t      ucs4_char;
    size_t len;
@@ -77,7 +82,10 @@ static int tolower_alnumspace_utf8 (
       if (iswspace__ (ucs4_char)){
 	 *dest++ = ' ';
       }else if (allchars_mode || iswalnum__ (ucs4_char)){
-	 len2 = wcrtomb__ (dest, towlower__ (ucs4_char), &ps2);
+	 if (!cs_mode)
+	    ucs4_char = towlower__ (ucs4_char);
+
+	 len2 = wcrtomb__ (dest, ucs4_char, &ps2);
 	 if (len2 < 0)
 	    return errno;
 
@@ -97,14 +105,15 @@ static int tolower_alnumspace_utf8 (
 int tolower_alnumspace (
    const char *src, char *dest,
    int allchars_mode,
+   int cs_mode,
    int utf8_mode)
 {
 #if HAVE_UTF8
    if (utf8_mode){
-      return tolower_alnumspace_utf8 (src, dest, allchars_mode);
+      return tolower_alnumspace_utf8 (src, dest, allchars_mode, cs_mode);
    }else{
 #endif
-      return tolower_alnumspace_8bit (src, dest, allchars_mode);
+      return tolower_alnumspace_8bit (src, dest, allchars_mode, cs_mode);
 #if HAVE_UTF8
    }
 #endif

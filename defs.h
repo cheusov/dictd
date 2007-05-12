@@ -16,7 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * $Id: defs.h,v 1.11 2005/03/29 17:55:50 cheusov Exp $
+ * $Id: defs.h,v 1.12 2007/05/12 13:53:32 cheusov Exp $
  */
 
 #ifndef _DEFS_H_
@@ -48,6 +48,7 @@
 #define DICT_FLAG_8BIT_NEW       DICT_ENTRY_PREFIX"-8bit-new"
 #define DICT_FLAG_8BIT_OLD       DICT_ENTRY_PREFIX"-8bit"
 #define DICT_FLAG_ALLCHARS       DICT_ENTRY_PREFIX"-allchars"
+#define DICT_FLAG_CASESENSITIVE  DICT_ENTRY_PREFIX"-case-sensitive"
 #define DICT_FLAG_VIRTUAL        DICT_ENTRY_PREFIX"-virtual"
 #define DICT_FLAG_ALPHABET       DICT_ENTRY_PREFIX"-alphabet"
 #define DICT_FLAG_DEFAULT_STRAT  DICT_ENTRY_PREFIX"-default-strategy"
@@ -175,6 +176,7 @@ typedef struct dictIndex {
    int    flag_utf8;         /* not zero if it has 00-database-utf8 entry*/
    int    flag_8bit;         /* not zero if it has 00-database-8bit-new entry*/
    int    flag_allchars;     /* not zero if it has 00-database-allchars entry*/
+   int    flag_casesensitive;/* not zero if it has 00-database-case-sensitive entry*/
 
    const int     *isspacealnum;
 } dictIndex;
