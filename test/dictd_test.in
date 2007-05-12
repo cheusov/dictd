@@ -102,7 +102,7 @@ dictfmt_diff_opts '1' mixedcase --utf8 -c5 -s 'mixed case words' \
 
 # --index-data-separator '|' --index-keep-orig
 dictfmt_diff_opts '1' indexdata \
-   --index-data-separator '|' --index-keep-orig \
+   --index-data-separator '|' --index-keep-orig --headword-separator '/' \
    -c5 -s 'index/data test' \
    -u 'URL here' --without-headword
 
