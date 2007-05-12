@@ -12,6 +12,7 @@ exec @AWK@ '
 BEGIN {
 	NL_size   = 1 # 2 for \r\n
 	separator = ";   "
+	SUBSEP    = "\t"
 }
 
 function usage (){
@@ -26,6 +27,8 @@ usage: dictunformat [OPTIONS] <index_filename>\n\
     --help                       display this screen\n\
     --headword-separator <sep>   set headword separator.\n\
                                  the default is `;   `\n\
+    --index-data-separator <sep> set index/data separator.\n\
+                                 the default is `\\034`\n\
 "
 }
 
@@ -120,6 +123,7 @@ function b64_decode (val,        v, i, offset, len, tmp) {
 }
 
 BEGIN {
+	idx_data_sep = "\034"
 	for (i=1; i <= ARGC; ++i){
 		if (ARGV [i] == "--help"){
 			usage()
@@ -143,6 +147,13 @@ BEGIN {
 		if (ARGV [i] ~ /^--headword-separator=/){
 			separator = ARGV [i]
 			sub(/^.*=/, "", separator)
+			ARGV [i] = ""
+
+			continue
+		}
+		if (ARGV [i] ~ /^--index-data-separator=/){
+			idx_data_sep = ARGV [i]
+			sub(/^.*=/, "", idx_data_sep)
 			ARGV [i] = ""
 
 			continue
@@ -183,7 +194,7 @@ BEGIN {
 	while ((ret = getline < index_fn) > 0 && (NF == 3 || NF == 4)){
 		offset    = b64_decode($2)
 		if (NF > 3){
-			head_word = $4
+			head_word = ($1 idx_data_sep $4)
 		}else{
 			head_word = $1
 		}
