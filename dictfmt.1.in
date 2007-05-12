@@ -241,7 +241,14 @@ option instead.
 If specified, UTF-8 database is created.
 .TP
 .BI \--allchars
-use all characters (not only alphanumeric and space) in sorting the index
+Specifies that all characters should be used for the search,
+by default only alphabetic, numeric
+characters and spaces are put to .index file and therefore
+are used in search. Creates the special entry 00-database-allchars.
+.TP
+.BI \--case-sensitive
+makes the search case sensitive.
+Creates the special entry 00-database-case-sensitive.
 .TP
 .BI \--headword-separator " sep"
 sets the headword separator, which allows several words to have the same
