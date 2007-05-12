@@ -17,7 +17,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  * 
- * $Id: dictfmt.c,v 1.68 2007/05/12 13:53:32 cheusov Exp $
+ * $Id: dictfmt.c,v 1.69 2007/05/12 15:08:38 cheusov Exp $
  *
  * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
  * Factbook' from David Frey <david@eos.lugs.ch>.
@@ -471,6 +471,34 @@ static void write_hw_to_index (const char *word, int start, int end)
    }
 }
 
+static char *split_and_write_hw_to_index (
+   char *word, int start, int end)
+{
+   char *p = word;
+   char *sep = NULL;
+
+   do {
+      sep = NULL;
+      if (hw_separator [0] &&
+	  strncmp (word, "00-database", 11) &&
+	  strncmp (word, "00database", 10))
+      {
+	 sep = strstr (p, hw_separator);
+	 if (sep)
+	    *sep = 0;
+      }
+
+      write_hw_to_index (trim_lr (p), start, end);
+
+      if (!sep)
+	 break;
+
+      p = sep + strlen (hw_separator);
+   }while (1);
+
+   return p;
+}
+
 static int contain_nonascii_symbol (const char *word)
 {
    if (!word)
@@ -581,6 +609,16 @@ static int fmt_newheadword_special (const char *word)
    return 0;
 }
 
+static void fmt_test_nonascii (const char *word)
+{
+   if (!bit8_mode && !utf8_mode){
+      if (contain_nonascii_symbol (word)){
+	 fprintf (stderr, "\n8-bit head word \"%s\"is encountered while \"C\" locale is used\n", word);
+	 destroy_and_exit (1);
+      }
+   }
+}
+
 static void fmt_newheadword( const char *word )
 {
    static char prev[1024] = "";
@@ -596,12 +634,7 @@ static void fmt_newheadword( const char *word )
 
    fmt_ignore_headword = 0;
 
-   if (!bit8_mode && !utf8_mode){
-      if (contain_nonascii_symbol (word)){
-	 fprintf (stderr, "\n8-bit head word \"%s\"is encountered while \"C\" locale is used\n", word);
-	 destroy_and_exit (1);
-      }
-   }
+   fmt_test_nonascii (word);
 
    fmt_indent = 0;
 //   fmt_newline();
@@ -609,25 +642,7 @@ static void fmt_newheadword( const char *word )
    end = ftell(str);
 
    if (fmt_str && *prev) {
-      p = prev;
-      do {
-	 sep = NULL;
-	 if (hw_separator [0] &&
-	     strncmp (prev, "00-database", 11) &&
-	     strncmp (prev, "00database", 10))
-	 {
-	    sep = strstr (p, hw_separator);
-	    if (sep)
-	       *sep = 0;
-	 }
-
-	 write_hw_to_index (trim_lr (p), start, end);
-
-	 if (!sep)
-	    break;
-
-	 p = sep + strlen (hw_separator);
-      }while (1);
+      p = split_and_write_hw_to_index (prev, start, end);
    }
 
    if (word) {
