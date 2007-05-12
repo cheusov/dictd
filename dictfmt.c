@@ -53,8 +53,6 @@
 
 #define BSIZE 10240
 
-#define IDXDATSEP "\034"
-
 static int  Debug;
 static FILE *str;
 
@@ -69,7 +67,8 @@ static int cs_mode       = 0;
 
 static int quiet_mode    = 0;
 
-static const char *hw_separator = "";
+static const char *hw_separator     = "";
+static const char *idxdat_separator = "\034";
 
 static int         without_hw      = 0;
 static int         without_header  = 0;
@@ -91,10 +90,9 @@ static int ignore_hw_shortname = 0;
 static int ignore_hw_info      = 0;
 static int ignore_hw_def_strat = 0;
 
-static const char *idxdatsep   = IDXDATSEP;
-static const char *locale      = NULL;
+static const char *locale           = NULL;
 static const char *default_strategy = NULL;
-static const char *mime_header = NULL;
+static const char *mime_header      = NULL;
 
 static str_Pool alphabet_pool = NULL;
 
@@ -423,11 +421,14 @@ static char *trim_lr (char *s)
    return trim_left (trim_right (s));
 }
 
-static void write_hw_to_index (const char *word, int start, int end)
+static void write_hw_to_index (
+   const char *word,
+   const char *data,
+   int start, int end)
 {
    int len = 0;
-   char *new_word = NULL;
    char *trimmed_new_word = NULL;
+   char *new_word = NULL;
 
    if (!word)
        return;
@@ -453,8 +454,12 @@ static void write_hw_to_index (const char *word, int start, int end)
       fprintf( fmt_str, "%s\t%s\t", new_word, b64_encode(start) );
       fprintf( fmt_str, "%s", b64_encode(end-start) );
 
-      if (index_keep_orig_mode && strcmp (word, new_word)){
-	 fprintf( fmt_str, "\t%s\n", word);
+      if (!data && index_keep_orig_mode && strcmp (word, new_word)){
+	 data = word;
+      }
+
+      if (data){
+	 fprintf( fmt_str, "\t%s\n", data);
       }else{
 	 fprintf( fmt_str, "\n");
       }
@@ -464,10 +469,23 @@ static void write_hw_to_index (const char *word, int start, int end)
 }
 
 static char *split_and_write_hw_to_index (
-   char *word, int start, int end)
+   char *word, char *data, int start, int end)
 {
    char *p = word;
    char *sep = NULL;
+
+   char *idx_data_sep = NULL;
+   size_t sep_len = 0;
+
+   if (!data && idxdat_separator){
+      idx_data_sep = strstr (word, idxdat_separator);
+      if (idx_data_sep){
+	 sep_len = strlen (idxdat_separator);
+	 idx_data_sep [0] = 0;
+
+	 data = idx_data_sep + sep_len;
+      }
+   }
 
    do {
       sep = NULL;
@@ -480,7 +498,7 @@ static char *split_and_write_hw_to_index (
 	    *sep = 0;
       }
 
-      write_hw_to_index (trim_lr (p), start, end);
+      write_hw_to_index (trim_lr (p), data, start, end);
 
       if (!sep)
 	 break;
@@ -634,7 +652,7 @@ static void fmt_newheadword( const char *word )
    end = ftell(str);
 
    if (fmt_str && *prev) {
-      p = split_and_write_hw_to_index (prev, start, end);
+      p = split_and_write_hw_to_index (prev, NULL, start, end);
    }
 
    if (word) {
@@ -749,6 +767,9 @@ static void help( FILE *out_stream )
                      several words to have the same definition\n\
                      Example: autumn%%%fall can be used\n\
                      if '--headword-separator %%%' is supplied",
+"--index-data-separator <sep> sets index/data separator which allows\n\
+                     to explicitely set fourth column in .index file,\n\
+                     the default is \"\\034\"",
 "--break-headwords    multiple headwords will be written on separate lines\n\
                      in the .dict file.  For use with '--headword-separator.",
 "--index-keep-orig    fourth column in .index file stores original headword\n\
@@ -1051,6 +1072,8 @@ int main( int argc, char **argv )
       { "utf8",                 0, 0, 514 },
       { "index-keep-orig",      0, 0, 515 },
       { "case-sensitive",       0, 0, 516 },
+      { "index-data-separator", 1, 0, 517 },
+      { NULL,                   0, 0, 0   },
    };
 
    init (argv[0]);
@@ -1127,6 +1150,10 @@ int main( int argc, char **argv )
       case 516:
 	 cs_mode = 1;
 	 break;
+      case 517:
+	 idxdat_separator = optarg;
+	 break;
+
       case 't':
 	 without_info = 1;
 	 without_hw   = 1;
@@ -1408,7 +1435,7 @@ int main( int argc, char **argv )
 	    i_offset = atoi (offset);
 	    i_size   = atoi (size);
 
-	    write_hw_to_index (headword, i_offset, i_offset + i_size);
+	    write_hw_to_index (headword, NULL, i_offset, i_offset + i_size);
 	 }
 	 break;
       default:
