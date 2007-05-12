@@ -421,6 +421,12 @@ static char *trim_lr (char *s)
    return trim_left (trim_right (s));
 }
 
+static int is_headword_special (const char *hw)
+{
+   return (!strncmp (hw, "00-database", 11) ||
+	   !strncmp (hw, "00database", 10));
+}
+
 static void write_hw_to_index (
    const char *word,
    const char *data,
@@ -458,7 +464,7 @@ static void write_hw_to_index (
 	 data = word;
       }
 
-      if (data){
+      if (data && !is_headword_special (word)){
 	 fprintf( fmt_str, "\t%s\n", data);
       }else{
 	 fprintf( fmt_str, "\n");
@@ -489,10 +495,7 @@ static char *split_and_write_hw_to_index (
 
    do {
       sep = NULL;
-      if (hw_separator [0] &&
-	  strncmp (word, "00-database", 11) &&
-	  strncmp (word, "00database", 10))
-      {
+      if (hw_separator [0] && !is_headword_special (word)){
 	 sep = strstr (p, hw_separator);
 	 if (sep)
 	    *sep = 0;

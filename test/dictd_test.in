@@ -96,9 +96,15 @@ dictfmt_diff_opts '5' hello --utf8 --allchars --without-headword \
 dictfmt_diff_opts '1' cyrillic --utf8 -c5 -s 'rus words' \
    -u 'URL here' --default-strategy word
 
-# UTF-8 database, case sensitive (mostly cyrillic)
+# case sensitive flag
 dictfmt_diff_opts '1' mixedcase --utf8 -c5 -s 'mixed case words' \
    -u 'URL here' --without-headword --case-sensitive
+
+# --index-data-separator '|' --index-keep-orig
+dictfmt_diff_opts '1' indexdata \
+   --index-data-separator '|' --index-keep-orig \
+   -c5 -s 'index/data test' \
+   -u 'URL here' --without-headword
 
 ##################################################
 ##################################################
@@ -209,3 +215,6 @@ printf 'cyrillic_1 passed\n'
 
 dictd_test_inetd2 mixedcase_1
 printf 'mixedcase_1 passed\n'
+
+dictd_test_inetd2 indexdata_1
+printf 'indexdata_1 passed\n'
