@@ -16,14 +16,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
- * $Id: dictfmt.c,v 1.69 2007/05/12 15:08:38 cheusov Exp $
- *
- * Sun Jul 5 18:48:33 1998: added patches for Gutenberg's '1995 CIA World
- * Factbook' from David Frey <david@eos.lugs.ch>.
- *
- * v. 1.6 Mon, 25 Dec 2000 18:38:02 -0500 added -V, -L and --help options
- * Robert D. Hilliard <hilliard@debian.org>
  */
 
 #include "dictP.h"
