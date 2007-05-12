@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DICTFMT='../dictfmt --without-time --silent'
+DICTFMT='../dictfmt --without-time --silent --without-ver'
 DICTUNFORMAT='../dictunformat'
 DICT='../dict'
 DICTD="../dictd -L `pwd`/_dictd.log"

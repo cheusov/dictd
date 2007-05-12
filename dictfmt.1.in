@@ -294,6 +294,12 @@ URL will not be copied to DB info entry
 .BI \--without-time
 time of creation will not be copied to DB info entry
 .TP
+.BI \--without-ver
+By default
+.B dictfmt
+creates special entry 00-database-dictfmt that contains
+dictfmt version in format dictfmt-%s. This option suppresses this.
+.TP
 .BI \--without-info
 DB info entry will not be created.
 This may be useful if 00-database-info headword

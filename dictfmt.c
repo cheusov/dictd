@@ -67,6 +67,8 @@ static int cs_mode       = 0;
 
 static int quiet_mode    = 0;
 
+static int dictfmt_ver_mode = 1;
+
 static const char *hw_separator     = "";
 static const char *idxdat_separator = "\034";
 
@@ -794,6 +796,7 @@ static void help( FILE *out_stream )
 "--mime-header       Sets MIME header stored in .data file which\n\
                     prepend definition\n\
                     when client sent OPTION MIME to `dictd'",
+"--without-ver      do not create 00-database-dictfmt-<VER> entry in .index",
       0 };
    const char        **p = help_msg;
 
@@ -998,6 +1001,18 @@ static void fmt_headword_for_casesensitive (void)
    }
 }
 
+static void fmt_headword_for_dictfmt_ver (void)
+{
+   char ver [200];
+   snprintf (ver, sizeof (ver), "dictfmt-%s", DICT_VERSION);
+
+   if (dictfmt_ver_mode){
+      fmt_newheadword ("00-database-dictfmt");
+      fmt_string (ver);
+      fmt_newline ();
+   }
+}
+
 /* ...before reading the input */
 static void fmt_predefined_headwords_before ()
 {
@@ -1010,6 +1025,7 @@ static void fmt_predefined_headwords_before ()
    fmt_headword_for_casesensitive ();
    fmt_headword_for_def_strat ();
    fmt_headword_for_MIME_header ();
+   fmt_headword_for_dictfmt_ver ();
 
    if (url != string_unknown){
       /*
@@ -1076,6 +1092,7 @@ int main( int argc, char **argv )
       { "index-keep-orig",      0, 0, 515 },
       { "case-sensitive",       0, 0, 516 },
       { "index-data-separator", 1, 0, 517 },
+      { "without-ver",          0, 0, 518 },
       { NULL,                   0, 0, 0   },
    };
 
@@ -1155,6 +1172,9 @@ int main( int argc, char **argv )
 	 break;
       case 517:
 	 idxdat_separator = optarg;
+	 break;
+      case 518:
+	 dictfmt_ver_mode = 0;
 	 break;
 
       case 't':
