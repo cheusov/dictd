@@ -16,9 +16,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
- * $Id: daemon.c,v 1.86 2006/11/25 10:58:46 cheusov Exp $
- * 
  */
 
 #include "dictd.h"

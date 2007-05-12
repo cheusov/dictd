@@ -15,9 +15,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
- * $Id: lev.h,v 1.4 2005/04/13 18:12:34 cheusov Exp $
- * 
  */
 
 #define DICT_SEARCH_LEVENSHTEIN_8BIT__DEL_TRANS(buf, word, args) \

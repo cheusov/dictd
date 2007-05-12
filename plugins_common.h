@@ -16,9 +16,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
- * $Id: plugins_common.h,v 1.2 2004/11/17 12:39:45 cheusov Exp $
- * 
  */
 
 /********************************************************************/

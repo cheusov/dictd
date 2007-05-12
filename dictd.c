@@ -16,9 +16,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
- * $Id: dictd.c,v 1.137 2007/05/12 13:53:32 cheusov Exp $
- * 
  */
 
 #include "dictd.h"
@@ -1123,7 +1120,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.137 2007/05/12 13:53:32 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.138 2007/05/12 15:27:56 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;

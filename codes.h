@@ -3,9 +3,6 @@
  * Revised: Fri Dec 22 06:06:34 2000 by faith@dict.org
  * Copyright 1997, 2000 Rickard E. Faith (faith@dict.org)
  * This program comes with ABSOLUTELY NO WARRANTY.
- * 
- * $Id: codes.h,v 1.5 2004/04/26 16:22:13 cheusov Exp $
- * 
  */
 
 #ifndef _CODES_H_

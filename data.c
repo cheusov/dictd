@@ -16,9 +16,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
- * $Id: data.c,v 1.25 2007/05/06 19:39:30 cheusov Exp $
- * 
  */
 
 #include "dictP.h"

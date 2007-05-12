@@ -15,8 +15,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- * $Id: plugin.h,v 1.5 2003/10/14 22:31:23 cheusov Exp $
  */
 
 #ifndef _PLUGIN_H_

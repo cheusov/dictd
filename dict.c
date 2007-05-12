@@ -16,9 +16,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
- * $Id: dict.c,v 1.48 2005/12/05 17:35:28 cheusov Exp $
- * 
  */
 
 #include "dict.h"
@@ -1169,7 +1166,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.48 2005/12/05 17:35:28 cheusov Exp $";
+   const char        *id = "$Id: dict.c,v 1.49 2007/05/12 15:27:56 cheusov Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;

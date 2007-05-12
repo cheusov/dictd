@@ -16,9 +16,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 675 Mass Ave, Cambridge, MA 02139, USA.
- * 
- * $Id: dictzip.c,v 1.26 2004/11/17 12:39:44 cheusov Exp $
- * 
  */
 
 #include "dictzip.h"
@@ -313,7 +310,7 @@ static const char *id_string( const char *id )
 
 static void banner( void )
 {
-   const char *id = "$Id: dictzip.c,v 1.26 2004/11/17 12:39:44 cheusov Exp $";
+   const char *id = "$Id: dictzip.c,v 1.27 2007/05/12 15:27:56 cheusov Exp $";
    
    fprintf( stderr, "%s %s\n", err_program_name(), id_string( id ) );
    fprintf( stderr,
