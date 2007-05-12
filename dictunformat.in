@@ -213,6 +213,7 @@ BEGIN {
 	skip("00-database-alphabet")
 	skip("00-database-default-strategy")
 	skip("00-database-mime-header")
+	skip("00-database-case-sensitive")
 
 	offset  = 0
 }
