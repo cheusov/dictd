@@ -27,6 +27,10 @@ extern int         yy_flex_debug;
        lst_List    dict_Servers;
        const char  *dict_pager;
        FILE        *dict_output;
+       int         formatted;
+
+const char *host_connected    = NULL;
+const char *service_connected = NULL;
 
 #define BUFFERSIZE  2048
 #define PIPESIZE     256
@@ -411,7 +415,17 @@ static void client_print_listed( lst_List l )
 
       /* */
       a = arg_argify( e, 0 );
-      fprintf( dict_output, format, arg_get(a,0), arg_get(a,1) );
+
+      if (formatted){
+	 assert (host_connected);
+	 assert (service_connected);
+
+	 fprintf (dict_output, "%s:%s\t%s\t%s\n",
+		  host_connected, service_connected, arg_get (a,0), arg_get (a,1));
+      }else{
+	 fprintf (dict_output, format, arg_get (a,0), arg_get (a,1));
+      }
+
       arg_destroy(a);
    }
 }
@@ -420,7 +434,7 @@ static void client_free_text( lst_List l )
 {
    lst_Position p;
    char         *e;
-   
+
    if (!l) return;
    LST_ITERATE(l,p,e) {
       if (e) xfree(e);
@@ -745,13 +759,17 @@ static void process( void )
       expected = CODE_OK;
       switch (c->command) {
       case CMD_PRINT:
-	 if (c->comment) fprintf( dict_output, "%s", c->comment );
+	 if (!formatted){
+	    if (c->comment) fprintf( dict_output, "%s", c->comment );
+	 }
+
 	 if (cmd_reply.match)
 	    client_print_matches( cmd_reply.data, 1, cmd_reply.word );
 	 else if (cmd_reply.listed)
 	    client_print_listed( cmd_reply.data );
 	 else
 	    client_print_text( cmd_reply.data );
+
 	 client_free_text( cmd_reply.data );
 	 cmd_reply.data = NULL;
 	 cmd_reply.matches = cmd_reply.match = cmd_reply.listed = 0;
@@ -819,9 +837,19 @@ static void process( void )
 		    cmd_reply.host,
 		    cmd_reply.service );
 	 }
+
+	 /* */
+	 host_connected    = c -> host;
+	 if (c -> service)
+	    service_connected = c -> service;
+	 else
+	    service_connected = DICT_DEFAULT_SERVICE;
+
+	 /* */
 	 expected = CODE_HELLO;
 	 while (((struct cmd *)lst_top(cmd_list))->command == CMD_CONNECT)
 	    lst_pop(cmd_list);
+
 	 break;
       case CMD_OPTION_MIME:
 	 cmd_reply.retcode = client_read_status( cmd_reply.s,
@@ -1166,7 +1194,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.49 2007/05/12 15:27:56 cheusov Exp $";
+   const char        *id = "$Id: dict.c,v 1.50 2007/05/13 20:59:52 cheusov Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
@@ -1207,7 +1235,7 @@ static void license( void )
    banner ( stdout );
    while (*p) fprintf( stdout, "   %s\n", *p++ );
 }
-    
+
 static void help( FILE *out_stream )
 {
    static const char *help_msg[] = {
@@ -1239,6 +1267,7 @@ static void help( FILE *out_stream )
       "   --pipesize <size>      specify buffer size for pipelining (256)",
       "   --client <text>        additional text for client command",
       "-M --mime                 send OPTION MIME command if server supports it",
+      "-f --formatted            use strict tabbed format of output",
       0 };
    const char        **p = help_msg;
 
@@ -1296,6 +1325,7 @@ int main( int argc, char **argv )
       { "pipesize",   1, 0, 504 },
       { "client",     1, 0, 505 },
       { "mime",       1, 0, 'M' },
+      { "formatted",  0, 0, 'f' },
       { 0,            0, 0,  0  }
    };
 
@@ -1312,7 +1342,7 @@ int main( int argc, char **argv )
    dbg_register( DBG_URL,     "url" );
 
    while ((c = getopt_long( argc, argv,
-			    "h:p:d:i:Ims:DSHau:c:Ck:VLvrP:M",
+			    "h:p:d:i:Ims:DSHau:c:Ck:VLvrP:Mf",
 			    longopts, NULL )) != EOF)
    {
       switch (c) {
@@ -1341,8 +1371,13 @@ int main( int argc, char **argv )
       case 504: client_pipesize = atoi(optarg);        break;
       case 502: dbg_set( optarg );                     break;
       case 501:	help( stdout );	exit(1);               break;	      
+      case 'f': formatted = 1;                         break;
       default:  help( stderr ); exit(1);               break;
       }
+   }
+
+   if (formatted){
+      dict_pager = "-";
    }
 
    if (optind == argc && (!(function & ~(DEFINE|MATCH)))) {
