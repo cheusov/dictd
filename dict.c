@@ -289,13 +289,54 @@ static lst_List client_read_text( int s )
    return l;
 }
 
-static void client_print_text( lst_List l )
+static void client_print_text( lst_List l, int print_host_port )
 {
    lst_Position p;
    const char   *e;
 
    if (!l) return;
+
+   if (formatted && print_host_port){
+      fprintf (dict_output, "%s\t%s\n", host_connected, service_connected);
+   }
+
    LST_ITERATE(l,p,e) fprintf( dict_output, "  %s\n", e );
+}
+
+static void client_print_definitions (const struct def *r)
+{
+   if (formatted){
+      fprintf (dict_output, "%s\t%s\t", host_connected, service_connected);
+
+      if (r -> dbname && r -> db)
+      {
+	 fprintf( dict_output, "%s\t%s\n", r -> db, r -> dbname);
+      } else if (r -> dbname) {
+	 fprintf( dict_output, "%s\n", r -> dbname );
+      } else if (r -> db) {
+	 fprintf( dict_output, "%s\n", r -> db );
+      } else {
+	 fprintf( dict_output, "unknown\n" );
+      }
+   }else{
+      fprintf (dict_output, "\nFrom ");
+      if (r -> dbname && r -> db)
+      {
+	 fprintf( dict_output, "%s [%s]",
+		  r -> dbname,
+		  r -> db);
+      } else if (r -> dbname) {
+	 fprintf( dict_output, "%s", r -> dbname );
+      } else if (r -> db) {
+	 fprintf( dict_output, "%s", r -> db );
+      } else {
+	 fprintf( dict_output, "unknown" );
+      }
+
+      fprintf( dict_output, ":\n\n" );
+   }
+
+   client_print_text( r -> data, 0 );
 }
 
 static void client_print_matches( lst_List l, int flag, const char *word )
@@ -311,6 +352,9 @@ static void client_print_matches( lst_List l, int flag, const char *word )
    int          len;
    int          count;
    int          empty_line_found = 0;
+
+   const char  *arg0 = NULL;
+   const char  *arg1 = NULL;
 
    count = 0;
    if (l) {
@@ -343,25 +387,35 @@ static void client_print_matches( lst_List l, int flag, const char *word )
       if (arg_count(a) != 2)
 	 err_internal( __FUNCTION__,
 		       "MATCH command didn't return 2 args: \"%s\"\n", e );
-      if ((db = str_find(arg_get(a,0))) != prev) {
-	 if (!first) fprintf( dict_output, "\n" );
-	 first = 0;
-	 fprintf( dict_output, "%s:", db );
-	 prev = db;
-	 pos = 6 + strlen(db);
+
+      arg0 = arg_get (a,0);
+      arg1 = arg_get (a,1);
+
+      if (formatted){
+	 fprintf (dict_output, "%s\t%s\t%s\t%s\n",
+		  host_connected, service_connected, arg0, arg1);
+      }else{
+	 if ((db = str_find(arg0)) != prev) {
+	    if (!first) fprintf( dict_output, "\n" );
+	    first = 0;
+	    fprintf( dict_output, "%s:", db );
+	    prev = db;
+	    pos = 6 + strlen(db);
+	 }
+	 len = strlen(arg1);
+	 if (pos + len + 4 > 70) {
+	    fprintf( dict_output, "\n" );
+	    pos = 0;
+	 }
+	 if (strchr (arg1,' ')) {
+	    fprintf( dict_output, "  \"%s\"", arg1 );
+	    pos += len + 4;
+	 } else {
+	    fprintf( dict_output, "  %s", arg1 );
+	    pos += len + 2;
+	 }
       }
-      len = strlen(arg_get(a,1));
-      if (pos + len + 4 > 70) {
-	 fprintf( dict_output, "\n" );
-	 pos = 0;
-      }
-      if (strchr( arg_get(a,1),' ')) {
-	 fprintf( dict_output, "  \"%s\"", arg_get(a,1) );
-	 pos += len + 4;
-      } else {
-	 fprintf( dict_output, "  %s", arg_get(a,1) );
-	 pos += len + 2;
-      }
+
       arg_destroy(a);
    }
    fprintf( dict_output, "\n" );
@@ -420,7 +474,7 @@ static void client_print_listed( lst_List l )
 	 assert (host_connected);
 	 assert (service_connected);
 
-	 fprintf (dict_output, "%s:%s\t%s\t%s\n",
+	 fprintf (dict_output, "%s\t%s\t%s\t%s\n",
 		  host_connected, service_connected, arg_get (a,0), arg_get (a,1));
       }else{
 	 fprintf (dict_output, format, arg_get (a,0), arg_get (a,1));
@@ -768,7 +822,7 @@ static void process( void )
 	 else if (cmd_reply.listed)
 	    client_print_listed( cmd_reply.data );
 	 else
-	    client_print_text( cmd_reply.data );
+	    client_print_text( cmd_reply.data, 1 );
 
 	 client_free_text( cmd_reply.data );
 	 cmd_reply.data = NULL;
@@ -784,20 +838,7 @@ static void process( void )
 	       fprintf( dict_output, "\n" );
 	    }
 	    for (i = 0; i < cmd_reply.count; i++) {
-               fprintf( dict_output, "\nFrom " );
-	       if (cmd_reply.defs[i].dbname && cmd_reply.defs[i].db) {
-		  fprintf( dict_output, "%s [%s]",
-			   cmd_reply.defs[i].dbname,
-			   cmd_reply.defs[i].db);
-	       } else if (cmd_reply.defs[i].dbname) {
-		  fprintf( dict_output, "%s", cmd_reply.defs[i].dbname );
-	       } else if (cmd_reply.defs[i].db) {
-		  fprintf( dict_output, "%s", cmd_reply.defs[i].db );
-	       } else {
-		  fprintf( dict_output, "unknown" );
-	       }
-	       fprintf( dict_output, ":\n\n" );
-	       client_print_text( cmd_reply.defs[i].data );
+	       client_print_definitions (&cmd_reply.defs [i]);
 	       client_free_text( cmd_reply.defs[i].data );
 	       cmd_reply.defs[i].data = NULL;
 	    }
@@ -1194,7 +1235,7 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.50 2007/05/13 20:59:52 cheusov Exp $";
+   const char        *id = "$Id: dict.c,v 1.51 2007/05/19 12:47:20 cheusov Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
