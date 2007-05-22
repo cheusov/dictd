@@ -314,8 +314,8 @@ is received, which will cause
 .B dictd 
 to reread the configuration file.
 .P
-The file is divided into sections.  The Site Section should come
-first, followed by the Access Section, the Database Section, and the
+The file is divided into sections.  The Access Section should come
+first, followed by the Database Section, and the
 User Section.  The Database Section is required; the others are
 optional, but they must be in the order listed here.
 .RE
@@ -345,25 +345,11 @@ See
 file from the distribution.
 .RE
 .TP
-.B Site Section
-.RS
-.TP
-.BI site " string"
-Used to specify the filename for the site information file, a flat text
-file which will be displayed in response to the SHOW SERVER command.  This
-section, if present, must be first.
-.TP
-.B EXAMPLE:
-See
-.I examples/dictd4.conf
-file from the distribution.
-.RE
-.TP
 .B Access Section
 .RS
 .TP
 .BI "access {" " access specification " "}"
-This section, the second if the Site Section is present, contains access
+This section contains access
 restrictions for the server and all of the databases collectively.
 Per-database control is specified in the Database Section.
 .TP
@@ -551,6 +537,17 @@ The default is 2628, as specified in the DICT Protocol RFC, but may be
 changed in the
 .I defs.h
 file at compile time (DICT_DEFAULT_SERVICE).
+.TP
+.BI site " string"
+Used to specify the filename for the site information file, a flat text
+file which will be displayed in response to the SHOW SERVER command.
+.RS
+.P
+.B EXAMPLE:
+See
+.I examples/dictd4.conf
+file from the distribution.
+.RE
 .TP
 .BI delay " number"
 Specifies the number of seconds a client may be idle before the server will

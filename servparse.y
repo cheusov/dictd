@@ -23,6 +23,7 @@
 #include "strategy.h"
 #include "index.h"
 #include "data.h"
+#include "maa.h"
 
 #define YYDEBUG 1
 #define YYERROR_VERBOSE
@@ -115,27 +116,27 @@ Program : Global DatabaseList
         | Global Site DatabaseList
           { DictConfig = xmalloc(sizeof(struct dictConfig));
 	    memset( DictConfig, 0, sizeof(struct dictConfig) );
-	    DictConfig->site = $2.string;
+	    site_info        = $2.string;
 	    DictConfig->dbl  = $3;
 	  }
         | Global Site Access DatabaseList
           { DictConfig = xmalloc(sizeof(struct dictConfig));
 	    memset( DictConfig, 0, sizeof(struct dictConfig) );
-	    DictConfig->site = $2.string;
+	    site_info        = $2.string;
 	    DictConfig->acl  = $3;
 	    DictConfig->dbl  = $4;
 	  }
         | Global Site DatabaseList UserList
           { DictConfig = xmalloc(sizeof(struct dictConfig));
 	    memset( DictConfig, 0, sizeof(struct dictConfig) );
-	    DictConfig->site = $2.string;
+	    site_info        = $2.string;
 	    DictConfig->dbl  = $3;
 	    DictConfig->usl  = $4;
 	  }
         | Global Site Access DatabaseList UserList
           { DictConfig = xmalloc(sizeof(struct dictConfig));
 	    memset( DictConfig, 0, sizeof(struct dictConfig) );
-	    DictConfig->site = $2.string;
+	    site_info        = $2.string;
 	    DictConfig->acl  = $3;
 	    DictConfig->dbl  = $4;
 	    DictConfig->usl  = $5;
@@ -155,6 +156,15 @@ GlobalSpec : TOKEN_PORT             TOKEN_STRING
      {
 	if (!daemon_service_set)
 	   daemon_service = str_copy($2.string);
+     }
+   | TOKEN_SITE             TOKEN_STRING
+     {
+	if (site_info){
+	   /* site is specified twice */
+	   xfree ((void *) site_info);
+	}
+
+	site_info = $2.string;
      }
    | TOKEN_PORT             TOKEN_NUMBER
      {
@@ -262,7 +272,11 @@ AccessSpecList : AccessSpec { $$ = lst_create(); lst_append($$, $1); }
                | AccessSpecList AccessSpec { lst_append($1, $2); $$ = $1; }
                ;
 
-Site : TOKEN_SITE TOKEN_STRING { $$ = $2; }
+Site : TOKEN_SITE TOKEN_STRING
+       {
+	  $$ = $2;
+	  log_error (NULL, ":E: Move \"site\" directive to section \"global\" of the configuration file!");
+       }
      ;
 
 UserList : TOKEN_USER TOKEN_STRING TOKEN_STRING

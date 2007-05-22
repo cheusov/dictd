@@ -41,6 +41,8 @@
 #include <arpa/inet.h>
 */
 
+extern const char *site_info;
+
 extern const char *daemon_service;
 extern int client_delay;
 extern int depth;

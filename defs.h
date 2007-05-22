@@ -249,7 +249,6 @@ typedef struct dictConfig {
    lst_List      acl;		/* type dictAccess */
    lst_List      dbl;		/* type dictDatabase */
    hsh_HashTable usl;		/* username/shared-secret list */
-   const char    *site;
 } dictConfig;
 
 typedef struct dictWord {

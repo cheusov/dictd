@@ -1339,7 +1339,7 @@ static void daemon_show_server (
       }
    }
 
-   if (DictConfig->site && (str = fopen( DictConfig->site, "r" ))) {
+   if (site_info && (str = fopen( site_info, "r" ))) {
       daemon_printf( "\nSite-specific information for %s:\n\n",
 		     net_hostname() );
       while ((fgets( buffer, 1000, str ))) daemon_printf( "%s", buffer );

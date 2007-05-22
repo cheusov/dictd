@@ -101,7 +101,10 @@ const char        *preprocessor = NULL;
 const char        *bind_to      = NULL;
 int bind_to_set; /* 1 if set by command line option */
 
-
+/* information about dict server, i.e.
+   text returned by SHOW SERVER command
+*/
+const char        *site_info    = NULL;
 
 
 
@@ -377,7 +380,7 @@ static void postprocess_filenames (dictConfig *dc)
       db -> pluginFilename = postprocess_plugin_filename (db -> pluginFilename);
    }
 
-   dc -> site = postprocess_dict_filename (dc -> site);
+   site_info = postprocess_dict_filename (site_info);
 }
 
 static void handler_sighup (int sig)
@@ -1070,8 +1073,8 @@ static void dict_close_databases (dictConfig *c)
       lst_destroy (c -> acl);
    }
 
-   if (c -> site)
-      xfree ((void *) c -> site);
+   if (site_info)
+      xfree ((void *) site_info);
 
    xfree (c);
 }
@@ -1120,7 +1123,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.138 2007/05/12 15:27:56 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.139 2007/05/22 14:07:36 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
