@@ -104,7 +104,10 @@ int bind_to_set; /* 1 if set by command line option */
 /* information about dict server, i.e.
    text returned by SHOW SERVER command
 */
-const char        *site_info    = NULL;
+const char        *site_info           = NULL;
+int                site_info_no_banner = 0;
+int                site_info_no_uptime = 0;
+int                site_info_no_dblist = 0;
 
 
 
@@ -1123,7 +1126,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.139 2007/05/22 14:07:36 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.140 2007/05/22 20:56:13 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;

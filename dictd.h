@@ -42,6 +42,9 @@
 */
 
 extern const char *site_info;
+extern int         site_info_no_banner;
+extern int         site_info_no_uptime;
+extern int         site_info_no_dblist;
 
 extern const char *daemon_service;
 extern int client_delay;

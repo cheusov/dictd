@@ -1264,17 +1264,20 @@ static void daemon_show_server (
    char          buffer[1024];
    const dictDatabase  *db;
    double        uptime;
-   
-   lst_Position databasePosition = first_database_pos ();
 
-   tim_stop("dictd");
-   uptime = tim_get_real("dictd");
-   
    daemon_printf( "%d server information\n", CODE_SERVER_INFO );
    daemon_mime();
-   daemon_printf( "%s\n", dict_get_banner(0) );
 
-   if (!inetd){
+   /* banner: dictd and OS */
+   if (!site_info_no_banner){
+      daemon_printf( "%s\n", dict_get_banner(0) );
+   }
+
+   /* uptime and forks */
+   if (!site_info_no_uptime && !inetd){
+      tim_stop("dictd");
+      uptime = tim_get_real("dictd");
+
       daemon_printf (
 	 "On %s: up %s, %d fork%s (%0.1f/hour)\n",
 	 net_hostname(),
@@ -1282,11 +1285,16 @@ static void daemon_show_server (
 	 _dict_forks,
 	 _dict_forks > 1 ? "s" : "",
 	 (_dict_forks/uptime)*3600.0 );
+
+      daemon_printf ("\n");
    }
 
-   if (count_databases()) {
-      daemon_printf( "\nDatabase      Headwords         Index"
+   if (!site_info_no_dblist && count_databases()) {
+      daemon_printf( "Database      Headwords         Index"
 		     "          Data  Uncompressed\n" );
+
+      lst_Position databasePosition = first_database_pos ();
+
       while ((db = next_database (&databasePosition, "*"))) {
 	 int headwords       = db->index ? db->index->headwords : 0;
 
@@ -1337,11 +1345,11 @@ static void daemon_show_server (
 	    data_length,
 	    data_length_uom);
       }
+
+      daemon_printf ("\n");
    }
 
    if (site_info && (str = fopen( site_info, "r" ))) {
-      daemon_printf( "\nSite-specific information for %s:\n\n",
-		     net_hostname() );
       while ((fgets( buffer, 1000, str ))) daemon_printf( "%s", buffer );
       fclose( str );
    }

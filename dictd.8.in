@@ -549,6 +549,24 @@ See
 file from the distribution.
 .RE
 .TP
+.BI site_no_banner " boolean"
+By default SHOW SERVER command outputs information about
+.I dictd
+version and an operating system type.
+This option disables this.
+.TP
+.BI site_no_uptime " boolean"
+By default SHOW SERVER command outputs information about
+uptime of
+.I dictd
+, a number of forks since startup and forks per hour.
+This option disables this.
+.TP
+.BI site_no_dblist " boolean"
+By default SHOW SERVER command outputs internal information about
+databases, such as a number of headwords, index size and so on.
+This option disables this.
+.TP
 .BI delay " number"
 Specifies the number of seconds a client may be idle before the server will
 close the connection.  Idle time is defined to be the time the server is

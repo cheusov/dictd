@@ -30,6 +30,19 @@
 
 static dictDatabase *db;
 
+static int string2bool (const char *str)
+{
+   if (
+      !strcasecmp ("1", str)
+      || !strcasecmp ("true", str)
+      || !strcasecmp ("yes", str))
+   {
+      return 1;
+   }else{
+      return 0;
+   }
+}
+
 #define SET(field,s,t) do {                                   \
    if (db->field)                                             \
       src_parse_error( stderr, s.src, #field "already set" ); \
@@ -52,7 +65,11 @@ static dictDatabase *db;
 %token <token> TOKEN_GROUP TOKEN_DATABASE TOKEN_DATA
 %token <token> TOKEN_INDEX TOKEN_INDEX_SUFFIX TOKEN_INDEX_WORD
 %token <token> TOKEN_FILTER TOKEN_PREFILTER TOKEN_POSTFILTER TOKEN_NAME TOKEN_INFO
-%token <token> TOKEN_USER TOKEN_AUTHONLY TOKEN_SITE TOKEN_DATABASE_EXIT
+%token <token> TOKEN_USER TOKEN_AUTHONLY TOKEN_DATABASE_EXIT
+
+%token <token> TOKEN_SITE TOKEN_SITE_NO_BANNER TOKEN_SITE_NO_UPTIME
+%token <token> TOKEN_SITE_NO_DBLIST
+
 %token <token> TOKEN_STRING
 %token <token> TOKEN_INVISIBLE TOKEN_DISABLE_STRAT
 %token <token> TOKEN_DATABASE_VIRTUAL TOKEN_DATABASE_LIST
@@ -165,6 +182,19 @@ GlobalSpec : TOKEN_PORT             TOKEN_STRING
 	}
 
 	site_info = $2.string;
+     }
+   | TOKEN_SITE_NO_BANNER     TOKEN_STRING
+     {
+	site_info_no_banner = string2bool ($2.string);
+	fprintf (stderr, "site_info_no_banner=%d\n", site_info_no_banner);
+     }
+   | TOKEN_SITE_NO_UPTIME   TOKEN_STRING
+     {
+	site_info_no_uptime = string2bool ($2.string);
+     }
+   | TOKEN_SITE_NO_DBLIST  TOKEN_STRING
+     {
+	site_info_no_dblist = string2bool ($2.string);
      }
    | TOKEN_PORT             TOKEN_NUMBER
      {
