@@ -247,22 +247,6 @@ keyword in
 .I Global Settings Specification
 of configuration files.
 .TP
-.BI \-\-test " word \fR or "\-t " word"
-self test -- lookup word
-.TP
-.BI \-\-test-file " file \fRor "\-\-ftest " file"
-self test -- lookup all words in file
-.TP
-.BI \-\-test-strategy " strategy"
-self test -- set search strategy for --test and --ftest.
-The default is 'exact'.
-.TP
-.BI \-\-test-db " database"
-self test -- set dictionary to be searched. The default is '*'.
-.TP
-.BI \-\-test-match
-self test -- set search type to MATCH. The default is DEFINE.
-.TP
 .BI \-\-fast-start
 The same as
 .B fast_start
