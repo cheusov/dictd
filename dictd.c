@@ -1095,7 +1095,7 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.141 2007/05/23 06:18:05 cheusov Exp $";
+   const char     *id = "$Id: dictd.c,v 1.142 2007/05/23 06:37:33 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1124,7 +1124,9 @@ const char *dict_get_banner( int shortFlag )
 static void banner( void )
 {
    printf( "%s\n", dict_get_banner(0) );
-   printf( "Copyright 1997-2002 Rickard E. Faith (faith@dict.org)\n\n" );
+   printf( "Copyright 1997-2002 Rickard E. Faith (faith@dict.org)\n" );
+   printf( "Copyright 2002-2007 Aleksey Cheusov (vle@gmx.net)\n" );
+   printf( "\n" );
 }
 
 static void license( void )
