@@ -1223,7 +1223,7 @@ static void client_config_print( FILE *stream, lst_List c )
    }
 }
 
-static const char *id_string( const char *id )
+static const char *id_string (void)
 {
    static char buffer[BUFFERSIZE];
 
@@ -1235,14 +1235,13 @@ static const char *id_string( const char *id )
 static const char *client_get_banner( void )
 {
    static char       *buffer= NULL;
-   const char        *id = "$Id: dict.c,v 1.51 2007/05/19 12:47:20 cheusov Exp $";
    struct utsname    uts;
    
    if (buffer) return buffer;
    uname( &uts );
    buffer = xmalloc(256);
    snprintf( buffer, 256,
-	     "%s %s/rf on %s %s", err_program_name(), id_string( id ),
+	     "%s %s/rf on %s %s", err_program_name (), id_string (),
 	     uts.sysname, uts.release );
    return buffer;
 }

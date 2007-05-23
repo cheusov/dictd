@@ -1082,7 +1082,7 @@ static void dict_close_databases (dictConfig *c)
    xfree (c);
 }
 
-static const char *id_string( const char *id )
+static const char *id_string (void)
 {
    static char buffer [BUFFERSIZE];
 
@@ -1095,7 +1095,6 @@ const char *dict_get_banner( int shortFlag )
 {
    static char    *shortBuffer = NULL;
    static char    *longBuffer = NULL;
-   const char     *id = "$Id: dictd.c,v 1.142 2007/05/23 06:37:33 cheusov Exp $";
    struct utsname uts;
    
    if (shortFlag && shortBuffer) return shortBuffer;
@@ -1106,12 +1105,12 @@ const char *dict_get_banner( int shortFlag )
    shortBuffer = xmalloc(256);
    snprintf(
       shortBuffer, 256,
-      "%s %s", err_program_name(), id_string( id ) );
+      "%s %s", err_program_name(), id_string () );
 
    longBuffer = xmalloc(256);
    snprintf(
       longBuffer, 256,
-      "%s %s/rf on %s %s", err_program_name(), id_string( id ),
+      "%s %s/rf on %s %s", err_program_name(), id_string (),
       uts.sysname,
       uts.release );
 
