@@ -50,6 +50,8 @@ extern const char *daemon_service;
 extern int client_delay;
 extern int depth;
 extern int _dict_daemon_limit;
+extern int _dict_daemon_limit_matches;
+extern int _dict_daemon_limit_defs;
 extern int _dict_markTime;
 extern const char *logFile;
 extern const char *pidFile;

@@ -81,6 +81,9 @@ int daemon_service_set; /* 1 if set by command line option */
 int        _dict_daemon_limit        = DICT_DAEMON_LIMIT;
 int _dict_daemon_limit_set; /* 1 if set by command line option */
 
+int        _dict_daemon_limit_matches  = DICT_DAEMON_LIMIT_MATCHES;
+int        _dict_daemon_limit_defs     = DICT_DAEMON_LIMIT_DEFS;
+
 int        _dict_markTime = 0;
 int _dict_markTime_set; /* 1 if set by command line option */
 

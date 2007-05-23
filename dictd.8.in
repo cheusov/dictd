@@ -583,6 +583,14 @@ the
 .I defs.h
 file at compile time (DICT_DAEMON_LIMIT).
 .TP
+.BI limit_matches " number"
+Specifies the maximum number of matches that can be returned
+by MATCH query. Zero means no limit. The default is 2000.
+.TP
+.BI limit_definitions " number"
+Specifies the maximum number of definitions that can be returned
+by DEFINE query. Zero means no limit. The default is 200.
+.TP
 .BI timestamp " number"
 How often a timestamp should be logged (int minutes).
 (This is effective only if

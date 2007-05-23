@@ -33,6 +33,8 @@
 #define DICT_QUEUE_DEPTH         10
 #define DICT_DEFAULT_DELAY       600 /* 10 minute timeout */
 #define DICT_DAEMON_LIMIT        100 /* maximum simultaneous daemons */
+#define DICT_DAEMON_LIMIT_MATCHES  2000 /* maximum number of matches */
+#define DICT_DAEMON_LIMIT_DEFS     200  /* maximum number of definitions */
 #define DICT_PERSISTENT_PRESTART 3 /* not implemented */
 #define DICT_PERSISTENT_LIMIT    5 /* not implemented */
 

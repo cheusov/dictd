@@ -80,6 +80,8 @@ char global_alphabet_ascii [UCHAR_MAX + 2];
 static int chartab [UCHAR_MAX + 1];
 static int charcount = 0;
 
+static int define_or_match = 0; /* 1 if define */
+
 /* #define isspacealnum(x) (isspacealnumtab[(unsigned char)(x)]) */
 #define c2i(x) (char2indextab[(unsigned char)(x)])
 #define i2c(x) (index2chartab[(unsigned char)(x)])
@@ -685,7 +687,8 @@ void dict_destroy_list( lst_List list )
    lst_destroy( list );
 }
 
-static void dict_add_word_to_list (
+/* returns NULL if limits exceeded */
+static dictWord *dict_add_word_to_list (
    lst_List l,
    const dictDatabase *database,
    const dictIndex *dbindex,
@@ -693,10 +696,21 @@ static void dict_add_word_to_list (
 {
    dictWord * datum;
 
-   if (l){
-      dictWord * datum = dict_word_create (pt, database, dbindex);
-      lst_append (l, datum);
+   assert (l);
+
+   if (define_or_match){
+      if (_dict_daemon_limit_defs
+	  && lst_length (l) >= _dict_daemon_limit_defs)
+	 return NULL;
+   }else{
+      if (_dict_daemon_limit_matches
+	  && lst_length (l) >= _dict_daemon_limit_matches)
+	 return NULL;
    }
+
+   datum = dict_word_create (pt, database, dbindex);
+   lst_append (l, datum);
+   return datum;
 }
 
 static int dict_search_exact( lst_List l,
@@ -720,7 +734,11 @@ static int dict_search_exact( lst_List l,
 	 {
 	    ++count;
 	    if (l){
-	       dict_add_word_to_list (l, database, dbindex, previous = pt);
+	       if (!dict_add_word_to_list
+		   (l, database, dbindex, previous = pt))
+	       {
+		  break;
+	       }
 	    }
 	 }
       }else{
@@ -760,7 +778,8 @@ static int dict_search_prefix( lst_List l,
 	       if (skip_count == 0){
 		  ++count;
 
-		  dict_add_word_to_list (l, database, dbindex, pt);
+		  if (!dict_add_word_to_list (l, database, dbindex, pt))
+		     return count;
 
 		  --item_count;
 		  if (!item_count){
@@ -828,11 +847,13 @@ static int dict_search_brute( lst_List l,
 	    switch (flag){
 	    case BMH_SUBSTRING:
 	       break;
+
 	    case BMH_SUFFIX:
 	       if (result)
 		  continue;
 
 	       break;
+
 	    case BMH_WORD:
 	       if (p > start && !isspacepuncttab [p [-1]])
 		  continue;
@@ -843,11 +864,17 @@ static int dict_search_brute( lst_List l,
 	    }
 
 	    for (pt = p; pt >= start && *pt != '\n'; --pt)
-	       if (*pt == '\t') goto continue2;
+	       if (*pt == '\t')
+		  goto continue2;
+
 	    if (!previous || compare(previous, dbindex, pt + 1, end)) {
 	       ++count;
 
-	       dict_add_word_to_list (l, database, dbindex, previous = pt + 1);
+	       if (!dict_add_word_to_list
+		   (l, database, dbindex, previous = pt + 1))
+	       {
+		  break;
+	       }
 	    }
 	    FIND_NEXT(p,end);
 	    --p;
@@ -961,11 +988,18 @@ static int dict_search_bmh( lst_List l,
 
 	 if (!previous || compare(previous, dbindex, pt, dbindex->end)) {
 	    ++count;
-	    dict_add_word_to_list (l, database, dbindex, previous = pt);
+	    if (l){
+	       if (!dict_add_word_to_list
+		   (l, database, dbindex, previous = pt))
+	       {
+		  return count;
+	       }
+	    }
 	 }
 	 FIND_NEXT(p,end);
 	 f = p += patlen-1;	/* Set boolean flag to non-NULL value */
-	 if (p > end) return count;
+	 if (p > end)
+	    return count;
       }
 continue2:
       if (f){
@@ -1133,7 +1167,11 @@ static int dict_search_regexpr( lst_List l,
       if (dict_match (&re, pt, p - pt, 0)) {
 	 if (!previous || compare(previous, dbindex, pt, end)) {
 	    ++count;
-	    dict_add_word_to_list (l, database, dbindex, previous = pt);
+	    if (!dict_add_word_to_list
+		(l, database, dbindex, previous = pt))
+	    {
+	       break;
+	    }
 	 }
       }
       pt = p + 1;
@@ -1203,7 +1241,12 @@ static int dict_search_soundex( lst_List l,
       txt_soundex2 (buffer, soundex2);
       if (!strcmp (soundex, soundex2)) {
 	 if (!previous || compare(previous, dbindex, pt, end)) {
-	    dict_add_word_to_list (l, database, dbindex, previous = pt);
+	    if (!dict_add_word_to_list
+		(l, database, dbindex, previous = pt))
+	    {
+	       break;
+	    }
+
 	    ++count;
 	 }
       }
@@ -1242,7 +1285,7 @@ typedef struct lev_args_ {
       if (!set_member(s,(word))) {                       \
 	 ++count;                                        \
 	 set_insert(s,str_find((word)));                 \
-	 dict_add_word_to_list ((args) -> l, (args) -> database, (args) -> dbindex, pt); \
+	 if (!dict_add_word_to_list ((args) -> l, (args) -> database, (args) -> dbindex, pt)) return count; \
          PRINTF(DBG_LEV,("  %s added\n",(word)));     \
       }                                               \
    }
@@ -1416,6 +1459,8 @@ int dict_search_database_ (
    unsigned int item_count       = INT_MAX;
 
    int strategy = strategy_or_define & ~DICT_MATCH_MASK;
+
+   define_or_match = (strategy == strategy_or_define);
 
    assert (database);
    assert (database -> index);

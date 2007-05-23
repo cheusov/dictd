@@ -100,10 +100,12 @@ postfilter                  RETURN(TOKEN_POSTFILTER);
 name                        RETURN(TOKEN_NAME);
 user                        RETURN(TOKEN_USER);
 authonly                    RETURN(TOKEN_AUTHONLY);
+
 site                        RETURN(TOKEN_SITE);
 site_no_banner              RETURN(TOKEN_SITE_NO_BANNER);
 site_no_uptime              RETURN(TOKEN_SITE_NO_UPTIME);
 site_no_dblist              RETURN(TOKEN_SITE_NO_DBLIST);
+
 invisible                   RETURN(TOKEN_INVISIBLE);
 database_virtual            RETURN(TOKEN_DATABASE_VIRTUAL);
 info                        RETURN(TOKEN_INFO);
@@ -134,6 +136,9 @@ log_file                    RETURN(TOKEN_LOG_FILE);
 pid_file                    RETURN(TOKEN_PID_FILE);
 fast_start                  RETURN(TOKEN_FAST_START);
 without_mmap                RETURN(TOKEN_WITHOUT_MMAP);
+
+limit_matches               RETURN(TOKEN_LIMIT_MATCHES);
+limit_definitions           RETURN(TOKEN_LIMIT_DEFS);
 
 {integer}                   { yylval.token.integer = atoi(yytext);
                               RETURN(TOKEN_NUMBER);

@@ -80,7 +80,7 @@ static int string2bool (const char *str)
 %token <token> TOKEN_PORT
 %token <token> TOKEN_DELAY
 %token <token> TOKEN_DEPTH
-%token <token> TOKEN_LIMIT
+
 %token <token> TOKEN_TIMESTAMP
 %token <token> TOKEN_LOG_OPTION
 %token <token> TOKEN_DEBUG_OPTION
@@ -93,6 +93,10 @@ static int string2bool (const char *str)
 %token <token> TOKEN_PID_FILE
 %token <token> TOKEN_FAST_START
 %token <token> TOKEN_WITHOUT_MMAP
+
+%token <token> TOKEN_LIMIT
+%token <token> TOKEN_LIMIT_MATCHES
+%token <token> TOKEN_LIMIT_DEFS
 
 %token <token> TOKEN_MIME_DBNAME
 %token <token> TOKEN_NOMIME_DBNAME
@@ -218,6 +222,14 @@ GlobalSpec : TOKEN_PORT             TOKEN_STRING
      {
 	if (!_dict_daemon_limit_set)
 	   _dict_daemon_limit = $2;
+     }
+   | TOKEN_LIMIT_MATCHES    TOKEN_NUMBER
+     {
+	_dict_daemon_limit_matches = $2;
+     }
+   | TOKEN_LIMIT_DEFS       TOKEN_NUMBER
+     {
+	_dict_daemon_limit_defs = $2;
      }
    | TOKEN_TIMESTAMP        TOKEN_NUMBER
      {
