@@ -577,7 +577,7 @@ static const char *dict_index_search( const char *word, dictIndex *idx )
 static dictWord *dict_word_create(
     const char *entry,
     const dictDatabase *database,
-    dictIndex *dbindex)
+    const dictIndex *dbindex)
 {
    int        offs_word   = 0;
    int        offs_offset = 0;
@@ -685,6 +685,20 @@ void dict_destroy_list( lst_List list )
    lst_destroy( list );
 }
 
+static void dict_add_word_to_list (
+   lst_List l,
+   const dictDatabase *database,
+   const dictIndex *dbindex,
+   const char *pt)
+{
+   dictWord * datum;
+
+   if (l){
+      dictWord * datum = dict_word_create (pt, database, dbindex);
+      lst_append (l, datum);
+   }
+}
+
 static int dict_search_exact( lst_List l,
 			      const char *word,
 			      const dictDatabase *database,
@@ -693,7 +707,6 @@ static int dict_search_exact( lst_List l,
 {
    const char *pt   = NULL;
    int        count = 0;
-   dictWord   *datum;
    const char *previous = NULL;
 
    assert (dbindex);
@@ -707,11 +720,13 @@ static int dict_search_exact( lst_List l,
 	 {
 	    ++count;
 	    if (l){
-	       datum = dict_word_create( previous = pt, database, dbindex );
-	       lst_append( l, datum );
+	       dict_add_word_to_list (l, database, dbindex, previous = pt);
 	    }
 	 }
-      } else break;
+      }else{
+	 break;
+      }
+
       FIND_NEXT( pt, dbindex->end );
    }
 
@@ -727,7 +742,6 @@ static int dict_search_prefix( lst_List l,
 {
    const char *pt   = dict_index_search( word, dbindex );
    int        count = 0;
-   dictWord   *datum;
    const char *previous = NULL;
 
    assert (dbindex);
@@ -745,8 +759,8 @@ static int dict_search_prefix( lst_List l,
 	    if (!previous || compare(previous, dbindex, pt, dbindex->end)) {
 	       if (skip_count == 0){
 		  ++count;
-		  datum = dict_word_create( pt, database, dbindex );
-		  lst_append( l, datum );
+
+		  dict_add_word_to_list (l, database, dbindex, pt);
 
 		  --item_count;
 		  if (!item_count){
@@ -788,7 +802,6 @@ static int dict_search_brute( lst_List l,
    const unsigned char *const end   = dbindex->end;
    const unsigned char *p, *pt;
    int        count = 0;
-   dictWord   *datum;
    int        result;
    const char *previous = NULL;
    int c;
@@ -833,13 +846,8 @@ static int dict_search_brute( lst_List l,
 	       if (*pt == '\t') goto continue2;
 	    if (!previous || compare(previous, dbindex, pt + 1, end)) {
 	       ++count;
-	       datum = dict_word_create( previous = pt + 1, database, dbindex );
-#if 0
-	       fprintf( stderr, "Adding %d %s\n",
-			compare( word, dbindex, p, end ),
-			datum->word);
-#endif
-	       lst_append( l, datum );
+
+	       dict_add_word_to_list (l, database, dbindex, previous = pt + 1);
 	    }
 	    FIND_NEXT(p,end);
 	    --p;
@@ -876,7 +884,6 @@ static int dict_search_bmh( lst_List l,
    const unsigned char *p, *pt, *ptr;
    int        count = 0;
    const unsigned char *f = NULL; /* Boolean flag, but has to be a pointer */
-   dictWord   *datum;
    const unsigned char *wpt;
    const unsigned char *previous = NULL;
 
@@ -954,15 +961,7 @@ static int dict_search_bmh( lst_List l,
 
 	 if (!previous || compare(previous, dbindex, pt, dbindex->end)) {
 	    ++count;
-	    datum = dict_word_create( previous = pt, database, dbindex );
-#if 0
-	    fprintf( stderr, "Adding %d %s, word = %s\n",
-		     compare( word, dbindex, p, dbindex->end ),
-		     datum->word,
-		     word );
-#endif
-	    if (l)
-	       lst_append( l, datum );
+	    dict_add_word_to_list (l, database, dbindex, previous = pt);
 	 }
 	 FIND_NEXT(p,end);
 	 f = p += patlen-1;	/* Set boolean flag to non-NULL value */
@@ -1086,7 +1085,6 @@ static int dict_search_regexpr( lst_List l,
    const char    *end   = dbindex->end;
    const char    *p, *pt;
    int           count = 0;
-   dictWord      *datum;
    regex_t       re;
    char          erbuf[100];
    int           err;
@@ -1135,13 +1133,7 @@ static int dict_search_regexpr( lst_List l,
       if (dict_match (&re, pt, p - pt, 0)) {
 	 if (!previous || compare(previous, dbindex, pt, end)) {
 	    ++count;
-	    datum = dict_word_create( previous = pt, database, dbindex );
-#if 0
-	    fprintf( stderr, "Adding %d %s\n",
-		     compare( word, dbindex, pt, end ),
-		     datum->word);
-#endif
-	    lst_append( l, datum );
+	    dict_add_word_to_list (l, database, dbindex, previous = pt);
 	 }
       }
       pt = p + 1;
@@ -1177,7 +1169,6 @@ static int dict_search_soundex( lst_List l,
    const char *pt;
    const char *end;
    int        count = 0;
-   dictWord   *datum;
    char       soundex  [10];
    char       soundex2 [5];
    char       buffer[MAXWORDLEN];
@@ -1212,8 +1203,7 @@ static int dict_search_soundex( lst_List l,
       txt_soundex2 (buffer, soundex2);
       if (!strcmp (soundex, soundex2)) {
 	 if (!previous || compare(previous, dbindex, pt, end)) {
-	    datum = dict_word_create( previous = pt, database, dbindex );
-	    lst_append( l, datum );
+	    dict_add_word_to_list (l, database, dbindex, previous = pt);
 	    ++count;
 	 }
       }
@@ -1252,8 +1242,7 @@ typedef struct lev_args_ {
       if (!set_member(s,(word))) {                       \
 	 ++count;                                        \
 	 set_insert(s,str_find((word)));                 \
-	 datum = dict_word_create(pt, (args) -> database, (args) -> dbindex);\
-	 lst_append((args) -> l, datum);                        \
+	 dict_add_word_to_list ((args) -> l, (args) -> database, (args) -> dbindex, pt); \
          PRINTF(DBG_LEV,("  %s added\n",(word)));     \
       }                                               \
    }
