@@ -224,3 +224,5 @@ printf 'limits_1 passed\n'
 
 dictd_test_inetd2 defstrat_1
 printf 'defstrat_1 passed\n'
+dictd_test_inetd2 defstrat_2
+printf 'defstrat_2 passed\n'
