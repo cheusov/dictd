@@ -169,23 +169,26 @@ dictd_test_inetd (){
 }
 
 dictd_test_inetd2 (){
-    dbtype=$1
+    confname=$1
+    shift
+
+    txtname=$1
     shift
 
     #
-    conf_file=_testdb.$dbtype.conf
-    m4 -DCURR_DIR=`pwd` testdb.$dbtype.conf >$conf_file || exit 1
+    conf_file=_testdb.$confname.conf
+    m4 -DCURR_DIR=`pwd` testdb.$confname.conf >$conf_file || exit 1
 
     #
-    in_file=input.${dbtype}.txt
+    in_file=input.${txtname}.txt
 
     #
     $DICTD -c $conf_file -i --stdin2stdout < "$in_file" |
     @AWK@ '/^2[25]0 / { print $1; next; } {print}' \
-	> _dictd_${dbtype}_res.txt || exit 1
+	> _dictd_${txtname}_res.txt || exit 1
 
     #
-    cmp_2_files dictd_${dbtype}_res.expected.txt _dictd_${dbtype}_res.txt
+    cmp_2_files dictd_${txtname}_res.expected.txt _dictd_${txtname}_res.txt
 }
 
 #dictd_test_inetd smiley_1
@@ -213,16 +216,16 @@ printf 'hello_5 passed\n'
 dictd_test_inetd cyrillic_1 exact word lev suffix prefix substring
 printf 'cyrillic_1 passed\n'
 
-dictd_test_inetd2 mixedcase_1
+dictd_test_inetd2 mixedcase_1 mixedcase_1
 printf 'mixedcase_1 passed\n'
 
-dictd_test_inetd2 indexdata_1
+dictd_test_inetd2 indexdata_1 indexdata_1
 printf 'indexdata_1 passed\n'
 
-dictd_test_inetd2 limits_1
+dictd_test_inetd2 limits_1 limits_1
 printf 'limits_1 passed\n'
 
-dictd_test_inetd2 defstrat_1
+dictd_test_inetd2 defstrat_1 defstrat_1
 printf 'defstrat_1 passed\n'
-dictd_test_inetd2 defstrat_2
+dictd_test_inetd2 defstrat_2 defstrat_2
 printf 'defstrat_2 passed\n'
