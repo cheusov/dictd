@@ -27,7 +27,7 @@
 dictfmt \- formats a DICT protocol dictionary database
 .SH SYNOPSIS
 .nf
-.BI dictfmt "  -c5|-t|-e|-f|-h|-j|-p [options]  basename"
+.BI dictfmt "  -c5|-t|-e|-f|-h|-j|-p|-i|-I [options]  basename"
 .fi
 .SH DESCRIPTION
 .B dictfmt
@@ -59,7 +59,8 @@ the
 source package.)    
 
 FILE may be in any of the several formats described by 
-the format options \-c5, \-t, \-e, \-f, \-h, \-j, or \-p.  Exactly one of 
+the format options \-c5, \-t, \-e, \-f, \-h, \-j, \-p, \-i or \-I.
+Exactly one of 
 these options must be given.
 
 .B dictfmt
@@ -196,7 +197,19 @@ text before the first headword is included in the headers.
 .B The second line beginning '%h' is taken as the first headword.  
 ..br
 This option was written to format Jay Kominek's elements database.  
-
+.TP
+.BI \-i \  \-I
+These two options are different from all other formatting options.
+They are intended to resort (according to 
+.I dictd
+requirement) an .index file given on stdin.
+That is .dict file is not generated at all. Only resorting is made.
+Three- or four-column .index like input is expected.
+.B \-i
+expects decimal offset and length, while
+.B \-I
+expects them
+in base64 format.
 .SH OPTIONS
 .TP
 .BI \-u " url"

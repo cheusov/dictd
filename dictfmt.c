@@ -69,6 +69,8 @@ static int quiet_mode    = 0;
 
 static int dictfmt_ver_mode = 1;
 
+static int indexonly_base64 = 0;
+
 static const char *hw_separator     = "";
 static const char *idxdat_separator = "\034";
 
@@ -429,6 +431,17 @@ static int is_headword_special (const char *hw)
 	   !strncmp (hw, "00database", 10));
 }
 
+static void increase_fmt_hwcount ()
+{
+   if (!quiet_mode){
+      if (fmt_hwcount && !(fmt_hwcount % 100)) {
+	 fprintf( stderr, "%10d headwords\r", fmt_hwcount );
+      }
+   }
+
+   ++fmt_hwcount;
+}
+
 static void write_hw_to_index (
    const char *word,
    const char *data,
@@ -440,6 +453,8 @@ static void write_hw_to_index (
 
    if (!word)
        return;
+
+   increase_fmt_hwcount ();
 
    len = strlen (word);
 
@@ -683,14 +698,6 @@ static void fmt_newheadword( const char *word )
      fmt_string (p);
      fmt_newline();
    }
-
-   if (!quiet_mode){
-      if (fmt_hwcount && !(fmt_hwcount % 100)) {
-	 fprintf( stderr, "%10d headwords\r", fmt_hwcount );
-      }
-   }
-
-   ++fmt_hwcount;
 }
 
 static void fmt_closeindex( void )
@@ -1059,6 +1066,16 @@ static void fmt_predefined_headwords_after ()
    fmt_headword_for_alphabet ();
 }
 
+static int xatoi (const char *nptr)
+{
+   char *end;
+   long ret = strtol (nptr, &end, 10);
+   if (end == nptr || end [0] != 0)
+      err_fatal (__FUNCTION__, "bad decimal '%s'\n", nptr);
+
+   return (int) ret;
+}
+
 int main( int argc, char **argv )
 {
    int        c;
@@ -1100,7 +1117,7 @@ int main( int argc, char **argv )
 
    init (argv[0]);
 
-   while ((c = getopt_long( argc, argv, "qVLjvfepihDu:s:c:t",
+   while ((c = getopt_long( argc, argv, "qVLjvfepiIhDu:s:c:t",
                                     longopts, NULL )) != EOF)
       switch (c) {
       case 'q': quiet_mode = 1;            break;
@@ -1117,7 +1134,13 @@ int main( int argc, char **argv )
       case 'f': type = FOLDOC;             break;
       case 'e': type = EASTON;             break;
       case 'p': type = PERIODIC;           break;
-      case 'i': type = INDEXONLY;           break;
+      case 'i':
+	 type = INDEXONLY;
+	 break;
+      case 'I':
+	 type = INDEXONLY;
+	 indexonly_base64 = 1;
+	 break;
       case 'h':
 	 type = HITCHCOCK;
 	 without_hw = 1;
@@ -1457,8 +1480,17 @@ int main( int argc, char **argv )
 	       exit (1);
 	    }
 
-	    i_offset = atoi (offset);
-	    i_size   = atoi (size);
+	    if (indexonly_base64){
+	       i_offset = (int) b64_decode (offset);
+	    }else{
+	       i_offset = xatoi (offset);
+	    }
+
+	    if (indexonly_base64){
+	       i_size = (int) b64_decode (offset);
+	    }else{
+	       i_size = xatoi (size);
+	    }
 
 	    write_hw_to_index (headword, NULL, i_offset, i_offset + i_size);
 	 }
