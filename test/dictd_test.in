@@ -218,3 +218,6 @@ printf 'mixedcase_1 passed\n'
 
 dictd_test_inetd2 indexdata_1
 printf 'indexdata_1 passed\n'
+
+dictd_test_inetd2 limits_1
+printf 'limits_1 passed\n'
