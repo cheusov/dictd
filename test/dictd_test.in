@@ -144,17 +144,20 @@ generate_commands (){
 }
 
 dictd_test_inetd (){
-    dbtype=$1
+    confname=$1
+    shift
+
+    dbname=$1
     shift
 
     #
-    conf_file=_testdb.$dbtype.conf
-    m4 -DCURR_DIR=`pwd` testdb.$dbtype.conf >$conf_file || exit 1
+    conf_file=_testdb.$confname.conf
+    m4 -DCURR_DIR=`pwd` testdb.$confname.conf >$conf_file || exit 1
 
     #
     index_file=`sed -n 's,^.*/\(.*[.]index\).*$,\1,p' $conf_file`
 
-    in_file=_dictd_${dbtype}_in.txt
+    in_file=_dictd_${dbname}_in.txt
 
     cut -f 1 "$index_file" |
     generate_commands $conf_file "$@" > "$in_file"
@@ -162,10 +165,10 @@ dictd_test_inetd (){
     #
     $DICTD -c $conf_file -i --stdin2stdout < "$in_file" |
     @AWK@ '/^2[25]0 / { print $1 "\r"; next; } {print}' \
-	> _dictd_${dbtype}_res.txt || exit 1
+	> _dictd_${dbname}_res.txt || exit 1
 
     #
-    cmp_2_files dictd_${dbtype}_res.expected.txt _dictd_${dbtype}_res.txt
+    cmp_2_files dictd_${dbname}_res.expected.txt _dictd_${dbname}_res.txt
 }
 
 dictd_test_inetd2 (){
@@ -191,29 +194,29 @@ dictd_test_inetd2 (){
     cmp_2_files dictd_${txtname}_res.expected.txt _dictd_${txtname}_res.txt
 }
 
-#dictd_test_inetd smiley_1
+#dictd_test_inetd smiley_1 smiley_1
 #printf 'smiley_1 passed\n'
-dictd_test_inetd smiley_2
+dictd_test_inetd smiley_2 smiley_2
 printf 'smiley_2 passed\n'
-#dictd_test_inetd smiley_3
+#dictd_test_inetd smiley_3 smiley_3
 #printf 'smiley_3 passed\n'
-dictd_test_inetd smiley_4
+dictd_test_inetd smiley_4 smiley_4
 printf 'smiley_4 passed\n'
-dictd_test_inetd smiley_5
+dictd_test_inetd smiley_5 smiley_5
 printf 'smiley_5 passed\n'
 
-dictd_test_inetd hello_1
+dictd_test_inetd hello_1 hello_1
 printf 'hello_1 passed\n'
-dictd_test_inetd hello_2
+dictd_test_inetd hello_2 hello_2
 printf 'hello_2 passed\n'
-dictd_test_inetd hello_3
+dictd_test_inetd hello_3 hello_3
 printf 'hello_3 passed\n'
-dictd_test_inetd hello_4
+dictd_test_inetd hello_4 hello_4
 printf 'hello_4 passed\n'
-dictd_test_inetd hello_5
+dictd_test_inetd hello_5 hello_5
 printf 'hello_5 passed\n'
 
-dictd_test_inetd cyrillic_1 exact word lev suffix prefix substring
+dictd_test_inetd cyrillic_1 cyrillic_1 exact word lev suffix prefix substring
 printf 'cyrillic_1 passed\n'
 
 dictd_test_inetd2 mixedcase_1 mixedcase_1
