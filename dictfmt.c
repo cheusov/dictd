@@ -165,15 +165,18 @@ static void destroy_and_exit (int exit_status)
 
 static void fmt_openindex( const char *filename )
 {
-   char buffer[1024];
-
-   if (!filename)
-      return;
+   char buffer [1024];
 
    if (bit8_mode || utf8_mode || allchars_mode)
-      snprintf( buffer, sizeof (buffer), "sort -t '\t' -k 1,3 > %s\n", filename );
+      snprintf( buffer, sizeof (buffer), "sort -t '\t' -k 1,3" );
    else
-      snprintf( buffer, sizeof (buffer), "sort -t '\t' -df -k 1,3 > %s\n", filename );
+      snprintf( buffer, sizeof (buffer), "sort -t '\t' -df -k 1,3" );
+
+   if (filename){
+      strlcat (buffer, "> ", sizeof (buffer));
+      strlcat (buffer, filename, sizeof (buffer));
+   }
+   strlcat (buffer, "\n", sizeof (buffer));
 
    if (!(fmt_str = popen( buffer, "w" ))) {
       fprintf( stderr, "Cannot open %s for write\n", buffer );
@@ -717,9 +720,11 @@ static void fmt_closeindex( void )
 
 static void banner( FILE *out_stream )
 {
-   fprintf( out_stream, "dictfmt v. %s December 2000 \n", DICT_VERSION );
+   fprintf( out_stream, "dictfmt-%s\n", DICT_VERSION );
    fprintf( out_stream,
-         "Copyright 1997-2000 Rickard E. Faith (faith@cs.unc.edu)\n\n" );
+	    "Copyright 1997-2000 Rickard E. Faith (faith@cs.unc.edu)\n"
+	    "Copyright 2002-2007 Aleksey Cheusov (vle@gmx.net)\n"
+	    "\n");
 }
 
 static void license( void )
@@ -748,7 +753,8 @@ static void license( void )
 static void help( FILE *out_stream )
 {
    static const char *help_msg[] = {
-   "Usage: dictfmt [-c5|-t|-e|-f|-h|-j|-p|-i] -u url -s name [options] basename",
+   "Usage: dictfmt -c5|-t|-e|-f|-h|-j|-p [-u url] [-s name] [options] basename",
+   "       dictfmt -i|-I [options]",
    "Create a dictionary databse and index file for use by a dictd server",
    "",
      "-c5       headwords are preceded by a line containing at least \n\
@@ -1081,13 +1087,15 @@ int main( int argc, char **argv )
    int        c;
    char       buffer[BSIZE];
    char       buffer2[BSIZE];
-   char       indexname[1024];
-   char       dataname[1024];
+   char       indexname[1024]="/nonexistentfile.index";
+   char       dataname[1024]="/nonexistentfile.data";
 
    int        header = 0;
    char       *pt;
    char       *s, *d;
    unsigned char *buf;
+
+   const char *basename = NULL;
 
    struct option      longopts[]  = {
       { "help",       0, 0, 501 },
@@ -1215,10 +1223,14 @@ int main( int argc, char **argv )
 	 destroy_and_exit (1);
       }
 
-   if (optind + 1 != argc) {
-      help (stderr);
+   if (type != INDEXONLY && optind < argc) {
+      basename = argv [optind];
 
-      destroy_and_exit (1);
+      if (optind + 1 != argc) {
+	 help (stderr);
+
+	 destroy_and_exit (1);
+      }
    }
 
    if (locale)
@@ -1226,20 +1238,23 @@ int main( int argc, char **argv )
 
    setenv("LC_ALL", "C", 1); /* this is for 'sort' subprocess */
 
-   if (
-      -1 == snprintf (
-	 indexname, sizeof (indexname), "%s.index", argv[optind] )||
-      -1 == snprintf (
-	 dataname,  sizeof (dataname), "%s.dict", argv[optind] ))
-   {
-      err_fatal (__FUNCTION__, "Too long filename\n");
+   if (!basename){
+      fmt_openindex (NULL);
+   }else{
+      if (-1 == snprintf (
+	     indexname, sizeof (indexname), "%s.index", basename )||
+	  -1 == snprintf (
+	     dataname,  sizeof (dataname), "%s.dict", basename ))
+      {
+	 err_fatal (__FUNCTION__, "Too long filename\n");
+      }
+
+      fmt_openindex( indexname );
    }
 
-   fmt_openindex( indexname );
-   if (Debug) {
-      str = stdout;
-   } else if (type != INDEXONLY){
-      if (!(str = fopen(dataname, "w"))) {
+//   str = stdout;
+   if (basename && !Debug){
+      if (!(str = fopen (dataname, "w"))) {
 	 fprintf(stderr, "Cannot open %s for write\n", dataname);
 
 	 destroy_and_exit (1);

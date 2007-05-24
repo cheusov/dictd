@@ -27,7 +27,8 @@
 dictfmt \- formats a DICT protocol dictionary database
 .SH SYNOPSIS
 .nf
-.BI dictfmt "  -c5|-t|-e|-f|-h|-j|-p|-i|-I [options]  basename"
+.BI dictfmt "  -c5|-t|-e|-f|-h|-j|-p [options]  basename"
+.BI dictfmt "  -i|-I [options]"
 .fi
 .SH DESCRIPTION
 .B dictfmt
