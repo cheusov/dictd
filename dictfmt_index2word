@@ -10,115 +10,45 @@ Converts .index file from DICTD database to the index file .word\n\
 usage: dictfmt_index2word [OPTIONS] [files...]\n\
 OPTIONS:\n\
   --help    display this screen\n\
-  --locale  specify locale\n\
+  all other -X and --XXX options are passed to dictfmt -i\n\
 "
 }
 
 LC_ALL=C
 export LC_ALL
 
-arg_locale=C
-
 # Processing arguments
 while [ $# != 0 ]; do
 	case $1 in
-	--help)
+	    --help)
 		usage
 		exit 0;;
-	--locale)
-		arg_locale=$2
-		shift;;
-	--locale=*)
-		arg_locale=`echo $1 | cut -d = -f 2`;;
-	-*)
-		echo "unknown argument $1" 1>&2
-		exit 3;;
-	*)
+	    -*)
+		args="$args $1";;
+	    *)
 		break;;
 	esac
+
 	shift
 done
 
-if echo $arg_locale | egrep -i 'utf-?8' >/dev/null 2>&1; then
-	utf8_mode=1
-	export utf8_mode
-fi
-
-export arg_locale
-
-#echo $arg_locale
-#echo $utf8_mode
 if test $BASH; then
 	exit_="echo \${PIPESTATUS[@]} | egrep '^0( 0)*$' >/dev/null"
 else
 	exit_='exit $?'
 fi
 
-gawk -v "locale=$arg_locale" -v "utf8_mode=$utf8_mode" '
+awk '
 BEGIN {
 	FS = OFS = "\t"
-	offset = 0
-	b64_list="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-}
-locale == "C" && $1 ~ /[\x80-\xff]/ {
-	print "8-bit head word is encountered while \"C\" locale is used" > "/dev/stderr"
-	exit 4
 }
 {
-	size = length($0)
-}
-function b64_encode (value,        ret){
-	ret = ""
-	ret = ret substr(b64_list, 1 + int(value / 1073741824) % 64, 1)
-	ret = ret substr(b64_list, 1 + int(value / 16777216) % 64, 1)
-	ret = ret substr(b64_list, 1 + int(value / 262144) % 64, 1)
-	ret = ret substr(b64_list, 1 + int(value / 4096) % 64, 1)
-	ret = ret substr(b64_list, 1 + int(value / 64) % 64, 1)
-	ret = ret substr(b64_list, 1 + value % 64, 1)
-	sub(/^A+/, "", ret)
-
-	if (ret != "")
-		return ret
-	else
-		return "A"
-}
-
-3 != NF {
-	exit 2
-}
-{
-#	gsub(/[[:punct:]]/, "", $1)
 	count = split($1, words, /[[:space:][:punct:]]+/)
 	for (i = 1; i <= count; ++i){
-		for (j = i; j <= count; ++j){
-			if (i == 1 && j == count)
-				continue
-
-			subword = words [i]
-			for (k = i + 1; k <= j; ++k){
-				subword = subword " " words [k]
-			}
-
-			gsub(/  +/, " ", subword)
-			sub(/^ /, "", subword)
-			sub(/ $/, "", subword)
-			if (subword != ""){
-#				printf "%s\t%s\t%s\n", subword, b64_encode(offset + match($0, /\t/) - 1), "A"
-				printf "%s\t%s\t%s\n", subword, b64_encode(offset), "A"
-			}
-		}
+		$1 = words [i]
+		print $0
 	}
 }
-{
-	# +1 for \n
-	offset += size + 1
-}' "$@" |
-if test "_$utf8_mode" = "_1"; then
-	sort
-else
-	LC_ALL=$arg_locale
-	export LC_ALL
-	sort -df
-fi | uniq
+' "$@" | dictfmt -I $args | uniq
 
 eval $exit_
