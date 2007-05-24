@@ -221,3 +221,6 @@ printf 'indexdata_1 passed\n'
 
 dictd_test_inetd2 limits_1
 printf 'limits_1 passed\n'
+
+dictd_test_inetd2 defstrat_1
+printf 'defstrat_1 passed\n'
