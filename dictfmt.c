@@ -1004,10 +1004,12 @@ static void fmt_headword_for_casesensitive (void)
 static void fmt_headword_for_dictfmt_ver (void)
 {
    char ver [200];
-   snprintf (ver, sizeof (ver), "dictfmt-%s", DICT_VERSION);
+   char *p;
+   snprintf (ver, sizeof (ver),
+	     "00-database-dictfmt-%s", DICT_VERSION);
 
    if (dictfmt_ver_mode){
-      fmt_newheadword ("00-database-dictfmt");
+      fmt_newheadword (ver);
       fmt_string (ver);
       fmt_newline ();
    }

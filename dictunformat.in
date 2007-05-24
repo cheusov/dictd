@@ -233,7 +233,7 @@ BEGIN {
 {
 	if (offset in offs2word){
 		hw = offs2word [offset]
-		hw_is_skipped = (hw in skipped)
+		hw_is_skipped = (hw in skipped) || hw ~ /^00-?database-?dictfmt/
 		if (!hw_is_skipped){
 			gsub(SUBSEP, separator, hw)
 			printf "_____\n\n%s\n", hw
