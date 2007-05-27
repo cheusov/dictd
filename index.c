@@ -1064,23 +1064,6 @@ static int dict_search_word(
 	    dw -> word [len] = 0;
 	    dw -> start = -2;
 	    dw -> end   = 0;
-#if 1
-	    p += len + 1;
-	    len = strchr (p, '\t') - p;
-	    ptr = (char *) alloca (len + 1);
-	    memcpy (ptr, p, len);
-	    ptr [len] = '\0';
-
-	    dw -> start = b64_decode (ptr);
-
-	    p += len + 1;
-	    len = strchr (p, '\n') - p;
-	    ptr = (char *) alloca (len + 1);
-	    memcpy (ptr, p, len);
-	    ptr [len] = '\0';
-
-	    dw -> end = b64_decode (ptr);
-#endif
 	 }
       }
 
