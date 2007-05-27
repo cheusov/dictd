@@ -1471,6 +1471,7 @@ int main( int argc, char **argv )
 	    const char *headword = NULL;
 	    const char *offset   = NULL;
 	    const char *size     = NULL;
+	    const char *data     = NULL;
 
 	    size_t len = strlen (buffer);
 
@@ -1490,9 +1491,10 @@ int main( int argc, char **argv )
 	    }
 
 	    size = strtok (NULL, "\t");
-	    if (!size){
-	       fprintf (stderr, "strtok failed 3\n");
-	       exit (1);
+	    if (size){
+	       data = size + strlen (size) + 1;
+	    }else{
+	       size = offset + strlen (offset) + 1;
 	    }
 
 	    if (indexonly_base64){
@@ -1507,7 +1509,7 @@ int main( int argc, char **argv )
 	       i_size = xatoi (size);
 	    }
 
-	    write_hw_to_index (headword, NULL, i_offset, i_offset + i_size);
+	    write_hw_to_index (headword, data, i_offset, i_offset + i_size);
 	 }
 	 break;
       default:
