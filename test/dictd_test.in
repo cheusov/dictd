@@ -4,7 +4,7 @@ DICTFMT='../dictfmt --without-time --silent --without-ver'
 DICTUNFORMAT='../dictunformat'
 DICT='../dict'
 DICTD="../dictd -L `pwd`/_dictd.log"
-
+DICTFMT_I2W='../dictfmt_index2word --silent'
 DIFF='diff -u'
 
 ##################################################
@@ -155,7 +155,7 @@ dictd_test_inetd (){
     m4 -DCURR_DIR=`pwd` testdb.$confname.conf >$conf_file || exit 1
 
     #
-    index_file=`sed -n 's,^.*/\(.*[.]index\).*$,\1,p' $conf_file`
+    index_file=`sed -n 's,^.*/\(.*[.]index\).*$,\1,p' $conf_file | head -1`
 
     in_file=_dictd_${dbname}_in.txt
 
@@ -218,6 +218,11 @@ printf 'hello_5 passed\n'
 
 dictd_test_inetd cyrillic_1 cyrillic_1 exact word lev suffix prefix substring
 printf 'cyrillic_1 passed\n'
+
+#$DICTFMT_I2W --utf8 db.expect.cyrillic_1.index \
+#   > db.expect.cyrillic_1.index_word
+#dictd_test_inetd cyrillic_2 cyrillic_1 exact word lev suffix prefix substring
+#printf 'cyrillic_2 passed\n'
 
 dictd_test_inetd2 mixedcase_1 mixedcase_1
 printf 'mixedcase_1 passed\n'
