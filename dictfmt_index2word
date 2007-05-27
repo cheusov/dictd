@@ -41,14 +41,36 @@ fi
 awk '
 BEGIN {
 	FS = OFS = "\t"
+	offs = 0
 }
 {
+	len = length($0)
+
 	count = split($1, words, /[[:space:][:punct:]]+/)
-	for (i = 1; i <= count; ++i){
-		$1 = words [i]
-		print $0
+
+	$2 = offs
+	$3 = 0
+
+	orig_token1 = $1
+
+	if (count > 1){
+		for (i = 1; i <= count; ++i){
+			$1 = ""
+			for (j = i; j <= count; ++j){
+				if (j > i)
+					$1 = $1 " "
+
+				$1 = $1 words [j]
+
+				if ($1 != orig_token1){
+					print $0
+				}
+			}
+		}
 	}
+
+	offs += len+1
 }
-' "$@" | dictfmt -I $args | uniq
+' "$@" | dictfmt -i $args | uniq
 
 eval $exit_
