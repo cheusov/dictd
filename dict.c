@@ -27,6 +27,7 @@ extern int         yy_flex_debug;
        lst_List    dict_Servers;
        const char  *dict_pager;
        FILE        *dict_output;
+       FILE        *dict_error;
        int         formatted;
 
 const char *host_connected    = NULL;
@@ -244,6 +245,8 @@ static void client_open_pager( void )
 
 				/* default */
    dict_output = stdout;
+   dict_error  = stderr;
+
 				/* use an empty string to avoid paging */
    if ((dict_pager || (dict_pager = getenv("PAGER")))
        && *dict_pager
@@ -251,6 +254,9 @@ static void client_open_pager( void )
       PRINTF(DBG_VERBOSE,("Using \"%s\" as pager\n",dict_pager));
       pr_open( dict_pager, PR_CREATE_STDIN, &infd, NULL, NULL );
       dict_output = fdopen( infd, "w" );
+      if (!formatted){
+	 dict_error = dict_output;
+      }
    }
 }
 
@@ -263,6 +269,7 @@ static void client_close_pager( void )
       pr_close(fileno(dict_output));
    }
    dict_output = stdout;
+   dict_error  = stderr;
 }
 
 static lst_List client_read_text( int s )
@@ -366,7 +373,7 @@ static void client_print_matches( lst_List l, int flag, const char *word )
       }
    } else {
        if (flag)
-           fprintf( dict_output, "No matches found for \"%s\"\n", word );
+           fprintf( dict_error, "No matches found for \"%s\"\n", word );
        set_ex_status (EXST_NO_MATCH);
        return;
    }
@@ -806,7 +813,8 @@ static void process( void )
    const char *message = NULL;
    int        i;
    int        *listed;
-   
+   FILE       *old;
+
    while ((c = lst_top( cmd_list ))) {
       request();		/* Send requests */
       lst_pop( cmd_list );
@@ -846,18 +854,23 @@ static void process( void )
 	    cmd_reply.count = 0;
 
 	 } else if (cmd_reply.matches) {
-	    fprintf( dict_output,
+	    fprintf( dict_error,
 		     "No definitions found for \"%s\", perhaps you mean:",
 		     c->word );
-	    fprintf( dict_output, "\n" );
+	    fprintf( dict_error, "\n" );
+
+	    old = dict_output;
+	    dict_output = dict_error;
 	    client_print_matches( cmd_reply.data, 0, c->word );
+	    dict_output = old;
+
 	    client_free_text( cmd_reply.data );
 	    cmd_reply.data = NULL;
 	    cmd_reply.matches = 0;
 
 	    set_ex_status (EXST_APPROX_MATCHES);
 	 } else {
-	    fprintf( dict_output,
+	    fprintf( dict_error,
 		     "No definitions found for \"%s\"\n", c->word );
 
 	    set_ex_status (EXST_NO_MATCH);
@@ -897,7 +910,7 @@ static void process( void )
 						 &message,
 						 NULL, NULL, NULL, NULL, NULL);
 	 if (cmd_reply.retcode != expected && dbg_test(DBG_VERBOSE))
-	    fprintf( dict_output, "Client command gave unexpected status code %d (%s)\n",
+	    fprintf( dict_error, "Client command gave unexpected status code %d (%s)\n",
 		    cmd_reply.retcode, message ? message : "no message" );
 
 	 expected = cmd_reply.retcode;
@@ -907,7 +920,7 @@ static void process( void )
 						 &message,
 						 NULL, NULL, NULL, NULL, NULL);
 	 if (cmd_reply.retcode != expected && dbg_test(DBG_VERBOSE))
-	    fprintf( dict_output, "Client command gave unexpected status code %d (%s)\n",
+	    fprintf( dict_error, "Client command gave unexpected status code %d (%s)\n",
 		    cmd_reply.retcode, message ? message : "no message" );
 
 //	 set_ex_status (cmd_reply.retcode);
@@ -1002,7 +1015,7 @@ static void process( void )
 	    set_ex_status (EXST_INVALID_DB);
 	    break;
 	 case CODE_NO_DATABASES:
-	    fprintf( dict_output, "There are no databases currently available\n" );
+	    fprintf( dict_error, "There are no databases currently available\n" );
 
 	    set_ex_status (EXST_NO_DATABASES);
 
@@ -1042,7 +1055,7 @@ static void process( void )
 
 	    break;
 	 case CODE_INVALID_DB:
-	    fprintf( dict_output,
+	    fprintf( dict_error,
 		     "%s is not a valid database, use -D for a list\n",
 		     c->database );
 
@@ -1050,7 +1063,7 @@ static void process( void )
 
 	    break;
 	 case CODE_INVALID_STRATEGY:
-	    fprintf( dict_output,
+	    fprintf( dict_error,
 		     "%s is not a valid search strategy, use -S for a list\n",
 		     c->strategy );
 
@@ -1058,14 +1071,14 @@ static void process( void )
 
 	    break;
 	 case CODE_NO_DATABASES:
-	    fprintf( dict_output,
+	    fprintf( dict_error,
 		     "There are no databases currently available\n" );
 
 	    set_ex_status (EXST_NO_DATABASES);
 
 	    break;
 	 case CODE_NO_STRATEGIES:
-	    fprintf( dict_output,
+	    fprintf( dict_error,
 		     "There are no search strategies currently available\n" );
 
 	    set_ex_status (EXST_NO_STRATEGIES);
@@ -1140,8 +1153,8 @@ static void process( void )
 	    client_free_text( cmd_reply.data );
 	    cmd_reply.matches = 0;
 	 } else {
-	    fprintf( dict_output, "No matches found for \"%s\"", c->word );
-	    fprintf( dict_output, "\n" );
+	    fprintf( dict_error, "No matches found for \"%s\"", c->word );
+	    fprintf( dict_error, "\n" );
 
 	    set_ex_status (EXST_NO_MATCH);
 	 }
@@ -1370,7 +1383,9 @@ int main( int argc, char **argv )
    };
 
    dict_output = stdout;
-   maa_init(argv[0]);
+   dict_error  = stderr;
+
+   maa_init (argv[0]);
 
    dbg_register( DBG_VERBOSE, "verbose" );
    dbg_register( DBG_RAW,     "raw" );
