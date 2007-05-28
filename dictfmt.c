@@ -1490,12 +1490,13 @@ int main( int argc, char **argv )
 	       exit (1);
 	    }
 
-	    size = strtok (NULL, "\t");
-	    if (size){
-	       data = size + strlen (size) + 1;
-	    }else{
-	       size = offset + strlen (offset) + 1;
+	    size = strtok (NULL, "\t\n");
+	    if (!size){
+	       fprintf (stderr, "strtok failed 3\n");
+	       exit (1);
 	    }
+
+	    data = strtok (NULL, "\n");
 
 	    if (indexonly_base64){
 	       i_offset = (int) b64_decode (offset);
