@@ -1248,6 +1248,14 @@ configuration file this search is much faster.
 Match any single word, even if part of a multi-word entry.  If the
 optional index_word string file is listed in the configuration file
 this search strategy works much faster.
+.TP
+.B first
+Match the first word that begins a multi-word entry.
+.TP
+.B last
+Match the last word that ends a multi-word entry.
+If the optional index_suffix string file is listed in the configuration file
+this search strategy works much faster.
 .SH "DATABASE FORMAT"
 Databases for
 .B dictd

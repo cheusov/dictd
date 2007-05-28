@@ -751,16 +751,28 @@ static int dict_search_exact( lst_List l,
    return count;
 }
 
-static int dict_search_prefix( lst_List l,
+enum {
+   BMH_SUBSTRING,
+   BMH_PREFIX,
+   BMH_SUFFIX,
+   BMH_WORD,
+   BMH_FIRST,
+   BMH_LAST,
+};
+
+static int dict_search_prefix_first( lst_List l,
 			       const char *word,
 			       const dictDatabase *database,
 			       dictIndex *dbindex,
+			       int flag,
 			       int skip_count,
 			       int item_count)
 {
    const char *pt   = dict_index_search( word, dbindex );
    int        count = 0;
    const char *previous = NULL;
+   int wordlen          = strlen (word);
+   int c                = 0;
 
    assert (dbindex);
 
@@ -775,6 +787,12 @@ static int dict_search_prefix( lst_List l,
 	 case -1:
 	 case 0:
 	    if (!previous || compare(previous, dbindex, pt, dbindex->end)) {
+	       if (flag == BMH_FIRST){
+		  c = (unsigned char) pt [wordlen];
+		  if (c != '\t' && !isspacepuncttab [c])
+		     break;
+	       }
+
 	       if (skip_count == 0){
 		  ++count;
 
@@ -798,17 +816,29 @@ static int dict_search_prefix( lst_List l,
 	 default:
 	    assert (0);
       }
+
       FIND_NEXT( pt, dbindex->end );
    }
 
    return count;
 }
 
-enum {
-   BMH_SUBSTRING,
-   BMH_SUFFIX,
-   BMH_WORD,
-};
+static int dict_search_prefix (
+   lst_List l, const char *word,
+   const dictDatabase *database, dictIndex *dbindex,
+   int skip_count, int item_count)
+{
+   dict_search_prefix_first (l, word, database, dbindex,
+			     BMH_PREFIX, skip_count, item_count);
+}
+
+static int dict_search_first (
+   lst_List l, const char *word,
+   const dictDatabase *database, dictIndex *dbindex)
+{
+   dict_search_prefix_first (l, word, database, dbindex,
+			     BMH_FIRST, 0, INT_MAX);
+}
 
 static int dict_search_brute( lst_List l,
 			      const unsigned char *word,
@@ -861,6 +891,16 @@ static int dict_search_brute( lst_List l,
 		  continue;
 
 	       break;
+
+	    case BMH_LAST:
+	       if (result)
+		  continue;
+	       if (p > start && !isspacepuncttab [p [-1]])
+		  continue;
+
+	       break;
+	    default:
+	       abort ();
 	    }
 
 	    for (pt = p; pt >= start && *pt != '\n'; --pt)
@@ -973,6 +1013,16 @@ static int dict_search_bmh( lst_List l,
 	    if (ptr > start && !isspacepuncttab [ptr [-1]])
 	       goto continue2;
 	    if (p < end && !isspacepuncttab [p [1]])
+	       goto continue2;
+
+	    break;
+	 case BMH_LAST:
+	    if (p[1] != '\t')
+	       goto continue2;
+
+	    ptr = p - patlen + 1;
+
+	    if (ptr > start && !isspacepuncttab [ptr [-1]])
 	       goto continue2;
 
 	    break;
@@ -1406,7 +1456,49 @@ static int dict_search_suffix(
       count = lst_length (l);
 
       PRINTF(DBG_SEARCH, ("'%s'\n", buf));
-      ret = dict_search_prefix (l, buf, database, database->index_suffix, 0, INT_MAX);
+      ret = dict_search_prefix (
+	 l, buf, database, database->index_suffix, 0, INT_MAX);
+
+      LST_ITERATE (l, p, dw) {
+	 if (count <= 0){
+	    stranagram (dw -> word, utf8_mode);
+	 }
+
+	 --count;
+      }
+      return ret;
+   }else{
+      return dict_search_bmh( l, word, database, database -> index, BMH_SUFFIX );
+   }
+}
+
+static int dict_search_last (
+   lst_List l,
+   const char *word,
+   const dictDatabase *database)
+{
+   int ret;
+   lst_Position p;
+   dictWord *dw;
+   char *buf = NULL;
+   int count;
+
+   assert (database);
+
+   if (database->index_suffix){
+      buf = (char *) alloca (strlen (word));
+      strcpy (buf, word);
+
+      PRINTF(DBG_SEARCH, ("anagram: '%s' ==> ", buf));
+      if (!stranagram (buf, utf8_mode)){
+	 PRINTF(DBG_SEARCH, ("failed building anagram\n"));
+	 return 0; /* invalid utf8 string */
+      }
+
+      count = lst_length (l);
+
+      PRINTF(DBG_SEARCH, ("'%s'\n", buf));
+      ret = dict_search_first (l, buf, database, database->index_suffix);
 
       LST_ITERATE (l, p, dw) {
 	 if (count-- <= 0){
@@ -1415,7 +1507,7 @@ static int dict_search_suffix(
       }
       return ret;
    }else{
-      return dict_search_bmh( l, word, database, database -> index, BMH_SUFFIX );
+      return dict_search_bmh( l, word, database, database -> index, BMH_LAST );
    }
 }
 
@@ -1532,6 +1624,12 @@ int dict_search_database_ (
 
    case DICT_STRAT_WORD:
       return dict_search_word( l, buf, database);
+
+   case DICT_STRAT_FIRST:
+      return dict_search_first( l, buf, database, database->index );
+
+   case DICT_STRAT_LAST:
+      return dict_search_last( l, buf, database );
 
    default:
       /* plugins may support unusual search strategies */

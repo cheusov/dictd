@@ -38,8 +38,10 @@ static dictStrategy strategyInfo[] = {
    {"re",        "POSIX 1003.2 (modern) regular expressions",  DICT_STRAT_RE },
    {"regexp",    "Old (basic) regular expressions",            DICT_STRAT_REGEXP },
    {"soundex",   "Match using SOUNDEX algorithm",              DICT_STRAT_SOUNDEX },
-   {"lev", "Match headwords within Levenshtein distance one",  DICT_STRAT_LEVENSHTEIN },
-   {"word", "Match separate words within headwords",           DICT_STRAT_WORD },
+   {"lev",       "Match headwords within Levenshtein distance one",  DICT_STRAT_LEVENSHTEIN },
+   {"word",      "Match separate words within headwords", DICT_STRAT_WORD },
+   {"first",     "Match the first word within headwords", DICT_STRAT_FIRST },
+   {"last",      "Match the last word within headwords",  DICT_STRAT_LAST },
 };
 #define STRATEGIES (sizeof(strategyInfo)/sizeof(strategyInfo[0]))
 

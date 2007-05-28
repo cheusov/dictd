@@ -34,6 +34,8 @@
 #define DICT_STRAT_LEVENSHTEIN  8     /* Levenshtein */ 
 #define DICT_STRAT_WORD         9     /* Word */
 #define DICT_STRAT_NPREFIX      10    /* NPrefix */ 
+#define DICT_STRAT_FIRST        11    /* First */ 
+#define DICT_STRAT_LAST         12    /* Last */ 
 
 typedef struct dictStrategy {
    const char *name;
