@@ -855,6 +855,7 @@ static int init_database( const void *datum )
       db->index_suffix = dict_index_open(
 	 db->indexsuffixFilename,
 	 0, db->index);
+
       db->index_word = dict_index_open(
 	 db->indexwordFilename,
 	 0, db->index);
@@ -1283,6 +1284,7 @@ static void sanity(const char *confFile)
 	    ++fail;
 	    reading_error = 1;
 	 }
+
 	 if (e->dataFilename && access(e->dataFilename, R_OK)) {
 	    log_info(":E: %s is not readable (data file)\n",
 		     e->dataFilename);
