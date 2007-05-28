@@ -19,17 +19,17 @@ export LC_ALL
 
 # Processing arguments
 while [ $# != 0 ]; do
-	case $1 in
-	    --help)
-		usage
-		exit 0;;
-	    -*)
-		args="$args $1";;
-	    *)
-		break;;
-	esac
+    case $1 in
+	--help)
+	    usage
+	    exit 0;;
+	-*)
+	    args="$args $1";;
+	*)
+	    break;;
+    esac
 
-	shift
+    shift
 done
 
 if test $BASH; then

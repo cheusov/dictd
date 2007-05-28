@@ -10,7 +10,8 @@ Converts .index file from DICTD database to the index file .suffix\n\
 usage: dictfmt_index2suffix [OPTIONS] [files...]\n\
 OPTIONS:\n\
   --help    display this screen\n\
-  --locale  specify locale\n\
+  --utf8    for creating utf8 .index file\n\
+  all other -X and --XXX options are passed to dictfmt -I\n\
 "
 }
 
@@ -21,40 +22,28 @@ arg_locale=C
 
 # Processing arguments
 while [ $# != 0 ]; do
-	case $1 in
+    case $1 in
 	--help)
-		usage
-		exit 0;;
-	--locale)
-		arg_locale=$2
-		shift;;
-	--locale=*)
-		arg_locale=`echo $1 | cut -d = -f 2`;;
+	    usage
+	    exit 0;;
+	--utf8)
+	    utf8_mode=1
+	    args="$args $1";;
 	-*)
-		echo "unknown argument $1" 1>&2
-		exit 3;;
+	    args="$args $1";;
 	*)
-		break;;
-	esac
-	shift
+	    break;;
+    esac
+    shift
 done
 
-if echo $arg_locale | egrep -i 'utf-?8' >/dev/null 2>&1; then
-	utf8_mode=1
-	export utf8_mode
-fi
-
-export arg_locale
-
-#echo $arg_locale
-#echo $utf8_mode
 if test $BASH; then
 	exit_="echo \${PIPESTATUS[@]} | egrep '^0( 0)*$' >/dev/null"
 else
 	exit_='exit $?'
 fi
 
-awk -v "locale=$arg_locale" -v "utf8_mode=$utf8_mode" '
+awk -v "utf8_mode=$utf8_mode" '
 function charlen_utf8 (str){
 	if (str == ""){
 		return 0
@@ -81,26 +70,16 @@ BEGIN {
 	FS = OFS = "\t"
 }
 
-3 != NF {
-	exit 2
-}
-
-locale == "C" && $1 ~ /[\x80-\xff]/ {
-	print "8-bit head word is encountered but \"C\" locale is used" > "/dev/stderr"
-	exit 4
-}
-
 {
 	if (!utf8_mode){
-		for (i = length($1) + 1; --i; ){
+		for (i = length($1); i >= 1; --i){
 			printf "%s", substr($1, i, 1)
 		}
-		print OFS $2, $3
 	}else{
 		i   = 1
 		idx = 1
 		while (i < length($1)){
-			char_len = charlen_utf8($1)
+			char_len = charlen_utf8(substr($1, i))
 			if (char_len < 0){
 				print "invalid UTF-8 input" > "/dev/stderr"
 				exit
@@ -112,15 +91,10 @@ locale == "C" && $1 ~ /[\x80-\xff]/ {
 		while (idx--){
 			printf "%s", inverse_word [idx]
 		}
-		print OFS $2, $3
 	}
-}' "$@" |
-if test "_$utf8_mode" = "_1"; then
-	sort
-else
-	LC_ALL=$arg_locale
-	export LC_ALL
-	sort -df
-fi
+
+	$1 = ""
+	print $0
+}' "$@" | dictfmt -I $args | uniq
 
 eval $exit_
