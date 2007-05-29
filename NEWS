@@ -40,6 +40,11 @@ Version 1.10.9, by Aleksey Cheusov
     - removed: --test-XXX options. Use -i and --stdin2stdout for debugging.
 
  dictfmt:
+    - FIXED: longopts passed to getopt_long as argument was not
+      ended with zeros. I even don't how this code could work
+      for so many years.
+      Affected dictfmt versions: 1.6.1-1.10.8
+
     - ADDED: --index-data-separator option that allows
       to set index and data parts of the headword in .index file
       (first and fourth columns respectively) completely independantly.
