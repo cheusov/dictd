@@ -1,4 +1,68 @@
 ----------------------------------------------------------------------
+Version 1.10.9, by Aleksey Cheusov
+
+ dictd:
+    - ADDED: 'limit_time' keyword for limiting time (in seconds)
+      during which a client may talk to the server for preventing DOS.
+      This option may be used as a replacement for 'delay' option.
+      See dictd.8 for the documnetation
+
+    - ADDED: new keywords 'limit_matches' and 'limit_defintions'
+      limiting a number of matches and definitions respectively
+      that the server may send to the client. This is for preventing DOS.
+      See dictd.8 for more information
+
+    - ADDED: Two new search strategies, 'first' and 'last'.
+      They match first or last word only in a multi-word entries.
+      See dictd.8 for the information.
+
+    - ADDED: new keywords 'site_no_banner', 'site_no_uptime'
+      and 'site_no_dblist' for changing the way dictd answers on SHOW SERVER
+      command (dict -I)
+      See dictd.8 for more information.
+
+    - ADDED: support for the case-sensitive databases.
+      Now search may be case-sensitive. For this, database should be created
+      with dictfmt --case-sensitive.
+
+    - 'site' keyword has been moved to 'global' section of dictd.conf file
+      Do not place it at the top level!
+
+    - removed: --test-XXX style options. Use -i and
+      optionally --stdin2stdout for debugging.
+
+ dictfmt:
+    - ADDED: --index-data-separator option that allows
+      to set index and data parts of the headword in .index file
+      (first and fourth columns respectively) completely independantly.
+
+      That is, the first column in .index file can now be treated
+      as an index and an optional fourth columns - as a data, all this for
+      MATCH protocol command. See dictfmt.1 for more information.
+
+    - added: -i and -I for resorting .index files.
+      See dictd.8 for the information.
+
+    - added: By default a special headword 00-database-dictfmt-X.Y.Z
+      is generated, i.e. every created database is marked
+      "what version of dictfmt was used to create it".
+      added: --without-ver option for preventing this.
+
+ dictunformat:
+    - minor fixes and improvements for 4-column .index file input
+      See dictfmt --index-data-separator.
+
+ dictfmt_index2suffix and dictfmt_index2word
+    - fixes, now they are ready for 4-column input and use 'dictfmt -i/-I'
+      for resorting .index entries.
+      See dictfmt.1 for the information.
+
+ dict:
+    - ADDED: -f option that enables formatted output, i.e. output 
+      convenient for postprocessing by standard UNIX utilities.
+      See dict.1 for the information.
+
+----------------------------------------------------------------------
 Version 1.10.8, by Aleksey Cheusov, Wed, 13 Dec 2006 22:20:04 +0200
 
  libtool is now used for building dictd and libmaa.
@@ -6,7 +70,7 @@ Version 1.10.8, by Aleksey Cheusov, Wed, 13 Dec 2006 22:20:04 +0200
     libmaa with the shared object files support.
 
  dictd:
-    - fixed: sourceforge bug #1554437 ('nprefix' strategy)
+    - fixed: sourceforge.net bug #1554437 ('nprefix' strategy)
     - added: --stdin2stdout option for debugging purposes.
       See dictd(8)
     - fixed: daemon3.c on Solaris
