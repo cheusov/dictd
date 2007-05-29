@@ -8,18 +8,18 @@ Version 1.10.9, by Aleksey Cheusov
       This option may be used as a replacement for 'delay' option.
       See dictd.8 for the documnetation
 
-    - ADDED: new keywords 'limit_matches' and 'limit_defintions'
+    - ADDED: new keyword 'limit_matches' and 'limit_defintions'
       limiting a number of matches and definitions respectively
       that the server may send to the client.
       This is for preventing DOS attacks.
       See dictd.8 for more information
 
-    - ADDED: new keywords 'limit_queries'
+    - ADDED: new keyword 'limit_queries'
       limiting a number of queries that client may send to the server
       This is for preventing DOS attacks.
       See dictd.8 for more information
 
-    - ADDED: new keywords 'limit_childs' equal to old 'limit'.
+    - ADDED: new keyword 'limit_childs' equal to old 'limit'.
       'limit' is now deprecated. Use 'limit_childs' instead.
 
     - ADDED: Two new search strategies, 'first' and 'last'.
