@@ -37,8 +37,7 @@ Version 1.10.9, by Aleksey Cheusov
     - 'site' keyword has been moved to 'global' section of dictd.conf file
       Do not place it at the top level!
 
-    - removed: --test-XXX options. Use -i and
-      optionally --stdin2stdout for debugging.
+    - removed: --test-XXX options. Use -i and --stdin2stdout for debugging.
 
  dictfmt:
     - ADDED: --index-data-separator option that allows
