@@ -1223,14 +1223,14 @@ int main( int argc, char **argv )
 	 destroy_and_exit (1);
       }
 
-   if (type != INDEXONLY && optind < argc) {
-      basename = argv [optind];
-
+   if (type != INDEXONLY) {
       if (optind + 1 != argc) {
 	 help (stderr);
 
 	 destroy_and_exit (1);
       }
+
+      basename = argv [optind];
    }
 
    if (locale)
