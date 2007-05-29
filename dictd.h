@@ -52,6 +52,7 @@ extern int depth;
 extern int _dict_daemon_limit;
 extern int _dict_daemon_limit_matches;
 extern int _dict_daemon_limit_defs;
+extern int _dict_daemon_limit_time;
 extern int _dict_markTime;
 extern const char *logFile;
 extern const char *pidFile;
@@ -119,8 +120,8 @@ extern const char *postprocess_plugin_filename (const char *fn);
 /* daemon.c */
 
 extern int  dict_daemon( int s, struct sockaddr_in *csin, char ***argv0,
-			 int delay_, int error );
-extern int  dict_inetd( char ***argv0, int delay_, int error );
+			 int error );
+extern int  dict_inetd( char ***argv0, int error );
 extern void daemon_terminate( int sig, const char *name );
 
 /* */

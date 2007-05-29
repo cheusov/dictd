@@ -83,6 +83,7 @@ int _dict_daemon_limit_set; /* 1 if set by command line option */
 
 int        _dict_daemon_limit_matches  = DICT_DAEMON_LIMIT_MATCHES;
 int        _dict_daemon_limit_defs     = DICT_DAEMON_LIMIT_DEFS;
+int        _dict_daemon_limit_time     = DICT_DAEMON_LIMIT_TIME;
 
 int        _dict_markTime = 0;
 int _dict_markTime_set; /* 1 if set by command line option */
@@ -1563,6 +1564,7 @@ int main (int argc, char **argv, char **envp)
       case 502:
 	 client_delay     = atoi(optarg);
 	 client_delay_set = 1;
+	 _dict_daemon_limit_time = 0;
 	 break;
       case 503:
 	 depth     = atoi(optarg);
@@ -1708,7 +1710,7 @@ int main (int argc, char **argv, char **envp)
    dict_initsetproctitle(argc, argv, envp);
 
    if (inetd) {
-      dict_inetd(&argv, client_delay, 0);
+      dict_inetd(&argv, 0);
       exit(0);
    }
 
@@ -1754,22 +1756,28 @@ int main (int argc, char **argv, char **envp)
       }
 
       if (_dict_daemon || dbg_test(DBG_NOFORK)) {
-	 dict_daemon(childSocket,&csin,&argv,client_delay,0);
+	 dict_daemon(childSocket,&csin,&argv,0);
       } else {
 	 if (_dict_forks - _dict_reaps < _dict_daemon_limit) {
 	    if (!start_daemon()) { /* child */
 	       int databases_loaded = (DictConfig != NULL);
 
 	       alarm(0);
+	       if (_dict_daemon_limit_time){
+		  setsig (SIGALRM, handler, 0);
+		  alarm(_dict_daemon_limit_time);
+	       }
+
 	       dict_daemon (
-		  childSocket, &csin, &argv, client_delay,
+		  childSocket, &csin, &argv,
 		  databases_loaded ? 0 : 2);
+
 	       exit(0);
 	    } else {		   /* parent */
 	       close(childSocket);
 	    }
 	 } else {
-	    dict_daemon(childSocket,&csin,&argv,client_delay,1);
+	    dict_daemon(childSocket, &csin, &argv, 1);
 	 }
       }
    }

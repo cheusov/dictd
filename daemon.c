@@ -1479,9 +1479,9 @@ static void daemon_quit( const char *cmdline, int argc, const char **argv )
 }
 
 /* The whole sub should be moved here, but I want to keep the diff small. */
-int _handleconn (int delay, int error);
+int _handleconn (int error);
 
-int dict_inetd (char ***argv0, int delay, int error)
+int dict_inetd (char ***argv0, int error)
 {
    if (setjmp(env)) return 0;
 
@@ -1493,10 +1493,10 @@ int dict_inetd (char ***argv0, int delay, int error)
    daemonS_in        = 0;
    daemonS_out       = 1;
 
-   return _handleconn(delay, error);
+   return _handleconn (error);
 }
 
-int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0, int delay,
+int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0,
 		 int error )
 {
    struct hostent *h;
@@ -1514,10 +1514,10 @@ int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0, int delay,
    daemonS_in        = s;
    daemonS_out       = s;
 
-   return _handleconn(delay, error);
+   return _handleconn (error);
 }
 
-int _handleconn (int delay, int error) {
+int _handleconn (int error) {
    char           buf[4096];
    int            count;
    arg_List       cmdline;
@@ -1550,13 +1550,17 @@ int _handleconn (int delay, int error) {
 	      
    daemon_banner();
 
-   alarm(delay);
+   if (!_dict_daemon_limit_time)
+      alarm (client_delay);
+
    while ((count = daemon_read( buf, 4000 )) >= 0) {
       if (stdin2stdout_mode){
 	 daemon_printf( "# %s\n", buf );
       }
 
-      alarm(0);
+      if (!_dict_daemon_limit_time)
+	 alarm(0);
+
       tim_start( "c" );
       if (!count) {
 #if 0
@@ -1574,7 +1578,9 @@ int _handleconn (int delay, int error) {
 	 daemon_printf( "%d unknown command\n", CODE_SYNTAX_ERROR );
       }
       arg_destroy(cmdline);
-      alarm(delay);
+
+      if (!_dict_daemon_limit_time)
+	 alarm (client_delay);
    }
 #if 0
    printf( "%d %d\n", count, errno );

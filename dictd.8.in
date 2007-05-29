@@ -555,11 +555,26 @@ This option disables this.
 Specifies the number of seconds a client may be idle before the server will
 close the connection.  Idle time is defined to be the time the server is
 waiting for input and does not include the time the server spends searching
-the database.  Connections are closed without warning since no provision
-for premature connection termination is specified in the DICT protocol
-RFC.  The default is 600 seconds (10 minutes), but may be changed in the
+the database. The default is 0 seconds (no limit),
+but may be changed in the
 .I defs.h
 file at compile time (DICT_DEFAULT_DELAY).
+.P
+.RS
+.B NOTE:
+Setting
+.I delay
+option disables
+.I limit_time
+option. Only one of them (last specified in
+.B dictd.conf
+) is in effect.
+.P
+.B NOTE:
+Connections are closed without warning since no provision
+for premature connection termination is specified in the DICT protocol
+RFC.
+.RE
 .TP
 .BI depth " number"
 Specify the queue length for
@@ -590,6 +605,29 @@ by MATCH query. Zero means no limit. The default is 2000.
 .BI limit_definitions " number"
 Specifies the maximum number of definitions that can be returned
 by DEFINE query. Zero means no limit. The default is 200.
+.TP
+.BI limit_time " number"
+Specifies the number of seconds a client may talk to the server
+before the server will close the connection.
+The default is 600 seconds (10 minutes), but may be changed in the
+.I defs.h
+file at compile time (DICT_DEFAULT_LIMIT_TIME).
+.RS
+.P
+.B NOTE:
+Setting
+.I limit_time
+option disables
+.I delay
+option. Only one of them (last specified in
+.B dictd.conf
+) is in effect.
+.P
+.B NOTE:
+Connections are closed without warning since no provision
+for premature connection termination is specified in the DICT protocol
+RFC.
+.RE
 .TP
 .BI timestamp " number"
 How often a timestamp should be logged (int minutes).

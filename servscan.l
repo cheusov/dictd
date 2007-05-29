@@ -139,6 +139,7 @@ without_mmap                RETURN(TOKEN_WITHOUT_MMAP);
 
 limit_matches               RETURN(TOKEN_LIMIT_MATCHES);
 limit_definitions           RETURN(TOKEN_LIMIT_DEFS);
+limit_time                  RETURN(TOKEN_LIMIT_TIME);
 
 {integer}                   { yylval.token.integer = atoi(yytext);
                               RETURN(TOKEN_NUMBER);
