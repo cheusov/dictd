@@ -128,7 +128,7 @@ Server's capabilities are not checked.
 .BR \-f " or " \-\-formatted
 Enables formatted output, i.e. output convenient for postprocessing
 by standard UNIX utilities. No, it is not XML ;\-)
-Also error messages are sent to stderr, not stdout.
+Also error messages are sent to stderr, not to stdout or pager.
 .RS
 .B Format:
  \-I, \-i, \-H and similar:
