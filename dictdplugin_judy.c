@@ -323,8 +323,7 @@ static void read_index_file (
 
       if (
 	 tolower_alnumspace (
-	    buf, buf,
-	    dict_data -> m_conf_allchars, dict_data -> m_conf_utf8))
+	    buf, buf, dict_data))
       {
 	 plugin_error (dict_data, "tolower_alnumspace failed while reading .index file");
 	 fclose (fd);
@@ -831,8 +830,7 @@ int dictdb_search (
 
    if (
       tolower_alnumspace (
-	 word_copy2, word_copy2,
-	 dict_data -> m_conf_allchars, dict_data -> m_conf_utf8))
+	 word_copy2, word_copy2, dict_data))
    {
       plugin_error (dict_data, "tolower_alnumspace in dictdb_search failed");
       return 1;
