@@ -49,7 +49,10 @@ extern int         site_info_no_dblist;
 extern const char *daemon_service;
 extern int client_delay;
 extern int depth;
-extern int _dict_daemon_limit;
+
+extern int _dict_daemon_limit_childs;
+extern int _dict_daemon_limit_childs_set;
+
 extern int _dict_daemon_limit_matches;
 extern int _dict_daemon_limit_defs;
 extern int _dict_daemon_limit_time;
@@ -68,7 +71,6 @@ extern int pidFile_set;
 extern int _dict_markTime_set;
 extern int client_delay_set;
 extern int depth_set;
-extern int _dict_daemon_limit_set;
 extern int syslog_facility_set;
 extern int locale_set;
 extern int default_strategy_set;

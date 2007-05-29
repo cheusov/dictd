@@ -123,7 +123,6 @@ global                      RETURN(TOKEN_GLOBAL);
 port                        RETURN(TOKEN_PORT);
 delay                       RETURN(TOKEN_DELAY);
 depth                       RETURN(TOKEN_DEPTH);
-limit                       RETURN(TOKEN_LIMIT);
 timestamp                   RETURN(TOKEN_TIMESTAMP);
 log_option                  RETURN(TOKEN_LOG_OPTION);
 debug_option                RETURN(TOKEN_DEBUG_OPTION);
@@ -137,6 +136,8 @@ pid_file                    RETURN(TOKEN_PID_FILE);
 fast_start                  RETURN(TOKEN_FAST_START);
 without_mmap                RETURN(TOKEN_WITHOUT_MMAP);
 
+limit                       RETURN(TOKEN_LIMIT_CHILDS);
+limit_childs                RETURN(TOKEN_LIMIT_CHILDS);
 limit_matches               RETURN(TOKEN_LIMIT_MATCHES);
 limit_definitions           RETURN(TOKEN_LIMIT_DEFS);
 limit_time                  RETURN(TOKEN_LIMIT_TIME);

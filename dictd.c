@@ -78,8 +78,8 @@ int pidFile_set; /* 1 if set by command line option */
 const char         *daemon_service     = DICT_DEFAULT_SERVICE;
 int daemon_service_set; /* 1 if set by command line option */
 
-int        _dict_daemon_limit        = DICT_DAEMON_LIMIT;
-int _dict_daemon_limit_set; /* 1 if set by command line option */
+int _dict_daemon_limit_childs   = DICT_DAEMON_LIMIT_CHILDS;
+int _dict_daemon_limit_childs_set; /* 1 if set by command line option */
 
 int        _dict_daemon_limit_matches  = DICT_DAEMON_LIMIT_MATCHES;
 int        _dict_daemon_limit_defs     = DICT_DAEMON_LIMIT_DEFS;
@@ -1572,8 +1572,8 @@ int main (int argc, char **argv, char **envp)
 	 depth_set = 1;
 	 break;
       case 504:
-	 _dict_daemon_limit     = atoi(optarg);
-	 _dict_daemon_limit_set = 1;
+	 _dict_daemon_limit_childs = atoi(optarg);
+	 _dict_daemon_limit_childs_set = 1;
 	 break;
       case 505:
 	 ++useSyslog;
@@ -1759,7 +1759,7 @@ int main (int argc, char **argv, char **envp)
       if (_dict_daemon || dbg_test(DBG_NOFORK)) {
 	 dict_daemon(childSocket,&csin,&argv,0);
       } else {
-	 if (_dict_forks - _dict_reaps < _dict_daemon_limit) {
+	 if (_dict_forks - _dict_reaps < _dict_daemon_limit_childs) {
 	    if (!start_daemon()) { /* child */
 	       int databases_loaded = (DictConfig != NULL);
 

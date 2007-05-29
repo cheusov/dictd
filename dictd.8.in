@@ -586,7 +586,7 @@ in the
 .I defs.h
 file at compile time (DICT_QUEUE_DEPTH).
 .TP
-.BI limit " number"
+.BI limit_childs " number"
 Specifies the number of daemons that may be running simultaneously.  Each
 daemon services a single connection.  If the limit is exceeded, a
 (serialized) connection will be made by the server process, and a response
@@ -596,7 +596,12 @@ overloaded by dict clients, but should not be set so low that many clients
 are denied useful connections. The default is 100, but may be changed in
 the
 .I defs.h
-file at compile time (DICT_DAEMON_LIMIT).
+file at compile time (DICT_DAEMON_LIMIT_CHILDS).
+.TP
+.BI limit " number"
+Synonym for
+.B limit_childs.
+For backward compatibility only.
 .TP
 .BI limit_matches " number"
 Specifies the maximum number of matches that can be returned

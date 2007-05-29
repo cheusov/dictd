@@ -94,7 +94,7 @@ static int string2bool (const char *str)
 %token <token> TOKEN_FAST_START
 %token <token> TOKEN_WITHOUT_MMAP
 
-%token <token> TOKEN_LIMIT
+%token <token> TOKEN_LIMIT_CHILDS
 %token <token> TOKEN_LIMIT_MATCHES
 %token <token> TOKEN_LIMIT_DEFS
 %token <token> TOKEN_LIMIT_TIME
@@ -222,10 +222,10 @@ GlobalSpec : TOKEN_PORT             TOKEN_STRING
 	if (!depth_set)
 	   depth = $2;
      }
-   | TOKEN_LIMIT            TOKEN_NUMBER
+   | TOKEN_LIMIT_CHILDS     TOKEN_NUMBER
      {
-	if (!_dict_daemon_limit_set)
-	   _dict_daemon_limit = $2;
+	if (!_dict_daemon_limit_childs_set)
+	   _dict_daemon_limit_childs = $2;
      }
    | TOKEN_LIMIT_MATCHES    TOKEN_NUMBER
      {

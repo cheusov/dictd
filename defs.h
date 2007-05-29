@@ -31,7 +31,7 @@
 #define DICT_DEFAULT_SERVICE     "2628"	/* Also in dict.h */
 #define DICTD_CONFIG_NAME        "dictd.conf"
 #define DICT_QUEUE_DEPTH         10
-#define DICT_DAEMON_LIMIT        100 /* maximum simultaneous daemons */
+#define DICT_DAEMON_LIMIT_CHILDS   100 /* maximum simultaneous daemons */
 #define DICT_DAEMON_LIMIT_MATCHES  2000 /* maximum number of matches */
 #define DICT_DAEMON_LIMIT_DEFS     200  /* maximum number of definitions */
 #define DICT_DAEMON_LIMIT_TIME     600  /* maximum seconds per client */
