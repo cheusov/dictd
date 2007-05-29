@@ -311,8 +311,9 @@ time of creation will not be copied to DB info entry
 .BI \--without-ver
 By default
 .B dictfmt
-creates special entry 00-database-dictfmt that contains
-dictfmt version in format dictfmt-%s. This option suppresses this.
+creates a special entry 00-database-dictfmt-X.Y.Z that contains
+(in .dict file)
+dictfmt version in format dictfmt-X.Y.Z. This option suppresses this.
 .TP
 .BI \--without-info
 DB info entry will not be created.
