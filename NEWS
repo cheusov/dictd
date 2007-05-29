@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------
-Version 1.10.9, by Aleksey Cheusov
+Version 1.10.9, by Aleksey Cheusov, Tue, 29 May 2007 23:20:14 +0300
 
  dictd:
     - ADDED: 'limit_time' keyword for limiting time (in seconds)
