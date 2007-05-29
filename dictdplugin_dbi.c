@@ -881,7 +881,7 @@ int dictdb_search (
    if (
       tolower_alnumspace (
 	 word_copy2, word_copy2,
-	 dict_data -> m_conf_all_chars, dict_data -> m_conf_utf8))
+	 dict_data -> m_conf_all_chars, 0, dict_data -> m_conf_utf8))
    {
       plugin_error (dict_data, "tolower_alnumspace in dictdb_search failed");
       return 7;
