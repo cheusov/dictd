@@ -638,6 +638,7 @@ RFC.
 Specifies the number of queries (MATCH, DEFINE, SHOW DB etc.)
 that client may send to the server
 before the server will close the connection.
+Zero means no limit.
 The default is 2000, but may be changed in the
 .I defs.h
 file at compile time (DICT_DEFAULT_LIMIT_QUERIES).

@@ -1548,7 +1548,7 @@ int _handleconn (int error) {
       daemon_printf( "%d access denied\n", CODE_ACCESS_DENIED );
       daemon_terminate( 0, "access denied" );
    }
-	      
+
    daemon_banner();
 
    if (!_dict_daemon_limit_time)
@@ -1557,7 +1557,9 @@ int _handleconn (int error) {
    while (count = daemon_read( buf, 4000 ), count >= 0) {
       ++query_count;
 
-      if (query_count >= _dict_daemon_limit_queries){
+      if (_dict_daemon_limit_queries &&
+	  query_count >= _dict_daemon_limit_queries)
+      {
 	 daemon_terminate (0, "query limit");
       }
 
