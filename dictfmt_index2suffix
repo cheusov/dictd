@@ -43,23 +43,23 @@ else
 	exit_='exit $?'
 fi
 
-awk -v "utf8_mode=$utf8_mode" '
+gawk -v "utf8_mode=$utf8_mode" '
 function charlen_utf8 (str){
 	if (str == ""){
 		return 0
-	}else if (str ~ /^[\x01-\x7F]/){
+	}else if (str ~ /^[\001-\177]/){
 		return 1
-	}else if (str ~ /^[\x80-\xBF]/){
+	}else if (str ~ /^[\200-\277]/){
 		return -1
-	}else if (str ~ /^[\xC0-\xDF]/){
+	}else if (str ~ /^[\300-\337]/){
 		return 2
-	}else if (str ~ /^[\xE0-\xEF]/){
+	}else if (str ~ /^[\340-\357]/){
 		return 3
-	}else if (str ~ /^[\xF0-\xF7]/){
+	}else if (str ~ /^[\360-\367]/){
 		return 4
-	}else if (str ~ /^[\xF8-\xFB]/){
+	}else if (str ~ /^[\370-\373]/){
 		return 5
-	}else if (str ~ /^[\xFC-\xFD]/){
+	}else if (str ~ /^[\374-\375]/){
 		return 6
 	}else{
 		return -1;
@@ -84,12 +84,12 @@ BEGIN {
 				print "invalid UTF-8 input" > "/dev/stderr"
 				exit
 			}
-			inverse_word [idx] = substr($1, i, char_len)
+			inverse_char [idx] = substr($1, i, char_len)
 			i += char_len
 			++idx
 		}
 		while (idx--){
-			printf "%s", inverse_word [idx]
+			printf "%s", inverse_char [idx]
 		}
 	}
 
