@@ -3,32 +3,38 @@ Version 1.10.9, by Aleksey Cheusov
 
  dictd:
     - ADDED: 'limit_time' keyword for limiting time (in seconds)
-      during which a client may talk to the server for preventing DOS.
+      during which a client may talk to the server.
+      This is for preventing DOS attacks.
       This option may be used as a replacement for 'delay' option.
       See dictd.8 for the documnetation
 
     - ADDED: new keywords 'limit_matches' and 'limit_defintions'
       limiting a number of matches and definitions respectively
-      that the server may send to the client. This is for preventing DOS.
+      that the server may send to the client.
+      This is for preventing DOS attacks.
+      See dictd.8 for more information
+
+    - ADDED: new keywords 'limit_queries'
+      limiting a number of queries that client may send to the server
+      This is for preventing DOS attacks.
       See dictd.8 for more information
 
     - ADDED: Two new search strategies, 'first' and 'last'.
       They match first or last word only in a multi-word entries.
-      See dictd.8 for the information.
+      See dictd.8 for more information.
 
     - ADDED: new keywords 'site_no_banner', 'site_no_uptime'
       and 'site_no_dblist' for changing the way dictd answers on SHOW SERVER
       command (dict -I)
       See dictd.8 for more information.
 
-    - ADDED: support for the case-sensitive databases.
-      Now search may be case-sensitive. For this, database should be created
-      with dictfmt --case-sensitive.
+    - ADDED: support for the case-sensitive search.
+      For this database should be created with dictfmt --case-sensitive.
 
     - 'site' keyword has been moved to 'global' section of dictd.conf file
       Do not place it at the top level!
 
-    - removed: --test-XXX style options. Use -i and
+    - removed: --test-XXX options. Use -i and
       optionally --stdin2stdout for debugging.
 
  dictfmt:
@@ -41,7 +47,7 @@ Version 1.10.9, by Aleksey Cheusov
       MATCH protocol command. See dictfmt.1 for more information.
 
     - added: -i and -I for resorting .index files.
-      See dictd.8 for the information.
+      See dictd.8 for more information.
 
     - added: By default a special headword 00-database-dictfmt-X.Y.Z
       is generated, i.e. every created database is marked
@@ -50,17 +56,18 @@ Version 1.10.9, by Aleksey Cheusov
 
  dictunformat:
     - minor fixes and improvements for 4-column .index file input
-      See dictfmt --index-data-separator.
+       See dictfmt --index-data-separator and
+           dictunformat --index-data-separator
 
  dictfmt_index2suffix and dictfmt_index2word
-    - fixes, now they are ready for 4-column input and use 'dictfmt -i/-I'
-      for resorting .index entries.
-      See dictfmt.1 for the information.
+    - fixes, now these utilities are ready for 4-column input and
+      use 'dictfmt -i/-I' for resorting .index entries.
+      See dictfmt.1 for more information.
 
  dict:
     - ADDED: -f option that enables formatted output, i.e. output 
       convenient for postprocessing by standard UNIX utilities.
-      See dict.1 for the information.
+      See dict.1 for more information.
 
 ----------------------------------------------------------------------
 Version 1.10.8, by Aleksey Cheusov, Wed, 13 Dec 2006 22:20:04 +0200

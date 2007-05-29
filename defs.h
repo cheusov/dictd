@@ -35,6 +35,8 @@
 #define DICT_DAEMON_LIMIT_MATCHES  2000 /* maximum number of matches */
 #define DICT_DAEMON_LIMIT_DEFS     200  /* maximum number of definitions */
 #define DICT_DAEMON_LIMIT_TIME     600  /* maximum seconds per client */
+#define DICT_DAEMON_LIMIT_QUERIES  2000 /* maximum queries per client */
+
 #define DICT_DEFAULT_DELAY         0 /* 'limit_time' in work by default */
 #define DICT_PERSISTENT_PRESTART 3 /* not implemented */
 #define DICT_PERSISTENT_LIMIT    5 /* not implemented */

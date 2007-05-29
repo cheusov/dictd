@@ -98,6 +98,7 @@ static int string2bool (const char *str)
 %token <token> TOKEN_LIMIT_MATCHES
 %token <token> TOKEN_LIMIT_DEFS
 %token <token> TOKEN_LIMIT_TIME
+%token <token> TOKEN_LIMIT_QUERIES
 
 %token <token> TOKEN_MIME_DBNAME
 %token <token> TOKEN_NOMIME_DBNAME
@@ -238,6 +239,10 @@ GlobalSpec : TOKEN_PORT             TOKEN_STRING
      {
 	_dict_daemon_limit_time = $2;
 	client_delay            = 0;
+     }
+   | TOKEN_LIMIT_QUERIES    TOKEN_NUMBER
+     {
+	_dict_daemon_limit_queries = $2;
      }
    | TOKEN_TIMESTAMP        TOKEN_NUMBER
      {

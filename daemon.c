@@ -1518,6 +1518,7 @@ int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0,
 }
 
 int _handleconn (int error) {
+   int            query_count = 0;
    char           buf[4096];
    int            count;
    arg_List       cmdline;
@@ -1553,7 +1554,13 @@ int _handleconn (int error) {
    if (!_dict_daemon_limit_time)
       alarm (client_delay);
 
-   while ((count = daemon_read( buf, 4000 )) >= 0) {
+   while (count = daemon_read( buf, 4000 ), count >= 0) {
+      ++query_count;
+
+      if (query_count >= _dict_daemon_limit_queries){
+	 daemon_terminate (0, "query limit");
+      }
+
       if (stdin2stdout_mode){
 	 daemon_printf( "# %s\n", buf );
       }

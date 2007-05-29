@@ -629,6 +629,14 @@ for premature connection termination is specified in the DICT protocol
 RFC.
 .RE
 .TP
+.BI limit_queries " number"
+Specifies the number of queries (MATCH, DEFINE, SHOW DB etc.)
+that client may send to the server
+before the server will close the connection.
+The default is 2000, but may be changed in the
+.I defs.h
+file at compile time (DICT_DEFAULT_LIMIT_QUERIES).
+.TP
 .BI timestamp " number"
 How often a timestamp should be logged (int minutes).
 (This is effective only if
