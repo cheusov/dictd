@@ -9,6 +9,10 @@ DICTFMT_I2S='sh ../dictfmt_index2suffix'
 DIFF='diff -u'
 
 ##################################################
+PATH=$(dirname $(pwd)):$PATH
+export PATH
+
+##################################################
 cmp_2_files (){
     if $DIFF "$1" "$2" > log.txt; then
     	true
