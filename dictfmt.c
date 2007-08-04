@@ -2,6 +2,7 @@
  * Created: Sun Jul 20 20:17:11 1997 by faith@acm.org
  * Revised: Sat Sep 27 23:47:04 2003 by faith@acm.org
  * Copyright 1997, 1998, 2003 Rickard E. Faith (faith@acm.org)
+ * Copyright 2002-2007 Aleksey Cheusov (vle@gmx.net)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
