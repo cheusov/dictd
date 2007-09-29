@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.117 2007/03/10 21:29:46 cheusov Exp $
+# $Id: Makefile.in,v 1.118 2007/09/29 18:49:26 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -414,13 +414,15 @@ dist:
 
 .PHONY: clean distclean tags
 clean:
-	-rm -f *.o *.os *.a *.la *.s *~ core a.out config.log $(EXES) $(TMPS)
+	-rm -f *.o *.lo *.os *.a *.la *.s *~ core a.out config.log
+	-rm $(EXES) $(TMPS)
 	-rm -f *.log *.aux *.toc *.dvi *.ps
 	-rm -f *.cfg *.dtk .inslog tca.map
 	-rm -f *.dct *.idx y.output TAGS
 	-rm -f *.dict *.index
 	-rm -f *.exe *.dll
 	-rm -f test/_* test/testdb.t.txt
+	-rm ChangeLog*
 
 recursive-clean: clean
 	@for subdir in `echo $(subdirs)`; do \
@@ -445,6 +447,7 @@ distclean: recursive-clean
 	rm -f Makefile doc/Makefile dictdplugin-config include_regex.h; \
 	rm -f local_* colorit dictl; \
 	rm -rf autom4te.cache libmaa/autom4te.cache
+	rm -f *.1 *.8
 
 cvsclean: distclean
 	rm -f configure libmaa/configure
