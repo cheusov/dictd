@@ -25,7 +25,6 @@
 
 extern int         yy_flex_debug;
        lst_List    dict_Servers;
-       const char  *dict_pager;
        FILE        *dict_output;
        FILE        *dict_error;
        int         formatted;
@@ -239,37 +238,13 @@ static void unexpected_status_code (
 
 static void client_open_pager( void )
 {
-   int infd;
-   
-   if (dict_output && dict_output != stdout) return;
-
-				/* default */
    dict_output = stdout;
    dict_error  = stderr;
-
-				/* use an empty string to avoid paging */
-   if ((dict_pager || (dict_pager = getenv("PAGER")))
-       && *dict_pager
-       && strcmp(dict_pager, "-")) {
-      PRINTF(DBG_VERBOSE,("Using \"%s\" as pager\n",dict_pager));
-      pr_open( dict_pager, PR_CREATE_STDIN, &infd, NULL, NULL );
-      dict_output = fdopen( infd, "w" );
-      if (!formatted){
-	 dict_error = dict_output;
-      }
-   }
 }
 
 static void client_close_pager( void )
 {
-   if (dict_output) fflush(dict_output);
-   else             fflush(stdout);
-   
-   if (dict_output && dict_output != stdout) {
-      pr_close(fileno(dict_output));
-   }
-   dict_output = stdout;
-   dict_error  = stderr;
+   fflush (dict_output);
 }
 
 static lst_List client_read_text( int s )
@@ -1219,9 +1194,6 @@ static void client_config_print( FILE *stream, lst_List c )
    dictServer   *e;
 
    printf( "Configuration file:\n" );
-   if (dict_pager) {
-      fprintf( s, "   pager \"%s\"\n", dict_pager );
-   }
    LST_ITERATE(dict_Servers,p,e) {
       if (e->port || e->user || e->secret) {
 	 fprintf( s, "   server %s {\n", e->host );
@@ -1315,7 +1287,6 @@ static void help( FILE *out_stream )
       "   --help                 display this help",
       "-v --verbose              be verbose",
       "-r --raw                  trace raw transaction",
-      "-P --pager program        specify program to use as pager (- for none)",
       "   --debug <flag>         set debugging flag",
       "   --pipesize <size>      specify buffer size for pipelining (256)",
       "   --client <text>        additional text for client command",
@@ -1421,7 +1392,12 @@ int main( int argc, char **argv )
       case 'L': license(); exit(1);                    break;
       case 'v': dbg_set( "verbose" );                  break;
       case 'r': dbg_set( "raw" );                      break;
-      case 'P': dict_pager = optarg;                   break;
+      case 'P':
+	 if (strcmp (optarg, "-")){
+	    fprintf (stderr, "Option --pager is now deprecated");
+	    exit (1);
+	 }
+	 break;
       case 505: client_text = optarg;                  break;
       case 504: client_pipesize = atoi(optarg);        break;
       case 502: dbg_set( optarg );                     break;
@@ -1429,10 +1405,6 @@ int main( int argc, char **argv )
       case 'f': formatted = 1;                         break;
       default:  help( stderr ); exit(1);               break;
       }
-   }
-
-   if (formatted){
-      dict_pager = "-";
    }
 
    if (optind == argc && (!(function & ~(DEFINE|MATCH)))) {

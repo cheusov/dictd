@@ -17,24 +17,6 @@ if test -z "$DICTL_CHARSET"; then
     fi
 fi
 
-if test -z "$DICTL_PAGER"; then
-    if test -r "$HOME/.dictrc"; then
-	DICTL_PAGER=`awk '$1 == "pager" {print $2}' < "$HOME/.dictrc"`
-    fi
-
-    if test -z "$DICTL_PAGER" && test -r "$sysconfdir/dict.conf"; then
-	DICTL_PAGER=`awk '$1 == "pager" {print $2}' < $sysconfdir/dict.conf`
-    fi
-
-    if test -z "$DICTL_PAGER"; then
-	DICTL_PAGER=$PAGER
-    fi
-
-    if test -z "$DICTL_PAGER"; then
-	DICTL_PAGER=less
-    fi
-fi
-
 charset2charset (){
     if test "$DICTL_USE_ICONV"; then
 	# `iconv --help' gives more options than `man iconv' (on my SuSE 9.0 system at least)
@@ -91,9 +73,6 @@ while test $# -ne 0; do
 	--run-a-pipe)
 	    charset2charset $DICTL_SERVER_CHARSET $DICTL_CHARSET
 	    exit $?;;
-	-P|--pipe)
-	    DICTL_PAGER=$2
-	    shift;;
 	*)
 	    p=`echo "$1" |
 		charset2charset $DICTL_CHARSET $DICTL_SERVER_CHARSET |
@@ -107,7 +86,6 @@ while test $# -ne 0; do
 		    exit ($0 !~ /^(-L|--license|-V|--version|--help)$/)
 		}'
 	    then
-		DICTL_PAGER=
 		break
 	    fi;;
     esac
@@ -115,12 +93,4 @@ while test $# -ne 0; do
     shift
 done
 
-if test "_$DICTL_PAGER" = '_-'; then
-    DICTL_PAGER=
-fi
-
-if test -z "$DICTL_PAGER"; then
-    eval $params -P - | $0 --run-a-pipe
-else
-    eval $params -P - | $0 --run-a-pipe | $DICTL_PAGER
-fi
+eval $params -P - | $0 --run-a-pipe

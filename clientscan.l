@@ -43,7 +43,6 @@ WS                          [[:blank:]]+
    .*                       src_line(yytext,yyleng); yyless(0); BEGIN(OTHER);
 }
 
-pager                       RETURN(TOKEN_PAGER);
 server                      RETURN(TOKEN_SERVER);
 port                        RETURN(TOKEN_PORT);
 user                        RETURN(TOKEN_USER);

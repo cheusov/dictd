@@ -57,8 +57,6 @@ typedef struct dictToken {
 } dictToken;
 
 extern lst_List   dict_Servers;	/* List of servers to try */
-extern const char *dict_pager;	/* Pager to use if isatty() */
-extern FILE       *dict_output;	/* Pid of paging process */
 
 				/* dmalloc must be last */
 #ifdef DMALLOC_FUNC_CHECK

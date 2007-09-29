@@ -25,7 +25,6 @@ OPTIONS:\n\
  -h  --help      display this screen\n\
  -V  --verbose   display version\n\
  -c  --config    specify a configuration file\n\
- -P  --pager     specify pager (- for none). The default is \"less -r\"\n\
      --pp        specify preprocessor (- for none). The default is \"m4\"\n\
 "
 }
@@ -36,7 +35,6 @@ colorit 0.0.1\n\
 "
 }
 
-pager='less -r'
 pp='m4'
 
 while test $# -ne 0; do
@@ -52,6 +50,10 @@ while test $# -ne 0; do
 	    shift;;
 	-P|--pager)
 	    pager=$2
+	    if test "$pager" != -; then
+		echo '--pager option is now deprecated' 1>&2
+		exit 1
+	    fi
 	    shift;;
 	--pp)
 	    pp=$2;
@@ -67,10 +69,6 @@ while test $# -ne 0; do
     esac
     shift
 done
-
-if test "_$pager" = "_-"; then
-   pager=
-fi
 
 if test "_$pp" = "_-"; then
    pp=
@@ -90,12 +88,6 @@ convert_files_to_stdout (){
 	    }
 	    if (ARGV [i] == "--config" || ARGV [i] == "-c"){
 		config_file = ARGV [i + 1]
-		ARGV [i] = ARGV [i + 1] = ""
-		++i
-		continue
-	    }
-	    if (ARGV [i] == "--pager" || ARGV [i] == "-P"){
-		pager = ARGV [i + 1]
 		ARGV [i] = ARGV [i + 1] = ""
 		++i
 		continue
@@ -202,8 +194,4 @@ convert_files_to_stdout (){
     } ' "$@"
 }
 
-if test "$pager"; then
-   eval convert_files_to_stdout "$@" | $pager
-else
-   convert_files_to_stdout "$@"
-fi
+convert_files_to_stdout "$@"

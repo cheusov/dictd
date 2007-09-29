@@ -41,10 +41,6 @@ dict \- DICT Protocol Client
 is a client for the Dictionary Server Protocol (DICT), a TCP transaction
 based query/response protocol that provides access to dictionary
 definitions from a set of natural language dictionary databases.
-.B dict
-uses the system's default pager ($PAGER) to display responses.  This
-default behavior may be modified in the configuration file or on the
-command line.
 Exit status is 0 if operation succeeded, or non-zero otherwise.
 .br
 See
@@ -130,7 +126,7 @@ Enables formatted output, i.e. output convenient for postprocessing
 by standard UNIX utilities. No, it is not XML ;\-)
 Also error and warning messages like
  " No matches...", " Invalid strategy..." etc. are sent to stderr,
-not to stdout or pager.
+not to stdout.
 .RS
 .B Format:
  \-I, \-i, \-H and similar:
@@ -190,9 +186,6 @@ Be verbose.
 .TP
 .BR -r " or " \-\-raw
 Be very verbose: show the raw client/server interaction.
-.TP
-.BI \-P " program\fR or " \-\-pager " program"
-Specify program to use as pager. Use "-" for none.
 .TP
 .B \-\-pipesize
 Specify the buffer size for pipelineing commands.  The default is 256,
@@ -269,12 +262,6 @@ We expect that dict.org will point to one or more DICT servers
 (perhaps in round-robin fashion) for the foreseeable future (starting
 in July 1997), although it is difficult to predict anything on the
 Internet for more than about 3-6 months.
-.P
-The configuration file also allows the setting of a pager (keyword
-.BR pager ),
-similar to the 
-.B \-\-pager
-option.
 .SH EXIT STATUS
 .br
  0  Successful completion

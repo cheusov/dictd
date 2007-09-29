@@ -33,22 +33,15 @@ static dictServer *s;
 
 				/* Terminals */
 
-%token <token> '{' '}' TOKEN_SERVER TOKEN_PORT TOKEN_USER TOKEN_FILTER TOKEN_PAGER
+%token <token> '{' '}' TOKEN_SERVER TOKEN_PORT TOKEN_USER TOKEN_FILTER
 
 %token <token>  TOKEN_STRING
-%type  <list>   Options Pager Server ServerList
+%type  <list>   Options Server ServerList
 
 %%
 
 Options : ServerList
-        | ServerList Pager
-        | Pager ServerList
-        | Pager
         ;
-
-Pager : TOKEN_PAGER TOKEN_STRING { if (!dict_pager) dict_pager = $2.string; }
-      | TOKEN_PAGER TOKEN_PAGER  { if (!dict_pager) dict_pager = "pager"; }
-      ;
 
 ServerList : Server { $$ = dict_Servers = lst_create(); lst_append($$, $1); }
            | ServerList Server { lst_append($1, $2); $$ = $1; }
