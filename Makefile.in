@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.118 2007/09/29 18:49:26 cheusov Exp $
+# $Id: Makefile.in,v 1.119 2007/10/10 20:26:02 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -422,7 +422,7 @@ clean:
 	-rm -f *.dict *.index
 	-rm -f *.exe *.dll
 	-rm -f test/_* test/testdb.t.txt
-	-rm ChangeLog*
+	-rm -f ChangeLog*
 
 recursive-clean: clean
 	@for subdir in `echo $(subdirs)`; do \
