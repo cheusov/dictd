@@ -1,3 +1,31 @@
+Version 1.10.10, by Aleksey Cheusov, Sat, 10 Nov 2007 22:03:06 +0200
+
+ dict, dictl, colorit:
+
+    - all these programs do NOT support paging to a special program, i.e.
+      --pager|-P option.
+      As of this version everything is output to stdout only.
+      Now, 'dict' program for dictionary protocol is like wget for http.
+
+      Sorry for breaking backward compatibility but this change makes
+      the code cleaner, smaller and more manageable.
+
+      If you run 'dict' (or 'dictl') interactively, write the following
+      to your interactive shell startup script (.ksh, .zsh, .bashrc etc.)
+
+            mydict () { dict "$@" 2>&1 | colorit | less; }
+
+      and then use 'mydict' instead of 'dict' (or 'dictl')
+
+
+      '-P -' option is allowed.
+
+ dictd:
+
+    - added support for utf-8 symbols other than BMP
+
+ other minor fixes and cleanups
+
 ----------------------------------------------------------------------
 Version 1.10.9, by Aleksey Cheusov, Tue, 29 May 2007 23:20:14 +0300
 
