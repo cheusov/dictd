@@ -47,6 +47,7 @@
 #include <sstream>
 #include <list>
 #include <assert.h>
+#include <string.h>
 
 #include "dictdplugin.h"
 
