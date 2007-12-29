@@ -20,6 +20,8 @@
 
 %option stack debug
 %{
+#include <stdlib.h>
+
 #include "dict.h"
 #include "clientparse.h"
 extern int  yylex( void );
