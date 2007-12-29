@@ -266,7 +266,7 @@ static lst_List client_read_text( int s )
    }
    if (len < 0) {
        client_close_pager();
-       err_fatal_errno( __FUNCTION__, "Error reading from socket\n" );
+       err_fatal_errno( __func__, "Error reading from socket\n" );
    }
    return l;
 }
@@ -367,7 +367,7 @@ static void client_print_matches( lst_List l, int flag, const char *word )
       last = e;
       a = arg_argify( e, 0 );
       if (arg_count(a) != 2)
-	 err_internal( __FUNCTION__,
+	 err_internal( __func__,
 		       "MATCH command didn't return 2 args: \"%s\"\n", e );
 
       arg0 = arg_get (a,0);
@@ -426,7 +426,7 @@ static void client_print_listed( lst_List l )
       /* */
       a = arg_argify( e, 0 );
       if (arg_count(a) != 2)
-	 err_internal( __FUNCTION__,
+	 err_internal( __func__,
 		       "SHOW command didn't return 2 args: \"%s\"\n", e );
 
       len = strlen (arg_get (a,0));
@@ -496,7 +496,7 @@ static int client_read_status( int s,
 
    if ((len = net_read( s, buf, BUFFERSIZE )) < 0) {
       client_close_pager();
-      err_fatal_errno( __FUNCTION__, "Error reading from socket\n" );
+      err_fatal_errno( __func__, "Error reading from socket\n" );
    }
    client_bytes += len;
    PRINTF(DBG_RAW,("* Read: %s\n",buf));
@@ -607,7 +607,7 @@ static struct cmd *make_command( int command, ... )
    case CMD_OPTION_MIME:
       break;
    default:
-      err_internal( __FUNCTION__, "Illegal command %d\n", command );
+      err_internal( __func__, "Illegal command %d\n", command );
    }
    va_end( ap );
 
@@ -702,7 +702,7 @@ static void request( void )
       case CMD_CLOSE:  snprintf( b, BUFFERSIZE, "quit\n" );           break;
       case CMD_OPTION_MIME: snprintf( b, BUFFERSIZE, "option mime\n" );    break;
       default:
-	 err_internal( __FUNCTION__, "Unknown command %d\n", c->command );
+	 err_internal( __func__, "Unknown command %d\n", c->command );
       }
       len = strlen(b);
       if (total + len + 3 > client_pipesize) {
@@ -727,7 +727,7 @@ end:				/* Ready to send buffer, but are we
    if (!cmd_reply.s) {
       c = lst_top(cmd_list);
       if (c->command != CMD_CONNECT) {
-	 err_internal( __FUNCTION__, "Not connected, but no CMD_CONNECT\n" );
+	 err_internal( __func__, "Not connected, but no CMD_CONNECT\n" );
       }
       if ((cmd_reply.s = net_connect_tcp( c->host,
 					     c->service
@@ -1075,7 +1075,7 @@ static void process( void )
 	    int empty_line_found = 0;
 
 	    if (!cmd_reply.data)
-	       err_internal( __FUNCTION__,
+	       err_internal( __func__,
 			     "%d matches, but no list\n", cmd_reply.matches );
 
 	    for (i = cmd_reply.matches; i > 0; --i) {
@@ -1096,7 +1096,7 @@ static void process( void )
 	       /* */
 	       a = arg_argify( line, 0 );
 	       if (arg_count(a) != 2)
-		  err_internal( __FUNCTION__,
+		  err_internal( __func__,
 				"MATCH command didn't return 2 args: \"%s\"\n",
 				line );
 
@@ -1142,7 +1142,7 @@ static void process( void )
 	 expected = CODE_GOODBYE;
 	 break;
       default:
-	 err_internal( __FUNCTION__, "Illegal command %d\n", c->command );
+	 err_internal( __func__, "Illegal command %d\n", c->command );
       }
       if (cmd_reply.s && cmd_reply.retcode != expected) {
          client_close_pager();
@@ -1169,9 +1169,9 @@ static void handler( int sig )
    }
 
    if (name)
-      err_fatal( __FUNCTION__, "Caught %s, exiting\n", name );
+      err_fatal( __func__, "Caught %s, exiting\n", name );
    else
-      err_fatal( __FUNCTION__, "Caught signal %d, exiting\n", sig );
+      err_fatal( __func__, "Caught signal %d, exiting\n", sig );
 
    exit(0);
 }

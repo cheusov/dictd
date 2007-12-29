@@ -170,7 +170,7 @@ static int dict_search_lev_utf8 (
    while (*p){
       char_len = mbrlen__ (p, MB_CUR_MAX__, &ps);
       if (char_len == (size_t) -1)
-	 err_internal (__FUNCTION__, "Alphabet is not a valid utf-8 string\n");
+	 err_internal (__func__, "Alphabet is not a valid utf-8 string\n");
 
       memcpy (d, p, char_len);
       d [char_len] = 0;
@@ -194,7 +194,7 @@ static int dict_search_lev_utf8 (
       while (*p){
 	 char_len = mbrlen__ (p, MB_CUR_MAX__, &ps);
 	 if (char_len == (size_t) -1)
-	    err_internal (__FUNCTION__, "Alphabet is not a valid utf-8 string\n");
+	    err_internal (__func__, "Alphabet is not a valid utf-8 string\n");
 
 	 memcpy (d, p, char_len);
 	 p += char_len;

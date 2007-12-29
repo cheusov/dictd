@@ -63,7 +63,7 @@ void prs_file_pp (const char *pp, const char *filename)
    const char        **pt;
 
    if (!filename)
-      err_fatal( __FUNCTION__, "No filename specified\n" );
+      err_fatal( __func__, "No filename specified\n" );
 
    if (!pp){
       prs_file_nocpp (filename);
@@ -75,9 +75,9 @@ void prs_file_pp (const char *pp, const char *filename)
    sprintf (buffer, "%s '%s' 2>/dev/null", pp, filename);
 
 
-   PRINTF(MAA_PARSE,("%s: %s\n", __FUNCTION__, buffer));
+   PRINTF(MAA_PARSE,("%s: %s\n", __func__, buffer));
    if (!(yyin = popen( buffer, "r" )))
-      err_fatal_errno( __FUNCTION__,
+      err_fatal_errno( __func__,
 		       "Cannot open \"%s\" for read\n", buffer );
 
    src_new_file( filename );
@@ -100,11 +100,11 @@ void prs_file( const char *filename )
    FILE              *tmp;
    
    if (!filename)
-      err_fatal( __FUNCTION__, "No filename specified\n" );
+      err_fatal( __func__, "No filename specified\n" );
 
    if (!cpp) {
       if ((cpp = getenv( "KHEPERA_CPP" ))) {
-         PRINTF(MAA_PARSE,("%s: Using KHEPERA_CPP from %s\n", __FUNCTION__, cpp));
+         PRINTF(MAA_PARSE,("%s: Using KHEPERA_CPP from %s\n", __func__, cpp));
       }
       
                                 /* Always look for gcc's cpp first, since
@@ -115,7 +115,7 @@ void prs_file( const char *filename )
          
          if (fread( buf, 1, 1023, tmp ) > 0) {
             if ((t = strchr( buf, '\n' ))) *t = '\0';
-            PRINTF(MAA_PARSE,("%s: Using GNU cpp from %s\n", __FUNCTION__, buf));
+            PRINTF(MAA_PARSE,("%s: Using GNU cpp from %s\n", __func__, buf));
             cpp = str_find( buf );
             extra_options = "-nostdinc -nostdinc++";
          }
@@ -132,7 +132,7 @@ void prs_file( const char *filename )
          for (pt = cpps; **pt; pt++) {
             if (!access( *pt, X_OK )) {
                PRINTF(MAA_PARSE,
-                      ("%s: Using system cpp from %s\n", __FUNCTION__, *pt));
+                      ("%s: Using system cpp from %s\n", __func__, *pt));
                cpp = *pt;
                break;
             }
@@ -140,7 +140,7 @@ void prs_file( const char *filename )
       }
       
       if (!cpp)
-	 err_fatal( __FUNCTION__,
+	 err_fatal( __func__,
 		    "Cannot locate cpp -- set KHEPERA_CPP to cpp's path\n" );
    }
 
@@ -152,9 +152,9 @@ void prs_file( const char *filename )
    sprintf( buffer, "%s -I. %s %s 2>/dev/null", cpp,
 	    _prs_cpp_options ? _prs_cpp_options : "", filename );
 
-   PRINTF(MAA_PARSE,("%s: %s\n", __FUNCTION__, buffer));
+   PRINTF(MAA_PARSE,("%s: %s\n", __func__, buffer));
    if (!(yyin = popen( buffer, "r" )))
-      err_fatal_errno( __FUNCTION__,
+      err_fatal_errno( __func__,
 		       "Cannot open \"%s\" for read\n", filename );
 
    src_new_file( filename );
@@ -173,10 +173,10 @@ void prs_file( const char *filename )
 void prs_file_nocpp( const char *filename )
 {
    if (!filename)
-      err_fatal( __FUNCTION__, "No filename specified\n" );
+      err_fatal( __func__, "No filename specified\n" );
 
    if (!(yyin = fopen( filename, "r" )))
-      err_fatal_errno( __FUNCTION__,
+      err_fatal_errno( __func__,
 		       "Cannot open \"%s\" for read\n", filename );
 
    src_new_file( filename );

@@ -94,7 +94,7 @@ int net_connect_tcp( const char *host, const char *service )
 	 PRINTF(DBG_VERBOSE,
 		("Trying %s (%s)\n",host,inet_ntoa(ssin.sin_addr)));
 	 if ((s = socket(PF_INET, SOCK_STREAM, protocolEntry->p_proto)) < 0)
-	    err_fatal_errno( __FUNCTION__, "Can't open socket on port %d\n",
+	    err_fatal_errno( __func__, "Can't open socket on port %d\n",
 			     ntohs(ssin.sin_port) );      
 	 if (connect(s, (struct sockaddr *)&ssin, sizeof(ssin)) >= 0)
 	    return s;
@@ -102,7 +102,7 @@ int net_connect_tcp( const char *host, const char *service )
       }
    } else {
       if ((s = socket(PF_INET, SOCK_STREAM, protocolEntry->p_proto)) < 0)
-	 err_fatal_errno( __FUNCTION__, "Can't open socket on port %d\n",
+	 err_fatal_errno( __func__, "Can't open socket on port %d\n",
 			  ntohs(ssin.sin_port) );
       if (connect(s, (struct sockaddr *)&ssin, sizeof(ssin)) >= 0)
 	 return s;
@@ -130,23 +130,23 @@ int net_open_tcp (
    if ((serviceEntry = getservbyname(service, "tcp"))) {
       ssin.sin_port = serviceEntry->s_port;
    } else if (!(ssin.sin_port = htons(atoi(service))))
-      err_fatal( __FUNCTION__, "Can't get \"%s\" service entry\n", service );
+      err_fatal( __func__, "Can't get \"%s\" service entry\n", service );
 
    if (!(protocolEntry = getprotobyname("tcp")))
-      err_fatal( __FUNCTION__, "Can't get \"tcp\" protocol entry\n" );
+      err_fatal( __func__, "Can't get \"tcp\" protocol entry\n" );
    
    if ((s = socket(PF_INET, SOCK_STREAM, protocolEntry->p_proto)) < 0)
-      err_fatal_errno( __FUNCTION__, "Can't open socket on port %d\n",
+      err_fatal_errno( __func__, "Can't open socket on port %d\n",
 		       ntohs(ssin.sin_port) );
 
    setsockopt( s, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one) );
 
    if (bind(s, (struct sockaddr *)&ssin, sizeof(ssin)) < 0)
-      err_fatal_errno( __FUNCTION__, "Can't bind %s/tcp to port %d\n",
+      err_fatal_errno( __func__, "Can't bind %s/tcp to port %d\n",
 		       service, ntohs(ssin.sin_port) );
 
    if (listen( s, queueLength ) < 0)
-      err_fatal_errno( __FUNCTION__, "Can't listen to %s/tcp on port %d\n",
+      err_fatal_errno( __func__, "Can't listen to %s/tcp on port %d\n",
 		       service, ntohs(ssin.sin_port) );
    
    return s;

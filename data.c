@@ -55,7 +55,7 @@ int dict_data_filter( char *buffer, int *len, int maxLength,
    
    outLen = pr_filter( filter, buffer, *len, outBuffer, maxLength + 1 );
    if (outLen > maxLength )
-      err_fatal( __FUNCTION__,
+      err_fatal( __func__,
 		 "Filter grew buffer from %d past limit of %d\n",
 		 *len, maxLength );
    memcpy( buffer, outBuffer, outLen );
@@ -84,7 +84,7 @@ static int dict_read_header( const char *filename,
    unsigned long offset;
 
    if (!(str = fopen( filename, "r" )))
-      err_fatal_errno( __FUNCTION__,
+      err_fatal_errno( __func__,
 		       "Cannot open data file \"%s\" for read\n", filename );
 
    header->filename     = str_find( filename );
@@ -137,7 +137,7 @@ static int dict_read_header( const char *filename,
 	 header->version     |= getc( str ) << 8;
 	 
 	 if (header->version != 1)
-	    err_internal( __FUNCTION__,
+	    err_internal( __func__,
 			  "dzip header version %d not supported\n",
 			  header->version );
    
@@ -169,7 +169,7 @@ static int dict_read_header( const char *filename,
 
 	 if (pt == buffer + sizeof (buffer)){
 	    err_fatal (
-	       __FUNCTION__,
+	       __func__,
 	       "too long FNAME field in dzip file \"%s\"\n", filename);
 	 }
       }
@@ -188,7 +188,7 @@ static int dict_read_header( const char *filename,
 
 	 if (pt == buffer + sizeof (buffer)){
 	    err_fatal (
-	       __FUNCTION__,
+	       __func__,
 	       "too long COMMENT field in dzip file \"%s\"\n", filename);
 	 }
       }
@@ -207,7 +207,7 @@ static int dict_read_header( const char *filename,
    }
 
    if (ftell( str ) != header->headerLength + 1)
-      err_internal( __FUNCTION__,
+      err_internal( __func__,
 		    "File position (%lu) != header length + 1 (%d)\n",
 		    ftell( str ), header->headerLength + 1 );
 
@@ -252,21 +252,21 @@ dictData *dict_data_open( const char *filename, int computeCRC )
    h->initialized = 0;
 
    if (stat( filename, &sb ) || !S_ISREG(sb.st_mode)) {
-      err_warning( __FUNCTION__,
+      err_warning( __func__,
 		   "%s is not a regular file -- ignoring\n", filename );
       return h;
    }
    
    if (dict_read_header( filename, h, computeCRC )) {
-      err_fatal( __FUNCTION__,
+      err_fatal( __func__,
 		 "\"%s\" not in text or dzip format\n", filename );
    }
    
    if ((h->fd = open( filename, O_RDONLY )) < 0)
-      err_fatal_errno( __FUNCTION__,
+      err_fatal_errno( __func__,
 		       "Cannot open data file \"%s\"\n", filename );
    if (fstat( h->fd, &sb ))
-      err_fatal_errno( __FUNCTION__,
+      err_fatal_errno( __func__,
 		       "Cannot stat data file \"%s\"\n", filename );
    h->size = sb.st_size;
 
@@ -275,16 +275,16 @@ dictData *dict_data_open( const char *filename, int computeCRC )
       h->start = mmap( NULL, h->size, PROT_READ, MAP_SHARED, h->fd, 0 );
       if ((void *)h->start == (void *)(-1))
 	 err_fatal_errno(
-	    __FUNCTION__,
+	    __func__,
 	    "Cannot mmap data file \"%s\"\n", filename );
 #else
-      err_fatal (__FUNCTION__, "This should not happen");
+      err_fatal (__func__, "This should not happen");
 #endif
    }else{
       h->start = xmalloc (h->size);
       if (-1 == read (h->fd, (char *) h->start, h->size))
 	 err_fatal_errno (
-	    __FUNCTION__,
+	    __func__,
 	    "Cannot read data file \"%s\"\n", filename );
 
       close (h -> fd);
@@ -318,7 +318,7 @@ void dict_data_close( dictData *header )
 	 header->fd = 0;
 	 header->start = header->end = NULL;
 #else
-	 err_fatal (__FUNCTION__, "This should not happen");
+	 err_fatal (__func__, "This should not happen");
 #endif
       }else{
 	 if (header -> start)
@@ -331,7 +331,7 @@ void dict_data_close( dictData *header )
 
    if (header->initialized) {
       if (inflateEnd( &header->zStream ))
-	 err_internal( __FUNCTION__,
+	 err_internal( __func__,
 		       "Cannot shut down inflation engine: %s\n",
 		       header->zStream.msg );
    }
@@ -402,7 +402,7 @@ char *dict_data_read_ (
    assert( h != NULL);
    switch (h->type) {
    case DICT_GZIP:
-      err_fatal( __FUNCTION__,
+      err_fatal( __func__,
 		 "Cannot seek on pure gzip format files.\n"
 		 "Use plain text (for performance)"
 		 " or dzip format (for space savings).\n" );
@@ -422,7 +422,7 @@ char *dict_data_read_ (
 	 h->zStream.next_out  = NULL;
 	 h->zStream.avail_out = 0;
 	 if (inflateInit2( &h->zStream, -15 ) != Z_OK)
-	    err_internal( __FUNCTION__,
+	    err_internal( __func__,
 			  "Cannot initialize inflation engine: %s\n",
 			  h->zStream.msg );
       }
@@ -466,7 +466,7 @@ char *dict_data_read_ (
 	    inBuffer = h->cache[target].inBuffer;
 
 	    if (h->chunks[i] >= OUT_BUFFER_SIZE ) {
-	       err_internal( __FUNCTION__,
+	       err_internal( __func__,
 			     "h->chunks[%d] = %d >= %ld (OUT_BUFFER_SIZE)\n",
 			     i, h->chunks[i], OUT_BUFFER_SIZE );
 	    }
@@ -478,9 +478,9 @@ char *dict_data_read_ (
 	    h->zStream.next_out  = inBuffer;
 	    h->zStream.avail_out = IN_BUFFER_SIZE;
 	    if (inflate( &h->zStream,  Z_PARTIAL_FLUSH ) != Z_OK)
-	       err_fatal( __FUNCTION__, "inflate: %s\n", h->zStream.msg );
+	       err_fatal( __func__, "inflate: %s\n", h->zStream.msg );
 	    if (h->zStream.avail_in)
-	       err_internal( __FUNCTION__,
+	       err_internal( __func__,
 			     "inflate did not flush (%d pending, %d avail)\n",
 			     h->zStream.avail_in, h->zStream.avail_out );
 	    
@@ -496,7 +496,7 @@ char *dict_data_read_ (
 	       pt += lastOffset - firstOffset;
 	    } else {
 	       if (count != h->chunkLength )
-		  err_internal( __FUNCTION__,
+		  err_internal( __func__,
 				"Length = %d instead of %d\n",
 				count, h->chunkLength );
 	       memcpy( pt, inBuffer + firstOffset,
@@ -515,7 +515,7 @@ char *dict_data_read_ (
       *pt = '\0';
       break;
    case DICT_UNKNOWN:
-      err_fatal( __FUNCTION__, "Cannot read unknown file type\n" );
+      err_fatal( __func__, "Cannot read unknown file type\n" );
       break;
    }
    

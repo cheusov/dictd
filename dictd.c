@@ -159,7 +159,7 @@ void dict_setproctitle( const char *format, ... )
    va_end( ap );
 
    if ((len = strlen(buf)) > MAXPROCTITLE-1)
-      err_fatal( __FUNCTION__, "buffer overflow (%d)\n", len );
+      err_fatal( __func__, "buffer overflow (%d)\n", len );
 
    buf[ MIN(_dict_argvlen,MAXPROCTITLE) - 1 ] = '\0';
    strcpy( _dict_argvstart, buf );
@@ -645,7 +645,7 @@ static int init_virtual_db_list (const void *datum)
 	 break;
       default:
 	 err_fatal (
-	    __FUNCTION__,
+	    __func__,
 	    "index file contains more than one %s entry",
 	    DICT_FLAG_VIRTUAL);
       }
@@ -673,13 +673,13 @@ static int init_mime_db_list (const void *datum)
 
       if (!db -> mime_mimeDB){
 	 err_fatal (
-	    __FUNCTION__,
+	    __func__,
 	    "Incorrect database name '%s'\n",
 	    db -> mime_mimeDbname);
       }
    }else{
       err_fatal (
-	 __FUNCTION__,
+	 __func__,
 	 "MIME database '%s' has no mime_dbname keyword\n",
 	 db -> databaseName);
    }
@@ -690,13 +690,13 @@ static int init_mime_db_list (const void *datum)
 
       if (!db -> mime_nomimeDB){
 	 err_fatal (
-	    __FUNCTION__,
+	    __func__,
 	    "Incorrect database name '%s'\n",
 	    db -> mime_nomimeDbname);
       }
    }else{
       err_fatal (
-	 __FUNCTION__,
+	 __func__,
 	 "MIME database '%s' has no nomime_dbname keyword\n",
 	 db -> databaseName);
    }
@@ -1003,7 +1003,7 @@ static void dict_ltdl_init ()
 {
 #if USE_PLUGIN && !HAVE_DLFCN_H
    if (lt_dlinit ())
-      err_fatal( __FUNCTION__, "Can not initialize 'ltdl' library\n" );
+      err_fatal( __func__, "Can not initialize 'ltdl' library\n" );
 #endif
 }
 
@@ -1011,7 +1011,7 @@ static void dict_ltdl_close ()
 {
 #if USE_PLUGIN && !HAVE_DLFCN_H
    if (lt_dlexit ())
-      err_fatal( __FUNCTION__, "Can not deinitialize 'ltdl' library\n" );
+      err_fatal( __func__, "Can not deinitialize 'ltdl' library\n" );
 #endif
 }
 
@@ -1339,7 +1339,7 @@ static void sanity(const char *confFile)
 		  getegid(), gr && gr->gr_name ? gr->gr_name : "?");
 	 log_info(":E: config and db files must be readable by that user\n");
       }
-      err_fatal(__FUNCTION__, ":E: terminating due to errors. See log file\n");
+      err_fatal(__func__, ":E: terminating due to errors. See log file\n");
    }
 }
 
@@ -1360,7 +1360,7 @@ static void set_locale_and_flags (const char *loc)
 #if !HAVE_UTF8
    if (utf8_mode){
       err_fatal (
-	 __FUNCTION__,
+	 __func__,
 	 "utf-8 support was disabled at compile time\n");
    }
 #endif
@@ -1416,7 +1416,7 @@ static void pid_file_create ()
    if (!pid_fd){
       log_info(":E: cannot open pid file '%s'\n:E:    err msg: %s\n",
 	       pidFile, strerror (errno));
-      err_fatal(__FUNCTION__,
+      err_fatal(__func__,
 		":E: terminating due to errors. See log file\n");
    }
 }
@@ -1428,7 +1428,7 @@ static void pid_file_write ()
    {
       log_info(":E: cannot write to pid file '%s'\n:E:    err msg: %s\n",
 	       pidFile, strerror (errno));
-      err_fatal(__FUNCTION__,
+      err_fatal(__func__,
 		":E: terminating due to errors. See log file\n");
    }
 }
@@ -1437,7 +1437,7 @@ void reopen_012 (void)
 {
    int fd = open ("/dev/null", O_RDWR);
    if (fd == -1)
-      err_fatal_errno (__FUNCTION__, ":E: can't open /dev/null");
+      err_fatal_errno (__func__, ":E: can't open /dev/null");
 
    close (0);
    close (1);
@@ -1752,7 +1752,7 @@ int main (int argc, char **argv, char **envp)
 	 default:
 	    log_info (":E: can't accept: errno = %d: %s\n",
 		      errno, strerror (errno));
-	    err_fatal_errno (__FUNCTION__, ":E: can't accept");
+	    err_fatal_errno (__func__, ":E: can't accept");
 	 }
       }
 

@@ -11,7 +11,7 @@ int daemon (int nochdir, int noclose)
    int fd;
 
    switch (fork()) {
-   case -1: err_fatal_errno( __FUNCTION__, "Cannot fork\n" ); break;
+   case -1: err_fatal_errno( __func__, "Cannot fork\n" ); break;
    case 0:  break;		/* child */
    default: exit(0);		/* parent */
    }

@@ -128,10 +128,10 @@ int dict_data_zip( const char *inFilename, const char *outFilename,
    
    /* Open files */
    if (!(inStr = fopen( inFilename, "r" )))
-      err_fatal_errno( __FUNCTION__,
+      err_fatal_errno( __func__,
 		       "Cannot open \"%s\" for read\n", inFilename );
    if (!(outStr = fopen( outFilename, "w" )))
-      err_fatal_errno( __FUNCTION__,
+      err_fatal_errno( __func__,
 		       "Cannot open \"%s\"for write\n", outFilename );
 
    origFilename = xmalloc( strlen( inFilename ) + 1 );
@@ -154,7 +154,7 @@ int dict_data_zip( const char *inFilename, const char *outFilename,
 		     -15,	/* Suppress zlib header */
 		     Z_BEST_COMPRESSION,
 		     Z_DEFAULT_STRATEGY ) != Z_OK)
-      err_internal( __FUNCTION__,
+      err_internal( __func__,
 		    "Cannot initialize deflation engine: %s\n", zStream.msg );
 
    /* Write initial header information */
@@ -214,7 +214,7 @@ int dict_data_zip( const char *inFilename, const char *outFilename,
 	 zStream.next_out  = outBuffer;
 	 zStream.avail_out = OUT_BUFFER_SIZE;
 	 if (deflate( &zStream, Z_FULL_FLUSH ) != Z_OK)
-	    err_fatal( __FUNCTION__, "deflate: %s\n", zStream.msg );
+	    err_fatal( __func__, "deflate: %s\n", zStream.msg );
 	 assert( zStream.avail_in == 0 );
 	 len = OUT_BUFFER_SIZE - zStream.avail_out;
 	 assert( len <= 0xffff );
@@ -246,7 +246,7 @@ int dict_data_zip( const char *inFilename, const char *outFilename,
    zStream.next_out  = outBuffer;
    zStream.avail_out = OUT_BUFFER_SIZE;
    if (deflate( &zStream, Z_FINISH ) != Z_STREAM_END)
-      err_fatal( __FUNCTION__, "deflate: %s\n", zStream.msg );
+      err_fatal( __func__, "deflate: %s\n", zStream.msg );
    assert( zStream.avail_in == 0 );
    len = OUT_BUFFER_SIZE - zStream.avail_out;
    fwrite( outBuffer, 1, len, outStr );
@@ -289,7 +289,7 @@ int dict_data_zip( const char *inFilename, const char *outFilename,
     
    /* Shut down compression */
    if (deflateEnd( &zStream ) != Z_OK)
-      err_fatal( __FUNCTION__, "defalteEnd: %s\n", zStream.msg );
+      err_fatal( __func__, "defalteEnd: %s\n", zStream.msg );
 
    xfree( origFilename );
    xfree( header );
@@ -489,11 +489,11 @@ int main( int argc, char **argv )
 
 	    if ((pt = strrchr( filename, '.' ))) *pt = '\0';
 	    else
-	       err_fatal( __FUNCTION__, "Cannot truncate filename\n" );
+	       err_fatal( __func__, "Cannot truncate filename\n" );
 	    if (!forceFlag && (str = fopen( filename, "r" )))
-	       err_fatal( __FUNCTION__, "%s already exists\n", filename );
+	       err_fatal( __func__, "%s already exists\n", filename );
 	    if (!(str = fopen( filename, "w" )))
-	       err_fatal_errno( __FUNCTION__,
+	       err_fatal_errno( __func__,
 				"Cannot open %s for write\n", filename );
 	    header = dict_data_open( argv[i], 0 );
 	    if (!size) size = header->length;
@@ -507,15 +507,15 @@ int main( int argc, char **argv )
 	    }	    
 	    dict_data_close( header );
 	    if (!keepFlag && unlink( argv[i] ))
-	       err_fatal_errno( __FUNCTION__, "Cannot unlink %s\n", argv[i] );
+	       err_fatal_errno( __func__, "Cannot unlink %s\n", argv[i] );
 	 }
       } else {
 	 snprintf( buffer,BUFFERSIZE-1, "%s.dz", argv[i] );
 	 if (!dict_data_zip( argv[i], buffer, pre, post )) {
 	    if (!keepFlag && unlink( argv[i] ))
-		err_fatal_errno( __FUNCTION__, "Cannot unlink %s\n", argv[i] );
+		err_fatal_errno( __func__, "Cannot unlink %s\n", argv[i] );
 	 } else {
-	    err_fatal( __FUNCTION__, "Compression failed\n" );
+	    err_fatal( __func__, "Compression failed\n" );
 	 }
       }
    }

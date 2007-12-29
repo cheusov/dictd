@@ -606,7 +606,7 @@ static dictWord *dict_word_create(
 	 else if (!offs_word)
 	    offs_word = offset + 1;
 	 else{
-	    err_internal( __FUNCTION__,
+	    err_internal( __func__,
 			  "Too many tabs in index entry \"%*.*s\"\n",
 			  offs_length, offs_length, entry );
 	 }
@@ -614,7 +614,7 @@ static dictWord *dict_word_create(
    }
 
    if (!offs_length)
-      err_internal( __FUNCTION__,
+      err_internal( __func__,
 		    "Too few tabs in index entry \"%20.20s\"\n", entry );
 
    dw->start    = b64_decode_buf (entry + offs_offset, offs_length - offs_offset - 1);
@@ -1794,10 +1794,10 @@ dictIndex *dict_index_open(
    memset( i, 0, sizeof( struct dictIndex ) );
 
    if ((i->fd = open( filename, O_RDONLY )) < 0)
-      err_fatal_errno( __FUNCTION__,
+      err_fatal_errno( __func__,
 		       "Cannot open index file \"%s\"\n", filename );
    if (fstat( i->fd, &sb ))
-      err_fatal_errno( __FUNCTION__,
+      err_fatal_errno( __func__,
 		       "Cannot stat index file \"%s\"\n", filename );
    i->size = sb.st_size;
 
@@ -1807,17 +1807,17 @@ dictIndex *dict_index_open(
          i->start = mmap( NULL, i->size, PROT_READ, MAP_SHARED, i->fd, 0 );
          if ((void *)i->start == (void *)(-1))
             err_fatal_errno (
-               __FUNCTION__,
+               __func__,
                "Cannot mmap index file \"%s\"\b", filename );
       } else i->start = NULL;  /* allow for /dev/null dummy index */
 #else
-      err_fatal (__FUNCTION__, "This should not happen");
+      err_fatal (__func__, "This should not happen");
 #endif
    }else{
       i->start = xmalloc (i->size);
       if (-1 == read (i->fd, (char *) i->start, i->size))
 	 err_fatal_errno (
-	    __FUNCTION__,
+	    __func__,
 	    "Cannot read index file \"%s\"\b", filename );
 
       close (i -> fd);
@@ -1957,7 +1957,7 @@ void dict_index_close( dictIndex *i )
 	 i->fd = 0;
       }
 #else
-      err_fatal (__FUNCTION__, "This should not happen");
+      err_fatal (__func__, "This should not happen");
 #endif
    }else{
       if (i -> start)
