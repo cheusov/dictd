@@ -215,8 +215,8 @@ static void fmt_wrap_and_print (const char *s)
    if (utf8_mode){
       len = mbswidth_ (s);
       if (len == (size_t) -1)
-	 err_fatal (__FUNCTION__, "'%s' is not a valid utf-8 string\n", s);
-/*	 err_fatal (__FUNCTION__, "'%s' is not a valid utf-8 string or contains non-printable symbols\n", s);*/
+	 err_fatal (__func__, "'%s' is not a valid utf-8 string\n", s);
+/*	 err_fatal (__func__, "'%s' is not a valid utf-8 string or contains non-printable symbols\n", s);*/
    }else{
       len = strlen (s);
    }
@@ -835,7 +835,7 @@ static void set_utf8bit_mode (const char *locale_)
 #if !HAVE_UTF8
    if (utf8_mode){
       err_fatal (
-	 __FUNCTION__,
+	 __func__,
 	 "utf-8 support was disabled at compile time\n");
    }
 #endif
@@ -1078,7 +1078,7 @@ static int xatoi (const char *nptr)
    char *end;
    long ret = strtol (nptr, &end, 10);
    if (end == nptr || end [0] != 0)
-      err_fatal (__FUNCTION__, "bad decimal '%s'\n", nptr);
+      err_fatal (__func__, "bad decimal '%s'\n", nptr);
 
    return (int) ret;
 }
@@ -1247,7 +1247,7 @@ int main( int argc, char **argv )
 	  -1 == snprintf (
 	     dataname,  sizeof (dataname), "%s.dict", basename ))
       {
-	 err_fatal (__FUNCTION__, "Too long filename\n");
+	 err_fatal (__func__, "Too long filename\n");
       }
 
       fmt_openindex( indexname );
@@ -1264,7 +1264,7 @@ int main( int argc, char **argv )
 
    fmt_predefined_headwords_before ();
 
-   while (fgets(buf = buffer,BSIZE-1,stdin)) {
+   while (buf = (unsigned char *) buffer, fgets (buffer, BSIZE-1, stdin)) {
       if (strlen(buffer))
 	 buffer[strlen(buffer)-1] = '\0'; /* remove newline */
       
@@ -1452,13 +1452,13 @@ int main( int argc, char **argv )
 	 if (*buffer == '@') {
 	    buf++;
 	 } else if (strncmp(buffer, "_____",5) == 0) {
-	    fgets(buf = buffer,BSIZE-1,stdin); /* empty line */
-	    
-	    fgets(buf = buffer,BSIZE-1,stdin);
+	    buf = (unsigned char *) buffer;
+	    fgets (buffer,BSIZE-1,stdin); /* empty line */
+	    fgets (buffer,BSIZE-1,stdin);
 	    if (strlen(buffer))
 	       buffer[strlen(buffer)-1] = '\0'; /* remove newline */
 
-	    buf = trim_left (buf);
+	    buf = (unsigned char *) trim_left (buffer);
 
 	    if (*buf != '\0') {
 	       fmt_indent = 0;
