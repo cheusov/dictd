@@ -232,8 +232,6 @@ static int daemon_check_mask(const char *spec, const char *ip)
    }
    PRINTF(DBG_AUTH, ("%s does NOT match %s/%d\n", tstring, mstring, bits));
    return DICT_NOMATCH;
-   
-   return 0;
 }
 
 static int daemon_check_range(const char *spec, const char *ip)
@@ -434,7 +432,7 @@ static void daemon_write( const char *buf, int len )
                       " retval = %d, errno = %d\n",
                       left, len, count, errno );
 #endif
-            daemon_terminate( 0, __FUNCTION__ );
+            daemon_terminate( 0, __func__ );
          }
       }
       left -= count;
@@ -482,7 +480,7 @@ static void daemon_printf( const char *format, ... )
    va_end( ap );
    if ((len = strlen( buf )) >= BUFFERSIZE) {
       log_info( ":E: buffer overflow: %d\n", len );
-      daemon_terminate( 0, __FUNCTION__ );
+      daemon_terminate( 0, __func__ );
    }
 
    pt = alloca(2*len + 10); /* +10 for the case when buf == "\n"*/
