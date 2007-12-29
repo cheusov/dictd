@@ -1455,7 +1455,7 @@ int main (int argc, char **argv, char **envp)
    struct sockaddr_in csin;
    int                c;
    time_t             startTime;
-   int                alen         = sizeof(csin);
+   socklen_t          alen         = 0;
    int                detach       = 1;
    int                forceStartup = 0;
    int                i;
@@ -1786,4 +1786,5 @@ int main (int argc, char **argv, char **envp)
    dict_close_databases (DictConfig);
 
    destroy ();
+   return 0;
 }
