@@ -1263,6 +1263,20 @@ static void daemon_show_server (
    const dictDatabase  *db;
    double        uptime;
 
+   int headwords;
+
+   int index_size;
+   char index_size_uom;
+
+   int data_size;
+   char data_size_uom;
+   int data_length;
+   char data_length_uom;
+
+   int max_dbname_len;
+
+   lst_Position databasePosition = first_database_pos ();
+
    daemon_printf( "%d server information\n", CODE_SERVER_INFO );
    daemon_mime();
 
@@ -1288,23 +1302,24 @@ static void daemon_show_server (
    }
 
    if (!site_info_no_dblist && count_databases()) {
-      daemon_printf( "Database      Headwords         Index"
-		     "          Data  Uncompressed\n" );
+      daemon_printf( "Database      Headwords         Index          Data  Uncompressed\n" );
 
-      lst_Position databasePosition = first_database_pos ();
+      databasePosition = first_database_pos ();
 
-      while ((db = next_database (&databasePosition, "*"))) {
-	 int headwords       = db->index ? db->index->headwords : 0;
+      while (db = next_database (&databasePosition, "*"),
+	     db != NULL)
+      {
+	 headwords       = (db->index ? db->index->headwords : 0);
 
-	 int index_size      = 0;
-	 char index_size_uom = 'k';
+	 index_size      = 0;
+	 index_size_uom = 'k';
 
-	 int data_size       = 0;
-	 char data_size_uom  = 'k';
-	 int data_length     = 0;
-	 char data_length_uom= 'k';
+	 data_size       = 0;
+	 data_size_uom  = 'k';
+	 data_length     = 0;
+	 data_length_uom= 'k';
 
-	 int max_dbname_len = 0;
+	 max_dbname_len = 0;
 
 	 assert (!db -> invisible);
 
