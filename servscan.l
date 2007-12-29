@@ -172,7 +172,7 @@ int yywrap( void )
 void yyerror( const char *message )
 {
    src_parse_error( stderr, yylval.token.src, message );
-   err_fatal( __FUNCTION__, "parse error\n" );
+   err_fatal( __func__, "parse error\n" );
    exit( 1 );
 }
 
@@ -188,14 +188,14 @@ static void include_file( void ) {
    orig_source = src_get( yyleng );
    if ( orig_buffer ) {
       src_print_error( stderr, orig_source, NULL );
-      err_fatal( __FUNCTION__, "Nested includes are not permitted\n" );
+      err_fatal( __func__, "Nested includes are not permitted\n" );
       exit( 1 );
    }
    orig_buffer = YY_CURRENT_BUFFER;
    yyin = fopen( file, "r" );
    if ( ! yyin ) {
       src_print_error( stderr, orig_source, NULL );
-      err_fatal( __FUNCTION__, "Cannot open \"%s\" for read\n", file );
+      err_fatal( __func__, "Cannot open \"%s\" for read\n", file );
       exit( 1 );
    }
    src_new_file( file );

@@ -70,6 +70,6 @@ int yywrap( void )
 void yyerror( const char *message )
 {
    src_parse_error( stderr, yylval.token.src, message );
-   err_fatal( __FUNCTION__, "parse error\n" );
+   err_fatal( __func__, "parse error\n" );
    exit( 1 );
 }
