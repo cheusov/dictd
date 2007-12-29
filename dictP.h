@@ -320,8 +320,9 @@ int getopt_long(int argc, char * const argv[],
                   const struct option *longopts, int *longindex);
 extern int  optind;
 extern char *optarg;
-#endif
-#endif
+#endif /* HAVE_GETOPT_LONG */
+
+#endif /* HAVE_GETOPT_H */
 
 				/* Local stuff */
 #ifndef max
