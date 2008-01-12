@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.119 2007/10/10 20:26:02 cheusov Exp $
+# $Id: Makefile.in,v 1.120 2008/01/12 23:03:33 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -31,7 +31,7 @@ endif
 .SUFFIXES:	
 
 srcdir=		@srcdir@
-VPATH=		@srcdir@
+VPATH=		@srcdir@:.
 prefix=		@prefix@
 subdirs=        @allsubdirs@ # doc -- use rfc2229 instead
 exec_prefix=	@exec_prefix@
@@ -75,7 +75,7 @@ YACC=		@YACC@
 JUDYLIB=        @JUDYLIB@
 DBILIB=         @DBILIB@
 
-CFLAGS= @CPPFLAGS@ @DEFS@ @CFLAGS@ -DDICT_PLUGIN_PATH=\"$(PLUGIN_DIR)\" -DDICT_DICTIONARY_PATH=\"$(DICT_DIR)\" -DDICT_VERSION=\"$(DICT_VERSION)\" -DDICT_CONFIG_PATH=\"$(CONF_DIR)\" -I.
+CFLAGS= @CPPFLAGS@ @DEFS@ @CFLAGS@ -DDICT_PLUGIN_PATH=\"$(PLUGIN_DIR)\" -DDICT_DICTIONARY_PATH=\"$(DICT_DIR)\" -DDICT_VERSION=\"$(DICT_VERSION)\" -DDICT_CONFIG_PATH=\"$(CONF_DIR)\" -I@srcdir@ -I.
 
 LDFLAGS=        @LDFLAGS@ @LIBS@
 LIBOBJS=        @LIBOBJS@
