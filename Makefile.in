@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.120 2008/01/12 23:03:33 cheusov Exp $
+# $Id: Makefile.in,v 1.121 2008/01/12 23:18:23 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -274,8 +274,8 @@ install.dictfmt: dictfmt dictfmt_index2word dictfmt_index2suffix
 	mkdir -p $(DESTDIR)$(bindir) && \
         mkdir -p $(DESTDIR)$(man1_prefix) && \
 	libtool --mode=install $(INSTALL_PROGRAM) dictfmt$(EXEEXT) $(DESTDIR)$(bindir) && \
-	$(INSTALL_SCRIPT) dictfmt_index2suffix $(DESTDIR)$(bindir) && \
-	$(INSTALL_SCRIPT) dictfmt_index2word $(DESTDIR)$(bindir) && \
+	$(INSTALL_SCRIPT) @srcdir@/dictfmt_index2suffix $(DESTDIR)$(bindir) && \
+	$(INSTALL_SCRIPT) @srcdir@/dictfmt_index2word $(DESTDIR)$(bindir) && \
 	$(INSTALL_SCRIPT) dictunformat $(DESTDIR)$(bindir) && \
 	$(INSTALL_DATA) dictfmt.1 $(DESTDIR)$(man1_prefix) && \
 	$(INSTALL_DATA) dictfmt_index2word.1 $(DESTDIR)$(man1_prefix) && \
@@ -298,7 +298,9 @@ install.includes:
 	if test _$(USE_PLUGIN) != _; then \
 	mkdir -p $(DESTDIR)$(includedir) && \
 	if test "$(INCLUDES)"; then \
-	$(INSTALL_DATA) $(INCLUDES) $(DESTDIR)$(includedir); fi fi
+	   $(INSTALL_DATA) $(addprefix @srcdir@/, $(INCLUDES)) \
+	      $(DESTDIR)$(includedir); \
+	fi fi
 
 install.plugins:
 	if test _$(USE_PLUGIN) != _; then \
