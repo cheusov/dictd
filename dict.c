@@ -898,7 +898,7 @@ static void process( void )
 	    fprintf( dict_error, "Client command gave unexpected status code %d (%s)\n",
 		    cmd_reply.retcode, message ? message : "no message" );
 
-//	 set_ex_status (cmd_reply.retcode);
+/*	 set_ex_status (cmd_reply.retcode); */
 
 	 expected = cmd_reply.retcode;
 	 break;
