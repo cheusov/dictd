@@ -269,11 +269,10 @@ extern int mbtowc__ (wchar_t *pwc, const char *s, size_t n);
 /* We actually need a few non-ANSI C things... */
 #if defined(__STRICT_ANSI__)
 extern char     *strdup( const char * );
+#if !HAVE_FILENO
 extern int      fileno( FILE *stream );
+#endif
 extern FILE     *fdopen( int fildes, const char *mode );
-extern void     bcopy( const void *src, void *dest, int n );
-extern long int random( void );
-extern void     srandom( unsigned int );
 #endif
 
 #if HAVE_SYS_RESOURCE_H
