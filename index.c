@@ -236,10 +236,6 @@ static int compare_allchars(
    PRINTF(DBG_SEARCH,("   We are inside index.c:compare_allchars\n"));
 
    while (*word && *word != '\t' && start < end && *start != '\t') {
-//      if (!isspacealnum(*start)) {
-//	 ++start;
-//	 continue;
-//      }
 #if 0
       if (isspace( (unsigned char) *start ))
 	 c2 = ' ';
@@ -1181,7 +1177,7 @@ static int dict_search_regexpr( lst_List l,
 	 if (end < start)
 	    end = dbindex->end;
 
-//	 FIND_NEXT(end, dbindex -> end);
+/*	 FIND_NEXT(end, dbindex -> end); */
       }
    }
 #endif

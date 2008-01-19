@@ -155,7 +155,7 @@ static void destroy (void)
    str_pool_destroy (alphabet_pool);
    alphabet_pool = NULL;
 
-//   maa_shutdown ();
+/*   maa_shutdown ();*/
 }
 
 static void destroy_and_exit (int exit_status)
@@ -671,7 +671,6 @@ static void fmt_newheadword( const char *word )
    fmt_test_nonascii (word);
 
    fmt_indent = 0;
-//   fmt_newline();
    fflush(stdout);
    end = ftell(str);
 
@@ -1253,7 +1252,6 @@ int main( int argc, char **argv )
       fmt_openindex( indexname );
    }
 
-//   str = stdout;
    if (basename && !Debug){
       if (!(str = fopen (dataname, "w"))) {
 	 fprintf(stderr, "Cannot open %s for write\n", dataname);
@@ -1280,13 +1278,6 @@ int main( int argc, char **argv )
 	       *pt = '\0';
 	       fmt_newheadword(buffer2);
 	       *pt = ',';
-
-//	       fprintf (stderr, "HW=`%s`\n", buffer2);
-//	       if (*pt == '\n')
-//		  ++pt;
-//	       fprintf (stderr, "DEF=`%s`\n", pt);
-
-//	       buf = pt;
 	    }
 	 }
 	 break;
@@ -1523,7 +1514,7 @@ int main( int argc, char **argv )
 	 fmt_string(buf);
 	 fmt_indent = 0;
 	 fmt_newline();
-//	 fmt_indent = FMT_INDENT;
+/*	 fmt_indent = FMT_INDENT; */
       }
    skip:;
    }

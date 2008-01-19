@@ -32,9 +32,9 @@ extern dictIndex  *dict_index_open(
 /* */
 extern void dict_index_close (dictIndex *i);
 
-//extern const char *dict_index_search (
-//   const char *word,
-//   dictIndex *idx);
+/* extern const char *dict_index_search (
+     const char *word,
+     dictIndex *idx); */
 extern int dict_search_database_ (
    lst_List l,
    const char *word,

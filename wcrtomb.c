@@ -45,8 +45,6 @@ size_t wcrtomb__ (char *s, wchar_t wc, mbstate_t *ps)
 	 return (size_t) -1;
       }
 
-//      s [octet_count] = 0;
-
       for (i = octet_count-1; i--; ){
 	 s [i + 1] = 0x80 | (wc & 0x3F);
 	 wc >>= 6;

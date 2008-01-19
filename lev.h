@@ -59,7 +59,6 @@ static int dict_search_lev_8bit (
 
    LEV_VARS
 
-//   fprintf (stderr, "dict_search_lev_8bit\n");
    assert (alphabet);
 
    DICT_SEARCH_LEVENSHTEIN_8BIT__DEL_TRANS(buf, word, args)
@@ -130,7 +129,6 @@ static int dict_search_lev_utf8 (
 
    LEV_VARS
 
-//   fprintf (stderr, "dict_search_lev_utf8\n");
    assert (alphabet);
 
    memset (&ps, 0, sizeof (ps));
