@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.121 2008/01/12 23:18:23 cheusov Exp $
+# $Id: Makefile.in,v 1.122 2008/01/19 23:13:07 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -61,17 +61,18 @@ CONF_DIR=@sysconfdir@/
 PLUGIN_DIR=${libexecdir}/
 DICT_DIR=${datadir}/
 
-CC=		    @CC@
+CC=		@CC@
+CXX=		@CXX@
 CPP=		@CPP@
-AR=         @AR@
-RANLIB=		@RANLIB@
+LIBTOOL=        @LIBTOOL@
 INSTALL=	@INSTALL@
 INSTALL_PROGRAM=@INSTALL_PROGRAM@
 INSTALL_SCRIPT= @INSTALL_SCRIPT@
 INSTALL_DATA=	@INSTALL_DATA@
 LEX=		@LEX@
-LEXLIB= 	@LEXLIB@
 YACC=		@YACC@
+
+LEXLIB= 	@LEXLIB@
 JUDYLIB=        @JUDYLIB@
 DBILIB=         @DBILIB@
 
@@ -154,17 +155,17 @@ local_zlib :
 endif
 
 %.o: %.c
-	libtool --mode=compile $(CC) -c $(CFLAGS) $< -o $@
+	$(LIBTOOL) --tag=CC --mode=compile $(CC) -c $(CFLAGS) $< -o $@
 %.o: %.cpp
-	libtool --mode=compile $(CXX) -c $(CFLAGS) $< -o $@
+	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) -c $(CFLAGS) $< -o $@
 
 %: %.o
-	libtool --mode=link $(CC) -o $@ -static \
+	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -static \
 		$(filter-out local_regex local_zlib local_libmaa, $^) \
 		$(OBJS) $(LDFLAGS) -lz
 
 dictd: dictd.o
-	libtool --mode=link $(CC) -o $@ -static \
+	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -static \
 		$(filter-out local_regex local_zlib local_libmaa, $^) \
 		$(DBILIB) $(OBJS) $(LDFLAGS) -lz
 
@@ -179,28 +180,28 @@ lib%.a : %.o
 	$(AR) rc $@ $^
 
 %.la : %.o $(LIBOBJS)
-	libtool --mode=link $(CC) -o $@ -static -module \
+	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -static -module \
 		$(filter-out local_regex local_zlib local_libmaa, $(^:.o=.lo)) \
 		-rpath "${PLUGIN_DIR}" \
 		$(LDFLAGS)
 
 dictdplugin_man.la : data.o str.o heap.o dictdplugin_man.o \
                       plugins_common.o $(LIBOBJS)
-	libtool --mode=link $(CC) -o $@ -module \
+	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -module \
 		$(filter-out local_regex local_zlib local_libmaa, $(^:.o=.lo)) \
 		-rpath "${PLUGIN_DIR}" \
 		$(LDFLAGS)
 
 dictdplugin_judy.la : data.o str.o heap.o dictdplugin_judy.o \
                       plugins_common.o $(LIBOBJS)
-	libtool --mode=link $(CC) -o $@ -module \
+	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -module \
 		$(filter-out local_regex local_zlib local_libmaa, $(^:.o=.lo)) \
 		-rpath "${PLUGIN_DIR}" \
 		$(LDFLAGS) $(JUDYLIB)
 
 dictdplugin_dbi.la : heap.o dictdplugin_dbi.o str.o \
                      plugins_common.o $(LIBOBJS)
-	libtool --mode=link $(CC) -o $@ -module \
+	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -module \
 		$(filter-out local_regex local_zlib local_libmaa, $(^:.o=.lo)) \
 		-rpath "${PLUGIN_DIR}" \
 		$(LDFLAGS) $(DBILIB) -ldl
@@ -253,7 +254,7 @@ clientparse.o: clientparse.c
 install.dict: dict
 	mkdir -p $(DESTDIR)$(bindir) && \
         mkdir -p $(DESTDIR)$(man1_prefix) && \
-	libtool --mode=install $(INSTALL_PROGRAM) dict$(EXEEXT) $(DESTDIR)$(bindir) && \
+	$(LIBTOOL) --mode=install $(INSTALL_PROGRAM) dict$(EXEEXT) $(DESTDIR)$(bindir) && \
 	$(INSTALL_DATA) dict.1 $(DESTDIR)$(man1_prefix)/dict.1 && \
 	$(INSTALL_SCRIPT) dictl $(DESTDIR)$(bindir) && \
 	$(INSTALL_DATA) dictl.1 $(DESTDIR)$(man1_prefix)/dictl.1
@@ -267,13 +268,13 @@ install.colorit: colorit
 install.dictzip: dictzip
 	mkdir -p $(DESTDIR)$(bindir) && \
         mkdir -p $(DESTDIR)$(man1_prefix) && \
-	libtool --mode=install $(INSTALL_PROGRAM) dictzip$(EXEEXT) $(DESTDIR)$(bindir) && \
+	$(LIBTOOL) --mode=install $(INSTALL_PROGRAM) dictzip$(EXEEXT) $(DESTDIR)$(bindir) && \
 	$(INSTALL_DATA) dictzip.1 $(DESTDIR)$(man1_prefix)/dictzip.1
 
 install.dictfmt: dictfmt dictfmt_index2word dictfmt_index2suffix
 	mkdir -p $(DESTDIR)$(bindir) && \
         mkdir -p $(DESTDIR)$(man1_prefix) && \
-	libtool --mode=install $(INSTALL_PROGRAM) dictfmt$(EXEEXT) $(DESTDIR)$(bindir) && \
+	$(LIBTOOL) --mode=install $(INSTALL_PROGRAM) dictfmt$(EXEEXT) $(DESTDIR)$(bindir) && \
 	$(INSTALL_SCRIPT) @srcdir@/dictfmt_index2suffix $(DESTDIR)$(bindir) && \
 	$(INSTALL_SCRIPT) @srcdir@/dictfmt_index2word $(DESTDIR)$(bindir) && \
 	$(INSTALL_SCRIPT) dictunformat $(DESTDIR)$(bindir) && \
@@ -285,7 +286,7 @@ install.dictfmt: dictfmt dictfmt_index2word dictfmt_index2suffix
 install.dictd: dictd
 	mkdir -p $(DESTDIR)$(sbindir) && \
         mkdir -p $(DESTDIR)$(man8_prefix) && \
-	libtool --mode=install $(INSTALL_PROGRAM) dictd$(EXEEXT) $(DESTDIR)$(sbindir) && \
+	$(LIBTOOL) --mode=install $(INSTALL_PROGRAM) dictd$(EXEEXT) $(DESTDIR)$(sbindir) && \
 	$(INSTALL_DATA) dictd.8 $(DESTDIR)$(man8_prefix)/dictd.8
 
 install.libs: $(LIBRARIES)
@@ -306,7 +307,7 @@ install.plugins:
 	if test _$(USE_PLUGIN) != _; then \
 	mkdir -p $(DESTDIR)$(libexecdir) && \
 	if test "$(PLUGINS)"; then \
-        libtool --mode=install $(INSTALL_DATA) $(PLUGINS) $(DESTDIR)$(libexecdir); else true; fi fi
+        $(LIBTOOL) --mode=install $(INSTALL_DATA) $(PLUGINS) $(DESTDIR)$(libexecdir); else true; fi fi
 
 .PHONY: install
 
@@ -318,20 +319,20 @@ ifdef USE_PLUGIN
 endif
 
 uninstall.dict:
-	libtool --mode=uninstall rm -f $(DESTDIR)$(bindir)/dict$(EXEEXT)
+	$(LIBTOOL) --mode=uninstall rm -f $(DESTDIR)$(bindir)/dict$(EXEEXT)
 	rm -f $(DESTDIR)$(man1_prefix)/dict.1
 	rm -f $(DESTDIR)$(bindir)/dictl $(DESTDIR)$(man1_prefix)/dictl.1
 
 uninstall.dictzip:
-	libtool --mode=uninstall rm -f $(DESTDIR)$(bindir)/dictzip$(EXEEXT)
+	$(LIBTOOL) --mode=uninstall rm -f $(DESTDIR)$(bindir)/dictzip$(EXEEXT)
 	rm -f $(DESTDIR)$(man1_prefix)/dictzip.1
 
 uninstall.dictd:
-	libtool --mode=uninstall rm -f $(DESTDIR)$(sbindir)/dictd$(EXEEXT)
+	$(LIBTOOL) --mode=uninstall rm -f $(DESTDIR)$(sbindir)/dictd$(EXEEXT)
 	rm -f $(DESTDIR)$(man8_prefix)/dictd.8
 
 uninstall.dictfmt:
-	libtool --mode=uninstall rm -f $(DESTDIR)$(bindir)/dictfmt$(EXEEXT)
+	$(LIBTOOL) --mode=uninstall rm -f $(DESTDIR)$(bindir)/dictfmt$(EXEEXT)
 	rm -f $(DESTDIR)$(man1_prefix)/dictfmt.1
 	rm -f $(DESTDIR)$(man1_prefix)/dictfmt_index2word.1
 	rm -f $(DESTDIR)$(man1_prefix)/dictfmt_index2suffix.1
@@ -358,7 +359,7 @@ endif
 uninstall.plugins:
 ifdef USE_PLUGIN
 	if test "$(PLUGINS)"; then \
-	   libtool --mode=uninstall \
+	   $(LIBTOOL) --mode=uninstall \
 	      rm -f $(addprefix $(DESTDIR)$(libexecdir)/, $(PLUGINS)); \
 	fi
 endif

@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.108 2008/01/12 22:34:25 cheusov Exp $
+dnl $Id: configure.in,v 1.109 2008/01/19 23:13:08 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -30,7 +30,7 @@ define(VERSION, 1.10.10)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.108 $)
+AC_REVISION($Revision: 1.109 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -51,8 +51,10 @@ fi
 ])
 
 AC_CANONICAL_HOST
+
 AC_PROG_CC
-dnl AC_PROG_CXX
+AC_PROG_CPP
+AC_PROG_CXX
 
 AC_ISC_POSIX
 
@@ -201,13 +203,8 @@ AC_PROG_RANLIB
 AC_PROG_MAKE_SET
 AC_PROG_YACC
 AC_PROG_LEX
-#AC_PROG_LIBTOOL
-dnl AC_LIBTOOL_DLOPEN
 
-AC_CHECK_PROG(AR,ar,ar)
-
-dnl AC_PROG_LIBTOOL
-dnl AC_LIBTOOL_DLOPEN
+AC_CHECK_PROG(LIBTOOL,libtool,libtool)
 
 AC_CHECK_PROGS(NROFF,gnroff nroff)
 AC_CHECK_PROGS(TROFF,groff troff)
@@ -321,6 +318,8 @@ AC_CHECK_FUNC(daemon,, [AC_LIBOBJ([daemon3])])
 AC_REPLACE_FUNCS(setenv)
 AC_CHECK_FUNCS(putenv)
 
+AC_CHECK_FUNCS(fileno)
+
 if test "$SYSTEM_UTF8"; then
 	CFLAGS="$CFLAGS -DSYSTEM_UTF8_FUNCS"
 
@@ -379,6 +378,7 @@ AC_SUBST(REGEX_INCLUDE)
 AC_SUBST(local_libmaa)
 AC_SUBST(JUDYLIB)
 AC_SUBST(DBILIB)
+AC_SUBST(LIBTOOL)
 
 AC_SUBST(SYSCONFDIR)
 AC_SUBST(BINDIR)
