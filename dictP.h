@@ -230,7 +230,7 @@ extern int mbtowc__ (wchar_t *pwc, const char *s, size_t n);
         waitpid(-1, (status),(options))
 #endif
 
-#if USE_PLUGIN
+#ifdef USE_PLUGIN
 # if HAVE_DLFCN_H
 #  include <dlfcn.h>
    typedef void *  lt_dlhandle;

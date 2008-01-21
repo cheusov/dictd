@@ -1001,7 +1001,7 @@ static int log_database_info( const void *datum )
 
 static void dict_ltdl_init ()
 {
-#if USE_PLUGIN && !HAVE_DLFCN_H
+#if defined(USE_PLUGIN) && !HAVE_DLFCN_H
    if (lt_dlinit ())
       err_fatal( __func__, "Can not initialize 'ltdl' library\n" );
 #endif
@@ -1009,7 +1009,7 @@ static void dict_ltdl_init ()
 
 static void dict_ltdl_close ()
 {
-#if USE_PLUGIN && !HAVE_DLFCN_H
+#if defined(USE_PLUGIN) && !HAVE_DLFCN_H
    if (lt_dlexit ())
       err_fatal( __func__, "Can not deinitialize 'ltdl' library\n" );
 #endif
