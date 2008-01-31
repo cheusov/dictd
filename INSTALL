@@ -155,7 +155,7 @@ INSTALLATION
 
         server dict.company.com
 
-9.  That's it really.  Now piece everything together, run your dictd and
+9.  That's it really.  Now pieces everything together, run your dictd and
     point it at your config file, and try running dict!
 
 
