@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.122 2008/01/19 23:13:07 cheusov Exp $
+# $Id: Makefile.in,v 1.123 2008/01/31 16:52:58 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -76,7 +76,7 @@ LEXLIB= 	@LEXLIB@
 JUDYLIB=        @JUDYLIB@
 DBILIB=         @DBILIB@
 
-CFLAGS= @CPPFLAGS@ @DEFS@ @CFLAGS@ -DDICT_PLUGIN_PATH=\"$(PLUGIN_DIR)\" -DDICT_DICTIONARY_PATH=\"$(DICT_DIR)\" -DDICT_VERSION=\"$(DICT_VERSION)\" -DDICT_CONFIG_PATH=\"$(CONF_DIR)\" -I@srcdir@ -I.
+CFLAGS= @CPPFLAGS@ @DEFS@ @CFLAGS@ -DDICT_PLUGIN_PATH=\"$(PLUGIN_DIR)\" -DDICT_DICTIONARY_PATH=\"$(DICT_DIR)\" -DDICT_VERSION=\"$(DICT_VERSION)\" -DDICT_CONFIG_PATH=\"$(CONF_DIR)\" -I. -I$(srcdir)
 
 LDFLAGS=        @LDFLAGS@ @LIBS@
 LIBOBJS=        @LIBOBJS@
