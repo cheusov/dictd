@@ -655,11 +655,20 @@ static void fmt_test_nonascii (const char *word)
 
 static void fmt_newheadword( const char *word )
 {
-   static char prev[1024] = "";
+   static char *prev      = NULL;
+   static size_t prev_len = 0;
+   size_t word_len        = 0;
+
    static int  start = 0;
    static int  end;
    char *      sep   = NULL;
    char *      p;
+
+   if (!prev){
+      prev_len = 1000;
+      prev = xmalloc (prev_len);
+      prev [0] = 0;
+   }
 
    if (fmt_newheadword_special (word))
       return;
@@ -679,7 +688,14 @@ static void fmt_newheadword( const char *word )
    }
 
    if (word) {
-      strlcpy(prev, word, sizeof (prev));
+      /* copy word to prev */
+      word_len = strlen (word);
+      if (word_len > prev_len){
+	 prev_len = word_len;
+	 prev = xrealloc (prev, word_len + 1);
+      }
+
+      strcpy(prev, word);
       start = end;
    }
 
