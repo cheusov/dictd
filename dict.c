@@ -28,6 +28,7 @@ extern int         yy_flex_debug;
        FILE        *dict_output;
        FILE        *dict_error;
        int         formatted;
+       int         flush;
 
 const char *host_connected    = NULL;
 const char *service_connected = NULL;
@@ -807,6 +808,10 @@ static void process( void )
 	 else
 	    client_print_text( cmd_reply.data, 1 );
 
+	 if (flush){
+	    fflush (dict_output);
+	 }
+
 	 client_free_text( cmd_reply.data );
 	 cmd_reply.data = NULL;
 	 cmd_reply.matches = cmd_reply.match = cmd_reply.listed = 0;
@@ -814,7 +819,7 @@ static void process( void )
 	 break;
       case CMD_DEFPRINT:
 	 if (cmd_reply.count) {
-	    if (!formatted && c->flag) {
+	    if (c->flag) {
 	       fprintf( dict_output, "%d definition%s found",
 			cmd_reply.count,
 			cmd_reply.count == 1 ? "" : "s" );
@@ -822,6 +827,11 @@ static void process( void )
 	    }
 	    for (i = 0; i < cmd_reply.count; i++) {
 	       client_print_definitions (&cmd_reply.defs [i]);
+
+	       if (flush){
+		  fflush (dict_output);
+	       }
+
 	       client_free_text( cmd_reply.defs[i].data );
 	       cmd_reply.defs[i].data = NULL;
 	    }
@@ -838,6 +848,10 @@ static void process( void )
 	    dict_output = dict_error;
 	    client_print_matches( cmd_reply.data, 0, c->word );
 	    dict_output = old;
+
+	    if (flush){
+	       fflush (dict_output);
+	    }
 
 	    client_free_text( cmd_reply.data );
 	    cmd_reply.data = NULL;
@@ -1353,6 +1367,7 @@ int main( int argc, char **argv )
       { "client",     1, 0, 505 },
       { "mime",       1, 0, 'M' },
       { "formatted",  0, 0, 'f' },
+      { "flush",      0, 0, 'F' },
       { 0,            0, 0,  0  }
    };
 
@@ -1371,7 +1386,7 @@ int main( int argc, char **argv )
    dbg_register( DBG_URL,     "url" );
 
    while ((c = getopt_long( argc, argv,
-			    "h:p:d:i:Ims:DSHau:c:Ck:VLvrP:Mf",
+			    "h:p:d:i:Ims:DSHau:c:Ck:VLvrP:MfF",
 			    longopts, NULL )) != EOF)
    {
       switch (c) {
@@ -1406,6 +1421,7 @@ int main( int argc, char **argv )
       case 502: dbg_set( optarg );                     break;
       case 501:	help( stdout );	exit(1);               break;	      
       case 'f': formatted = 1;                         break;
+      case 'F': flush = 1;                         break;
       default:  help( stderr ); exit(1);               break;
       }
    }
