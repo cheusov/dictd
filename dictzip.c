@@ -312,7 +312,10 @@ static void banner( void )
 {
    fprintf( stderr, "%s %s\n", err_program_name (), id_string () );
    fprintf( stderr,
-	    "Copyright 1996-2002 Rickard E. Faith (faith@dict.org)\n\n" );
+	    "Copyright 1996-2002 Rickard E. Faith (faith@dict.org)\n" );
+   fprintf( stderr,
+	    "Copyright 2002-2007 Aleksey Cheusov (vle@gmx.net)\n" );
+   fprintf( stderr, "\n" );
 }
 
 static void license( void )

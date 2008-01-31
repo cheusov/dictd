@@ -814,7 +814,7 @@ static void process( void )
 	 break;
       case CMD_DEFPRINT:
 	 if (cmd_reply.count) {
-	    if (c->flag) {
+	    if (!formatted && c->flag) {
 	       fprintf( dict_output, "%d definition%s found",
 			cmd_reply.count,
 			cmd_reply.count == 1 ? "" : "s" );
@@ -1234,8 +1234,11 @@ static const char *client_get_banner( void )
 static void banner( FILE *out_stream )
 {
    fprintf( out_stream , "%s\n", client_get_banner() );
+   fprintf( out_stream, 
+	    "Copyright 1997-2002 Rickard E. Faith (faith@dict.org)\n" );
    fprintf( out_stream,
-	    "Copyright 1997-2002 Rickard E. Faith (faith@dict.org)\n\n" );
+	    "Copyright 2002-2007 Aleksey Cheusov (vle@gmx.net)\n" );
+   fprintf( out_stream, "\n" );
 }
 
 static void license( void )
