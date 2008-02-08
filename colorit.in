@@ -16,7 +16,7 @@ else
 fi fi
 
 usage (){
-   echo -en "\
+   printf "\
 colorit is intended to markup stdin or input files\n\
 and output result to stdout\n\
 \n\
@@ -30,7 +30,7 @@ OPTIONS:\n\
 }
 
 version (){
-    echo -en "\
+    printf "\
 colorit 0.0.1\n\
 "
 }
