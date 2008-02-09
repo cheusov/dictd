@@ -327,7 +327,7 @@ static void handler( int sig )
       case SIGALRM:
 	 if (_dict_markTime > 0){
 	    time(&t);
-	    log_info( ":T: %24.24s; %d/%d %sr %su %ss\n",
+	    log_info( ":t: %24.24s; %d/%d %sr %su %ss\n",
 		      ctime(&t),
 		      _dict_forks - _dict_reaps,
 		      _dict_forks,
