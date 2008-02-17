@@ -1,6 +1,6 @@
 #include "dictP.h"
 
-static const int start [] = {
+static const wint_t start [] = {
      0,
     48,    65,    97,   170,   181,   186,   192,   216,
    248,   546,   592,   688,   699,   720,   736,   750,
@@ -98,11 +98,11 @@ int iswalnum__ (wint_t wc);
 
 int iswalnum__ (wint_t wc)
 {
-   const int *l = start;
-   const int *r = start + ARRAY_SIZE;
-   const int *s = NULL;
+   const wint_t *l = start;
+   const wint_t *r = start + ARRAY_SIZE;
+   const wint_t *s = NULL;
 
-   if (wc < 0)
+   if (wc == WEOF)
       return 0;
 
    while (l < r) {

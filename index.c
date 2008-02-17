@@ -885,7 +885,7 @@ static int dict_search_prefix (
    const dictDatabase *database, dictIndex *dbindex,
    int skip_count, int item_count)
 {
-   dict_search_prefix_first (l, word, database, dbindex,
+   return dict_search_prefix_first (l, word, database, dbindex,
 			     BMH_PREFIX, skip_count, item_count);
 }
 
@@ -893,7 +893,7 @@ static int dict_search_first (
    lst_List l, const char *word,
    const dictDatabase *database, dictIndex *dbindex)
 {
-   dict_search_prefix_first (l, word, database, dbindex,
+   return dict_search_prefix_first (l, word, database, dbindex,
 			     BMH_FIRST, 0, INT_MAX);
 }
 
@@ -904,8 +904,8 @@ static int dict_search_brute( lst_List l,
 			      int flag,
 			      int patlen )
 {
-   const unsigned char *const start = dbindex->start;
-   const unsigned char *const end   = dbindex->end;
+   const unsigned char *const start = (const unsigned char *) dbindex->start;
+   const unsigned char *const end   = (const unsigned char *) dbindex->end;
    const unsigned char *p, *pt;
    int        count = 0;
    int        result;

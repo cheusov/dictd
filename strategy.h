@@ -57,7 +57,7 @@ extern void dict_add_strategy (const char *strat, const char *description);
 /* */
 extern int get_strategy_count (void);
 extern int get_max_strategy_num (void);
-extern const dictStrategy *const *const get_strategies (void);
+extern const dictStrategy *const *get_strategies (void);
 extern const dictStrategy *get_strategy (int strat);
 
 /* returns -1 if fails */

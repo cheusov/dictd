@@ -139,7 +139,7 @@ static int dict_search_lev_utf8 (
    i = 0;
    for (p = word; *p; ){
       char_len = mbrlen__ (p, MB_CUR_MAX__, &ps);
-      assert (char_len > 0);
+      assert ((long) char_len > 0);
 
       buf3 = buf2 + i * (MB_CUR_MAX__ + 1);
       memcpy (buf3, p, char_len);
@@ -206,7 +206,7 @@ static int dict_search_lev_utf8 (
 #if 1
 	 d2 = d + char_len;
 	 char_len = mbrlen__ (d2, MB_CUR_MAX__, &ps);
-	 assert (char_len >= 0);
+	 assert ((long) char_len >= 0);
 
 	 while ((d2 [0] = d2 [char_len]) != 0){
 	    ++d2;

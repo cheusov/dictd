@@ -1,6 +1,6 @@
 #include "dictP.h"
 
-static const int start [] = {
+static const wint_t start [] = {
      0,
      9,    32,  5760,  8192,  8200,  8232, 12288,
 };
@@ -16,11 +16,11 @@ extern int iswspace__ (wint_t wc);
 
 int iswspace__ (wint_t wc)
 {
-   const int *l = start;
-   const int *r = start + ARRAY_SIZE;
-   const int *s = NULL;
+   const wint_t *l = start;
+   const wint_t *r = start + ARRAY_SIZE;
+   const wint_t *s = NULL;
 
-   if (wc < 0)
+   if (wc == WEOF)
       return 0;
 
    while (l < r) {

@@ -498,17 +498,17 @@ static void dict_plugin_dlsym (dictPlugin *plugin)
 {
    PRINTF(DBG_INIT, (":I:     getting functions addresses\n"));
 
-   plugin -> dictdb_open   =
+   plugin -> dictdb_open   = (dictdb_open_type)
       lt_dlsym (plugin -> handle, DICT_PLUGINFUN_OPEN);
-   plugin -> dictdb_free   =
+   plugin -> dictdb_free   = (dictdb_free_type)
       lt_dlsym (plugin -> handle, DICT_PLUGINFUN_FREE);
-   plugin -> dictdb_search =
+   plugin -> dictdb_search = (dictdb_search_type)
       lt_dlsym (plugin -> handle, DICT_PLUGINFUN_SEARCH);
-   plugin -> dictdb_close  =
+   plugin -> dictdb_close  = (dictdb_close_type)
       lt_dlsym (plugin -> handle, DICT_PLUGINFUN_CLOSE);
-   plugin -> dictdb_error  =
+   plugin -> dictdb_error  = (dictdb_error_type)
       lt_dlsym (plugin -> handle, DICT_PLUGINFUN_ERROR);
-   plugin -> dictdb_set   =
+   plugin -> dictdb_set   = (dictdb_set_type)
       lt_dlsym (plugin -> handle, DICT_PLUGINFUN_SET);
 
    if (!plugin -> dictdb_open ||

@@ -248,11 +248,11 @@ static void it_incr1 (
 #define JUDY_ITERATE(JUDY,VALUE,WORD)            \
    for (;                                        \
         VALUE;                                   \
-        VALUE = JudySLNext (JUDY, WORD, 0))
+        VALUE = JudySLNext (JUDY, (uint8_t *) WORD, 0))
 
 #define JUDY_ITERATE_ALL(JUDY,VALUE,WORD)        \
    WORD [0] = 0;                                 \
-   VALUE = JudySLFirst (JUDY, WORD, 0);          \
+   VALUE = JudySLFirst (JUDY, (uint8_t *) WORD, 0); \
    JUDY_ITERATE(JUDY,VALUE,WORD)
 
 /*
@@ -335,7 +335,7 @@ static void read_index_file (
       if (len > dict_data -> m_max_hw_len)
 	 dict_data -> m_max_hw_len = len;
 
-      value = JudySLIns (&dict_data -> m_judy_array, buf, 0);
+      value = JudySLIns (&dict_data -> m_judy_array, (uint8_t *) buf, 0);
       assert (value != (PPvoid_t) 0 && value != (PPvoid_t) -1);
 
       (*fun) (dict_data, value, buf, def_offset, def_size);
@@ -677,7 +677,7 @@ static int match_exact (
       return 0;
 
    result_curr = (int const *const *) JudySLGet (
-      dict_data -> m_judy_array, word, 0);
+      dict_data -> m_judy_array, (uint8_t *) word, 0);
 
    if (!result_curr){
       return 0;
@@ -706,16 +706,16 @@ static int match_prefix (
 
    strlcpy (curr_word, word, sizeof (curr_word));
 
-   value = JudySLGet (dict_data -> m_judy_array, curr_word, 0);
+   value = JudySLGet (dict_data -> m_judy_array, (uint8_t *) curr_word, 0);
    if (!value)
-      value = JudySLNext (dict_data -> m_judy_array, curr_word, 0);
+      value = JudySLNext (dict_data -> m_judy_array, (uint8_t *) curr_word, 0);
 
 /*   fprintf (stderr, "first=%s %p\n", curr_word, value);*/
 
    for (
       ;
       value;
-      value = JudySLNext (dict_data -> m_judy_array, curr_word, 0))
+      value = JudySLNext (dict_data -> m_judy_array, (uint8_t *) curr_word, 0))
    {
       cmp_res = strncmp (word, curr_word, len);
 
@@ -741,7 +741,7 @@ static int match_prefix (
 
 #define CHECK(word, dict_data) \
    if ((word) [0]){                                              \
-      value = JudySLGet ((dict_data) -> m_judy_array, (word), 0);\
+      value = JudySLGet ((dict_data) -> m_judy_array, ((uint8_t *) word), 0);\
       if (value && strcmp (prev_buf, (word))){                   \
          strlcpy (prev_buf, (word), BUFSIZE);                    \
                                                               \
@@ -890,13 +890,13 @@ int dictdb_search (
 	 return 0;
 
       offs_size = (int const *const *) JudySLGet (
-	 dict_data -> m_judy_array, word_copy2, 0);
+	 dict_data -> m_judy_array, (uint8_t *) word_copy2, 0);
 
       if (!offs_size)
 	 return 0;
 
       offs_size_next = (const int *const *) JudySLNext (
-	 dict_data -> m_judy_array, word_copy2, 0);
+	 dict_data -> m_judy_array, (uint8_t *) word_copy2, 0);
 
       if (offs_size_next){
 	 cnt = (const int *) *offs_size_next - (const int *) *offs_size;

@@ -1469,7 +1469,7 @@ int main( int argc, char **argv )
 
 	    if (*buf != '\0') {
 	       fmt_indent = 0;
-	       fmt_newheadword (buf);
+	       fmt_newheadword ((const char *) buf);
 	       continue;
 	    }
  	 }
@@ -1527,9 +1527,9 @@ int main( int argc, char **argv )
 	 destroy_and_exit (2);
       }
       if (buf){
-	 fmt_string(buf);
+	 fmt_string ((const char *) buf);
 	 fmt_indent = 0;
-	 fmt_newline();
+	 fmt_newline ();
 /*	 fmt_indent = FMT_INDENT; */
       }
    skip:;

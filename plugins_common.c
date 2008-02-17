@@ -23,6 +23,8 @@
 #include "dictP.h"
 #include "plugins_common.h"
 
+#include <maa.h>
+
 static const int static_minus1_array [] = {
    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,

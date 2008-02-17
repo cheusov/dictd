@@ -1425,7 +1425,7 @@ static void daemon_auth( const char *cmdline, int argc, const char **argv )
    snprintf( buf, buf_size, "%s%s", daemonStamp, secret );
 
    MD5Init(&ctx);
-   MD5Update(&ctx, buf, strlen(buf));
+   MD5Update(&ctx, (const unsigned char *) buf, strlen(buf));
    MD5Final(digest, &ctx);
 
    for (i = 0; i < 16; i++)

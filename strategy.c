@@ -99,9 +99,9 @@ int get_strategy_count (void)
    return strategy_count;
 }
 
-const dictStrategy *const *const get_strategies (void)
+const dictStrategy *const *get_strategies (void)
 {
-   return (const dictStrategy *const *const) strategies;
+   return (const dictStrategy *const *) strategies;
 }
 
 int get_max_strategy_num (void)
