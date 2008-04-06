@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.110 2008/02/17 17:49:27 cheusov Exp $
+dnl $Id: configure.in,v 1.111 2008/04/06 21:34:09 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -26,11 +26,11 @@ dnl             for optimization and stripping.
 dnl     LIBOBJS is an automatically-generated list of extra objects we need
 
 
-define(VERSION, 1.10.10)
+define(VERSION, 1.10.11)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.110 $)
+AC_REVISION($Revision: 1.111 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
