@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.126 2008/05/29 22:54:16 cheusov Exp $
+# $Id: Makefile.in,v 1.127 2008/05/29 23:02:26 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -454,7 +454,7 @@ deps:
 
 .PHONY: test
 test: $(EXES) $(LIBRARIES)
-	@cd $(srcdir)/test && sh $(srcdir)/dictd_test
+	cwd=`pwd`; @cd $(srcdir)/test && sh $$cwd/test/dictd_test
 
 # The following is based on the "Automatic Remaking" node in the GNU
 # Autoconf documentation:
