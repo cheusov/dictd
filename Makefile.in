@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.124 2008/05/29 21:17:17 cheusov Exp $
+# $Id: Makefile.in,v 1.125 2008/05/29 22:29:41 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -104,18 +104,14 @@ INCLUDES=   dictdplugin.h
 all: plugins
 
 .PHONY : samples install.samples uninstall.samples
-samples         : dictdplugin_exit.la dictdplugin_popen.la man_popen.dict
+samples         : dictdplugin_exit.la dictdplugin_popen.la
 install.samples : samples
-	{ \
-    mkdir -p $(DESTDIR)$(libexecdir); \
-    mkdir -p $(DESTDIR)$(datadir); \
-    $(INSTALL_DATA) dictdplugin_exit.la dictdplugin_popen.la $(DESTDIR)$(libexecdir); \
-    $(INSTALL_DATA) man_popen.{dict,index} $(DESTDIR)$(datadir); \
-    $(INSTALL_SCRIPT) search_man $(DESTDIR)$(libexecdir); \
-    } || true
+	mkdir -p $(DESTDIR)$(libexecdir) && \
+	$(LIBTOOL) --mode=install $(INSTALL) -c dictdplugin_exit.la dictdplugin_popen.la $(DESTDIR)$(libexecdir) && \
+	$(INSTALL_SCRIPT) search_man $(DESTDIR)$(libexecdir)
 
 uninstall.samples :
-	rm -f $(DESTDIR)$(datadir)/man_popen.{dict,index} $(DESTDIR)$(libexecdir)/{search_man,dictdplugin_exit.la,dictdplugin_popen.la}
+	rm -f $(DESTDIR)$(libexecdir)/{search_man,dictdplugin_exit.la,dictdplugin_popen.la}
 
 endif
 
@@ -180,7 +176,7 @@ lib%.a : %.o
 	$(AR) rc $@ $^
 
 %.la : %.o $(LIBOBJS)
-	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -static -module \
+	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -module \
 		$(filter-out local_regex local_zlib local_libmaa, $(^:.o=.lo)) \
 		-rpath "${PLUGIN_DIR}" \
 		$(LDFLAGS)
@@ -208,14 +204,6 @@ dictdplugin_dbi.la : heap.o dictdplugin_dbi.o str.o \
 
 .PHONY: plugins
 plugins: $(PLUGINS)
-
-man_popen.dict : dictdplugin-config dictfmt
-	PATH=`pwd`:$${PATH}; export PATH;  \
-   { \
-      echo `./dictdplugin-config --plugindir`'/search_man'; \
-      echo "qwertyuioplkjhgfdsazxcvbnm 0987654321QWERTYUIOPLKJHGFDSAZXCVBNM"; \
-   } | ./dictfmt_plugin dictdplugin_popen.la -s \
-      'Example man dict based on example POPEN plugin' man_popen
 
 dict    : $(CLIOBJS) $(LIBOBJS) parse.o
 dictd   : $(NETOBJS) $(SRCHOBJS) $(LIBOBJS) parse.o

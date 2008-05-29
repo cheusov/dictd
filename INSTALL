@@ -89,14 +89,15 @@ INSTALLATION
     In order to test 'man_dict' dictionary and 'popen' plugin,
     you can make the following:
 
-        ./configure --prefix /tmp/dictd
+        ./configure --prefix=/usr/local \
+                    --libexecdir=/usr/local/libexec/dictd
         make dict
         make dictd
         make samples
         make install.samples
         ./dictd -dnodetach -dnofork -c examples/dictd_popen.conf
 
-    and then from another terminal run
+    and then in another terminal run
 
         ./dict -h localhost man
         ./dict -h localhost -s substring -m malloc
