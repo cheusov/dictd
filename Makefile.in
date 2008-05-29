@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.123 2008/01/31 16:52:58 cheusov Exp $
+# $Id: Makefile.in,v 1.124 2008/05/29 21:17:17 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -478,7 +478,7 @@ $(srcdir)/configure: configure.in
 ${srcdir}/config.h.in: stamp-h.in
 ${srcdir}/stamp-h.in: configure.in
 	cd ${srcdir} && autoheader
-	date > ${srcdir}/stamp-h.in
+	touch ${srcdir}/stamp-h.in
 
 config.h: stamp-h
 stamp-h: config.h.in config.status
