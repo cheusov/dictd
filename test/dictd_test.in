@@ -155,7 +155,7 @@ generate_commands (){
 }
 
 dictd_test_inetd_base (){
-    currdir=$1
+    etadir=$1 # etalon directory
     shift
 
     confname=$1
@@ -169,7 +169,7 @@ dictd_test_inetd_base (){
 
     #
     conf_file=_testdb.$confname.conf
-    m4 -DCURR_DIR=$currdir @srcdir@/testdb.$confname.conf >$conf_file
+    m4 -DCURR_DIR=$etadir @srcdir@/testdb.$confname.conf >$conf_file
 
     #
     index_file=`sed -n 's,^.*/\(.*[.]index\).*$,\1,p' $conf_file | head -1`
@@ -186,12 +186,12 @@ dictd_test_inetd_base (){
 
     #
     cmp_2_files \
-	$currdir/dictd_${dbname}_res.expected.txt \
+	$etadir/dictd_${dbname}_res.expected.txt \
 	_dictd_${dbname}_res.txt
 }
 
 dictd_test_inetd (){
-    currdir=$1
+    etadir=$1
     shift
 
     confname=$1
@@ -200,11 +200,11 @@ dictd_test_inetd (){
     txtname=$1
     shift
 
-    dictd_test_inetd_base $currdir $confname $txtname cat "$@"
+    dictd_test_inetd_base $etadir $confname $txtname cat "$@"
 }
 
 dictd_test_inetd_noorder (){
-    currdir=$1
+    etadir=$1
     shift
 
     confname=$1
@@ -213,11 +213,11 @@ dictd_test_inetd_noorder (){
     txtname=$1
     shift
 
-    dictd_test_inetd_base $currdir $confname $txtname 'env LC_ALL=C sort' "$@"
+    dictd_test_inetd_base $etadir $confname $txtname 'env LC_ALL=C sort' "$@"
 }
 
 dictd_test_inetd2_base (){
-    currdir=$1
+    etadir=$1
     shift
 
     confname=$1
@@ -231,10 +231,10 @@ dictd_test_inetd2_base (){
 
     #
     conf_file=_testdb.$confname.conf
-    m4 -DCURR_DIR=$currdir @srcdir@/testdb.$confname.conf >$conf_file
+    m4 -DCURR_DIR=$etadir @srcdir@/testdb.$confname.conf >$conf_file
 
     #
-    in_file=$currdir/input.${txtname}.txt
+    in_file=$etadir/input.${txtname}.txt
 
     #
     $DICTD -c $conf_file -i --stdin2stdout < "$in_file" |
@@ -243,12 +243,12 @@ dictd_test_inetd2_base (){
 
     #
     cmp_2_files \
-	$currdir/dictd_${txtname}_res.expected.txt \
+	$etadir/dictd_${txtname}_res.expected.txt \
 	_dictd_${txtname}_res.txt
 }
 
 dictd_test_inetd2 (){
-    currdir=$1
+    etadir=$1
     shift
 
     confname=$1
@@ -258,12 +258,12 @@ dictd_test_inetd2 (){
     shift
 
     dictd_test_inetd2_base \
-	$currdir $confname $txtname \
+	$etadir $confname $txtname \
 	cat "$@"
 }
 
 dictd_test_inetd2_noorder (){
-    currdir=$1
+    etadir=$1
     shift
 
     confname=$1
@@ -273,7 +273,7 @@ dictd_test_inetd2_noorder (){
     shift
 
     dictd_test_inetd2_base \
-	$currdir $confname $txtname \
+	$etadir $confname $txtname \
 	'env LC_ALL=C sort' "$@"
 }
 
