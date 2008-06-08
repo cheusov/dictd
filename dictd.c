@@ -1455,7 +1455,7 @@ int main (int argc, char **argv, char **envp)
    struct sockaddr_in csin;
    int                c;
    time_t             startTime;
-   socklen_t          alen         = 0;
+   socklen_t          alen         = sizeof (csin);
    int                detach       = 1;
    int                forceStartup = 0;
    int                i;
