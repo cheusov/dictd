@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.131 2008/06/02 21:35:22 cheusov Exp $
+# $Id: Makefile.in,v 1.132 2008/06/08 14:40:07 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -111,7 +111,9 @@ install.samples : samples
 	$(INSTALL_SCRIPT) search_man $(DESTDIR)$(libexecdir)
 
 uninstall.samples :
-	rm -f $(DESTDIR)$(libexecdir)/{search_man,dictdplugin_exit.la,dictdplugin_popen.la}
+	$(LIBTOOL) --mode=uninstall rm -f $(DESTDIR)$(libexecdir)/search_man.la
+	$(LIBTOOL) --mode=uninstall rm -f $(DESTDIR)$(libexecdir)/dictdplugin_exit.la
+	$(LIBTOOL) --mode=uninstall rm -f $(DESTDIR)$(libexecdir)/dictdplugin_popen.la
 
 endif
 
