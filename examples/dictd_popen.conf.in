@@ -2,9 +2,9 @@ access {
     allow localhost
 }
 database_plugin man {
-    plugin "/usr/local/libexec/dictdplugin_popen.so"
+    plugin "@LIBEXECDIR@/dictdplugin_popen.so"
     data       "\
-/usr/local/libexec/search_man\n\
+@LIBEXECDIR@/search_man\n\
 qwertyuioplkjhgfdsazxcvbnm 0987654321QWERTYUIOPLKJHGFDSAZXCVBNM\n\
 "
 }
