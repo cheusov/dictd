@@ -43,7 +43,7 @@ else
 	exit_='exit $?'
 fi
 
-gawk -v "utf8_mode=$utf8_mode" '
+@AWK@ -v "utf8_mode=$utf8_mode" '
 function charlen_utf8 (str){
 	if (str == ""){
 		return 0
