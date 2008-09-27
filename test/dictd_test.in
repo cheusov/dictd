@@ -319,9 +319,13 @@ printf 'cyrillic_3 passed\n'
 
 LC_ALL=C sort @srcdir@/dictd_cyrillic_3_res.expected.txt \
             > dictd_cyrillic_4_res.expected.txt
-ln -f -s @srcdir@/input.cyrillic_3.txt input.cyrillic_4.txt
-ln -f -s @srcdir@/db.expect.cyrillic_1.index .
-ln -f -s @srcdir@/db.expect.cyrillic_1.dict .
+cp @srcdir@/input.cyrillic_3.txt input.cyrillic_4.txt
+if test @srcdir@ != .; then
+   cp @srcdir@/db.expect.cyrillic_1.index .
+fi
+if test @srcdir@ != .; then
+   cp @srcdir@/db.expect.cyrillic_1.dict .
+fi
 $DICTFMT_I2S --utf8 --silent @srcdir@/db.expect.cyrillic_1.index \
    > db.expect.cyrillic_1.index_suffix
 dictd_test_inetd2_noorder `pwd` cyrillic_4 cyrillic_4
