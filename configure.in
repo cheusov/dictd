@@ -28,7 +28,7 @@ define(VERSION, 1.10.11)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.121 $)
+AC_REVISION($Revision: 1.122 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -212,6 +212,9 @@ AC_CHECK_HEADERS(wctype.h wchar.h)
 AC_CHECK_HEADERS(ctype.h)
 AC_CHECK_HEADER([Judy.h], ,[JUDYLIB=])
 AC_CHECK_HEADER([dbi/dbi.h], ,[DBILIB=])
+
+AC_CHECK_HEADER([zlib.h], ,
+    [AC_MSG_ERROR([zlib.h is required for dictd])])
 
 AC_CHECK_TYPES(wint_t,,, [#include <wchar.h>])
 AC_CHECK_TYPES(mbstate_t, , , [#include <wchar.h>])
