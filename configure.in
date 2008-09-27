@@ -28,7 +28,7 @@ define(VERSION, 1.10.11)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.118 $)
+AC_REVISION($Revision: 1.119 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -39,14 +39,6 @@ echo Configuring for dict
 echo .
 
 DICT_VERSION=VERSION
-
-AC_ARG_WITH(cc,
-[  --with-cc               with cc (instead of gcc)],
-[
-if test "x${withval}" = xyes; then
-    CC=cc
-fi
-])
 
 AC_CANONICAL_HOST
 
