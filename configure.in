@@ -28,7 +28,7 @@ define(VERSION, 1.10.11)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.123 $)
+AC_REVISION($Revision: 1.124 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -220,6 +220,9 @@ AC_CHECK_TYPES(wint_t,,, [#include <wchar.h>])
 AC_CHECK_TYPES(mbstate_t, , , [#include <wchar.h>])
 AC_CHECK_TYPES(wchar_t,   , , [#include <stddef.h>])
 AC_CHECK_TYPES(size_t)
+AC_CHECK_TYPES(socklen_t,,,
+  [#include <sys/types.h>
+   #include <sys/socket.h>])
 
 echo .
 echo Checking for system constants

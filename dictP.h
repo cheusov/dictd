@@ -91,6 +91,10 @@
 typedef unsigned int size_t;
 #endif
 
+#if !HAVE_SOCKLEN_T
+typedef int socklen_t;
+#endif
+
 #if !HAVE_STRDUP
 extern char *strdup( const char * );
 #endif
