@@ -263,9 +263,6 @@ extern int mbtowc__ (wchar_t *pwc, const char *s, size_t n);
 # include <stdlib.h>
 #endif
 
-/* Always use local (libmaa) getopt */
-#include <getopt.h>
-
 /* We actually need a few non-ANSI C things... */
 #if defined(__STRICT_ANSI__)
 extern char     *strdup( const char * );
@@ -314,6 +311,14 @@ extern FILE     *fdopen( int fildes, const char *mode );
 # include <getopt.h>
 #else
 #if !HAVE_GETOPT_LONG
+struct option
+{
+  const char *name;
+  int has_arg;
+  int *flag;
+  int val;
+};
+
 int getopt_long(int argc, char * const argv[],
                   const char *optstring,
                   const struct option *longopts, int *longindex);

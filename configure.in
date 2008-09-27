@@ -28,7 +28,7 @@ define(VERSION, 1.10.11)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.122 $)
+AC_REVISION($Revision: 1.123 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -209,7 +209,7 @@ AC_CHECK_HEADERS(unistd.h strings.h limits.h)
 AC_CHECK_HEADERS(inttypes.h)
 AC_CHECK_HEADERS(sys/resource.h sys/time.h sys/param.h sys/wait.h)
 AC_CHECK_HEADERS(wctype.h wchar.h)
-AC_CHECK_HEADERS(ctype.h)
+AC_CHECK_HEADERS(ctype.h getopt.h)
 AC_CHECK_HEADER([Judy.h], ,[JUDYLIB=])
 AC_CHECK_HEADER([dbi/dbi.h], ,[DBILIB=])
 
