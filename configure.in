@@ -18,8 +18,6 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.117 2008/09/27 10:44:22 cheusov Exp $
-dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
 dnl             for optimization and stripping.
@@ -30,7 +28,7 @@ define(VERSION, 1.10.11)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.117 $)
+AC_REVISION($Revision: 1.118 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
