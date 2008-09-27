@@ -28,7 +28,7 @@ define(VERSION, 1.10.11)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.119 $)
+AC_REVISION($Revision: 1.120 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -68,19 +68,6 @@ fi
 
 local_libmaa=0
 
-AC_ARG_WITH(cflags,
-[  --with-cflags=FLAGS     use FLAGS for CFLAGS],
-CFLAGS="$withval")
-
-AC_ARG_WITH(prof,
-[  --with-prof             with prof profiling],
-[
-if test "x${withval}" = xyes; then
-    CFLAGS="$CFLAGS -p"
-    LDFLAGS="$LDFLAGS -p"
-fi
-])
-
 AC_ARG_WITH(nec-socks5,
 [  --with-nec-socks5       with NEC socks5 library],
 [
@@ -100,15 +87,6 @@ if test "x${withval}" = xyes; then
 fi
 ])
 
-AC_ARG_WITH(gprof,
-[  --with-gprof            with gprof profiling],
-[
-if test "x${withval}" = xyes; then
-    CFLAGS="$CFLAGS -pg"
-    LDFLAGS="$LDFLAGS -pg"
-fi
-])
-
 AC_ARG_WITH(local-libmaa,
 [  --with-local-libmaa     without libmaa built in local source tree],
 [
@@ -124,39 +102,7 @@ AC_ARG_WITH(regex-include,
     REGEX_INCLUDE=${withval}
 ])
 
-AC_ARG_WITH(checker,
-[  --with-checker          with Checker support (Linux only)],
-[
-if test "x${withval}" = xyes; then
-    REALCC=checkergcc
-fi
-])
-
-AC_ARG_WITH(efence,
-[  --with-efence           with Electric Fence (by Bruce Perens)],
-[
-if test "x${withval}" = xyes; then
-    REALLIBS="$REALLIBS -lefence"
-fi
-])
-
-AC_ARG_WITH(insure,
-[  --with-insure           with Insure support (from ParaSoft Corp.)],
-[
-if test "x${withval}" = xyes; then
-    REALCC=insight
-fi
-])
-
-AC_ARG_WITH(purify,
-[  --with-purify           with Purify support (from Pure, Inc.)],
-[
-if test "x${withval}" = xyes; then
-    REALCC="purify gcc"
-fi
-])
-
-AC_ARG_WITH(purify,
+AC_ARG_WITH(system-utf8,
 [  --with-system-utf8-funcs     use system wcXXX and mbXXX functions],
 [
 if test "x${withval}" = xyes; then
