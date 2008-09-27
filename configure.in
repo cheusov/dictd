@@ -18,7 +18,7 @@ dnl You should have received a copy of the GNU General Public License along
 dnl with this program; if not, write to the Free Software Foundation, Inc.,
 dnl 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl
-dnl $Id: configure.in,v 1.116 2008/06/08 15:05:34 cheusov Exp $
+dnl $Id: configure.in,v 1.117 2008/09/27 10:44:22 cheusov Exp $
 dnl
 dnl Flag conventions:
 dnl     CFLAGS and LDFLAGS should be settable on the make commandline
@@ -30,7 +30,7 @@ define(VERSION, 1.10.11)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.116 $)
+AC_REVISION($Revision: 1.117 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -120,10 +120,10 @@ fi
 ])
 
 AC_ARG_WITH(local-libmaa,
-[  --without-local-libmaa     without libmaa built in local source tree],
+[  --with-local-libmaa     without libmaa built in local source tree],
 [
 if test "x${withval}" = xyes; then
-    local_libmaa=0
+    local_libmaa=1
 fi
 ])
 
@@ -215,7 +215,7 @@ echo .
 echo Checking for libraries
 
 if test "$local_libmaa" = 0; then
-    AC_CHECK_LIB(maa,maa_shutdown,XLDFLAGS="$XLDFLAGS -lmaa",local_libmaa=1)
+   AC_MSG_ERROR([Libmaa not found, try to apply --with-local-libmaa option])
 fi
 
 if test "$local_libmaa" = 1; then
