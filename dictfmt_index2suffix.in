@@ -47,7 +47,7 @@ fi
 function charlen_utf8 (str){
 	if (str == ""){
 		return 0
-	}else if (str ~ /^[\001-\177]/){
+	}else if (str ~ /^[\1-\177]/){
 		return 1
 	}else if (str ~ /^[\200-\277]/){
 		return -1
@@ -79,9 +79,10 @@ BEGIN {
 		i   = 1
 		idx = 1
 		while (i < length($1)){
-			char_len = charlen_utf8(substr($1, i))
+			rest = substr($1, i)
+			char_len = charlen_utf8(rest)
 			if (char_len < 0){
-				print "invalid UTF-8 input" > "/dev/stderr"
+				print "invalid UTF-8 input: `" rest "`" > "/dev/stderr"
 				exit
 			}
 			inverse_char [idx] = substr($1, i, char_len)
