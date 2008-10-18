@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.132 2008/06/08 14:40:07 cheusov Exp $
+# $Id: Makefile.in,v 1.133 2008/10/18 12:41:06 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -408,14 +408,15 @@ dist:
 .PHONY: clean distclean tags
 clean:
 	-rm -f *.o *.lo *.os *.a *.la *.s *~ core a.out config.log
-	-rm -f $(EXES) $(TMPS)
+	-rm -f $(EXES) $(TMPS) dictfmt_index2suffix dictfmt_index2word
 	-rm -f *.log *.aux *.toc *.dvi *.ps
 	-rm -f *.cfg *.dtk .inslog tca.map
 	-rm -f *.dct *.idx y.output TAGS
 	-rm -f *.dict *.index
 	-rm -f *.exe *.dll
-	-rm -f test/_* test/testdb.t.txt
-	-rm -f ChangeLog*
+	-rm -f test/_* test/testdb.t.txt test/log.txt
+	-rm -f ChangeLog* colorit dictl dictunformat test/dictd_test
+	-rm -f *.1 *.8
 
 recursive-clean: clean
 	@for subdir in `echo $(subdirs)`; do \
@@ -438,7 +439,7 @@ distclean: recursive-clean
 	rm -f regex/regex.h; \
 	rm -f config.h config.cache config.status stamp-h.in stamp-h; \
 	rm -f Makefile doc/Makefile dictdplugin-config include_regex.h; \
-	rm -f local_* colorit dictl; \
+	rm -f local_*; \
 	rm -rf autom4te.cache libmaa/autom4te.cache
 	rm -f *.1 *.8
 
