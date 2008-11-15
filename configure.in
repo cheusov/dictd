@@ -28,7 +28,7 @@ define(VERSION, 1.10.11)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.124 $)
+AC_REVISION($Revision: 1.125 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -50,20 +50,13 @@ AC_ISC_POSIX
 
 REALCC="$CC"
 if test "$CC" = gcc; then
-    CFLAGS='-g -O'
-    WCFLAGS='-Wall'
+    CFLAGS="$CFLAGS -Wall"
     case "$host" in
       dnl did include: -Winline
       *linux*)
-	WCFLAGS="$WCFLAGS -pipe -Wwrite-strings -Wcast-align \
+	CFLAGS="$CFLAGS -pipe -Wwrite-strings -Wcast-align \
 	 -Wmissing-prototypes -Wshadow -Wnested-externs -Waggregate-return";;
-	sparc-sun-sunos*)
-	  WCFLAGS="$WCFLAGS -pipe";;
     esac
-				# Silence flex/bison output
-    SCFLAGS="-Wno-implicit -Wno-unused"
-else
-    CFLAGS='-g'
 fi
 
 local_libmaa=0
