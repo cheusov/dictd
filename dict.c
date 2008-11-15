@@ -1,7 +1,7 @@
 /* dict.c -- 
  * Created: Fri Mar 28 19:16:29 1997 by faith@dict.org
- * Revised: Fri May  3 09:22:29 2002 by faith@dict.org
  * Copyright 1997-2002 Rickard E. Faith (faith@dict.org)
+ * Copyright 2002-2008 Aleksey Cheusov (vle@gmx.net)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1086,8 +1086,6 @@ static void process( void )
 	 break;
       case CMD_WIND:
 	  if (cmd_reply.matches) {
-	    int empty_line_found = 0;
-
 	    if (!cmd_reply.data)
 	       err_internal( __func__,
 			     "%d matches, but no list\n", cmd_reply.matches );
