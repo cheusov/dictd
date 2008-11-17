@@ -658,11 +658,7 @@ static int init_virtual_db_list (const void *datum)
 
 static int init_mime_db_list (const void *datum)
 {
-   lst_List list;
    dictDatabase *db  = (dictDatabase *)datum;
-   dictWord *dw;
-   char *buf;
-   int ret;
 
    if (!db -> mime_db)
       return 0;
@@ -1395,16 +1391,6 @@ static void destroy ()
 
    dict_ltdl_close ();
    dict_destroy_strategies ();
-}
-
-static void dict_make_dbs_available (dictConfig *cfg)
-{
-   lst_Position  p;
-   dictDatabase *db;
-
-   LST_ITERATE (cfg -> dbl, p, db) {
-      db -> available = 1;
-   }
 }
 
 FILE *pid_fd = NULL;

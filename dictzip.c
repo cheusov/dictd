@@ -207,7 +207,7 @@ int dict_data_zip( const char *inFilename, const char *outFilename,
    while (!feof( inStr )) {
       if ((count = fread( inBuffer, 1, chunkLength, inStr ))) {
 	 dict_data_filter( inBuffer, &count, IN_BUFFER_SIZE, preFilter );
-	 
+
 	 inputCRC = crc32( inputCRC, inBuffer, count );
 	 zStream.next_in   = inBuffer;
 	 zStream.avail_in  = count;

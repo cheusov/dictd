@@ -318,6 +318,7 @@ static int process_name_value (
    return 0;
 }
 
+#if 0
 static void init_alphabet (global_data *dict_data)
 {
    int ret = 0;
@@ -358,6 +359,7 @@ static void init_alphabet (global_data *dict_data)
 
    dictdb_free (dict_data);
 }
+#endif
 
 static void init_allchars (global_data *dict_data)
 {
@@ -366,9 +368,6 @@ static void init_allchars (global_data *dict_data)
    const char * const* defs;
    const int * defs_sizes;
    int count = 0;
-   int len = 0;
-   char *p = NULL;
-   char *alphabet = NULL;
 
    assert (dict_data);
 
@@ -478,8 +477,6 @@ int dictdb_open (
 {
    int i;
    int err;
-
-   void * dl_id = NULL;
 
    global_data *dict_data = global_data_create ();
    *data = (void *) dict_data;

@@ -53,7 +53,7 @@ static int dict_search_lev_8bit (
    set_Set    s     = set_create(NULL,NULL);
    size_t     i, j, k;
    const char *pt;
-   dictWord   *datum;
+
    size_t alphabet_len = strlen (alphabet);
    char new_char;
 

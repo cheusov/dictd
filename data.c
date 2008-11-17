@@ -113,7 +113,7 @@ static int dict_read_header( const char *filename,
       return 0;
    }
    header->type = DICT_GZIP;
-   
+
    header->method       = getc( str );
    header->flags        = getc( str );
    header->mtime        = getc( str ) <<  0;

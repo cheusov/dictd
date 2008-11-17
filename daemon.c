@@ -941,9 +941,6 @@ static int dict_search_words (
    int matches_count = 0;
    const char *word;
 
-   int old_count = 0;
-   int db_found  = 0;
-
    word_list_pos = lst_init_position (word_list);
    while (word_list_pos){
       word = lst_get_position (word_list_pos);

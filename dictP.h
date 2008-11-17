@@ -298,7 +298,6 @@ extern FILE     *fdopen( int fildes, const char *mode );
 #endif
 
 #include <netdb.h>
-#include <sys/socket.h>
 #include <netinet/in.h>
 
 /* Provide mmap stuff */

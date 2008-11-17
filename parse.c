@@ -60,7 +60,6 @@ void prs_set_cpp_options( const char *cpp_options )
 void prs_file_pp (const char *pp, const char *filename)
 {
    char              *buffer;
-   const char        **pt;
 
    if (!filename)
       err_fatal( __func__, "No filename specified\n" );
