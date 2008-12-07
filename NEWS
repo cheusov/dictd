@@ -1,3 +1,36 @@
+Version 1.11.0, by Aleksey Cheusov, Sun,  7 Dec 2008 23:05:21 +0200
+
+  dictd tarball no longer contains libmaa library.  Now
+  dictd/dict/dictfmt/dictzip/... are built with external libmaa
+  library. Also, by default local "libmaa" directory is not used to
+  detect libmaa even if this directory is present,
+  use './configure --with-local-libmaa' option to force this.
+
+  configure:
+    removed: --with-cc, --with-cflags, --with-prog, --with-gprof,
+    --with-checker, --with-efence, --with-insure and --with-purify
+    options. Use standard CC, CPPFLAGS, CFLAGS, LDFLAGS etc.
+     environment variables instead
+
+  Compilation errors fixed on Solaris, Interix, HP-UX and others.
+
+  dictfmt_index2suffix: \001 -> \1 inside regexp. It seems it is better
+  excepted by different awk/regexp_engines. (heirloom posix2001/awk and
+  libuxre)
+
+  fixed: sf.net bug #1627458 (make samples fails to build)
+
+  fixed: sf.net bug #1941358 (first connection is denied)
+
+  dictfmt_index2suffix: no need for GNU awk
+
+  dictfmt_index2suffix and dictfmt_index2word are generated from *.in
+
+  Other minor fixes and clean-ups in regression tests, Makefiles,
+  configure...
+
+  Lots of GCC warning messages were also fixed
+
 Version 1.10.11, by Aleksey Cheusov, Mon,  7 Apr 2008 00:28:10 +0300
 
  Everything can now be compiled with pcc (Portable C Compiler),
