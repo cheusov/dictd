@@ -17,8 +17,6 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.135 2008/12/07 17:09:15 cheusov Exp $
-#
 
 # Add a _letter_ if you change the version number and release your own version.
 # Numbers are for the original author(s) only.
