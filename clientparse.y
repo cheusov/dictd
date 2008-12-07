@@ -1,7 +1,7 @@
 /* clientparse.y -- 
  * Created: Fri Jul 11 11:34:05 1997 by faith@acm.org
- * Revised: Sun Oct 14 05:42:03 2001 by faith@acm.org
  * Copyright 1997, 1998, 2001 Rickard E. Faith (faith@acm.org)
+ * Copyright 2002-2008 Aleksey Cheusov (vle@gmx.net)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the

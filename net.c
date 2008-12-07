@@ -1,7 +1,7 @@
 /* net.c -- 
  * Created: Fri Feb 21 20:58:10 1997 by faith@dict.org
- * Revised: Sat Mar 30 10:31:44 2002 by faith@dict.org
  * Copyright 1997, 1998, 1999, 2000, 2002 Rickard E. Faith (faith@dict.org)
+ * Copyright 2002-2008 Aleksey Cheusov (vle@gmx.net)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the

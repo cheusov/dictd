@@ -1,7 +1,7 @@
 /* parse.c -- Support for calling parsers from Libmaa
  * Created: Mon Apr 24 17:40:51 1995 by faith@dict.org
- * Revised: Sat Mar 30 12:02:34 2002 by faith@dict.org
  * Copyright 1995, 1997, 2002 Rickard E. Faith (faith@dict.org)
+ * Copyright 2002-2008 Aleksey Cheusov (vle@gmx.net)
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Library General Public License as published

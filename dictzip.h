@@ -1,7 +1,7 @@
 /* dictzip.h -- Header file for dict program
  * Created: Fri Dec  2 20:01:18 1994 by faith@dict.org
- * Revised: Fri Dec 22 06:06:31 2000 by faith@dict.org
  * Copyright 1994, 1995, 1996, 1997, 2000 Rickard E. Faith (faith@dict.org)
+ * Copyright 2002-2008 Aleksey Cheusov (vle@gmx.net)
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the

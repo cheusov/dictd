@@ -1,7 +1,7 @@
 .\" dictd.8 -- 
 .\" Created: Mon Mar 10 16:10:03 1997 by faith@dict.org
-." Revised: Tue Apr 23 09:14:42 2002 by faith@dict.org
 .\" Copyright 1997, 1998, 2002 Rickard E. Faith (faith@dict.org)
+.\" Copyright 2002-2008 Aleksey Cheusov (vle@gmx.net)
 .\" 
 .\" Permission is granted to make and distribute verbatim copies of this
 .\" manual provided the copyright notice and this permission notice are

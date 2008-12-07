@@ -1,7 +1,7 @@
 /* servscan.l -- Scanner for dictd server configuration file
  * Created: Fri Feb 28 08:23:03 1997 by faith@cs.unc.edu
- * Revised: Fri Mar 29 12:42:57 2002 by faith@acm.org
  * Copyright 1997, 1999, 2000, 2002 Rickard E. Faith (faith@acm.org)
+ * Copyright 2002-2008 Aleksey Cheusov (vle@gmx.net)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the

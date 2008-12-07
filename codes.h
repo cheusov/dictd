@@ -1,7 +1,7 @@
 /* codes.h -- 
  * Created: Wed Apr 16 08:44:03 1997 by faith@dict.org
- * Revised: Fri Dec 22 06:06:34 2000 by faith@dict.org
  * Copyright 1997, 2000 Rickard E. Faith (faith@dict.org)
+ * Copyright 2002-2008 Aleksey Cheusov (vle@gmx.net)
  * This program comes with ABSOLUTELY NO WARRANTY.
  */
 

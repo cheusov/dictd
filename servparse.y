@@ -1,7 +1,7 @@
 /* servparse.y -- Parser for dictd server configuration file
  * Created: Fri Feb 28 08:31:38 1997 by faith@cs.unc.edu
- * Revised: Fri Jul 11 11:42:51 1997 by faith@acm.org
  * Copyright 1997 Rickard E. Faith (faith@cs.unc.edu)
+ * Copyright 2002-2008 Aleksey Cheusov (vle@gmx.net)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the

@@ -1,7 +1,7 @@
 /* clientscan.l -- 
  * Created: Fri Jul 11 11:33:46 1997 by faith@acm.org
- * Revised: Wed Dec 22 05:37:25 1999 by faith@acm.org
  * Copyright 1997, 1998, 1999 Rickard E. Faith (faith@acm.org)
+ * Copyright 2002-2008 Aleksey Cheusov (vle@gmx.net)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the

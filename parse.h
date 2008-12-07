@@ -1,7 +1,7 @@
 /* parse.h -- Header file for visible prs_XXX functions
  * Created: Sun Nov 19 13:21:21 1995 by faith@dict.org
- * Revised: Sat Mar 30 11:54:49 2003 by faith@dict.org
  * Copyright 1994-1998, 2002 Rickard E. Faith (faith@dict.org)
+ * Copyright 2002-2008 Aleksey Cheusov (vle@gmx.net)
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Library General Public License as published

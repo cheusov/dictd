@@ -1,7 +1,7 @@
 /* dictzip.c -- 
  * Created: Tue Jul 16 12:45:41 1996 by faith@dict.org
- * Revised: Mon Apr 22 11:40:17 2002 by faith@dict.org
  * Copyright 1996-1998, 2000, 2002 Rickard E. Faith (faith@dict.org)
+ * Copyright 2002-2008 Aleksey Cheusov (vle@gmx.net)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the

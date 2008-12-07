@@ -1,7 +1,7 @@
 /* dict.h -- 
  * Created: Wed Apr 16 08:44:21 1997 by faith@dict.org
- * Revised: Fri Dec 22 06:06:33 2000 by faith@dict.org
  * Copyright 1997, 1998, 2000 Rickard E. Faith (faith@dict.org)
+ * Copyright 2002-2008 Aleksey Cheusov (vle@gmx.net)
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the

@@ -1,8 +1,9 @@
 
 /* dictP.h -- 
  * Created: Fri Mar  7 10:54:05 1997 by faith@dict.org
- * Revised: Fri Dec 22 06:06:33 2000 by faith@dict.org
  * Copyright 1997, 1999, 2000 Rickard E. Faith (faith@dict.org)
+ * Copyright 2002-2008 Aleksey Cheusov (vle@gmx.net)
+ *
  * This program comes with ABSOLUTELY NO WARRANTY.
  * 
  * This program is free software; you can redistribute it and/or modify it
