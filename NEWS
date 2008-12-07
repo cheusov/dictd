@@ -15,7 +15,7 @@ Version 1.11.0, by Aleksey Cheusov, Sun,  7 Dec 2008 23:05:21 +0200
   Compilation errors fixed on Solaris, Interix, HP-UX and others.
 
   dictfmt_index2suffix: \001 -> \1 inside regexp. It seems it is better
-  excepted by different awk/regexp_engines. (heirloom posix2001/awk and
+  eccepted by different awk/regexp_engines. (heirloom posix2001/awk and
   libuxre)
 
   fixed: sf.net bug #1627458 (make samples fails to build)
@@ -26,7 +26,7 @@ Version 1.11.0, by Aleksey Cheusov, Sun,  7 Dec 2008 23:05:21 +0200
 
   dictfmt_index2suffix and dictfmt_index2word are generated from *.in
 
-  Other minor fixes and clean-ups in regression tests, Makefiles,
+  Lots of minor fixes and clean-ups in regression tests, Makefiles,
   configure...
 
   Lots of GCC warning messages were also fixed
