@@ -396,7 +396,7 @@ cvsdist:
 	cd dictd-$${VERSION} && \
 	rm -rf libmaa && \
 	mv /tmp/dictd.ChangeLog.$${VERSION} ChangeLog && \
-	$(MAKE) -f Makefile.conf && \
+	autoheader && autoconf && \
 	rm -rf autom4te.cache libmaa/autom4te.cache && \
 	chmod -R a+rX,g-w . && \
 	cd .. && \
