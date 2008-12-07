@@ -17,7 +17,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 675 Mass Ave, Cambridge, MA 02139, USA.
 # 
-# $Id: Makefile.in,v 1.134 2008/12/07 16:48:12 cheusov Exp $
+# $Id: Makefile.in,v 1.135 2008/12/07 17:09:15 cheusov Exp $
 #
 
 # Add a _letter_ if you change the version number and release your own version.
@@ -202,7 +202,7 @@ dictdplugin_dbi.la : heap.o dictdplugin_dbi.o str.o \
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -module \
 		$(filter-out local_regex local_zlib local_libmaa, $(^:.o=.lo)) \
 		-rpath "${PLUGIN_DIR}" \
-		$(LDFLAGS) $(DBILIB) -ldl
+		$(LDFLAGS) $(DBILIB)
 
 .PHONY: plugins
 plugins: $(PLUGINS)
