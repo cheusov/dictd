@@ -394,6 +394,7 @@ cvsdist:
 	rm -rf /tmp/dictd-$${VERSION} && \
 	cvs export -fd dictd-$${VERSION} -r dictd-$${VERSION_CVS} dictd1 && \
 	cd dictd-$${VERSION} && \
+	rm -rf libmaa && \
 	mv /tmp/dictd.ChangeLog.$${VERSION} ChangeLog && \
 	$(MAKE) -f Makefile.conf && \
 	rm -rf autom4te.cache libmaa/autom4te.cache && \
