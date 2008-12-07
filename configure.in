@@ -1,8 +1,8 @@
 dnl Process this file with autoconf to produce a configure script for dict.
 dnl
 dnl Created: Wed Apr 24 14:11:05 1996 by faith@dict.org
-dnl Revised: Sat Mar 30 11:01:57 2002 by faith@dict.org
 dnl Copyright 1996-1999, 2001-2002 Rickard E. Faith (faith@dict.org)
+dnl Copyright 2002-2008 Aleksey Cheusov (vle@gmx.net)
 dnl
 dnl This program is free software; you can redistribute it and/or modify it
 dnl under the terms of the GNU General Public License as published by the
@@ -24,11 +24,11 @@ dnl             for optimization and stripping.
 dnl     LIBOBJS is an automatically-generated list of extra objects we need
 
 
-define(VERSION, 1.10.11)
+define(VERSION, 1.11.0)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.125 $)
+AC_REVISION($Revision: 1.126 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
