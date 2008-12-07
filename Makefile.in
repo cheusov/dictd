@@ -370,11 +370,12 @@ endif
 ChangeLog:
 	@(echo "***** Making new ChangeLog..."; \
 	rm -f ChangeLog; \
-	AWK=@AWK@ rcs2log -i 2 -r -d'1996-09-20<' . doc regex zlib libmaa \
-	| sed -e 's,/cvsroot/dict/dictd1/,,g' \
+	AWK=@AWK@ rcs2log -i 2 -r -d'1996-09-20<' . doc regex zlib | \
+	./exclude_libmaa_logs | \
+	sed -e 's,/cvsroot/dict/dictd1/,,g' \
 	      -e 's,/cvs/dict/dictd1/,,g' \
-	      -e 's,cheusov@[^>]*,vle@gmx.net,g' \
-	      -e 's,faith@[^>]*,faith@dict.org,g' \
+	      -e 's,cheusov *<cheusov@[^>]*>,Aleksey Cheusov <vle@gmx.net>,g' \
+	      -e 's,faith *<faith@[^>]*>,Rik Faith <faith@dict.org>,g' \
 	      -e 's,hilliard...hilliard@.*,Bob Hilliard  <hilliard@debian.org>,g' \
 	      -e 's,tek...tek@.*,Julian Squires  <tek@wiw.org>,g' \
               -e 's,\(.*\)<\([^@<>]\+\)@\([^@<>]\+\)>\(.*\),\1<\2 at \3}\4,g' \
