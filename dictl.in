@@ -19,52 +19,43 @@ if test -z "$DICTL_CHARSET"; then
     fi
 fi
 
+internal_iconv (){
+    iconv -c -f $1 -t $2
+}
+
+internal_recode (){
+    recode -f $1..$2
+}
+
+internal_konwert (){
+    konwert $1-$2
+}
+
+# for backward compatibility
+if test "$DICTL_USE_ICONV"; then
+    DICTL_USE=internal_iconv
+elif test "$DICTL_USE_KONWERT"; then
+    DICTL_USE=internal_konwert
+elif test -z "$DICTL_USE"; then
+    DICTL_USE=internal_recode
+fi
+
+#
 charset2charset (){
-    if test "$DICTL_USE_ICONV"; then
-	# `iconv --help' gives more options than `man iconv' (on my SuSE 9.0 system at least)
-	# the -c makes iconv omit invalid characters from output
-	iconv -c -f $1 -t $2
-    else if test "$DICTL_USE_KONWERT"; then
-	konwert $1-$2
-    else
-	recode -f $1..$2
-    fi fi
+    $DICTL_USE $1 $2
 }
 
 #####################################
-
-if
-    test "_$DICTL_CHARSET" = "_C" ||
-    test "_$DICTL_CHARSET" = "_POSIX"
-then
-    echo "iconv/recode/konwert do not support coversions to/from locale \"$DICTL_CHARSET\""
+echo apple |
+   charset2charset $DICTL_SERVER_CHARSET $DICTL_CHARSET > /dev/null || \
+{
     exit 1
-fi
-
-if
-    test "_$DICTL_SERVER_CHARSET" = "_C" ||
-    test "_$DICTL_SERVER_CHARSET" = "_POSIX"
-then
-    echo "iconv/recode/konwert do not support coversions to/from locale \"$DICTL_SERVER_CHARSET\""
+}
+echo apple |
+   charset2charset $DICTL_CHARSET $DICTL_SERVER_CHARSET > /dev/null || \
+{
     exit 1
-fi
-
-if test "$DICTL_USE_ICONV"; then
-    if ! which iconv >/dev/null 2>&1; then
-	echo "'iconv' is not available. See dictl(1) for help." 1>&2
-	exit 2
-    fi
-elif test "$DICTL_USE_KONWERT"; then
-    if ! which konwert >/dev/null 2>&1; then
-	echo "'konwert' is not available. See dictl(1) for help." 1>&2
-	exit 2
-    fi
-else
-    if ! which recode >/dev/null 2>&1; then
-	echo "'recode' is not available. See dictl(1) for help." 1>&2
-	exit 2
-    fi
-fi
+}
 
 #####################################
 
