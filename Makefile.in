@@ -56,7 +56,7 @@ USE_DICT_ORG=@USE_DICT_ORG@
 EXEEXT=@EXEEXT@
 
 CONF_DIR=@sysconfdir@/
-PLUGIN_DIR=${libexecdir}/
+PLUGIN_DIR=${libexecdir}
 DICT_DIR=${datadir}/
 
 CC=		@CC@
@@ -74,7 +74,7 @@ LEXLIB= 	@LEXLIB@
 JUDYLIB=        @JUDYLIB@
 DBILIB=         @DBILIB@
 
-CFLAGS= @CPPFLAGS@ @DEFS@ @CFLAGS@ -DDICT_PLUGIN_PATH=\"$(PLUGIN_DIR)\" -DDICT_DICTIONARY_PATH=\"$(DICT_DIR)\" -DDICT_VERSION=\"$(DICT_VERSION)\" -DDICT_CONFIG_PATH=\"$(CONF_DIR)\" -I. -I$(srcdir)
+CFLAGS= @CPPFLAGS@ @DEFS@ @CFLAGS@ -DDICT_PLUGIN_PATH=\"$(PLUGIN_DIR)/\" -DDICT_DICTIONARY_PATH=\"$(DICT_DIR)\" -DDICT_VERSION=\"$(DICT_VERSION)\" -DDICT_CONFIG_PATH=\"$(CONF_DIR)\" -I. -I$(srcdir)
 
 LDFLAGS=        @LDFLAGS@ @LIBS@
 LIBOBJS=        @LIBOBJS@
@@ -295,7 +295,7 @@ install.plugins:
 	if test _$(USE_PLUGIN) != _; then \
 	mkdir -p $(DESTDIR)$(libexecdir) && \
 	if test "$(PLUGINS)"; then \
-        $(LIBTOOL) --mode=install $(INSTALL_DATA) $(PLUGINS) $(DESTDIR)$(libexecdir); else true; fi fi
+	$(LIBTOOL) --mode=install $(INSTALL_DATA) $(PLUGINS) $(DESTDIR)$(PLUGIN_DIR); else true; fi fi
 
 .PHONY: install
 
