@@ -120,7 +120,7 @@ Be verbose.
 .TP
 .BI \-c " file\fR or "  \-\-config " file"
 Specify configuration file.  The default is
-.I /etc/dictd.conf
+.I @SYSCONFDIR@/dictd.conf
 , but may be changed in the
 .I defs.h
 file at compile time (DICTD_CONFIG_FILE).
@@ -283,7 +283,7 @@ of configuration files.
 .TP
 .B Introduction
 The configuration file defaults to
-.I /etc/dictd.conf 
+.I @SYSCONFDIR@/dictd.conf 
 but can be specified on the command line with the
 .B \-c
 option (see above).
