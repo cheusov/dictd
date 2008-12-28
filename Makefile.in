@@ -69,8 +69,6 @@ LEX=		@LEX@
 YACC=		@YACC@
 
 LEXLIB= 	@LEXLIB@
-JUDYLIB=        @JUDYLIB@
-DBILIB=         @DBILIB@
 
 CFLAGS= @CPPFLAGS@ @DEFS@ @CFLAGS@ -DDICT_PLUGIN_PATH=\"$(PLUGIN_DIR)/\" -DDICT_DICTIONARY_PATH=\"$(DICT_DIR)/\" -DDICT_VERSION=\"$(DICT_VERSION)\" -DDICT_CONFIG_PATH=\"$(CONF_DIR)/\" -I. -I$(srcdir)
 
@@ -82,16 +80,8 @@ all: $(EXES) $(LIBRARIES)
 
 ifdef USE_PLUGIN
 
-PLUGINS := 
+PLUGINS=@PLUGINS@
 #dictdplugin_man.la
-
-ifdef JUDYLIB
-PLUGINS := $(PLUGINS) dictdplugin_judy.la
-endif
-
-ifdef DBILIB
-PLUGINS := $(PLUGINS) dictdplugin_dbi.la
-endif
 
 LIBRARIES=
 #libdictdplugin.a
@@ -146,7 +136,7 @@ endif
 dictd: dictd.o
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -static \
 		$(filter-out local_libmaa, $^) \
-		$(DBILIB) $(OBJS) $(LDFLAGS) -lz
+		$(OBJS) $(LDFLAGS) -lz
 
 include $(srcdir)/deps
 
@@ -176,14 +166,14 @@ dictdplugin_judy.la : data.o str.o heap.o dictdplugin_judy.o \
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -module \
 		$(filter-out local_libmaa, $(^:.o=.lo)) \
 		-rpath "${PLUGIN_DIR}" \
-		$(LDFLAGS) $(JUDYLIB)
+		$(LDFLAGS) -lJudy
 
 dictdplugin_dbi.la : heap.o dictdplugin_dbi.o str.o \
                      plugins_common.o $(LIBOBJS)
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -module \
 		$(filter-out local_libmaa, $(^:.o=.lo)) \
 		-rpath "${PLUGIN_DIR}" \
-		$(LDFLAGS) $(DBILIB)
+		$(LDFLAGS) -ldbi
 
 .PHONY: plugins
 plugins: $(PLUGINS)

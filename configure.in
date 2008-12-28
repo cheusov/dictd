@@ -28,7 +28,7 @@ define(VERSION, 1.11.0)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.129 $)
+AC_REVISION($Revision: 1.130 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -157,8 +157,29 @@ if test "$local_libmaa" = 1; then
     fi
 fi
 
-AC_CHECK_LIB(Judy, JudySLNext, [JUDYLIB=-lJudy])
-AC_CHECK_LIB(dbi,  dbi_shutdown, [DBILIB=-ldbi])
+AC_ARG_WITH(plugin-dbi,
+[  --with-plugin-dbi       build libdbi plugin (plugin support should be enabled)],
+[
+if test "x${withval}" != xno; then
+       AC_CHECK_LIB(dbi,  dbi_shutdown,
+           [PLUGINS="$PLUGINS dictdplugin_dbi.la"],
+           [AC_MSG_ERROR([libdbi not found, cannot continue])])
+       AC_CHECK_HEADER([dbi/dbi.h],,
+           [AC_MSG_ERROR([dbi/dbi.h not found, cannot continue])])
+fi
+])
+
+AC_ARG_WITH(plugin-judy,
+[  --with-plugin-judy      build judy plugin (plugin support should be enabled)],
+[
+if test "x${withval}" != xno; then
+       AC_CHECK_LIB(Judy, JudySLNext,
+           [PLUGINS="$PLUGINS dictdplugin_judy.la"],
+           [AC_MSG_ERROR([libJudy not found, cannot continue])])
+       AC_CHECK_HEADER([Judy.h],,
+           [AC_MSG_ERROR([Judy.h not found, cannot continue])])
+fi
+])
 
 AC_CHECK_LIB(socket,main)
 AC_CHECK_LIB(c,inet_ntoa,
@@ -196,8 +217,6 @@ AC_CHECK_HEADERS(inttypes.h)
 AC_CHECK_HEADERS(sys/resource.h sys/time.h sys/param.h sys/wait.h)
 AC_CHECK_HEADERS(wctype.h wchar.h)
 AC_CHECK_HEADERS(ctype.h getopt.h)
-AC_CHECK_HEADER([Judy.h], ,[JUDYLIB=])
-AC_CHECK_HEADER([dbi/dbi.h], ,[DBILIB=])
 
 AC_CHECK_HEADER([zlib.h], ,
     [AC_MSG_ERROR([zlib.h is required for dictd])])
@@ -305,9 +324,9 @@ AC_SUBST(EXEEXT)
 AC_SUBST(allsubdirs)
 AC_SUBST(USE_DICT_ORG)
 AC_SUBST(local_libmaa)
-AC_SUBST(JUDYLIB)
-AC_SUBST(DBILIB)
 AC_SUBST(LIBTOOL)
+
+AC_SUBST(PLUGINS)
 
 AC_SUBST(SYSCONFDIR)
 AC_SUBST(BINDIR)
@@ -359,19 +378,7 @@ else
     2) echo native
   esac
 
-  printf " judy plugin:    "
-  if test "_$JUDYLIB" = "_"; then
-    echo "disabled"
-  else
-    echo "enabled"
-  fi
-
-  printf " dbi plugin:     "
-  if test "_$DBILIB" = "_"; then
-    echo "disabled"
-  else
-    echo "enabled"
-  fi
+  printf " enabled plugins: %s\n" "$PLUGINS"
 fi
 
 printf '\n\n'
