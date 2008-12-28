@@ -21,13 +21,14 @@
 #include "dictP.h"
 #include "dictzip.h"
 #include "index.h"
-#include "include_regex.h"
 #include "strategy.h"
 #include "str.h"
 
 #ifdef USE_PLUGIN
 #include "plugin.h"
 #endif
+
+#include <regex.h>
 
 #include <sys/stat.h>
 

@@ -28,7 +28,7 @@ define(VERSION, 1.11.0)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.128 $)
+AC_REVISION($Revision: 1.129 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -86,13 +86,6 @@ AC_ARG_WITH(local-libmaa,
 if test "x${withval}" = xyes; then
     local_libmaa=1
 fi
-])
-
-REGEX_INCLUDE='regex.h'
-AC_ARG_WITH(regex-include,
-[  --with-regex-include=FILE  set an alternative to regex.h],
-[
-    REGEX_INCLUDE=${withval}
 ])
 
 AC_ARG_WITH(system-utf8,
@@ -311,7 +304,6 @@ AC_SUBST(USE_PLUGIN)
 AC_SUBST(EXEEXT)
 AC_SUBST(allsubdirs)
 AC_SUBST(USE_DICT_ORG)
-AC_SUBST(REGEX_INCLUDE)
 AC_SUBST(local_libmaa)
 AC_SUBST(JUDYLIB)
 AC_SUBST(DBILIB)
@@ -324,7 +316,7 @@ AC_SUBST(LIBEXECDIR)
 AC_SUBST(DATADIR)
 AC_SUBST(srcdir)
 
-AC_CONFIG_FILES([Makefile doc/Makefile include_regex.h])
+AC_CONFIG_FILES([Makefile doc/Makefile])
 AC_CONFIG_FILES([dictdplugin-config], [chmod +x dictdplugin-config])
 AC_CONFIG_FILES([dictl], [chmod +x dictl])
 AC_CONFIG_FILES([colorit], [chmod +x colorit])
