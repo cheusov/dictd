@@ -28,7 +28,7 @@ define(VERSION, 1.11.0)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.127 $)
+AC_REVISION($Revision: 1.128 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -59,8 +59,6 @@ if test "$CC" = gcc; then
     esac
 fi
 
-local_libmaa=0
-
 AC_ARG_WITH(nec-socks5,
 [  --with-nec-socks5       with NEC socks5 library],
 [
@@ -79,6 +77,8 @@ if test "x${withval}" = xyes; then
     REALLIBS="$REALLIBS -lsocks5"
 fi
 ])
+
+local_libmaa=0
 
 AC_ARG_WITH(local-libmaa,
 [  --with-local-libmaa     without libmaa built in local source tree],
