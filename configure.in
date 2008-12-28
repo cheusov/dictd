@@ -28,7 +28,7 @@ define(VERSION, 1.11.0)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.131 $)
+AC_REVISION($Revision: 1.132 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -71,16 +71,6 @@ if test "x${withval}" = xyes; then
     -Dclose=SOCKSclose -Ddup=SOCKSdup -Ddup2=SOCKSdup2 \
     -Dgethostbyname=SOCKSgethostbyname"
     REALLIBS="$REALLIBS -lsocks5"
-fi
-])
-
-local_libmaa=0
-
-AC_ARG_WITH(local-libmaa,
-[  --with-local-libmaa     without libmaa built in local source tree],
-[
-if test "x${withval}" = xyes; then
-    local_libmaa=1
 fi
 ])
 
@@ -132,26 +122,8 @@ AC_CHECK_PROGS(EXPAND,expand cat)
 echo .
 echo Checking for libraries
 
-if test "$local_libmaa" = 0; then
-   AC_CHECK_LIB(maa,maa_shutdown,XLDFLAGS="$XLDFLAGS -lmaa",
+AC_CHECK_LIB(maa,maa_shutdown, [LIBS="$LIBS -lmaa"],
 	[AC_MSG_ERROR([Libmaa not found])])
-fi
-
-if test "$local_libmaa" = 1; then
-    AC_MSG_CHECKING(for libmaa in local source tree)
-    if test -d libmaa; then
-        XLDFLAGS="$XLDFLAGS -Llibmaa -lmaa"
-        XCPPFLAGS="$XCPPFLAGS -Ilibmaa"
-
-        AC_CONFIG_SUBDIRS(libmaa)
-
-        allsubdirs="$allsubdirs libmaa"
-        AC_MSG_RESULT(yes)
-    else
-        AC_MSG_RESULT(no)
-        AC_MSG_ERROR([Libmaa not found, cannot continue])
-    fi
-fi
 
 AC_ARG_WITH(plugin-dbi,
 [  --with-plugin-dbi       build libdbi plugin (plugin support should be enabled)],
@@ -319,7 +291,6 @@ AC_SUBST(USE_PLUGIN)
 AC_SUBST(EXEEXT)
 AC_SUBST(allsubdirs)
 AC_SUBST(USE_DICT_ORG)
-AC_SUBST(local_libmaa)
 AC_SUBST(LIBTOOL)
 
 AC_SUBST(PLUGINS)
@@ -355,14 +326,6 @@ AC_CONFIG_FILES(test/dictd_test)
 AC_OUTPUT
 
 printf '\n\n'
-
-# MAA
-printf "maa:             "
-if test "_$local_libmaa" = "_0"; then
-  echo system
-else
-  echo local
-fi
 
 # PLUGIN SUPPORT
 printf "plugin support:  "

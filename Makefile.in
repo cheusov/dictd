@@ -43,8 +43,6 @@ includedir=     @includedir@
 datadir=        @datadir@
 
 
-local_libmaa=   @local_libmaa@
-
 DESTDIR=
 
 SHELL=		/bin/sh
@@ -117,12 +115,6 @@ TMPS=           servscan.c servparse.c servparse.h \
 
 @SET_MAKE@
 
-ifeq (1,$(local_libmaa))
-$(PLUGINS) dictdplugin_popen.la dictdplugin_exit.la $(EXES) : local_libmaa
-local_libmaa :
-	( cd $(srcdir)/libmaa && $(MAKE) ) && touch local_libmaa
-endif
-
 %.o: %.c
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) -c $(CFLAGS) $< -o $@
 %.o: %.cpp
@@ -130,13 +122,11 @@ endif
 
 %: %.o
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -static \
-		$(filter-out local_libmaa, $^) \
-		$(OBJS) $(LDFLAGS) -lz
+		$^ $(OBJS) $(LDFLAGS) -lz
 
 dictd: dictd.o
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -static \
-		$(filter-out local_libmaa, $^) \
-		$(OBJS) $(LDFLAGS) -lz
+		$^ $(OBJS) $(LDFLAGS) -lz
 
 include $(srcdir)/deps
 
@@ -150,28 +140,28 @@ lib%.a : %.o
 
 %.la : %.o $(LIBOBJS)
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -module \
-		$(filter-out local_libmaa, $(^:.o=.lo)) \
+		$(^:.o=.lo) \
 		-rpath "${PLUGIN_DIR}" \
 		$(LDFLAGS)
 
 dictdplugin_man.la : data.o str.o heap.o dictdplugin_man.o \
                       plugins_common.o $(LIBOBJS)
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -module \
-		$(filter-out local_libmaa, $(^:.o=.lo)) \
+		$(^:.o=.lo) \
 		-rpath "${PLUGIN_DIR}" \
 		$(LDFLAGS)
 
 dictdplugin_judy.la : data.o str.o heap.o dictdplugin_judy.o \
                       plugins_common.o $(LIBOBJS)
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -module \
-		$(filter-out local_libmaa, $(^:.o=.lo)) \
+		$(^:.o=.lo) \
 		-rpath "${PLUGIN_DIR}" \
 		$(LDFLAGS) -lJudy
 
 dictdplugin_dbi.la : heap.o dictdplugin_dbi.o str.o \
                      plugins_common.o $(LIBOBJS)
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -module \
-		$(filter-out local_libmaa, $(^:.o=.lo)) \
+		$(^:.o=.lo) \
 		-rpath "${PLUGIN_DIR}" \
 		$(LDFLAGS) -ldbi
 
@@ -403,7 +393,7 @@ distclean: recursive-clean
 	done
 	rm -f config.h config.cache config.status stamp-h.in stamp-h
 	rm -f Makefile doc/Makefile dictdplugin-config
-	rm -f local_* colorit dictl dictunformat test/dictd_test
+	rm -f colorit dictl dictunformat test/dictd_test
 	rm -rf autom4te.cache libmaa/autom4te.cache
 	rm -f  dictfmt_index2suffix dictfmt_index2word
 	rm -f *.1 *.8
