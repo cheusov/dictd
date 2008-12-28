@@ -323,7 +323,6 @@ uninstall.libs uninstall.includes uninstall.plugins uninstall.colorit
 uninstall: \
 uninstall.dict uninstall.dictzip uninstall.dictfmt uninstall.dictd \
 uninstall.libs uninstall.includes uninstall.plugins uninstall.colorit
-
 ifdef USE_PLUGIN
 	rm -f $(DESTDIR)$(bindir)/dictdplugin-config
 endif
