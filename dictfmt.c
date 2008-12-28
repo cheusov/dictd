@@ -900,24 +900,41 @@ static void fmt_headword_for_url (void)
    ignore_hw_url = 1;
 }
 
+static int qsort_compare_strings (const void *a, const void *b)
+{
+   return strcmp (*(const char **)a, *(const char **)b);
+}
+
 static void fmt_headword_for_alphabet (void)
 {
    const char *key;
    size_t sum_size = 0;
    str_Position pos;
    char *alphabet;
+   int alphabet_size = 0;
+   const char **keys = NULL;
+   int i;
 
    fmt_newheadword("00-database-alphabet");
 
    STR_ITERATE (alphabet_pool, pos, key){
       sum_size += strlen (key);
+      ++alphabet_size;
    }
+
+   keys = xmalloc (alphabet_size * sizeof (keys [0]));
+
+   i = 0;
+   STR_ITERATE (alphabet_pool, pos, key){
+      keys [i++] = key;
+   }
+
+   qsort (keys, alphabet_size, sizeof (keys [0]), qsort_compare_strings);
 
    alphabet = xmalloc (sum_size + 1);
    alphabet [0] = 0;
-
-   STR_ITERATE (alphabet_pool, pos, key){
-      strcat (alphabet, key);
+   for (i=0; i < alphabet_size; ++i){
+      strcat (alphabet, keys [i]);
    }
 
    fmt_string (alphabet);

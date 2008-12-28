@@ -19,13 +19,13 @@ testdb "00-database-allchars"
 # define 	testdb	 "00-database-alphabet"
 150 1 definitions retrieved
 151 "00-database-alphabet" testdb "unknown"
-ытhвrнaіbеlпdóeир аnýo
+ abdehlnoróýавеинпртыі
 .
 250
 # define testdb "00-database-alphabet"
 150 1 definitions retrieved
 151 "00-database-alphabet" testdb "unknown"
-ытhвrнaіbеlпdóeир аnýo
+ abdehlnoróýавеинпртыі
 .
 250
 # match	testdb exact	"00-database-alphabet"

@@ -2,13 +2,13 @@
 # define 	testdb	 "00databasealphabet"
 150 1 definitions retrieved
 151 "00databasealphabet" testdb "unknown"
-ытhвrнaіbеlпdóeир аnýo
+ abdehlnoróýавеинпртыі
 .
 250
 # define testdb "00databasealphabet"
 150 1 definitions retrieved
 151 "00databasealphabet" testdb "unknown"
-ытhвrнaіbеlпdóeир аnýo
+ abdehlnoróýавеинпртыі
 .
 250
 # match	testdb exact	"00databasealphabet"

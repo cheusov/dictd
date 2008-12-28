@@ -2,13 +2,13 @@
 # define 	testdb	 "00databasealphabet"
 150 1 definitions retrieved
 151 "00databasealphabet" testdb "rus words"
-ыктблувгьэфмнхдіеюж7яоцчп90шз1ир ащъйс3
+ 01379абвгдежзийклмнопрстуфхцчшщъыьэюяі
 .
 250
 # define testdb "00databasealphabet"
 150 1 definitions retrieved
 151 "00databasealphabet" testdb "rus words"
-ыктблувгьэфмнхдіеюж7яоцчп90шз1ир ащъйс3
+ 01379абвгдежзийклмнопрстуфхцчшщъыьэюяі
 .
 250
 # match	testdb exact	"00databasealphabet"
@@ -10796,9 +10796,9 @@ testdb "мономах"
 250
 # match	testdb lev	"мономах"
 152 4 matches found
-testdb "мономаху"
-testdb "мономахе"
 testdb "мономаха"
+testdb "мономахе"
+testdb "мономаху"
 testdb "мономах"
 .
 250
@@ -10857,8 +10857,8 @@ testdb "шапка мономаха"
 152 4 matches found
 testdb "мономаха"
 testdb "мономах"
-testdb "мономаху"
 testdb "мономахе"
+testdb "мономаху"
 .
 250
 # match	testdb suffix	"мономаха"
@@ -10906,8 +10906,8 @@ testdb "мономахе"
 152 4 matches found
 testdb "мономахе"
 testdb "мономах"
-testdb "мономаху"
 testdb "мономаха"
+testdb "мономаху"
 .
 250
 # match	testdb suffix	"мономахе"
@@ -11041,8 +11041,8 @@ testdb "мономаху"
 152 4 matches found
 testdb "мономаху"
 testdb "мономах"
-testdb "мономахе"
 testdb "мономаха"
+testdb "мономахе"
 .
 250
 # match	testdb suffix	"мономаху"
@@ -12656,8 +12656,8 @@ testdb "неуниверситетские"
 # match	testdb lev	"неуниверситетские"
 152 3 matches found
 testdb "неуниверситетские"
-testdb "неуниверситетских"
 testdb "неуниверситетский"
+testdb "неуниверситетских"
 .
 250
 # match	testdb suffix	"неуниверситетские"
@@ -12703,8 +12703,8 @@ testdb "неуниверситетский"
 152 4 matches found
 testdb "неуниверситетский"
 testdb "неуниверситетской"
-testdb "неуниверситетских"
 testdb "неуниверситетские"
+testdb "неуниверситетских"
 .
 250
 # match	testdb suffix	"неуниверситетский"
@@ -13633,8 +13633,8 @@ testdb "омский университет"
 250
 # match	testdb lev	"омский университет"
 152 2 matches found
-testdb "томский университет"
 testdb "омский университет"
+testdb "томский университет"
 .
 250
 # match	testdb suffix	"омский университет"
@@ -18624,10 +18624,10 @@ testdb "ясский университет"
 250
 # match	testdb lev	"университет"
 152 5 matches found
-testdb "университеты"
-testdb "университету"
-testdb "университете"
 testdb "университета"
+testdb "университете"
+testdb "университету"
+testdb "университеты"
 testdb "университет"
 .
 250
@@ -19257,9 +19257,9 @@ testdb "университетам"
 testdb "университетах"
 testdb "университета"
 testdb "университет"
-testdb "университеты"
-testdb "университету"
 testdb "университете"
+testdb "университету"
+testdb "университеты"
 .
 250
 # match	testdb suffix	"университета"
@@ -19496,9 +19496,9 @@ testdb "университете"
 152 5 matches found
 testdb "университете"
 testdb "университет"
-testdb "университеты"
-testdb "университету"
 testdb "университета"
+testdb "университету"
+testdb "университеты"
 .
 250
 # match	testdb suffix	"университете"
@@ -19729,9 +19729,9 @@ testdb "университетские уставы"
 152 5 matches found
 testdb "университетские"
 testdb "университетское"
+testdb "университетский"
 testdb "университетским"
 testdb "университетских"
-testdb "университетский"
 .
 250
 # match	testdb suffix	"университетские"
@@ -19828,9 +19828,9 @@ testdb "университетский городок"
 152 5 matches found
 testdb "университетский"
 testdb "университетской"
+testdb "университетские"
 testdb "университетским"
 testdb "университетских"
-testdb "университетские"
 .
 250
 # match	testdb suffix	"университетский"
@@ -19925,9 +19925,9 @@ testdb "университетским"
 testdb "университетскими"
 testdb "университетским"
 testdb "университетском"
-testdb "университетских"
 testdb "университетские"
 testdb "университетский"
+testdb "университетских"
 .
 250
 # match	testdb suffix	"университетским"
@@ -20019,9 +20019,9 @@ testdb "университетских"
 # match	testdb lev	"университетских"
 152 4 matches found
 testdb "университетских"
-testdb "университетским"
 testdb "университетские"
 testdb "университетский"
+testdb "университетским"
 .
 250
 # match	testdb suffix	"университетских"
@@ -20119,8 +20119,8 @@ testdb "университетское"
 152 4 matches found
 testdb "университетское"
 testdb "университетские"
-testdb "университетском"
 testdb "университетской"
+testdb "университетском"
 .
 250
 # match	testdb suffix	"университетское"
@@ -20166,8 +20166,8 @@ testdb "университетской"
 152 4 matches found
 testdb "университетской"
 testdb "университетский"
-testdb "университетском"
 testdb "университетское"
+testdb "университетском"
 .
 250
 # match	testdb suffix	"университетской"
@@ -20358,9 +20358,9 @@ testdb "университету"
 152 5 matches found
 testdb "университету"
 testdb "университет"
-testdb "университеты"
-testdb "университете"
 testdb "университета"
+testdb "университете"
+testdb "университеты"
 .
 250
 # match	testdb suffix	"университету"
@@ -20407,9 +20407,9 @@ testdb "университеты"
 152 5 matches found
 testdb "университеты"
 testdb "университет"
-testdb "университету"
-testdb "университете"
 testdb "университета"
+testdb "университете"
+testdb "университету"
 .
 250
 # match	testdb suffix	"университеты"
