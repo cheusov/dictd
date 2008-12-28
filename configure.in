@@ -28,7 +28,7 @@ define(VERSION, 1.11.0)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.130 $)
+AC_REVISION($Revision: 1.131 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -51,12 +51,8 @@ AC_ISC_POSIX
 REALCC="$CC"
 if test "$CC" = gcc; then
     CFLAGS="$CFLAGS -Wall"
-    case "$host" in
-      dnl did include: -Winline
-      *linux*)
-	CFLAGS="$CFLAGS -pipe -Wwrite-strings -Wcast-align \
-	 -Wmissing-prototypes -Wshadow -Wnested-externs -Waggregate-return";;
-    esac
+    CFLAGS="$CFLAGS -Wwrite-strings -Wcast-align -Wmissing-prototypes"
+    CFLAGS="$CFLAGS -Wshadow -Wnested-externs -Waggregate-return"
 fi
 
 AC_ARG_WITH(nec-socks5,
