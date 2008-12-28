@@ -43,9 +43,7 @@ includedir=     @includedir@
 datadir=        @datadir@
 
 
-local_regex=    @local_regex@
 local_libmaa=   @local_libmaa@
-local_zlib=     @local_zlib@
 
 DESTDIR=
 
@@ -135,21 +133,6 @@ local_libmaa :
 	( cd $(srcdir)/libmaa && $(MAKE) ) && touch local_libmaa
 endif
 
-ifeq (1,$(local_regex))
-$(PLUGINS) dictdplugin_popen.la dictdplugin_exit.la $(EXES) : local_regex
-local_regex :
-	( cd $(srcdir)/regex && $(MAKE) CC="$(CC) $(CFLAGS)" lib ) && \
-		touch local_regex
-endif
-
-ifeq (1,$(local_zlib))
-$(PLUGINS) dictdplugin_popen.la dictdplugin_exit.la $(EXES) : local_zlib
-local_zlib :
-	( cd $(srcdir)/zlib && \
-	$(MAKE) CC="$(CC)" CFLAGS="$(CFLAGS)" libz.a ) && \
-		touch local_zlib
-endif
-
 %.o: %.c
 	$(LIBTOOL) --tag=CC --mode=compile $(CC) -c $(CFLAGS) $< -o $@
 %.o: %.cpp
@@ -157,12 +140,12 @@ endif
 
 %: %.o
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -static \
-		$(filter-out local_regex local_zlib local_libmaa, $^) \
+		$(filter-out local_libmaa, $^) \
 		$(OBJS) $(LDFLAGS) -lz
 
 dictd: dictd.o
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -static \
-		$(filter-out local_regex local_zlib local_libmaa, $^) \
+		$(filter-out local_libmaa, $^) \
 		$(DBILIB) $(OBJS) $(LDFLAGS) -lz
 
 include $(srcdir)/deps
@@ -177,28 +160,28 @@ lib%.a : %.o
 
 %.la : %.o $(LIBOBJS)
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -module \
-		$(filter-out local_regex local_zlib local_libmaa, $(^:.o=.lo)) \
+		$(filter-out local_libmaa, $(^:.o=.lo)) \
 		-rpath "${PLUGIN_DIR}" \
 		$(LDFLAGS)
 
 dictdplugin_man.la : data.o str.o heap.o dictdplugin_man.o \
                       plugins_common.o $(LIBOBJS)
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -module \
-		$(filter-out local_regex local_zlib local_libmaa, $(^:.o=.lo)) \
+		$(filter-out local_libmaa, $(^:.o=.lo)) \
 		-rpath "${PLUGIN_DIR}" \
 		$(LDFLAGS)
 
 dictdplugin_judy.la : data.o str.o heap.o dictdplugin_judy.o \
                       plugins_common.o $(LIBOBJS)
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -module \
-		$(filter-out local_regex local_zlib local_libmaa, $(^:.o=.lo)) \
+		$(filter-out local_libmaa, $(^:.o=.lo)) \
 		-rpath "${PLUGIN_DIR}" \
 		$(LDFLAGS) $(JUDYLIB)
 
 dictdplugin_dbi.la : heap.o dictdplugin_dbi.o str.o \
                      plugins_common.o $(LIBOBJS)
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -module \
-		$(filter-out local_regex local_zlib local_libmaa, $(^:.o=.lo)) \
+		$(filter-out local_libmaa, $(^:.o=.lo)) \
 		-rpath "${PLUGIN_DIR}" \
 		$(LDFLAGS) $(DBILIB)
 
@@ -370,7 +353,7 @@ endif
 ChangeLog:
 	@(echo "***** Making new ChangeLog..."; \
 	rm -f ChangeLog; \
-	AWK=@AWK@ rcs2log -i 2 -r -d'1996-09-20<' . doc regex zlib | \
+	AWK=@AWK@ rcs2log -i 2 -r -d'1996-09-20<' . doc | \
 	./exclude_libmaa_logs | \
 	sed -e 's,/cvsroot/dict/dictd1/,,g' \
 	      -e 's,/cvs/dict/dictd1/,,g' \
@@ -425,19 +408,11 @@ recursive-clean: clean
 
 distclean: recursive-clean
 	@for subdir in `echo $(subdirs)`; do \
-	 	if [ "$$subdir" != "zlib" ]; then \
-			if [ "$$subdir" = "regex" ]; then \
-				echo making clean in $$subdir; \
-				(cd $$subdir && $(MAKE) clean) || exit 1; \
-			else \
-				echo making $@ in $$subdir; \
-				(cd $$subdir && $(MAKE) $@) || exit 1; \
-			fi \
-		fi \
+		echo making $@ in $$subdir; \
+		(cd $$subdir && $(MAKE) $@) || exit 1; \
 	done
-	rm -f regex/regex.h
 	rm -f config.h config.cache config.status stamp-h.in stamp-h
-	rm -f Makefile doc/Makefile dictdplugin-config include_regex.h
+	rm -f Makefile doc/Makefile dictdplugin-config
 	rm -f local_* colorit dictl dictunformat test/dictd_test
 	rm -rf autom4te.cache libmaa/autom4te.cache
 	rm -f  dictfmt_index2suffix dictfmt_index2word
