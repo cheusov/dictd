@@ -28,7 +28,7 @@ define(VERSION, 1.11.0)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.132 $)
+AC_REVISION($Revision: 1.133 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -180,7 +180,7 @@ if test "x${USE_PLUGIN}" = "x1"; then
 #                           or run ./configure --disable-plugin])])
 fi
 
-AC_CHECK_HEADERS(unistd.h strings.h limits.h)
+AC_CHECK_HEADERS(strings.h limits.h)
 AC_CHECK_HEADERS(inttypes.h)
 AC_CHECK_HEADERS(sys/resource.h sys/time.h sys/param.h sys/wait.h)
 AC_CHECK_HEADERS(wctype.h wchar.h)
