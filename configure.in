@@ -28,7 +28,7 @@ define(VERSION, 1.11.0)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.134 $)
+AC_REVISION($Revision: 1.135 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -242,8 +242,6 @@ fi #end of SYSTEM_UTF8
 
 AC_REPLACE_FUNCS(strlcpy strlcat)
 AC_REPLACE_FUNCS(getopt_long)
-#   [AC_LIBOBJ([getopt_long])
-#   AC_LIBOBJ([getopt])])
 AC_REPLACE_FUNCS(snprintf vsnprintf)
 
 AC_CHECK_DECLS(CODESET,, [AC_LIBOBJ(nl_langinfo)], [#include <langinfo.h>])
@@ -263,13 +261,7 @@ SBINDIR=`eval3 $sbindir`
 LIBEXECDIR=`eval3 $libexecdir`
 DATADIR=`eval3 $datadir`
 
-CPPFLAGS="$CPPFLAGS $XCPPFLAGS"
-CFLAGS="$CFLAGS $XCFLAGS"
-LDFLAGS="$LDFLAGS $XLDFLAGS"
-
 AC_SUBST(DICT_VERSION)
-AC_SUBST(CPPFLAGS)
-AC_SUBST(CFLAGS)
 AC_SUBST(USE_PLUGIN)
 AC_SUBST(EXEEXT)
 AC_SUBST(allsubdirs)
