@@ -1517,7 +1517,7 @@ int main( int argc, char **argv )
 	    }
 
 	    if (indexonly_base64){
-	       i_size = (int) b64_decode (offset);
+	       i_size = (int) b64_decode (size);
 	    }else{
 	       i_size = xatoi (size);
 	    }
