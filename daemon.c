@@ -1113,7 +1113,7 @@ static void daemon_show_strat( const char *cmdline, int argc, const char **argv 
    }
 
    if (strat_count){
-      daemon_printf( "%d %d databases present\n",
+      daemon_printf( "%d %d strategies present\n",
 		     CODE_STRATEGY_LIST, strat_count );
       daemon_mime();
 
