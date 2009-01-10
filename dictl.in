@@ -59,31 +59,11 @@ echo apple |
 
 #####################################
 
-params="dict"
-
+cmd='dict'
 while test $# -ne 0; do
-    case $1 in
-	--run-a-pipe)
-	    charset2charset $DICTL_SERVER_CHARSET $DICTL_CHARSET
-	    exit $?;;
-	*)
-	    p=`echo "$1" |
-		charset2charset $DICTL_CHARSET $DICTL_SERVER_CHARSET |
-		sed "s/'/'\"'\"'/g"`
-
-	    params="$params '$p'"
-
-	    # ...to be compatible with dict
-	    if echo $1 |
-		awk '{
-		    exit ($0 !~ /^(-L|--license|-V|--version|--help)$/)
-		}'
-	    then
-		break
-	    fi;;
-    esac
-
+    cmd="$cmd '$1'"
     shift
 done
+cmd=$(echo $cmd | charset2charset $DICTL_CHARSET $DICTL_SERVER_CHARSET)
 
-eval $params -P - | $0 --run-a-pipe
+eval $cmd -P - | charset2charset $DICTL_SERVER_CHARSET $DICTL_CHARSET
