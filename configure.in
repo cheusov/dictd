@@ -28,7 +28,7 @@ define(VERSION, 1.11.0)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.135 $)
+AC_REVISION($Revision: 1.136 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -117,7 +117,7 @@ AC_CHECK_PROGS(EXPAND,expand cat)
 echo .
 echo Checking for libraries
 
-AC_CHECK_LIB(maa,maa_shutdown, [LIBS="$LIBS -lmaa"],
+AC_CHECK_LIB(maa,maa_shutdown, [LIBMAA=-lmaa],
 	[AC_MSG_ERROR([Libmaa not found])])
 
 AC_ARG_WITH(plugin-dbi,
@@ -274,6 +274,8 @@ AC_SUBST(BINDIR)
 AC_SUBST(SBINDIR)
 AC_SUBST(LIBEXECDIR)
 AC_SUBST(DATADIR)
+
+AC_SUBST(LIBMAA)
 AC_SUBST(srcdir)
 
 AC_CONFIG_FILES([Makefile doc/Makefile])

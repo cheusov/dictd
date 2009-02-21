@@ -69,7 +69,9 @@ LEXLIB= 	@LEXLIB@
 
 CFLAGS= @CPPFLAGS@ @DEFS@ @CFLAGS@ -DDICT_PLUGIN_PATH=\"$(PLUGIN_DIR)/\" -DDICT_DICTIONARY_PATH=\"$(DICT_DIR)/\" -DDICT_VERSION=\"$(DICT_VERSION)\" -DDICT_CONFIG_PATH=\"$(CONF_DIR)/\" -I. -I$(srcdir)
 
-LDFLAGS=        @LDFLAGS@ @LIBS@
+LIBMAA=		@LIBMAA@
+LIBS=		@LIBS@ ${LIBMAA}
+LDFLAGS=        @LDFLAGS@
 LIBOBJS=        @LIBOBJS@
 EXES=	 	dict dictd dictzip dictfmt
 
@@ -121,11 +123,11 @@ TMPS=           servscan.c servparse.c servparse.h \
 
 %: %.o
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -static \
-		$^ $(OBJS) $(LDFLAGS) -lz
+		$^ $(OBJS) $(LDFLAGS) -lz ${LIBS}
 
 dictd: dictd.o
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -static \
-		$^ $(OBJS) $(LDFLAGS) -lz
+		$^ $(OBJS) $(LDFLAGS) -lz ${LIBS}
 
 include $(srcdir)/deps
 
@@ -141,28 +143,28 @@ lib%.a : %.o
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -module \
 		$(^:.o=.lo) \
 		-rpath "${PLUGIN_DIR}" \
-		$(LDFLAGS)
+		$(LDFLAGS) ${LIBS}
 
 dictdplugin_man.la : data.o str.o heap.o dictdplugin_man.o \
                       plugins_common.o $(LIBOBJS)
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -module \
 		$(^:.o=.lo) \
 		-rpath "${PLUGIN_DIR}" \
-		$(LDFLAGS)
+		$(LDFLAGS) ${LIBS}
 
 dictdplugin_judy.la : data.o str.o heap.o dictdplugin_judy.o \
                       plugins_common.o $(LIBOBJS)
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -module \
 		$(^:.o=.lo) \
 		-rpath "${PLUGIN_DIR}" \
-		$(LDFLAGS) -lJudy
+		$(LDFLAGS) -lJudy ${LIBS}
 
 dictdplugin_dbi.la : heap.o dictdplugin_dbi.o str.o \
                      plugins_common.o $(LIBOBJS)
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -module \
 		$(^:.o=.lo) \
 		-rpath "${PLUGIN_DIR}" \
-		$(LDFLAGS) -ldbi
+		$(LDFLAGS) -ldbi ${LIBS}
 
 .PHONY: plugins
 plugins: $(PLUGINS)
