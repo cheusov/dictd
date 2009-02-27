@@ -125,10 +125,6 @@ TMPS=           servscan.c servparse.c servparse.h \
 	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -static \
 		$^ $(OBJS) $(LDFLAGS) -lz ${LIBS}
 
-dictd: dictd.o
-	$(LIBTOOL) --tag=CC --mode=link $(CC) -o $@ -static \
-		$^ $(OBJS) $(LDFLAGS) -lz ${LIBS}
-
 include $(srcdir)/deps
 
 dictd.o : servparse.h
