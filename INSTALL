@@ -4,6 +4,16 @@ information on The DICT Development Group, this software, mailing lists, etc.
 INSTALLATION
 ============
 
+0. Before building Dictionary server (dictd) or Dictionary client (dict),
+   you should build (and optionally install) libmaa library.
+
+        cd libmaa
+        ./configure
+        make
+        make install
+
+   Installing libmaa is actually not mandatory. See below.
+
 1.  Configure the source code and Makefiles:
 
         ./configure
@@ -15,7 +25,7 @@ INSTALLATION
         ./configure --prefix=/opt/gnu
 
     NOTE: as of version 1.8.0, dictd supports plugins.
-    If you do not want it, disable it:
+    If you do not want support for them, disable it:
 
         ./configure --disable-plugin
 
@@ -23,55 +33,52 @@ INSTALLATION
     with any regex engine you want. By default system-wide one is used.
     It is assumed that it is libc library.
 
-      Example1 (to build dictd with TRE regex library):
+      Example: (to build dictd with TRE regex library):
 
-        LDFLAGS='-L/usr/local/lib/ -ltre' \
+        env LDFLAGS='-L/usr/local/lib/ -ltre' \
            CPPFLAGS='-I/usr/local/include/tre' ./configure
         make
 
-      Example2 (to build dictd with pcreposix regex library):
+    You can also link dictd/dict/... against libmaa statically.
 
-        LDFLAGS='-lpcreposix -lpcre' \
-           ./configure --with-regex-include='pcreposix.h'
-        make
-
-      Example3 (to build regex with local regex library by Henry Spencer)
-
-        ./configure --with-local-regex
-        make
+        env LDFLAGS='-Llibmaa/.libs' CPPFLAGS='-Ilibmaa' ./configure
+        make 
 
 2.  Compile the client and server software:
 
         make 
 
-    NOTE: If you want to build only the client software, use 'make dict'
-    instead of 'make'
+    NOTE: If you want to build only the client software, use 'make
+    dict' instead of just 'make'. In order to make dictd, dictfmt or
+    dictzip only, run 'make dictd', 'make dictfmt' or 'make dictzip'.
 
-    [If using the Cygwin tools under Win98, please edit regex/mkh and
-    remove the line that sets the PATH.  The dict client has been tested
-    under Cygwin+Win98. As of version 1.9.9, dictd can also be run on cygwin
-    from inetd. It has been tested on NT4/sp6 + cygwin-1.3.6 and
-    W2K + cygwin-1.3.22]
+    [The dict client has been tested under Cygwin+Win98. As of version
+    1.9.9, dictd can also be run on cygwin from inetd. It has been
+    tested on NT4/sp6 + cygwin-1.3.6 and W2K + cygwin-1.3.22]
 
     NOTE: If you use an old version of flex, you may get errors.  Try
-    upgrading flex.
+    upgrading it.
 
 3.  Install the client, server, and manual pages:
 
         make install
 
     NOTE: If you only built the client software in step 2, use
-    'make install.dict' instead of 'make install'
+    'make install.dict' instead of 'make install'.
+    You can also use 'make install.dictd', 'make install.dictfmt' and
+    'make install.dictzip'.
 
 4.  Uninstall the client, server, and manual pages:
 
         make uninstall
 
-    NOTE: If you only built the client software in step 2, use
-    'make uninstall.dict' instead of 'make uninstall'
+    NOTE: If you only built the client software in step 2, use 'make
+    uninstall.dict' instead of 'make uninstall' You can also use 'make
+    uninstall.dictd', 'make uninstall.dictfmt' and 'make
+    uninstall.dictzip'.
 
 5.  Several plugin examples are available.
-    One of them is C++-based 'popen' plugin which runs external program
+    One of them is C++-based 'popen' plugin which runs an external program
     for both DEFINE and MATCH queries.
 
     If you want to build/install/uninstall these samples,
