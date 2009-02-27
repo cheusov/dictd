@@ -1,3 +1,70 @@
+Version 1.11.1, by Aleksey Cheusov, Fri, 27 Feb 2009 22:16:49 +0200
+
+  FIXES:
+
+     Minor fix in dictd.8 (paths to config files), sf.net bug #2407717
+     Thanks to Peter Volkov
+
+     Bug fixed in installing plugins, sf.net bug #2218879,
+     Thanks to Peter Volkov
+
+     DICTFMT sorts entries in 00-database-alphabet entry
+     lexicographically, that is now this order doesn't depend on
+     sizeof(long). This fixes sf.net bug #2197588.
+     Thanks to Peter Volkov and his tests on PowerPC.
+
+     DICTD: SHOW STRAT: s/databases present/strategies present/
+     found and reported by Goran Tal <goran.tal@gmail.com>. Thanks.
+
+     DICTFMT: 'dictfmt -I' never worked (regrettable oversight, heh),
+     found and reported by Goran Tal <goran.tal@gmail.com>. Thanks.
+
+  Makefile.in, configure.in:
+  "building and installing different set of things based
+  on configure results considered harmful"(C) me :-)
+  Plugins support in dictd is enabled by default (if available).
+  DBI and JUDY plugins are disabled by default.
+  Enable them explicitly by using
+    ./configure --with-plugin-dbi
+  and
+    ./configure --with-plugin-judy
+  This fixes sf.net bug #2218879 by Peter Volkov.
+
+  By using DICTL_USE environment variable dictl utility can now use an
+  external program for charset2charset conversions. This addresses
+  sf.net bug #2407725, again by Peter Volkov
+
+  * Makefile.in, configure.in:
+  (Clean-ups)
+  --with-local-libmaa option is removed from "configure" script.
+  You should build libmaa manually before dictd/dict/...
+  This removes lots of garbage from configure.in and Makefile.in and
+  makes them MUCH cleaner. If you want to link dictd with libmaa statically,
+  use Makefile's LIBMAA variable.
+
+  configure.in, include_regex.h.in, index.c:
+  (Clean-ups) Ages ago, I've add to "configure" script an option
+  --with-regex-include to make possible to build dictd with PCRE.
+  Now, I've removed this option. If you want to build dictd with with PCRE,
+  ask PCRE developers to install pcre/regex.h file linked to pcreposix.h.
+  All other regexp libraries compatible with POSIX API do the same,
+  rx/regex.h, rxspencer/regex.h etc. etc.
+  So, this is good and well known convension.
+
+  Makefile.in: LIBMAA variable added. Change it if you want to link
+  dictd against libmaa statically or...
+
+  * configure.in: Enable additional gcc warnings on all platforms
+  unconditionally, not only under Linux, I need them under NetBSD.
+
+  Makefile.in: fix for "uninstall" target
+
+  Lots of clean-ups in dictl.
+
+  Other minor clean-ups in Makefile.in and configure.in
+
+  Minor spelling fixes in NEWS
+
 Version 1.11.0, by Aleksey Cheusov, Sun,  7 Dec 2008 23:05:21 +0200
 
   dictd tarball no longer contains libmaa library.  Now
