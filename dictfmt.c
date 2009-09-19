@@ -162,9 +162,9 @@ static void fmt_openindex( const char *filename )
    char buffer [1024];
 
    if (bit8_mode || utf8_mode || allchars_mode)
-      snprintf( buffer, sizeof (buffer), "sort -t '\t' -k 1,3" );
+      snprintf( buffer, sizeof (buffer), "sort -t '\t' -k 1,1 " );
    else
-      snprintf( buffer, sizeof (buffer), "sort -t '\t' -df -k 1,3" );
+      snprintf( buffer, sizeof (buffer), "sort -t '\t' -df -k 1,1 " );
 
    if (filename){
       strlcat (buffer, "> ", sizeof (buffer));
