@@ -285,12 +285,12 @@ The default value for this separator is ASCII symbol " \\034".
 multiple headwords will be written on separate lines in the .dict
 file.  For use with '--headword-separator.
 .TP
-.BI \--index-keep-headword
+.BI \--index-keep-orig
 When \--utf-8 is specified headwords are lowercased and
 non-alphanumeric characters are removed from it
 before saving to .index file
 in order to simplify the search.
-When \--index-keep-headword option is used
+When \--index-keep-orig option is used
 fourth column is created (if necessary) in .index file,
 and contains an original headword which is returned by MATCH command.
 This option may be useful to prevent converting " AT&T" to " ATT"
