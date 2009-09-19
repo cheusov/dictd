@@ -2,6 +2,14 @@ pre1
 pre2
 _____
 
+  AT&T 
+AT&T definition
+_____
+
+A & B
+A & B definition
+_____
+
 headword1
 text11
 text12

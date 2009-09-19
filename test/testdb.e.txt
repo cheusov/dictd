@@ -1,5 +1,9 @@
 pre1
 pre2
+<B>AT&T - </B>
+AT&T definition
+<B>A & B - </B>
+A & B definition
 <B>headword1 - </B>
 text11
 text12

@@ -1,5 +1,9 @@
 pre1
 pre2
+AT&T
+ AT&T definition
+A & B
+ A & B definition
 headword1
  text11
  text12

@@ -26,6 +26,9 @@ dictzip:
   larger
 * unbundle from dictd package
 
+dictfmt:
+* Remake dictfmt in runawk?
+
 DICT protocol:
 * Add syntax to describe a "web" or "net" of servers.
 * Add error messages to accommodate use with external database query

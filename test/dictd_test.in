@@ -45,8 +45,17 @@ printf "   -c5 == -t ..."
 $DICTFMT -t _db.t < _testdb.t.txt
 cmp_2_files _db.c5.index _db.t.index
 cmp_2_files _db.c5.dict  _db.t.dict
+printf "passed\n"
 
+###
+printf "   -c5.utf8 ..."
+$DICTFMT --utf8 -c5 _testdb_utf8 < ./testdb.c5.txt
+cmp_2_files _testdb_utf8.dict  db.expect.testdb_utf8.dict
+cmp_2_files _testdb_utf8.index  db.expect.testdb_utf8.index
+printf "passed\n"
 
+###
+printf "   -c5 == -X ..."
 dictfmt_X_eq_Y (){
     printf "   $1 == $2 ..."
     $DICTFMT -$2  _db.$2  < @srcdir@/testdb.$2.txt
@@ -59,6 +68,7 @@ dictfmt_X_eq_Y c5 e
 dictfmt_X_eq_Y c5 f
 dictfmt_X_eq_Y c5 j
 dictfmt_X_eq_Y c5 p
+printf "passed\n"
 
 ###
 printf "   c5 == expected ..."

@@ -414,10 +414,65 @@ static char *trim_left (char *s)
 }
 
 /*
+  Remove needless at the center of the string
+ */
+static void trim_center (char *s)
+{
+   wchar_t mbc;
+   int len;
+   char *h, *t;
+   int prev_spc = 0;
+   int spc = 0;
+
+   if (!utf8_mode){
+      h = t = s;
+
+      while (*h){
+	 spc = isspace ((unsigned char) *h);
+
+	 if (spc && prev_spc){
+	    ++h;
+	 }else{
+	    *t++ = *h++;
+	 }
+
+	 prev_spc = spc;
+      }
+
+      *t = 0;
+   }else{
+#ifdef HAVE_UTF8
+      h = t = s;
+
+      while (*h){
+	 len = mbtowc__ (&mbc, h, MB_CUR_MAX__);
+	 assert (len >= 0);
+
+	 spc = iswspace__ (mbc);
+
+	 if (spc && prev_spc){
+	 }else{
+	    memcpy (t, h, len);
+	    t += len;
+	 }
+	 h += len;
+
+	 prev_spc = spc;
+      }
+
+      *t = 0;
+#else
+      abort();
+#endif
+   }
+}
+
+/*
   Remove spaces at the beginning and the end of the string
  */
-static char *trim_lr (char *s)
+static char *trim_lcr (char *s)
 {
+   trim_center (s);
    return trim_left (trim_right (s));
 }
 
@@ -468,6 +523,7 @@ static void write_hw_to_index (
 
 	 destroy_and_exit (1);
       }
+      trim_center (new_word);
 
       fprintf( fmt_str, "%s\t%s\t", new_word, b64_encode(start) );
       fprintf( fmt_str, "%s", b64_encode(end-start) );
@@ -513,7 +569,7 @@ static char *split_and_write_hw_to_index (
 	    *sep = 0;
       }
 
-      write_hw_to_index (trim_lr (p), data, start, end);
+      write_hw_to_index (trim_lcr (p), data, start, end);
 
       if (!sep)
 	 break;

@@ -1,6 +1,10 @@
 %h qqqq
 pre1
 pre2
+%h AT&T
+AT&T definition
+%h A & B
+A & B definition
 %h headword1
 text11
 text12
