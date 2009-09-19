@@ -245,7 +245,7 @@ dictd_test_inetd2_base (){
 
     #
     $DICTD -c $conf_file -i --stdin2stdout < "$in_file" |
-    @AWK@ '/^2[25]0 / { print $1; next; } {print}' \
+    @AWK@ '/^2[25]0 / { print $1 "\r"; next; } {print}' \
 	| $noorder > _dictd_${txtname}_res.txt
 
     #
