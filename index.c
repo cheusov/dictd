@@ -1088,7 +1088,7 @@ static int dict_search_bmh( lst_List l,
 	    break;
 	 }
 
-	 for (; pt > start && *pt != '\n'; --pt)
+	 for (; pt >= start && *pt != '\n'; --pt)
 	    if (*pt == '\t')
 	       goto continue2;
 

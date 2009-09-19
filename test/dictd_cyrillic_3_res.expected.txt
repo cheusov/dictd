@@ -1,4 +1,24 @@
 220
+# match testdb prefix 00database
+152 6 matches found
+testdb "00databasealphabet"
+testdb "00databasedefaultstrategy"
+testdb "00databaseinfo"
+testdb "00databaseshort"
+testdb "00databaseurl"
+testdb "00databaseutf8"
+.
+250
+# match testdb substring database
+152 6 matches found
+testdb "00databasealphabet"
+testdb "00databasedefaultstrategy"
+testdb "00databaseinfo"
+testdb "00databaseshort"
+testdb "00databaseurl"
+testdb "00databaseutf8"
+.
+250
 # match testdb first университет
 152 4 matches found
 testdb "университет"
