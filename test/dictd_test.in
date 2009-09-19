@@ -122,23 +122,13 @@ dictfmt_diff_opts '1' indexdata \
 echo '                       DICTD!!!'
 
 generate_commands (){
-    conf_file=$1
+    test $# -eq 2
+
+    conf_file="$1"
     shift
 
-    strats=`echo 'show strat' |
-	$DICTD -i -c $conf_file |
-	@AWK@ '!/^[0-9.]/ {print $1}' | LC_ALL=C sort`
-    if test $? -ne 0; then
-	exit 2
-    fi
-
-#    echo "strats=$strats" 1>&2
-#    strats="exact prefix suffix substring"
-    if test $# = 0; then
-	strats=exact
-    else
-	strats="$@"
-    fi
+    strats="$1"
+    shift
 
     @AWK@ -v strats="$strats" '
     BEGIN {
@@ -155,16 +145,21 @@ generate_commands (){
 }
 
 dictd_test_inetd_base (){
-    etadir=$1 # etalon directory
+    test $# -eq 5
+
+    etadir="$1" # etalon directory
     shift
 
-    confname=$1
+    confname="$1"
     shift
 
-    dbname=$1
+    dbname="$1"
     shift
 
-    noorder=$1
+    noorder="$1"
+    shift
+
+    strats="$1"
     shift
 
     #
@@ -177,7 +172,7 @@ dictd_test_inetd_base (){
     in_file=_dictd_${dbname}_in.txt
 
     cut -f 1 @srcdir@/$index_file |
-    generate_commands $conf_file "$@" > "$in_file"
+    generate_commands "$conf_file" "$strats" > "$in_file"
 
     #
     $DICTD -c $conf_file -i --stdin2stdout < "$in_file" |
@@ -191,42 +186,54 @@ dictd_test_inetd_base (){
 }
 
 dictd_test_inetd (){
-    etadir=$1
+    test $# -eq 4
+
+    etadir="$1"
     shift
 
-    confname=$1
+    confname="$1"
     shift
 
-    txtname=$1
+    txtname="$1"
     shift
 
-    dictd_test_inetd_base $etadir $confname $txtname cat "$@"
+    strats="$1"
+    shift
+
+    dictd_test_inetd_base "$etadir" "$confname" "$txtname" "cat $@" "$strats"
 }
 
 dictd_test_inetd_noorder (){
-    etadir=$1
+    test $# -eq 4
+
+    etadir="$1"
     shift
 
-    confname=$1
+    confname="$1"
     shift
 
-    txtname=$1
+    txtname="$1"
     shift
 
-    dictd_test_inetd_base $etadir $confname $txtname 'env LC_ALL=C sort' "$@"
+    strats="$1"
+    shift
+
+    dictd_test_inetd_base "$etadir" "$confname" "$txtname" 'env LC_ALL=C sort' "$strats"
 }
 
 dictd_test_inetd2_base (){
-    etadir=$1
+    test $# -eq 4
+
+    etadir="$1"
     shift
 
-    confname=$1
+    confname="$1"
     shift
 
-    txtname=$1
+    txtname="$1"
     shift
 
-    noorder=$1
+    noorder="$1"
     shift
 
     #
@@ -248,28 +255,32 @@ dictd_test_inetd2_base (){
 }
 
 dictd_test_inetd2 (){
-    etadir=$1
+    test $# -eq 3
+
+    etadir="$1"
     shift
 
-    confname=$1
+    confname="$1"
     shift
 
-    txtname=$1
+    txtname="$1"
     shift
 
     dictd_test_inetd2_base \
-	$etadir $confname $txtname \
+	"$etadir" "$confname" "$txtname" \
 	cat "$@"
 }
 
 dictd_test_inetd2_noorder (){
-    etadir=$1
+    test $# -eq 3
+
+    etadir="$1"
     shift
 
-    confname=$1
+    confname="$1"
     shift
 
-    txtname=$1
+    txtname="$1"
     shift
 
     dictd_test_inetd2_base \
@@ -279,30 +290,30 @@ dictd_test_inetd2_noorder (){
 
 #dictd_test_inetd smiley_1 smiley_1
 #printf 'smiley_1 passed\n'
-dictd_test_inetd @srcdir@ smiley_2 smiley_2
+dictd_test_inetd @srcdir@ smiley_2 smiley_2 exact
 printf 'smiley_2 passed\n'
 #dictd_test_inetd smiley_3 smiley_3
 #printf 'smiley_3 passed\n'
-dictd_test_inetd @srcdir@ smiley_4 smiley_4
+dictd_test_inetd @srcdir@ smiley_4 smiley_4 exact
 printf 'smiley_4 passed\n'
-dictd_test_inetd @srcdir@ smiley_5 smiley_5
+dictd_test_inetd @srcdir@ smiley_5 smiley_5 exact
 printf 'smiley_5 passed\n'
 
-dictd_test_inetd @srcdir@ hello_1 hello_1
+dictd_test_inetd @srcdir@ hello_1 hello_1 exact
 printf 'hello_1 passed\n'
-dictd_test_inetd @srcdir@ hello_2 hello_2
+dictd_test_inetd @srcdir@ hello_2 hello_2 exact
 printf 'hello_2 passed\n'
-dictd_test_inetd @srcdir@ hello_3 hello_3
+dictd_test_inetd @srcdir@ hello_3 hello_3 exact
 printf 'hello_3 passed\n'
-dictd_test_inetd @srcdir@ hello_4 hello_4
+dictd_test_inetd @srcdir@ hello_4 hello_4 exact
 printf 'hello_4 passed\n'
-dictd_test_inetd @srcdir@ hello_5 hello_5
+dictd_test_inetd @srcdir@ hello_5 hello_5 exact
 printf 'hello_5 passed\n'
 
 dictd_test_inetd \
     @srcdir@ \
     cyrillic_1 cyrillic_1 \
-    exact word lev suffix prefix substring
+    'exact word lev suffix prefix substring'
 printf 'cyrillic_1 passed\n'
 
 #LC_ALL=C sort dictd_cyrillic_1_res.expected.txt \
