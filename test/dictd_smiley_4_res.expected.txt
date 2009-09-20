@@ -495,17 +495,17 @@ testdb "3:]"
 150 3 definitions retrieved
 151 "8-)" testdb "unknown"
 8-)
- glasses
-
-.
-151 "8-)" testdb "unknown"
-8-)
  User is wearing sunglasses
 
 .
 151 "8-)" testdb "unknown"
 8-)
  smiley swimmer
+
+.
+151 "8-)" testdb "unknown"
+8-)
+ glasses
 
 .
 250
@@ -513,17 +513,17 @@ testdb "3:]"
 150 3 definitions retrieved
 151 "8-)" testdb "unknown"
 8-)
- glasses
-
-.
-151 "8-)" testdb "unknown"
-8-)
  User is wearing sunglasses
 
 .
 151 "8-)" testdb "unknown"
 8-)
  smiley swimmer
+
+.
+151 "8-)" testdb "unknown"
+8-)
+ glasses
 
 .
 250
@@ -536,17 +536,17 @@ testdb "8-)"
 150 3 definitions retrieved
 151 "8-)" testdb "unknown"
 8-)
- glasses
-
-.
-151 "8-)" testdb "unknown"
-8-)
  User is wearing sunglasses
 
 .
 151 "8-)" testdb "unknown"
 8-)
  smiley swimmer
+
+.
+151 "8-)" testdb "unknown"
+8-)
+ glasses
 
 .
 250
@@ -554,17 +554,17 @@ testdb "8-)"
 150 3 definitions retrieved
 151 "8-)" testdb "unknown"
 8-)
- glasses
-
-.
-151 "8-)" testdb "unknown"
-8-)
  User is wearing sunglasses
 
 .
 151 "8-)" testdb "unknown"
 8-)
  smiley swimmer
+
+.
+151 "8-)" testdb "unknown"
+8-)
+ glasses
 
 .
 250
@@ -577,17 +577,17 @@ testdb "8-)"
 150 3 definitions retrieved
 151 "8-)" testdb "unknown"
 8-)
- glasses
-
-.
-151 "8-)" testdb "unknown"
-8-)
  User is wearing sunglasses
 
 .
 151 "8-)" testdb "unknown"
 8-)
  smiley swimmer
+
+.
+151 "8-)" testdb "unknown"
+8-)
+ glasses
 
 .
 250
@@ -595,17 +595,17 @@ testdb "8-)"
 150 3 definitions retrieved
 151 "8-)" testdb "unknown"
 8-)
- glasses
-
-.
-151 "8-)" testdb "unknown"
-8-)
  User is wearing sunglasses
 
 .
 151 "8-)" testdb "unknown"
 8-)
  smiley swimmer
+
+.
+151 "8-)" testdb "unknown"
+8-)
+ glasses
 
 .
 250
@@ -618,12 +618,12 @@ testdb "8-)"
 150 2 definitions retrieved
 151 "8:-)" testdb "unknown"
 8:-)
- glasses on forehead
+ User is a little girl
 
 .
 151 "8:-)" testdb "unknown"
 8:-)
- User is a little girl
+ glasses on forehead
 
 .
 250
@@ -631,12 +631,12 @@ testdb "8-)"
 150 2 definitions retrieved
 151 "8:-)" testdb "unknown"
 8:-)
- glasses on forehead
+ User is a little girl
 
 .
 151 "8:-)" testdb "unknown"
 8:-)
- User is a little girl
+ glasses on forehead
 
 .
 250
@@ -649,12 +649,12 @@ testdb "8:-)"
 150 2 definitions retrieved
 151 "8:-)" testdb "unknown"
 8:-)
- glasses on forehead
+ User is a little girl
 
 .
 151 "8:-)" testdb "unknown"
 8:-)
- User is a little girl
+ glasses on forehead
 
 .
 250
@@ -662,12 +662,12 @@ testdb "8:-)"
 150 2 definitions retrieved
 151 "8:-)" testdb "unknown"
 8:-)
- glasses on forehead
+ User is a little girl
 
 .
 151 "8:-)" testdb "unknown"
 8:-)
- User is a little girl
+ glasses on forehead
 
 .
 250
@@ -743,12 +743,12 @@ testdb ":*)"
 150 2 definitions retrieved
 151 ":-#" testdb "unknown"
 :-#
- braces
+ User wears braces
 
 .
 151 ":-#" testdb "unknown"
 :-#
- User wears braces
+ braces
 
 .
 250
@@ -756,12 +756,12 @@ testdb ":*)"
 150 2 definitions retrieved
 151 ":-#" testdb "unknown"
 :-#
- braces
+ User wears braces
 
 .
 151 ":-#" testdb "unknown"
 :-#
- User wears braces
+ braces
 
 .
 250
@@ -774,12 +774,12 @@ testdb ":-#"
 150 2 definitions retrieved
 151 ":-#" testdb "unknown"
 :-#
- braces
+ User wears braces
 
 .
 151 ":-#" testdb "unknown"
 :-#
- User wears braces
+ braces
 
 .
 250
@@ -787,12 +787,12 @@ testdb ":-#"
 150 2 definitions retrieved
 151 ":-#" testdb "unknown"
 :-#
- braces
+ User wears braces
 
 .
 151 ":-#" testdb "unknown"
 :-#
- User wears braces
+ braces
 
 .
 250
@@ -1022,12 +1022,12 @@ testdb ":-*"
 150 2 definitions retrieved
 151 ":-/" testdb "unknown"
 :-/
- lefty undecided smiley
+ User is skeptical
 
 .
 151 ":-/" testdb "unknown"
 :-/
- User is skeptical
+ lefty undecided smiley
 
 .
 250
@@ -1035,12 +1035,12 @@ testdb ":-*"
 150 2 definitions retrieved
 151 ":-/" testdb "unknown"
 :-/
- lefty undecided smiley
+ User is skeptical
 
 .
 151 ":-/" testdb "unknown"
 :-/
- User is skeptical
+ lefty undecided smiley
 
 .
 250
@@ -1053,12 +1053,12 @@ testdb ":-/"
 150 2 definitions retrieved
 151 ":-/" testdb "unknown"
 :-/
- lefty undecided smiley
+ User is skeptical
 
 .
 151 ":-/" testdb "unknown"
 :-/
- User is skeptical
+ lefty undecided smiley
 
 .
 250
@@ -1066,12 +1066,12 @@ testdb ":-/"
 150 2 definitions retrieved
 151 ":-/" testdb "unknown"
 :-/
- lefty undecided smiley
+ User is skeptical
 
 .
 151 ":-/" testdb "unknown"
 :-/
- User is skeptical
+ lefty undecided smiley
 
 .
 250
@@ -1290,12 +1290,12 @@ testdb ":-9"
 150 2 definitions retrieved
 151 ":-:" testdb "unknown"
 :-:
- mutant smiley
+ Mutant Smilie
 
 .
 151 ":-:" testdb "unknown"
 :-:
- Mutant Smilie
+ mutant smiley
 
 .
 250
@@ -1303,12 +1303,12 @@ testdb ":-9"
 150 2 definitions retrieved
 151 ":-:" testdb "unknown"
 :-:
- mutant smiley
+ Mutant Smilie
 
 .
 151 ":-:" testdb "unknown"
 :-:
- Mutant Smilie
+ mutant smiley
 
 .
 250
@@ -1321,12 +1321,12 @@ testdb ":-:"
 150 2 definitions retrieved
 151 ":-:" testdb "unknown"
 :-:
- mutant smiley
+ Mutant Smilie
 
 .
 151 ":-:" testdb "unknown"
 :-:
- Mutant Smilie
+ mutant smiley
 
 .
 250
@@ -1334,12 +1334,12 @@ testdb ":-:"
 150 2 definitions retrieved
 151 ":-:" testdb "unknown"
 :-:
- mutant smiley
+ Mutant Smilie
 
 .
 151 ":-:" testdb "unknown"
 :-:
- Mutant Smilie
+ mutant smiley
 
 .
 250
@@ -1394,12 +1394,12 @@ testdb ":->"
 150 2 definitions retrieved
 151 ":-?" testdb "unknown"
 :-?
- smilely smoking a pipe
+ User smokes a pipe
 
 .
 151 ":-?" testdb "unknown"
 :-?
- User smokes a pipe
+ smilely smoking a pipe
 
 .
 250
@@ -1407,12 +1407,12 @@ testdb ":->"
 150 2 definitions retrieved
 151 ":-?" testdb "unknown"
 :-?
- smilely smoking a pipe
+ User smokes a pipe
 
 .
 151 ":-?" testdb "unknown"
 :-?
- User smokes a pipe
+ smilely smoking a pipe
 
 .
 250
@@ -1425,12 +1425,12 @@ testdb ":-?"
 150 2 definitions retrieved
 151 ":-?" testdb "unknown"
 :-?
- smilely smoking a pipe
+ User smokes a pipe
 
 .
 151 ":-?" testdb "unknown"
 :-?
- User smokes a pipe
+ smilely smoking a pipe
 
 .
 250
@@ -1438,12 +1438,12 @@ testdb ":-?"
 150 2 definitions retrieved
 151 ":-?" testdb "unknown"
 :-?
- smilely smoking a pipe
+ User smokes a pipe
 
 .
 151 ":-?" testdb "unknown"
 :-?
- User smokes a pipe
+ smilely smoking a pipe
 
 .
 250
@@ -1477,12 +1477,12 @@ testdb ":-@"
 150 2 definitions retrieved
 151 ":-[" testdb "unknown"
 :-[
- un-smiley blockhead
+ User is a Vampire
 
 .
 151 ":-[" testdb "unknown"
 :-[
- User is a Vampire
+ un-smiley blockhead
 
 .
 250
@@ -1490,12 +1490,12 @@ testdb ":-@"
 150 2 definitions retrieved
 151 ":-[" testdb "unknown"
 :-[
- un-smiley blockhead
+ User is a Vampire
 
 .
 151 ":-[" testdb "unknown"
 :-[
- User is a Vampire
+ un-smiley blockhead
 
 .
 250
@@ -1508,12 +1508,12 @@ testdb ":-["
 150 2 definitions retrieved
 151 ":-[" testdb "unknown"
 :-[
- un-smiley blockhead
+ User is a Vampire
 
 .
 151 ":-[" testdb "unknown"
 :-[
- User is a Vampire
+ un-smiley blockhead
 
 .
 250
@@ -1521,12 +1521,12 @@ testdb ":-["
 150 2 definitions retrieved
 151 ":-[" testdb "unknown"
 :-[
- un-smiley blockhead
+ User is a Vampire
 
 .
 151 ":-[" testdb "unknown"
 :-[
- User is a Vampire
+ un-smiley blockhead
 
 .
 250
@@ -1623,12 +1623,12 @@ testdb ":-c"
 150 2 definitions retrieved
 151 ":-d" testdb "unknown"
 :-d
- lefty smiley razzing you
+ User is laughing (at you!)
 
 .
 151 ":-d" testdb "unknown"
 :-d
- User is laughing (at you!)
+ lefty smiley razzing you
 
 .
 250
@@ -1636,12 +1636,12 @@ testdb ":-c"
 150 2 definitions retrieved
 151 ":-d" testdb "unknown"
 :-d
- lefty smiley razzing you
+ User is laughing (at you!)
 
 .
 151 ":-d" testdb "unknown"
 :-d
- User is laughing (at you!)
+ lefty smiley razzing you
 
 .
 250
@@ -1654,12 +1654,12 @@ testdb ":-d"
 150 2 definitions retrieved
 151 ":-d" testdb "unknown"
 :-d
- lefty smiley razzing you
+ User is laughing (at you!)
 
 .
 151 ":-d" testdb "unknown"
 :-d
- User is laughing (at you!)
+ lefty smiley razzing you
 
 .
 250
@@ -1667,12 +1667,12 @@ testdb ":-d"
 150 2 definitions retrieved
 151 ":-d" testdb "unknown"
 :-d
- lefty smiley razzing you
+ User is laughing (at you!)
 
 .
 151 ":-d" testdb "unknown"
 :-d
- User is laughing (at you!)
+ lefty smiley razzing you
 
 .
 250
@@ -1685,12 +1685,12 @@ testdb ":-d"
 150 2 definitions retrieved
 151 ":-e" testdb "unknown"
 :-e
- disappointed smiley
+ Bucktoothed vampire
 
 .
 151 ":-e" testdb "unknown"
 :-e
- Bucktoothed vampire
+ disappointed smiley
 
 .
 250
@@ -1698,12 +1698,12 @@ testdb ":-d"
 150 2 definitions retrieved
 151 ":-e" testdb "unknown"
 :-e
- disappointed smiley
+ Bucktoothed vampire
 
 .
 151 ":-e" testdb "unknown"
 :-e
- Bucktoothed vampire
+ disappointed smiley
 
 .
 250
@@ -1716,12 +1716,12 @@ testdb ":-e"
 150 2 definitions retrieved
 151 ":-e" testdb "unknown"
 :-e
- disappointed smiley
+ Bucktoothed vampire
 
 .
 151 ":-e" testdb "unknown"
 :-e
- Bucktoothed vampire
+ disappointed smiley
 
 .
 250
@@ -1729,12 +1729,12 @@ testdb ":-e"
 150 2 definitions retrieved
 151 ":-e" testdb "unknown"
 :-e
- disappointed smiley
+ Bucktoothed vampire
 
 .
 151 ":-e" testdb "unknown"
 :-e
- Bucktoothed vampire
+ disappointed smiley
 
 .
 250
@@ -1768,13 +1768,13 @@ testdb ":-f"
 150 2 definitions retrieved
 151 ":-i" testdb "unknown"
 :-i
- semi-smiley
+ Indifferent smilie. Better than a Frowning smilie but not quite as
+       good as a happy smilie
 
 .
 151 ":-i" testdb "unknown"
 :-i
- Indifferent smilie. Better than a Frowning smilie but not quite as
-       good as a happy smilie
+ semi-smiley
 
 .
 250
@@ -1782,13 +1782,13 @@ testdb ":-f"
 150 2 definitions retrieved
 151 ":-i" testdb "unknown"
 :-i
- semi-smiley
+ Indifferent smilie. Better than a Frowning smilie but not quite as
+       good as a happy smilie
 
 .
 151 ":-i" testdb "unknown"
 :-i
- Indifferent smilie. Better than a Frowning smilie but not quite as
-       good as a happy smilie
+ semi-smiley
 
 .
 250
@@ -1801,13 +1801,13 @@ testdb ":-i"
 150 2 definitions retrieved
 151 ":-i" testdb "unknown"
 :-i
- semi-smiley
+ Indifferent smilie. Better than a Frowning smilie but not quite as
+       good as a happy smilie
 
 .
 151 ":-i" testdb "unknown"
 :-i
- Indifferent smilie. Better than a Frowning smilie but not quite as
-       good as a happy smilie
+ semi-smiley
 
 .
 250
@@ -1815,13 +1815,13 @@ testdb ":-i"
 150 2 definitions retrieved
 151 ":-i" testdb "unknown"
 :-i
- semi-smiley
+ Indifferent smilie. Better than a Frowning smilie but not quite as
+       good as a happy smilie
 
 .
 151 ":-i" testdb "unknown"
 :-i
- Indifferent smilie. Better than a Frowning smilie but not quite as
-       good as a happy smilie
+ semi-smiley
 
 .
 250
@@ -1876,12 +1876,12 @@ testdb ":-l"
 150 2 definitions retrieved
 151 ":-o" testdb "unknown"
 :-o
- smiley singing national anthem
+ Uh oh!
 
 .
 151 ":-o" testdb "unknown"
 :-o
- Uh oh!
+ smiley singing national anthem
 
 .
 250
@@ -1889,12 +1889,12 @@ testdb ":-l"
 150 2 definitions retrieved
 151 ":-o" testdb "unknown"
 :-o
- smiley singing national anthem
+ Uh oh!
 
 .
 151 ":-o" testdb "unknown"
 :-o
- Uh oh!
+ smiley singing national anthem
 
 .
 250
@@ -1907,12 +1907,12 @@ testdb ":-o"
 150 2 definitions retrieved
 151 ":-o" testdb "unknown"
 :-o
- smiley singing national anthem
+ Uh oh!
 
 .
 151 ":-o" testdb "unknown"
 :-o
- Uh oh!
+ smiley singing national anthem
 
 .
 250
@@ -1920,12 +1920,12 @@ testdb ":-o"
 150 2 definitions retrieved
 151 ":-o" testdb "unknown"
 :-o
- smiley singing national anthem
+ Uh oh!
 
 .
 151 ":-o" testdb "unknown"
 :-o
- Uh oh!
+ smiley singing national anthem
 
 .
 250
@@ -1959,17 +1959,17 @@ testdb ":-p"
 150 3 definitions retrieved
 151 ":-q" testdb "unknown"
 :-q
+ User is a smoker
+
+.
+151 ":-q" testdb "unknown"
+:-q
  smiley trying to touch its tongue to its nose
 
 .
 151 ":-q" testdb "unknown"
 :-q
  smoker
-
-.
-151 ":-q" testdb "unknown"
-:-q
- User is a smoker
 
 .
 250
@@ -1977,17 +1977,17 @@ testdb ":-p"
 150 3 definitions retrieved
 151 ":-q" testdb "unknown"
 :-q
+ User is a smoker
+
+.
+151 ":-q" testdb "unknown"
+:-q
  smiley trying to touch its tongue to its nose
 
 .
 151 ":-q" testdb "unknown"
 :-q
  smoker
-
-.
-151 ":-q" testdb "unknown"
-:-q
- User is a smoker
 
 .
 250
@@ -2000,17 +2000,17 @@ testdb ":-q"
 150 3 definitions retrieved
 151 ":-q" testdb "unknown"
 :-q
+ User is a smoker
+
+.
+151 ":-q" testdb "unknown"
+:-q
  smiley trying to touch its tongue to its nose
 
 .
 151 ":-q" testdb "unknown"
 :-q
  smoker
-
-.
-151 ":-q" testdb "unknown"
-:-q
- User is a smoker
 
 .
 250
@@ -2018,17 +2018,17 @@ testdb ":-q"
 150 3 definitions retrieved
 151 ":-q" testdb "unknown"
 :-q
+ User is a smoker
+
+.
+151 ":-q" testdb "unknown"
+:-q
  smiley trying to touch its tongue to its nose
 
 .
 151 ":-q" testdb "unknown"
 :-q
  smoker
-
-.
-151 ":-q" testdb "unknown"
-:-q
- User is a smoker
 
 .
 250
@@ -2041,17 +2041,17 @@ testdb ":-q"
 150 3 definitions retrieved
 151 ":-q" testdb "unknown"
 :-q
+ User is a smoker
+
+.
+151 ":-q" testdb "unknown"
+:-q
  smiley trying to touch its tongue to its nose
 
 .
 151 ":-q" testdb "unknown"
 :-q
  smoker
-
-.
-151 ":-q" testdb "unknown"
-:-q
- User is a smoker
 
 .
 250
@@ -2059,17 +2059,17 @@ testdb ":-q"
 150 3 definitions retrieved
 151 ":-q" testdb "unknown"
 :-q
+ User is a smoker
+
+.
+151 ":-q" testdb "unknown"
+:-q
  smiley trying to touch its tongue to its nose
 
 .
 151 ":-q" testdb "unknown"
 :-q
  smoker
-
-.
-151 ":-q" testdb "unknown"
-:-q
- User is a smoker
 
 .
 250
@@ -2082,12 +2082,12 @@ testdb ":-q"
 150 2 definitions retrieved
 151 ":-s" testdb "unknown"
 :-s
- smiley after a BIZARRE comment
+ User just made an incoherent statement
 
 .
 151 ":-s" testdb "unknown"
 :-s
- User just made an incoherent statement
+ smiley after a BIZARRE comment
 
 .
 250
@@ -2095,12 +2095,12 @@ testdb ":-q"
 150 2 definitions retrieved
 151 ":-s" testdb "unknown"
 :-s
- smiley after a BIZARRE comment
+ User just made an incoherent statement
 
 .
 151 ":-s" testdb "unknown"
 :-s
- User just made an incoherent statement
+ smiley after a BIZARRE comment
 
 .
 250
@@ -2113,12 +2113,12 @@ testdb ":-s"
 150 2 definitions retrieved
 151 ":-s" testdb "unknown"
 :-s
- smiley after a BIZARRE comment
+ User just made an incoherent statement
 
 .
 151 ":-s" testdb "unknown"
 :-s
- User just made an incoherent statement
+ smiley after a BIZARRE comment
 
 .
 250
@@ -2126,12 +2126,12 @@ testdb ":-s"
 150 2 definitions retrieved
 151 ":-s" testdb "unknown"
 :-s
- smiley after a BIZARRE comment
+ User just made an incoherent statement
 
 .
 151 ":-s" testdb "unknown"
 :-s
- User just made an incoherent statement
+ smiley after a BIZARRE comment
 
 .
 250
@@ -2186,12 +2186,12 @@ testdb ":-v"
 150 2 definitions retrieved
 151 ":-x" testdb "unknown"
 :-x
- bow tie
+ User's lips are sealed
 
 .
 151 ":-x" testdb "unknown"
 :-x
- User's lips are sealed
+ bow tie
 
 .
 250
@@ -2199,12 +2199,12 @@ testdb ":-v"
 150 2 definitions retrieved
 151 ":-x" testdb "unknown"
 :-x
- bow tie
+ User's lips are sealed
 
 .
 151 ":-x" testdb "unknown"
 :-x
- User's lips are sealed
+ bow tie
 
 .
 250
@@ -2217,12 +2217,12 @@ testdb ":-x"
 150 2 definitions retrieved
 151 ":-x" testdb "unknown"
 :-x
- bow tie
+ User's lips are sealed
 
 .
 151 ":-x" testdb "unknown"
 :-x
- User's lips are sealed
+ bow tie
 
 .
 250
@@ -2230,12 +2230,12 @@ testdb ":-x"
 150 2 definitions retrieved
 151 ":-x" testdb "unknown"
 :-x
- bow tie
+ User's lips are sealed
 
 .
 151 ":-x" testdb "unknown"
 :-x
- User's lips are sealed
+ bow tie
 
 .
 250
@@ -2625,12 +2625,12 @@ testdb ":u)"
 150 2 definitions retrieved
 151 ":v)" testdb "unknown"
 :v)
- left-pointing nose smiley
+ User has a broken nose, but it's the other way
 
 .
 151 ":v)" testdb "unknown"
 :v)
- User has a broken nose, but it's the other way
+ left-pointing nose smiley
 
 .
 250
@@ -2638,12 +2638,12 @@ testdb ":u)"
 150 2 definitions retrieved
 151 ":v)" testdb "unknown"
 :v)
- left-pointing nose smiley
+ User has a broken nose, but it's the other way
 
 .
 151 ":v)" testdb "unknown"
 :v)
- User has a broken nose, but it's the other way
+ left-pointing nose smiley
 
 .
 250
@@ -2656,12 +2656,12 @@ testdb ":v)"
 150 2 definitions retrieved
 151 ":v)" testdb "unknown"
 :v)
- left-pointing nose smiley
+ User has a broken nose, but it's the other way
 
 .
 151 ":v)" testdb "unknown"
 :v)
- User has a broken nose, but it's the other way
+ left-pointing nose smiley
 
 .
 250
@@ -2669,12 +2669,12 @@ testdb ":v)"
 150 2 definitions retrieved
 151 ":v)" testdb "unknown"
 :v)
- left-pointing nose smiley
+ User has a broken nose, but it's the other way
 
 .
 151 ":v)" testdb "unknown"
 :v)
- User has a broken nose, but it's the other way
+ left-pointing nose smiley
 
 .
 250
@@ -2687,14 +2687,14 @@ testdb ":v)"
 150 2 definitions retrieved
 151 ";-)" testdb "unknown"
 ;-)
- winking smiley
+ Winky smilie. User just made a flirtatious and/or sarcastic remark.
+       More of a "don't hit me for what I just said" smilie.
+
 
 .
 151 ";-)" testdb "unknown"
 ;-)
- Winky smilie. User just made a flirtatious and/or sarcastic remark.
-       More of a "don't hit me for what I just said" smilie.
-
+ winking smiley
 
 .
 250
@@ -2702,14 +2702,14 @@ testdb ":v)"
 150 2 definitions retrieved
 151 ";-)" testdb "unknown"
 ;-)
- winking smiley
+ Winky smilie. User just made a flirtatious and/or sarcastic remark.
+       More of a "don't hit me for what I just said" smilie.
+
 
 .
 151 ";-)" testdb "unknown"
 ;-)
- Winky smilie. User just made a flirtatious and/or sarcastic remark.
-       More of a "don't hit me for what I just said" smilie.
-
+ winking smiley
 
 .
 250
@@ -2722,14 +2722,14 @@ testdb ";-)"
 150 2 definitions retrieved
 151 ";-)" testdb "unknown"
 ;-)
- winking smiley
+ Winky smilie. User just made a flirtatious and/or sarcastic remark.
+       More of a "don't hit me for what I just said" smilie.
+
 
 .
 151 ";-)" testdb "unknown"
 ;-)
- Winky smilie. User just made a flirtatious and/or sarcastic remark.
-       More of a "don't hit me for what I just said" smilie.
-
+ winking smiley
 
 .
 250
@@ -2737,14 +2737,14 @@ testdb ";-)"
 150 2 definitions retrieved
 151 ";-)" testdb "unknown"
 ;-)
- winking smiley
+ Winky smilie. User just made a flirtatious and/or sarcastic remark.
+       More of a "don't hit me for what I just said" smilie.
+
 
 .
 151 ";-)" testdb "unknown"
 ;-)
- Winky smilie. User just made a flirtatious and/or sarcastic remark.
-       More of a "don't hit me for what I just said" smilie.
-
+ winking smiley
 
 .
 250
@@ -2757,12 +2757,12 @@ testdb ";-)"
 150 2 definitions retrieved
 151 "=:-)" testdb "unknown"
 =:-)
- smiley punk-rocker
+ User is a hosehead
 
 .
 151 "=:-)" testdb "unknown"
 =:-)
- User is a hosehead
+ smiley punk-rocker
 
 .
 250
@@ -2770,12 +2770,12 @@ testdb ";-)"
 150 2 definitions retrieved
 151 "=:-)" testdb "unknown"
 =:-)
- smiley punk-rocker
+ User is a hosehead
 
 .
 151 "=:-)" testdb "unknown"
 =:-)
- User is a hosehead
+ smiley punk-rocker
 
 .
 250
@@ -2788,12 +2788,12 @@ testdb "=:-)"
 150 2 definitions retrieved
 151 "=:-)" testdb "unknown"
 =:-)
- smiley punk-rocker
+ User is a hosehead
 
 .
 151 "=:-)" testdb "unknown"
 =:-)
- User is a hosehead
+ smiley punk-rocker
 
 .
 250
@@ -2801,12 +2801,12 @@ testdb "=:-)"
 150 2 definitions retrieved
 151 "=:-)" testdb "unknown"
 =:-)
- smiley punk-rocker
+ User is a hosehead
 
 .
 151 "=:-)" testdb "unknown"
 =:-)
- User is a hosehead
+ smiley punk-rocker
 
 .
 250
@@ -2966,12 +2966,12 @@ testdb "`:-)"
 150 2 definitions retrieved
 151 "b-)" testdb "unknown"
 B-)
- horn-rims
+ User wears horn-rimmed glasses
 
 .
 151 "b-)" testdb "unknown"
 B-)
- User wears horn-rimmed glasses
+ horn-rims
 
 .
 250
@@ -2979,12 +2979,12 @@ B-)
 150 2 definitions retrieved
 151 "b-)" testdb "unknown"
 B-)
- horn-rims
+ User wears horn-rimmed glasses
 
 .
 151 "b-)" testdb "unknown"
 B-)
- User wears horn-rimmed glasses
+ horn-rims
 
 .
 250
@@ -2997,12 +2997,12 @@ testdb "b-)"
 150 2 definitions retrieved
 151 "b-)" testdb "unknown"
 B-)
- horn-rims
+ User wears horn-rimmed glasses
 
 .
 151 "b-)" testdb "unknown"
 B-)
- User wears horn-rimmed glasses
+ horn-rims
 
 .
 250
@@ -3010,12 +3010,12 @@ B-)
 150 2 definitions retrieved
 151 "b-)" testdb "unknown"
 B-)
- horn-rims
+ User wears horn-rimmed glasses
 
 .
 151 "b-)" testdb "unknown"
 B-)
- User wears horn-rimmed glasses
+ horn-rims
 
 .
 250
@@ -3202,12 +3202,12 @@ testdb "x-("
 150 2 definitions retrieved
 151 "{:-)" testdb "unknown"
 {:-)
- smiley with its hair parted in the middle
+ User wears a toupee
 
 .
 151 "{:-)" testdb "unknown"
 {:-)
- User wears a toupee
+ smiley with its hair parted in the middle
 
 .
 250
@@ -3215,12 +3215,12 @@ testdb "x-("
 150 2 definitions retrieved
 151 "{:-)" testdb "unknown"
 {:-)
- smiley with its hair parted in the middle
+ User wears a toupee
 
 .
 151 "{:-)" testdb "unknown"
 {:-)
- User wears a toupee
+ smiley with its hair parted in the middle
 
 .
 250
@@ -3233,12 +3233,12 @@ testdb "{:-)"
 150 2 definitions retrieved
 151 "{:-)" testdb "unknown"
 {:-)
- smiley with its hair parted in the middle
+ User wears a toupee
 
 .
 151 "{:-)" testdb "unknown"
 {:-)
- User wears a toupee
+ smiley with its hair parted in the middle
 
 .
 250
@@ -3246,12 +3246,12 @@ testdb "{:-)"
 150 2 definitions retrieved
 151 "{:-)" testdb "unknown"
 {:-)
- smiley with its hair parted in the middle
+ User wears a toupee
 
 .
 151 "{:-)" testdb "unknown"
 {:-)
- User wears a toupee
+ smiley with its hair parted in the middle
 
 .
 250

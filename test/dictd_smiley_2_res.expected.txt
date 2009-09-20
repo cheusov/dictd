@@ -550,6 +550,12 @@ testdb "3:]"
 151 "8-)" testdb "unknown"
 8-)
 8-)
+ User is wearing sunglasses
+
+.
+151 "8-)" testdb "unknown"
+8-)
+8-)
  smiley swimmer
 
 .
@@ -557,12 +563,6 @@ testdb "3:]"
 8-)
 8-)
  glasses
-
-.
-151 "8-)" testdb "unknown"
-8-)
-8-)
- User is wearing sunglasses
 
 .
 250
@@ -571,6 +571,12 @@ testdb "3:]"
 151 "8-)" testdb "unknown"
 8-)
 8-)
+ User is wearing sunglasses
+
+.
+151 "8-)" testdb "unknown"
+8-)
+8-)
  smiley swimmer
 
 .
@@ -578,12 +584,6 @@ testdb "3:]"
 8-)
 8-)
  glasses
-
-.
-151 "8-)" testdb "unknown"
-8-)
-8-)
- User is wearing sunglasses
 
 .
 250
@@ -597,6 +597,12 @@ testdb "8-)"
 151 "8-)" testdb "unknown"
 8-)
 8-)
+ User is wearing sunglasses
+
+.
+151 "8-)" testdb "unknown"
+8-)
+8-)
  smiley swimmer
 
 .
@@ -604,12 +610,6 @@ testdb "8-)"
 8-)
 8-)
  glasses
-
-.
-151 "8-)" testdb "unknown"
-8-)
-8-)
- User is wearing sunglasses
 
 .
 250
@@ -618,6 +618,12 @@ testdb "8-)"
 151 "8-)" testdb "unknown"
 8-)
 8-)
+ User is wearing sunglasses
+
+.
+151 "8-)" testdb "unknown"
+8-)
+8-)
  smiley swimmer
 
 .
@@ -625,12 +631,6 @@ testdb "8-)"
 8-)
 8-)
  glasses
-
-.
-151 "8-)" testdb "unknown"
-8-)
-8-)
- User is wearing sunglasses
 
 .
 250
@@ -644,6 +644,12 @@ testdb "8-)"
 151 "8-)" testdb "unknown"
 8-)
 8-)
+ User is wearing sunglasses
+
+.
+151 "8-)" testdb "unknown"
+8-)
+8-)
  smiley swimmer
 
 .
@@ -651,12 +657,6 @@ testdb "8-)"
 8-)
 8-)
  glasses
-
-.
-151 "8-)" testdb "unknown"
-8-)
-8-)
- User is wearing sunglasses
 
 .
 250
@@ -665,6 +665,12 @@ testdb "8-)"
 151 "8-)" testdb "unknown"
 8-)
 8-)
+ User is wearing sunglasses
+
+.
+151 "8-)" testdb "unknown"
+8-)
+8-)
  smiley swimmer
 
 .
@@ -672,12 +678,6 @@ testdb "8-)"
 8-)
 8-)
  glasses
-
-.
-151 "8-)" testdb "unknown"
-8-)
-8-)
- User is wearing sunglasses
 
 .
 250
@@ -691,13 +691,13 @@ testdb "8-)"
 151 "8:-)" testdb "unknown"
 8:-)
 8:-)
- glasses on forehead
+ User is a little girl
 
 .
 151 "8:-)" testdb "unknown"
 8:-)
 8:-)
- User is a little girl
+ glasses on forehead
 
 .
 250
@@ -706,13 +706,13 @@ testdb "8-)"
 151 "8:-)" testdb "unknown"
 8:-)
 8:-)
- glasses on forehead
+ User is a little girl
 
 .
 151 "8:-)" testdb "unknown"
 8:-)
 8:-)
- User is a little girl
+ glasses on forehead
 
 .
 250
@@ -726,13 +726,13 @@ testdb "8:-)"
 151 "8:-)" testdb "unknown"
 8:-)
 8:-)
- glasses on forehead
+ User is a little girl
 
 .
 151 "8:-)" testdb "unknown"
 8:-)
 8:-)
- User is a little girl
+ glasses on forehead
 
 .
 250
@@ -741,13 +741,13 @@ testdb "8:-)"
 151 "8:-)" testdb "unknown"
 8:-)
 8:-)
- glasses on forehead
+ User is a little girl
 
 .
 151 "8:-)" testdb "unknown"
 8:-)
 8:-)
- User is a little girl
+ glasses on forehead
 
 .
 250
@@ -830,13 +830,13 @@ testdb ":*)"
 151 ":-#" testdb "unknown"
 :-#
 :-#
- braces
+ User wears braces
 
 .
 151 ":-#" testdb "unknown"
 :-#
 :-#
- User wears braces
+ braces
 
 .
 250
@@ -845,13 +845,13 @@ testdb ":*)"
 151 ":-#" testdb "unknown"
 :-#
 :-#
- braces
+ User wears braces
 
 .
 151 ":-#" testdb "unknown"
 :-#
 :-#
- User wears braces
+ braces
 
 .
 250
@@ -865,13 +865,13 @@ testdb ":-#"
 151 ":-#" testdb "unknown"
 :-#
 :-#
- braces
+ User wears braces
 
 .
 151 ":-#" testdb "unknown"
 :-#
 :-#
- User wears braces
+ braces
 
 .
 250
@@ -880,13 +880,13 @@ testdb ":-#"
 151 ":-#" testdb "unknown"
 :-#
 :-#
- braces
+ User wears braces
 
 .
 151 ":-#" testdb "unknown"
 :-#
 :-#
- User wears braces
+ braces
 
 .
 250
@@ -1069,13 +1069,13 @@ testdb ":-)~"
 151 ":-*" testdb "unknown"
 :-*
 :-*
- smiley after eating something bitter
+ User just ate something sour
 
 .
 151 ":-*" testdb "unknown"
 :-*
 :-*
- User just ate something sour
+ smiley after eating something bitter
 
 .
 250
@@ -1084,13 +1084,13 @@ testdb ":-)~"
 151 ":-*" testdb "unknown"
 :-*
 :-*
- smiley after eating something bitter
+ User just ate something sour
 
 .
 151 ":-*" testdb "unknown"
 :-*
 :-*
- User just ate something sour
+ smiley after eating something bitter
 
 .
 250
@@ -1104,13 +1104,13 @@ testdb ":-*"
 151 ":-*" testdb "unknown"
 :-*
 :-*
- smiley after eating something bitter
+ User just ate something sour
 
 .
 151 ":-*" testdb "unknown"
 :-*
 :-*
- User just ate something sour
+ smiley after eating something bitter
 
 .
 250
@@ -1119,13 +1119,13 @@ testdb ":-*"
 151 ":-*" testdb "unknown"
 :-*
 :-*
- smiley after eating something bitter
+ User just ate something sour
 
 .
 151 ":-*" testdb "unknown"
 :-*
 :-*
- User just ate something sour
+ smiley after eating something bitter
 
 .
 250
@@ -1139,13 +1139,13 @@ testdb ":-*"
 151 ":-/" testdb "unknown"
 :-/
 :-/
- lefty undecided smiley
+ User is skeptical
 
 .
 151 ":-/" testdb "unknown"
 :-/
 :-/
- User is skeptical
+ lefty undecided smiley
 
 .
 250
@@ -1154,13 +1154,13 @@ testdb ":-*"
 151 ":-/" testdb "unknown"
 :-/
 :-/
- lefty undecided smiley
+ User is skeptical
 
 .
 151 ":-/" testdb "unknown"
 :-/
 :-/
- User is skeptical
+ lefty undecided smiley
 
 .
 250
@@ -1174,13 +1174,13 @@ testdb ":-/"
 151 ":-/" testdb "unknown"
 :-/
 :-/
- lefty undecided smiley
+ User is skeptical
 
 .
 151 ":-/" testdb "unknown"
 :-/
 :-/
- User is skeptical
+ lefty undecided smiley
 
 .
 250
@@ -1189,13 +1189,13 @@ testdb ":-/"
 151 ":-/" testdb "unknown"
 :-/
 :-/
- lefty undecided smiley
+ User is skeptical
 
 .
 151 ":-/" testdb "unknown"
 :-/
 :-/
- User is skeptical
+ lefty undecided smiley
 
 .
 250
@@ -1209,13 +1209,13 @@ testdb ":-/"
 151 ":-0" testdb "unknown"
 :-0
 :-0
- smiley orator
+ No Yelling! (Quiet Lab)
 
 .
 151 ":-0" testdb "unknown"
 :-0
 :-0
- No Yelling! (Quiet Lab)
+ smiley orator
 
 .
 250
@@ -1224,13 +1224,13 @@ testdb ":-/"
 151 ":-0" testdb "unknown"
 :-0
 :-0
- smiley orator
+ No Yelling! (Quiet Lab)
 
 .
 151 ":-0" testdb "unknown"
 :-0
 :-0
- No Yelling! (Quiet Lab)
+ smiley orator
 
 .
 250
@@ -1244,13 +1244,13 @@ testdb ":-0"
 151 ":-0" testdb "unknown"
 :-0
 :-0
- smiley orator
+ No Yelling! (Quiet Lab)
 
 .
 151 ":-0" testdb "unknown"
 :-0
 :-0
- No Yelling! (Quiet Lab)
+ smiley orator
 
 .
 250
@@ -1259,13 +1259,13 @@ testdb ":-0"
 151 ":-0" testdb "unknown"
 :-0
 :-0
- smiley orator
+ No Yelling! (Quiet Lab)
 
 .
 151 ":-0" testdb "unknown"
 :-0
 :-0
- No Yelling! (Quiet Lab)
+ smiley orator
 
 .
 250
@@ -1325,13 +1325,13 @@ testdb ":-6"
 151 ":-7" testdb "unknown"
 :-7
 :-7
- smiley after a wry statement
+ User just made a wry statement
 
 .
 151 ":-7" testdb "unknown"
 :-7
 :-7
- User just made a wry statement
+ smiley after a wry statement
 
 .
 250
@@ -1340,13 +1340,13 @@ testdb ":-6"
 151 ":-7" testdb "unknown"
 :-7
 :-7
- smiley after a wry statement
+ User just made a wry statement
 
 .
 151 ":-7" testdb "unknown"
 :-7
 :-7
- User just made a wry statement
+ smiley after a wry statement
 
 .
 250
@@ -1360,13 +1360,13 @@ testdb ":-7"
 151 ":-7" testdb "unknown"
 :-7
 :-7
- smiley after a wry statement
+ User just made a wry statement
 
 .
 151 ":-7" testdb "unknown"
 :-7
 :-7
- User just made a wry statement
+ smiley after a wry statement
 
 .
 250
@@ -1375,13 +1375,13 @@ testdb ":-7"
 151 ":-7" testdb "unknown"
 :-7
 :-7
- smiley after a wry statement
+ User just made a wry statement
 
 .
 151 ":-7" testdb "unknown"
 :-7
 :-7
- User just made a wry statement
+ smiley after a wry statement
 
 .
 250
@@ -1439,13 +1439,13 @@ testdb ":-9"
 151 ":-:" testdb "unknown"
 :-:
 :-:
- mutant smiley
+ Mutant Smilie
 
 .
 151 ":-:" testdb "unknown"
 :-:
 :-:
- Mutant Smilie
+ mutant smiley
 
 .
 250
@@ -1454,13 +1454,13 @@ testdb ":-9"
 151 ":-:" testdb "unknown"
 :-:
 :-:
- mutant smiley
+ Mutant Smilie
 
 .
 151 ":-:" testdb "unknown"
 :-:
 :-:
- Mutant Smilie
+ mutant smiley
 
 .
 250
@@ -1474,13 +1474,13 @@ testdb ":-:"
 151 ":-:" testdb "unknown"
 :-:
 :-:
- mutant smiley
+ Mutant Smilie
 
 .
 151 ":-:" testdb "unknown"
 :-:
 :-:
- Mutant Smilie
+ mutant smiley
 
 .
 250
@@ -1489,13 +1489,13 @@ testdb ":-:"
 151 ":-:" testdb "unknown"
 :-:
 :-:
- mutant smiley
+ Mutant Smilie
 
 .
 151 ":-:" testdb "unknown"
 :-:
 :-:
- Mutant Smilie
+ mutant smiley
 
 .
 250
@@ -1555,13 +1555,13 @@ testdb ":->"
 151 ":-?" testdb "unknown"
 :-?
 :-?
- smilely smoking a pipe
+ User smokes a pipe
 
 .
 151 ":-?" testdb "unknown"
 :-?
 :-?
- User smokes a pipe
+ smilely smoking a pipe
 
 .
 250
@@ -1570,13 +1570,13 @@ testdb ":->"
 151 ":-?" testdb "unknown"
 :-?
 :-?
- smilely smoking a pipe
+ User smokes a pipe
 
 .
 151 ":-?" testdb "unknown"
 :-?
 :-?
- User smokes a pipe
+ smilely smoking a pipe
 
 .
 250
@@ -1590,13 +1590,13 @@ testdb ":-?"
 151 ":-?" testdb "unknown"
 :-?
 :-?
- smilely smoking a pipe
+ User smokes a pipe
 
 .
 151 ":-?" testdb "unknown"
 :-?
 :-?
- User smokes a pipe
+ smilely smoking a pipe
 
 .
 250
@@ -1605,13 +1605,13 @@ testdb ":-?"
 151 ":-?" testdb "unknown"
 :-?
 :-?
- smilely smoking a pipe
+ User smokes a pipe
 
 .
 151 ":-?" testdb "unknown"
 :-?
 :-?
- User smokes a pipe
+ smilely smoking a pipe
 
 .
 250
@@ -1648,13 +1648,13 @@ testdb ":-@"
 151 ":-[" testdb "unknown"
 :-[
 :-[
- un-smiley blockhead
+ User is a Vampire
 
 .
 151 ":-[" testdb "unknown"
 :-[
 :-[
- User is a Vampire
+ un-smiley blockhead
 
 .
 250
@@ -1663,13 +1663,13 @@ testdb ":-@"
 151 ":-[" testdb "unknown"
 :-[
 :-[
- un-smiley blockhead
+ User is a Vampire
 
 .
 151 ":-[" testdb "unknown"
 :-[
 :-[
- User is a Vampire
+ un-smiley blockhead
 
 .
 250
@@ -1683,13 +1683,13 @@ testdb ":-["
 151 ":-[" testdb "unknown"
 :-[
 :-[
- un-smiley blockhead
+ User is a Vampire
 
 .
 151 ":-[" testdb "unknown"
 :-[
 :-[
- User is a Vampire
+ un-smiley blockhead
 
 .
 250
@@ -1698,13 +1698,13 @@ testdb ":-["
 151 ":-[" testdb "unknown"
 :-[
 :-[
- un-smiley blockhead
+ User is a Vampire
 
 .
 151 ":-[" testdb "unknown"
 :-[
 :-[
- User is a Vampire
+ un-smiley blockhead
 
 .
 250
@@ -1810,13 +1810,13 @@ testdb ":-c"
 151 ":-d" testdb "unknown"
 :-d
 :-d
- lefty smiley razzing you
+ User is laughing (at you!)
 
 .
 151 ":-d" testdb "unknown"
 :-d
 :-d
- User is laughing (at you!)
+ lefty smiley razzing you
 
 .
 250
@@ -1825,13 +1825,13 @@ testdb ":-c"
 151 ":-d" testdb "unknown"
 :-d
 :-d
- lefty smiley razzing you
+ User is laughing (at you!)
 
 .
 151 ":-d" testdb "unknown"
 :-d
 :-d
- User is laughing (at you!)
+ lefty smiley razzing you
 
 .
 250
@@ -1845,13 +1845,13 @@ testdb ":-d"
 151 ":-d" testdb "unknown"
 :-d
 :-d
- lefty smiley razzing you
+ User is laughing (at you!)
 
 .
 151 ":-d" testdb "unknown"
 :-d
 :-d
- User is laughing (at you!)
+ lefty smiley razzing you
 
 .
 250
@@ -1860,13 +1860,13 @@ testdb ":-d"
 151 ":-d" testdb "unknown"
 :-d
 :-d
- lefty smiley razzing you
+ User is laughing (at you!)
 
 .
 151 ":-d" testdb "unknown"
 :-d
 :-d
- User is laughing (at you!)
+ lefty smiley razzing you
 
 .
 250
@@ -1880,13 +1880,13 @@ testdb ":-d"
 151 ":-e" testdb "unknown"
 :-e
 :-e
- disappointed smiley
+ Bucktoothed vampire
 
 .
 151 ":-e" testdb "unknown"
 :-e
 :-e
- Bucktoothed vampire
+ disappointed smiley
 
 .
 250
@@ -1895,13 +1895,13 @@ testdb ":-d"
 151 ":-e" testdb "unknown"
 :-e
 :-e
- disappointed smiley
+ Bucktoothed vampire
 
 .
 151 ":-e" testdb "unknown"
 :-e
 :-e
- Bucktoothed vampire
+ disappointed smiley
 
 .
 250
@@ -1915,13 +1915,13 @@ testdb ":-e"
 151 ":-e" testdb "unknown"
 :-e
 :-e
- disappointed smiley
+ Bucktoothed vampire
 
 .
 151 ":-e" testdb "unknown"
 :-e
 :-e
- Bucktoothed vampire
+ disappointed smiley
 
 .
 250
@@ -1930,13 +1930,13 @@ testdb ":-e"
 151 ":-e" testdb "unknown"
 :-e
 :-e
- disappointed smiley
+ Bucktoothed vampire
 
 .
 151 ":-e" testdb "unknown"
 :-e
 :-e
- Bucktoothed vampire
+ disappointed smiley
 
 .
 250
@@ -1973,14 +1973,14 @@ testdb ":-f"
 151 ":-i" testdb "unknown"
 :-i
 :-i
- semi-smiley
+ Indifferent smilie. Better than a Frowning smilie but not quite as
+       good as a happy smilie
 
 .
 151 ":-i" testdb "unknown"
 :-i
 :-i
- Indifferent smilie. Better than a Frowning smilie but not quite as
-       good as a happy smilie
+ semi-smiley
 
 .
 250
@@ -1989,14 +1989,14 @@ testdb ":-f"
 151 ":-i" testdb "unknown"
 :-i
 :-i
- semi-smiley
+ Indifferent smilie. Better than a Frowning smilie but not quite as
+       good as a happy smilie
 
 .
 151 ":-i" testdb "unknown"
 :-i
 :-i
- Indifferent smilie. Better than a Frowning smilie but not quite as
-       good as a happy smilie
+ semi-smiley
 
 .
 250
@@ -2010,14 +2010,14 @@ testdb ":-i"
 151 ":-i" testdb "unknown"
 :-i
 :-i
- semi-smiley
+ Indifferent smilie. Better than a Frowning smilie but not quite as
+       good as a happy smilie
 
 .
 151 ":-i" testdb "unknown"
 :-i
 :-i
- Indifferent smilie. Better than a Frowning smilie but not quite as
-       good as a happy smilie
+ semi-smiley
 
 .
 250
@@ -2026,14 +2026,14 @@ testdb ":-i"
 151 ":-i" testdb "unknown"
 :-i
 :-i
- semi-smiley
+ Indifferent smilie. Better than a Frowning smilie but not quite as
+       good as a happy smilie
 
 .
 151 ":-i" testdb "unknown"
 :-i
 :-i
- Indifferent smilie. Better than a Frowning smilie but not quite as
-       good as a happy smilie
+ semi-smiley
 
 .
 250
@@ -2093,13 +2093,13 @@ testdb ":-l"
 151 ":-o" testdb "unknown"
 :-o
 :-o
- smiley singing national anthem
+ Uh oh!
 
 .
 151 ":-o" testdb "unknown"
 :-o
 :-o
- Uh oh!
+ smiley singing national anthem
 
 .
 250
@@ -2108,13 +2108,13 @@ testdb ":-l"
 151 ":-o" testdb "unknown"
 :-o
 :-o
- smiley singing national anthem
+ Uh oh!
 
 .
 151 ":-o" testdb "unknown"
 :-o
 :-o
- Uh oh!
+ smiley singing national anthem
 
 .
 250
@@ -2128,13 +2128,13 @@ testdb ":-o"
 151 ":-o" testdb "unknown"
 :-o
 :-o
- smiley singing national anthem
+ Uh oh!
 
 .
 151 ":-o" testdb "unknown"
 :-o
 :-o
- Uh oh!
+ smiley singing national anthem
 
 .
 250
@@ -2143,13 +2143,13 @@ testdb ":-o"
 151 ":-o" testdb "unknown"
 :-o
 :-o
- smiley singing national anthem
+ Uh oh!
 
 .
 151 ":-o" testdb "unknown"
 :-o
 :-o
- Uh oh!
+ smiley singing national anthem
 
 .
 250
@@ -2186,6 +2186,12 @@ testdb ":-p"
 151 ":-q" testdb "unknown"
 :-q
 :-q
+ User is a smoker
+
+.
+151 ":-q" testdb "unknown"
+:-q
+:-q
  smiley trying to touch its tongue to its nose
 
 .
@@ -2193,12 +2199,6 @@ testdb ":-p"
 :-q
 :-q
  smoker
-
-.
-151 ":-q" testdb "unknown"
-:-q
-:-q
- User is a smoker
 
 .
 250
@@ -2207,6 +2207,12 @@ testdb ":-p"
 151 ":-q" testdb "unknown"
 :-q
 :-q
+ User is a smoker
+
+.
+151 ":-q" testdb "unknown"
+:-q
+:-q
  smiley trying to touch its tongue to its nose
 
 .
@@ -2214,12 +2220,6 @@ testdb ":-p"
 :-q
 :-q
  smoker
-
-.
-151 ":-q" testdb "unknown"
-:-q
-:-q
- User is a smoker
 
 .
 250
@@ -2233,6 +2233,12 @@ testdb ":-q"
 151 ":-q" testdb "unknown"
 :-q
 :-q
+ User is a smoker
+
+.
+151 ":-q" testdb "unknown"
+:-q
+:-q
  smiley trying to touch its tongue to its nose
 
 .
@@ -2240,12 +2246,6 @@ testdb ":-q"
 :-q
 :-q
  smoker
-
-.
-151 ":-q" testdb "unknown"
-:-q
-:-q
- User is a smoker
 
 .
 250
@@ -2254,6 +2254,12 @@ testdb ":-q"
 151 ":-q" testdb "unknown"
 :-q
 :-q
+ User is a smoker
+
+.
+151 ":-q" testdb "unknown"
+:-q
+:-q
  smiley trying to touch its tongue to its nose
 
 .
@@ -2261,12 +2267,6 @@ testdb ":-q"
 :-q
 :-q
  smoker
-
-.
-151 ":-q" testdb "unknown"
-:-q
-:-q
- User is a smoker
 
 .
 250
@@ -2280,6 +2280,12 @@ testdb ":-q"
 151 ":-q" testdb "unknown"
 :-q
 :-q
+ User is a smoker
+
+.
+151 ":-q" testdb "unknown"
+:-q
+:-q
  smiley trying to touch its tongue to its nose
 
 .
@@ -2287,12 +2293,6 @@ testdb ":-q"
 :-q
 :-q
  smoker
-
-.
-151 ":-q" testdb "unknown"
-:-q
-:-q
- User is a smoker
 
 .
 250
@@ -2301,6 +2301,12 @@ testdb ":-q"
 151 ":-q" testdb "unknown"
 :-q
 :-q
+ User is a smoker
+
+.
+151 ":-q" testdb "unknown"
+:-q
+:-q
  smiley trying to touch its tongue to its nose
 
 .
@@ -2308,12 +2314,6 @@ testdb ":-q"
 :-q
 :-q
  smoker
-
-.
-151 ":-q" testdb "unknown"
-:-q
-:-q
- User is a smoker
 
 .
 250
@@ -2327,13 +2327,13 @@ testdb ":-q"
 151 ":-s" testdb "unknown"
 :-s
 :-s
- smiley after a BIZARRE comment
+ User just made an incoherent statement
 
 .
 151 ":-s" testdb "unknown"
 :-s
 :-s
- User just made an incoherent statement
+ smiley after a BIZARRE comment
 
 .
 250
@@ -2342,13 +2342,13 @@ testdb ":-q"
 151 ":-s" testdb "unknown"
 :-s
 :-s
- smiley after a BIZARRE comment
+ User just made an incoherent statement
 
 .
 151 ":-s" testdb "unknown"
 :-s
 :-s
- User just made an incoherent statement
+ smiley after a BIZARRE comment
 
 .
 250
@@ -2362,13 +2362,13 @@ testdb ":-s"
 151 ":-s" testdb "unknown"
 :-s
 :-s
- smiley after a BIZARRE comment
+ User just made an incoherent statement
 
 .
 151 ":-s" testdb "unknown"
 :-s
 :-s
- User just made an incoherent statement
+ smiley after a BIZARRE comment
 
 .
 250
@@ -2377,13 +2377,13 @@ testdb ":-s"
 151 ":-s" testdb "unknown"
 :-s
 :-s
- smiley after a BIZARRE comment
+ User just made an incoherent statement
 
 .
 151 ":-s" testdb "unknown"
 :-s
 :-s
- User just made an incoherent statement
+ smiley after a BIZARRE comment
 
 .
 250
@@ -2443,13 +2443,13 @@ testdb ":-v"
 151 ":-x" testdb "unknown"
 :-x
 :-x
- bow tie
+ User's lips are sealed
 
 .
 151 ":-x" testdb "unknown"
 :-x
 :-x
- User's lips are sealed
+ bow tie
 
 .
 250
@@ -2458,13 +2458,13 @@ testdb ":-v"
 151 ":-x" testdb "unknown"
 :-x
 :-x
- bow tie
+ User's lips are sealed
 
 .
 151 ":-x" testdb "unknown"
 :-x
 :-x
- User's lips are sealed
+ bow tie
 
 .
 250
@@ -2478,13 +2478,13 @@ testdb ":-x"
 151 ":-x" testdb "unknown"
 :-x
 :-x
- bow tie
+ User's lips are sealed
 
 .
 151 ":-x" testdb "unknown"
 :-x
 :-x
- User's lips are sealed
+ bow tie
 
 .
 250
@@ -2493,13 +2493,13 @@ testdb ":-x"
 151 ":-x" testdb "unknown"
 :-x
 :-x
- bow tie
+ User's lips are sealed
 
 .
 151 ":-x" testdb "unknown"
 :-x
 :-x
- User's lips are sealed
+ bow tie
 
 .
 250
@@ -2791,13 +2791,13 @@ testdb ":=)"
 151 ":^)" testdb "unknown"
 :^)
 :^)
- smiley with pointy nose (righty)
+ User has a broken nose
 
 .
 151 ":^)" testdb "unknown"
 :^)
 :^)
- User has a broken nose
+ smiley with pointy nose (righty)
 
 .
 250
@@ -2806,13 +2806,13 @@ testdb ":=)"
 151 ":^)" testdb "unknown"
 :^)
 :^)
- smiley with pointy nose (righty)
+ User has a broken nose
 
 .
 151 ":^)" testdb "unknown"
 :^)
 :^)
- User has a broken nose
+ smiley with pointy nose (righty)
 
 .
 250
@@ -2826,13 +2826,13 @@ testdb ":^)"
 151 ":^)" testdb "unknown"
 :^)
 :^)
- smiley with pointy nose (righty)
+ User has a broken nose
 
 .
 151 ":^)" testdb "unknown"
 :^)
 :^)
- User has a broken nose
+ smiley with pointy nose (righty)
 
 .
 250
@@ -2841,13 +2841,13 @@ testdb ":^)"
 151 ":^)" testdb "unknown"
 :^)
 :^)
- smiley with pointy nose (righty)
+ User has a broken nose
 
 .
 151 ":^)" testdb "unknown"
 :^)
 :^)
- User has a broken nose
+ smiley with pointy nose (righty)
 
 .
 250
@@ -2932,13 +2932,13 @@ testdb ":u)"
 151 ":v)" testdb "unknown"
 :v)
 :v)
- left-pointing nose smiley
+ User has a broken nose, but it's the other way
 
 .
 151 ":v)" testdb "unknown"
 :v)
 :v)
- User has a broken nose, but it's the other way
+ left-pointing nose smiley
 
 .
 250
@@ -2947,13 +2947,13 @@ testdb ":u)"
 151 ":v)" testdb "unknown"
 :v)
 :v)
- left-pointing nose smiley
+ User has a broken nose, but it's the other way
 
 .
 151 ":v)" testdb "unknown"
 :v)
 :v)
- User has a broken nose, but it's the other way
+ left-pointing nose smiley
 
 .
 250
@@ -2967,13 +2967,13 @@ testdb ":v)"
 151 ":v)" testdb "unknown"
 :v)
 :v)
- left-pointing nose smiley
+ User has a broken nose, but it's the other way
 
 .
 151 ":v)" testdb "unknown"
 :v)
 :v)
- User has a broken nose, but it's the other way
+ left-pointing nose smiley
 
 .
 250
@@ -2982,13 +2982,13 @@ testdb ":v)"
 151 ":v)" testdb "unknown"
 :v)
 :v)
- left-pointing nose smiley
+ User has a broken nose, but it's the other way
 
 .
 151 ":v)" testdb "unknown"
 :v)
 :v)
- User has a broken nose, but it's the other way
+ left-pointing nose smiley
 
 .
 250
@@ -3002,15 +3002,15 @@ testdb ":v)"
 151 ";-)" testdb "unknown"
 ;-)
 ;-)
- winking smiley
+ Winky smilie. User just made a flirtatious and/or sarcastic remark.
+       More of a "don't hit me for what I just said" smilie.
+
 
 .
 151 ";-)" testdb "unknown"
 ;-)
 ;-)
- Winky smilie. User just made a flirtatious and/or sarcastic remark.
-       More of a "don't hit me for what I just said" smilie.
-
+ winking smiley
 
 .
 250
@@ -3019,15 +3019,15 @@ testdb ":v)"
 151 ";-)" testdb "unknown"
 ;-)
 ;-)
- winking smiley
+ Winky smilie. User just made a flirtatious and/or sarcastic remark.
+       More of a "don't hit me for what I just said" smilie.
+
 
 .
 151 ";-)" testdb "unknown"
 ;-)
 ;-)
- Winky smilie. User just made a flirtatious and/or sarcastic remark.
-       More of a "don't hit me for what I just said" smilie.
-
+ winking smiley
 
 .
 250
@@ -3041,15 +3041,15 @@ testdb ";-)"
 151 ";-)" testdb "unknown"
 ;-)
 ;-)
- winking smiley
+ Winky smilie. User just made a flirtatious and/or sarcastic remark.
+       More of a "don't hit me for what I just said" smilie.
+
 
 .
 151 ";-)" testdb "unknown"
 ;-)
 ;-)
- Winky smilie. User just made a flirtatious and/or sarcastic remark.
-       More of a "don't hit me for what I just said" smilie.
-
+ winking smiley
 
 .
 250
@@ -3058,15 +3058,15 @@ testdb ";-)"
 151 ";-)" testdb "unknown"
 ;-)
 ;-)
- winking smiley
+ Winky smilie. User just made a flirtatious and/or sarcastic remark.
+       More of a "don't hit me for what I just said" smilie.
+
 
 .
 151 ";-)" testdb "unknown"
 ;-)
 ;-)
- Winky smilie. User just made a flirtatious and/or sarcastic remark.
-       More of a "don't hit me for what I just said" smilie.
-
+ winking smiley
 
 .
 250
@@ -3080,13 +3080,13 @@ testdb ";-)"
 151 "=:-)" testdb "unknown"
 =:-)
 =:-)
- smiley punk-rocker
+ User is a hosehead
 
 .
 151 "=:-)" testdb "unknown"
 =:-)
 =:-)
- User is a hosehead
+ smiley punk-rocker
 
 .
 250
@@ -3095,13 +3095,13 @@ testdb ";-)"
 151 "=:-)" testdb "unknown"
 =:-)
 =:-)
- smiley punk-rocker
+ User is a hosehead
 
 .
 151 "=:-)" testdb "unknown"
 =:-)
 =:-)
- User is a hosehead
+ smiley punk-rocker
 
 .
 250
@@ -3115,13 +3115,13 @@ testdb "=:-)"
 151 "=:-)" testdb "unknown"
 =:-)
 =:-)
- smiley punk-rocker
+ User is a hosehead
 
 .
 151 "=:-)" testdb "unknown"
 =:-)
 =:-)
- User is a hosehead
+ smiley punk-rocker
 
 .
 250
@@ -3130,13 +3130,13 @@ testdb "=:-)"
 151 "=:-)" testdb "unknown"
 =:-)
 =:-)
- smiley punk-rocker
+ User is a hosehead
 
 .
 151 "=:-)" testdb "unknown"
 =:-)
 =:-)
- User is a hosehead
+ smiley punk-rocker
 
 .
 250
@@ -3311,13 +3311,13 @@ testdb "`:-)"
 151 "b-)" testdb "unknown"
 b-)
 B-)
- horn-rims
+ User wears horn-rimmed glasses
 
 .
 151 "b-)" testdb "unknown"
 b-)
 B-)
- User wears horn-rimmed glasses
+ horn-rims
 
 .
 250
@@ -3326,13 +3326,13 @@ B-)
 151 "b-)" testdb "unknown"
 b-)
 B-)
- horn-rims
+ User wears horn-rimmed glasses
 
 .
 151 "b-)" testdb "unknown"
 b-)
 B-)
- User wears horn-rimmed glasses
+ horn-rims
 
 .
 250
@@ -3346,13 +3346,13 @@ testdb "b-)"
 151 "b-)" testdb "unknown"
 b-)
 B-)
- horn-rims
+ User wears horn-rimmed glasses
 
 .
 151 "b-)" testdb "unknown"
 b-)
 B-)
- User wears horn-rimmed glasses
+ horn-rims
 
 .
 250
@@ -3361,13 +3361,13 @@ B-)
 151 "b-)" testdb "unknown"
 b-)
 B-)
- horn-rims
+ User wears horn-rimmed glasses
 
 .
 151 "b-)" testdb "unknown"
 b-)
 B-)
- User wears horn-rimmed glasses
+ horn-rims
 
 .
 250
@@ -3571,13 +3571,13 @@ testdb "x-("
 151 "{:-)" testdb "unknown"
 {:-)
 {:-)
- smiley with its hair parted in the middle
+ User wears a toupee
 
 .
 151 "{:-)" testdb "unknown"
 {:-)
 {:-)
- User wears a toupee
+ smiley with its hair parted in the middle
 
 .
 250
@@ -3586,13 +3586,13 @@ testdb "x-("
 151 "{:-)" testdb "unknown"
 {:-)
 {:-)
- smiley with its hair parted in the middle
+ User wears a toupee
 
 .
 151 "{:-)" testdb "unknown"
 {:-)
 {:-)
- User wears a toupee
+ smiley with its hair parted in the middle
 
 .
 250
@@ -3606,13 +3606,13 @@ testdb "{:-)"
 151 "{:-)" testdb "unknown"
 {:-)
 {:-)
- smiley with its hair parted in the middle
+ User wears a toupee
 
 .
 151 "{:-)" testdb "unknown"
 {:-)
 {:-)
- User wears a toupee
+ smiley with its hair parted in the middle
 
 .
 250
@@ -3621,13 +3621,13 @@ testdb "{:-)"
 151 "{:-)" testdb "unknown"
 {:-)
 {:-)
- smiley with its hair parted in the middle
+ User wears a toupee
 
 .
 151 "{:-)" testdb "unknown"
 {:-)
 {:-)
- User wears a toupee
+ smiley with its hair parted in the middle
 
 .
 250
