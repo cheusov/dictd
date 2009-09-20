@@ -49,9 +49,9 @@ printf "passed\n"
 
 ###
 printf "   -c5.utf8 ..."
-$DICTFMT --utf8 -c5 _testdb_utf8 < ./testdb.c5.txt
-cmp_2_files _testdb_utf8.dict  db.expect.testdb_utf8.dict
-cmp_2_files _testdb_utf8.index  db.expect.testdb_utf8.index
+$DICTFMT --utf8 -c5 _testdb_utf8 < @srcdir@/testdb.c5.txt
+cmp_2_files _testdb_utf8.dict  @srcdir@/db.expect.testdb_utf8.dict
+cmp_2_files _testdb_utf8.index @srcdir@/db.expect.testdb_utf8.index
 printf "passed\n"
 
 ###
