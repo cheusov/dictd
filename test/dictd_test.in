@@ -16,15 +16,29 @@ export PATH
 
 ##################################################
 cmp_2_files (){
+    if test $# -eq 4; then
+    	fn1="$3"
+    	fn2="$4"
+    else
+    	fn1="$1"
+    	fn2="$2"
+    fi
+
     if $DIFF "$1" "$2" > log.txt; then
     	true
     else
 	cat 1>&2 <<EOF
-$1 and $2 are different,
+$fn1 and $fn2 are different,
 see test/log.txt file a difference.
 EOF
 	exit 1
     fi
+}
+
+cmp_index_files (){
+    LC_ALL=C sort "$1" > _tmpcmp1.txt
+    LC_ALL=C sort "$2" > _tmpcmp2.txt
+    cmp_2_files _tmpcmp1.txt _tmpcmp2.txt "$1" "$2"
 }
 
 ##################################################
@@ -43,7 +57,7 @@ $DICTUNFORMAT _db.c5.index < _db.c5.dict > _testdb.t.txt
 ###
 printf "   -c5 == -t ..."
 $DICTFMT -t _db.t < _testdb.t.txt
-cmp_2_files _db.c5.index _db.t.index
+cmp_index_files _db.c5.index _db.t.index
 cmp_2_files _db.c5.dict  _db.t.dict
 printf "passed\n"
 
@@ -51,7 +65,7 @@ printf "passed\n"
 printf "   -c5.utf8 ..."
 $DICTFMT --utf8 -c5 _testdb_utf8 < @srcdir@/testdb.c5.txt
 cmp_2_files _testdb_utf8.dict  @srcdir@/db.expect.testdb_utf8.dict
-cmp_2_files _testdb_utf8.index @srcdir@/db.expect.testdb_utf8.index
+cmp_index_files _testdb_utf8.index @srcdir@/db.expect.testdb_utf8.index
 printf "passed\n"
 
 ###
@@ -59,7 +73,7 @@ printf "   -c5 == -X ..."
 dictfmt_X_eq_Y (){
     printf "   $1 == $2 ..."
     $DICTFMT -$2  _db.$2  < @srcdir@/testdb.$2.txt
-    cmp_2_files _db.$1.index _db.$2.index
+    cmp_index_files _db.$1.index _db.$2.index
     cmp_2_files _db.$1.dict  _db.$2.dict
     printf 'passed\n'
 }
@@ -72,7 +86,7 @@ printf "passed\n"
 
 ###
 printf "   c5 == expected ..."
-cmp_2_files @srcdir@/db.expect.index _db.c5.index
+cmp_index_files @srcdir@/db.expect.index _db.c5.index
 cmp_2_files @srcdir@/db.expect.dict  _db.c5.dict
 printf "passed\n"
 
@@ -90,7 +104,7 @@ dictfmt_diff_opts (){
 
     $DICTFMT "$@" _db.${dbname}_$num < @srcdir@/testdb.${dbname}.txt
     cmp_2_files @srcdir@/db.expect.${dbname}_$num.dict  _db.${dbname}_$num.dict
-    cmp_2_files @srcdir@/db.expect.${dbname}_$num.index _db.${dbname}_$num.index
+    cmp_index_files @srcdir@/db.expect.${dbname}_$num.index _db.${dbname}_$num.index
 
     printf 'passed\n'
 }
