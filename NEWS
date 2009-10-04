@@ -1,3 +1,26 @@
+Version 1.11.2, by Aleksey Cheusov, Sun,  4 Oct 2009 10:55:28 +0300
+
+  FIX: When search is handled by dict_search_bmh() function, the first
+  character from the first entry in the index file is missing. Usually
+  this is some of 00-database-* entries.  Thanks to Goran Tal for a
+  bug report and patch.
+
+  fix in dictfmt.1: s/--index-keep-headword/--index-keep-orig/
+
+  dictfmt: superfluous spaces are removed not only from the beginng
+  and the end of a headword but also inside a multiword headwords.
+  Thank to Goran Tal for pointing out.
+
+  dictfmt spawns sort command to sort the index. When there are
+  several entries for the same headword, they get sorted BY OFFSET AND
+  SIZE (in addition to headwords). As a result, the order of identical
+  headwords is messed up.  To fix these problem -k1,3 option is
+  replaced with -k1,1.  Thanks to Goran Tal for pointing out.  With
+  -k1,1 options not all flavours of sort(1) command keeps an original
+  headword order but now you a have chance.
+
+  Regression tests updated.
+
 Version 1.11.1, by Aleksey Cheusov, Fri, 27 Feb 2009 22:16:49 +0200
 
   FIXES:
