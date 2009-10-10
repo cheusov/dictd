@@ -513,6 +513,7 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
    dictWord *dw;
    lst_List list = lst_create();
    char     *pt, *buf;
+   size_t   len;
 
    if (
       0 >= dict_search (
@@ -542,7 +543,9 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
    while (*pt == ' ' || *pt == '\t')
       ++pt;
 
-   pt[ strlen(pt) - 1 ] = '\0';
+   len = strlen(pt);
+   if (pt [len - 1] == '\n')
+      pt [len - 1] = '\0';
 
 #ifdef USE_PLUGIN
    call_dictdb_free (DictConfig->dbl);
