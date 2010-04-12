@@ -8,7 +8,7 @@ DICT='../dict'
 DICTD="../dictd -L `pwd`/_dictd.log"
 DICTFMT_I2W='../dictfmt_index2word --silent'
 DICTFMT_I2S='../dictfmt_index2suffix'
-DIFF='diff -u'
+DIFF="${DIFF_PROG-diff -u}"
 
 ##################################################
 PATH=$(dirname $(pwd)):$PATH
@@ -91,7 +91,7 @@ cmp_2_files @srcdir@/db.expect.dict  _db.c5.dict
 printf "passed\n"
 
 ##################################################
-printf "Tests for different dictfmt\'s options\n"
+printf "Tests for different dictfmt's options\n"
 
 dictfmt_diff_opts (){
     num=$1
