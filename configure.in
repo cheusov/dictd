@@ -28,7 +28,7 @@ define(VERSION, 1.11.2)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.138 $)
+AC_REVISION($Revision: 1.139 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -192,7 +192,6 @@ echo Checking for library functions
 
 AC_FUNC_ALLOCA
 AC_FUNC_FORK
-AC_FUNC_MALLOC
 #AC_FUNC_STAT
 AC_FUNC_STRCOLL
 AC_FUNC_STRFTIME
