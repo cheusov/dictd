@@ -307,7 +307,8 @@ extern FILE     *fdopen( int fildes, const char *mode );
 /* Handle getopt correctly */
 #if HAVE_GETOPT_H
 # include <getopt.h>
-#else
+#endif /* HAVE_GETOPT_H */
+
 #if !HAVE_GETOPT_LONG
 struct option
 {
@@ -323,8 +324,6 @@ int getopt_long(int argc, char * const argv[],
 extern int  optind;
 extern char *optarg;
 #endif /* HAVE_GETOPT_LONG */
-
-#endif /* HAVE_GETOPT_H */
 
 				/* Local stuff */
 #ifndef max
