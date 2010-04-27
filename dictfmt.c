@@ -51,7 +51,7 @@
 #define VERA      7
 #define INDEXONLY 8
 
-#define BSIZE 10240
+#define BSIZE 102400
 
 static int  Debug;
 static FILE *str;
@@ -207,9 +207,9 @@ static void fmt_wrap_and_print (const char *s)
 
    if (utf8_mode){
       len = mbswidth_ (s);
-      if (len == (size_t) -1)
+      if (len == (size_t) -1){
 	 err_fatal (__func__, "'%s' is not a valid utf-8 string\n", s);
-/*	 err_fatal (__func__, "'%s' is not a valid utf-8 string or contains non-printable symbols\n", s);*/
+      }
    }else{
       len = strlen (s);
    }
@@ -250,18 +250,8 @@ static void fmt_string( const char *s )
       return;
    }
 
-   sdup = malloc( strlen(s) + 1 );
+   sdup = strdup (s);
    p = pt = sdup;
-
-#if 1
-   strcpy( sdup, s );
-#else
-   for (t = sdup; *s; s++) {
-      if (*s == '_') *t++ = ' ';
-      else *t++ = *s;
-   }
-   *t = '\0';
-#endif
 
    while ((pt = strchr(p, ' '))) {
       *pt = '\0';
@@ -472,6 +462,7 @@ static void trim_center (char *s)
  */
 static char *trim_lcr (char *s)
 {
+/*   trim_center (s);*/
    trim_center (s);
    return trim_left (trim_right (s));
 }
@@ -1172,6 +1163,7 @@ int main( int argc, char **argv )
    char       *pt;
    char       *s, *d;
    unsigned char *buf;
+   size_t     len;
 
    const char *basename = NULL;
 
@@ -1341,8 +1333,10 @@ int main( int argc, char **argv )
    fmt_predefined_headwords_before ();
 
    while (buf = (unsigned char *) buffer, fgets (buffer, BSIZE-1, stdin)) {
-      if (strlen(buffer))
-	 buffer[strlen(buffer)-1] = '\0'; /* remove newline */
+      len = strlen (buffer);
+
+      if (len)
+	 buffer [len-1] = '\0'; /* remove newline */
       
       switch (type) {
       case HITCHCOCK:
@@ -1528,6 +1522,7 @@ int main( int argc, char **argv )
 	       buffer[strlen(buffer)-1] = '\0'; /* remove newline */
 
 	    buf = (unsigned char *) trim_left (buffer);
+/*	    buf = (unsigned char *) trim_left (buffer);*/
 
 	    if (*buf != '\0') {
 	       fmt_indent = 0;
