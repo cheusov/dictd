@@ -94,6 +94,8 @@ static int tolower_alnumspace_utf8 (
 
    *dest = 0;
 
+   assert (strlen (src) == strlen (dest));
+
    return (src == NULL);
 }
 #endif
