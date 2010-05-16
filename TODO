@@ -1,3 +1,6 @@
+strategies:
+  - double metaphone
+  - cjk
 
 dictd:
 * Add portable snprintf implementation and robustify logging
