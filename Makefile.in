@@ -171,7 +171,7 @@ dictzip : data.o $(LIBOBJS)
 dictfmt : str.o $(LIBOBJS)
 
 servscan.c: servscan.l
-	$(LEX) $(LFLAGS) -o$@ $<
+	$(LEX) $(LFLAGS) $< && mv lex.yy.c $@
 
 servscan.o: servscan.c servparse.o servparse.h
 
