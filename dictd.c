@@ -1422,7 +1422,7 @@ static void pid_file_write ()
    }
 }
 
-void reopen_012 (void)
+static void reopen_012 (void)
 {
    int fd = open ("/dev/null", O_RDWR);
    if (fd == -1)
