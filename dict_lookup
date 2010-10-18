@@ -36,11 +36,11 @@ DICT_PORT_OPT=${DICT_PORT_OPT--p 2628}
 DICT_DB_OPT=${DICT_DB_OPT--d en-ru}
 X_CLASS=${X_CLASS--class XTerm}
 X_NAME=${X_NAME--name xterm_dict}
-TITLE=${TITLE--title dict_lookup}
+XTERM_DICT_TITLE=${XTERM_DICT_TITLE--title dict_lookup}
 TEXT_WIDTH=${TEXT_WIDTH-cyrillic_text_width}
 
-colorit_config=$HOME/.colorit.d/coloritrc_dict
 if test -z "$COLORIZER"; then
+    colorit_config=$HOME/.colorit.d/coloritrc_dict
     if test -f "$colorit_config"; then
 	COLORIZER="colorit -P - -c $colorit_config"
     else
@@ -110,4 +110,4 @@ set_geometry "$tmp_dir/res.txt" "$1" "$2"
 unset LC_ALL || true
 unset LANG || true
 LC_CTYPE=$UTF8_LOCALE $XTERM_PROG $geometry \
-    -u8 $X_CLASS $X_NAME $TITLE -e "less < $tmp_dir/res.txt"
+    -u8 $X_CLASS $X_NAME $XTERM_DICT_TITLE -e "less < $tmp_dir/res.txt"
