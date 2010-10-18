@@ -24,14 +24,35 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ############################################################
+# Variables settable by user
+
+XCLIP_PROG=${XCLIP_PROG-xclip}
+XTERM_PROG=${XTERM_PROG-xterm}
+UTF8_LOCALE=${UTF8_LOCALE-en_US.UTF-8}
+DICT_PROG=${DICT_PROG-dict}
+DICT_SERVER_OPT=${DICT_SERVER_OPT--h dictd.xdsl.by}
+DICT_PORT_OPT=${DICT_PORT_OPT--p 2628}
+DICT_DB_OPT=${DICT_PORT_OPT--d en-ru}
+X_CLASS=${X_CLASS--class XTerm}
+X_NAME=${X_NAME--name xterm_dict}
+TITLE=${TITLE--title dict_lookup}
+
+colorit_config=$HOME/.colorit.d/coloritrc_dict
+if test -z "$COLORIZER"; then
+    if test -f "$colorit_config"; then
+	COLORIZER="colorit -P - -c $colorit_config"
+    else
+	COLORIZER=cat
+    fi
+fi
+
+############################################################
 # functions
 #
 
 set_selection ()
 {
-    selection=""
-
-    selection=`$xclip_prog -utf8 -o`
+    selection=`$XCLIP_PROG -utf8 -o`
     if test -z "$selection"; then
 	exit
     fi
@@ -42,7 +63,7 @@ set_geometry()
     # display resolution
     xD=1280
     yD=1024
-	
+
     # popup window resolution
     xW=724
     yW=364
@@ -52,7 +73,7 @@ set_geometry()
     if test -n "$1" -a -n "$2"; then
 	x="$1"
 	y="$2"
-		
+
 	# adjust value of x
 	if test "$x" -lt "$((xD/2))"; then
 	    if "$((xD))" -lt "$((x+xW))"; then
@@ -80,8 +101,6 @@ set_geometry()
 # main
 #
 
-xclip_prog="xclip"
-
 set_selection
 set_geometry "$1" "$2"
 
@@ -89,21 +108,15 @@ tmp_dir="/tmp/`basename $0`.$$"
 trap "rm -rf $tmp_dir" 0 1 2 3 15
 mkdir -m 700 "$tmp_dir"
 
-#dictl -h "vorontsov" -d "Babylon_S_zh-en" "$selection" > "$tmp_dir/res_1.txt" &
-dict -h "dictd.xdsl.by" -d "en-ru" "$selection" > "$tmp_dir/res_2.txt" &
-wait
+$DICT_PROG $DICT_SERVER_OPT $DICT_PORT_OPT $DICT_DB_OPT "$selection" \
+    > "$tmp_dir/res_2.txt"
 
 #dictl "$selection" |
 cat $tmp_dir/res_*.txt |
 grep -v "definition found" |
-colorit -P - -c ~/.colorit.d/coloritrc_dict |
-sed 's/<[^ >]\+>//g' > "$tmp_dir/res.txt"
+$COLORIZER > "$tmp_dir/res.txt"
 
 unset LC_ALL || true
 unset LANG || true
-LC_CTYPE=en_US.UTF-8 xterm $geometry \
-    -u8 \
-    -name "dict" \
-    -title "dict"  \
-    -fn -misc-fixed-medium-r-normal--18-120-100-100-c-90-iso10646-1 \
-    -e "less < $tmp_dir/res.txt"
+LC_CTYPE=$UTF8_LOCALE $XTERM_PROG $geometry \
+    -u8 $X_CLASS $X_NAME $TITLE -e "less < $tmp_dir/res.txt"
