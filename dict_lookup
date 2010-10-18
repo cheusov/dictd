@@ -26,16 +26,18 @@
 ############################################################
 # Variables settable by user
 
+AWK_PROG=${AWK_PROG-awk}
 XCLIP_PROG=${XCLIP_PROG-xclip}
 XTERM_PROG=${XTERM_PROG-xterm}
 UTF8_LOCALE=${UTF8_LOCALE-en_US.UTF-8}
 DICT_PROG=${DICT_PROG-dict}
 DICT_SERVER_OPT=${DICT_SERVER_OPT--h dictd.xdsl.by}
 DICT_PORT_OPT=${DICT_PORT_OPT--p 2628}
-DICT_DB_OPT=${DICT_PORT_OPT--d en-ru}
+DICT_DB_OPT=${DICT_DB_OPT--d en-ru}
 X_CLASS=${X_CLASS--class XTerm}
 X_NAME=${X_NAME--name xterm_dict}
 TITLE=${TITLE--title dict_lookup}
+TEXT_WIDTH=${TEXT_WIDTH-cyrillic_text_width}
 
 colorit_config=$HOME/.colorit.d/coloritrc_dict
 if test -z "$COLORIZER"; then
@@ -50,6 +52,19 @@ fi
 # functions
 #
 
+cyrillic_text_width (){
+    # This function may not to work properly for languages
+    # other than Russian. wcwidth(3) and C language is needed!
+    LC_ALL=C awk '
+	BEGIN {max = 15}
+	{ gsub(/[\300-\337][\200-\277]/, "1")
+	  sub(/ +$/, "")
+	  curr=length($0)
+	  if (curr > max) max=curr
+	}
+	END { print max "x" (NR < 20 ? NR : 20)+1}' "$@"
+}
+
 set_selection ()
 {
     selection=`$XCLIP_PROG -utf8 -o`
@@ -60,41 +75,20 @@ set_selection ()
 
 set_geometry()
 {
-    # display resolution
-    xD=1280
-    yD=1024
-
-    # popup window resolution
-    xW=724
-    yW=364
-
-    geometry=""
-
-    if test -n "$1" -a -n "$2"; then
-	x="$1"
-	y="$2"
-
-	# adjust value of x
-	if test "$x" -lt "$((xD/2))"; then
-	    if "$((xD))" -lt "$((x+xW))"; then
-		x=$((x+5))
-	    else
-		x="$((xD-xW-5))"
-	    fi
-	else
-	    x=$((x-730))
-	fi
-
-	# adjust value of y
-	if test "$y" -lt "512"; then
-	    y=$((y+5))
-	else
-	    y=$((y-370))
-	fi
-
-	#geometry="-geometry 80x20+${x}+${y}"
-	geometry="-geometry 80x20+200+200"
+    # $1 - text
+    # $2 - X
+    # $3 - Y
+    if test -z "$TERM_WH"; then
+	TERM_WH=`$TEXT_WIDTH "$1"`
     fi
+    if test -z "$2"; then
+	TERM_X=+200
+    fi
+    if test -z "$3"; then
+	TERM_Y=+200
+    fi
+
+    geometry="-geometry ${TERM_WH}${TERM_X}${TERM_Y}"
 }
 
 ############################################################
@@ -102,19 +96,16 @@ set_geometry()
 #
 
 set_selection
-set_geometry "$1" "$2"
 
 tmp_dir="/tmp/`basename $0`.$$"
 trap "rm -rf $tmp_dir" 0 1 2 3 15
 mkdir -m 700 "$tmp_dir"
 
-$DICT_PROG $DICT_SERVER_OPT $DICT_PORT_OPT $DICT_DB_OPT "$selection" \
-    > "$tmp_dir/res_2.txt"
-
-#dictl "$selection" |
-cat $tmp_dir/res_*.txt |
-grep -v "definition found" |
+$DICT_PROG $DICT_SERVER_OPT $DICT_PORT_OPT $DICT_DB_OPT "$selection" |
+env LC_ALL=C grep -Ev "definitions? found" |
 $COLORIZER > "$tmp_dir/res.txt"
+
+set_geometry "$tmp_dir/res.txt" "$1" "$2"
 
 unset LC_ALL || true
 unset LANG || true
