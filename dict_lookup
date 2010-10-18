@@ -34,8 +34,8 @@ DICT_PROG=${DICT_PROG-dict}
 DICT_SERVER_OPT=${DICT_SERVER_OPT--h dictd.xdsl.by}
 DICT_PORT_OPT=${DICT_PORT_OPT--p 2628}
 DICT_DB_OPT=${DICT_DB_OPT--d en-ru}
-X_CLASS=${X_CLASS--class XTerm}
-X_NAME=${X_NAME--name xterm_dict}
+XTERM_DICT_CLASS=${XTERM_DICT_CLASS--class XTerm}
+XTERM_DICT_NAME=${XTERM_DICT_NAME--name xterm_dict}
 XTERM_DICT_TITLE=${XTERM_DICT_TITLE--title dict_lookup}
 TEXT_WIDTH=${TEXT_WIDTH-cyrillic_text_width}
 
@@ -110,4 +110,4 @@ set_geometry "$tmp_dir/res.txt" "$1" "$2"
 unset LC_ALL || true
 unset LANG || true
 LC_CTYPE=$UTF8_LOCALE $XTERM_PROG $geometry \
-    -u8 $X_CLASS $X_NAME $XTERM_DICT_TITLE -e "less < $tmp_dir/res.txt"
+    -u8 $X_CLASS $XTERM_DICT_NAME $XTERM_DICT_TITLE -e "less < $tmp_dir/res.txt"
