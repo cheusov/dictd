@@ -74,7 +74,7 @@ set_query ()
     if test -n "$query"; then
 	return 0
     fi
-    query=`$D_XCLIP_PROG -utf8 -o`
+    query=`$D_XCLIP_PROG -o`
     if test -z "$query"; then
 	exit
     fi
