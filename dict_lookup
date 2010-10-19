@@ -26,11 +26,11 @@
 ############################################################
 # Variables settable by user
 
-AWK_PROG=${AWK_PROG-awk}
-XCLIP_PROG=${XCLIP_PROG-xclip}
-XTERM_PROG=${XTERM_PROG-xterm}
-UTF8_LOCALE=${UTF8_LOCALE-en_US.UTF-8}
-DICT_PROG=${DICT_PROG-dict}
+D_AWK_PROG=${D_AWK_PROG-awk}
+D_XCLIP_PROG=${D_XCLIP_PROG-xclip}
+D_XTERM_PROG=${D_XTERM_PROG-xterm}
+D_UTF8_LOCALE=${D_UTF8_LOCALE-en_US.UTF-8}
+D_DICT_PROG=${D_DICT_PROG-dict}
 DICT_SERVER_OPT=${DICT_SERVER_OPT--h dictd.xdsl.by}
 DICT_PORT_OPT=${DICT_PORT_OPT--p 2628}
 DICT_DB_OPT=${DICT_DB_OPT--d en-ru}
@@ -38,10 +38,10 @@ XTERM_DICT_CLASS=${XTERM_DICT_CLASS--class XTerm}
 XTERM_DICT_NAME=${XTERM_DICT_NAME--name xterm_dict}
 XTERM_DICT_TITLE=${XTERM_DICT_TITLE--title dict_lookup}
 TEXT_WIDTH=${TEXT_WIDTH-cyrillic_text_width}
-TERM_X=${TERM_X-+200}
-TERM_Y=${TERM_Y-+200}
-TERM_H=${TERM_H-+40}
-LESS_PROG=${LESS_PROG-less}
+D_TERM_X=${D_TERM_X-+200}
+D_TERM_Y=${D_TERM_Y-+200}
+D_TERM_H=${D_TERM_H-+40}
+D_LESS_PROG=${D_LESS_PROG-less}
 
 if test -z "$COLORIZER"; then
     colorit_config=$HOME/.colorit.d/dict
@@ -59,7 +59,7 @@ fi
 cyrillic_text_width (){
     # This function may not to work properly for languages
     # other than Russian. wcwidth(3) and C language is needed!
-    LC_ALL=C $AWK_PROG -v h="$TERM_H" '
+    LC_ALL=C $D_AWK_PROG -v h="$D_TERM_H" '
 	BEGIN {max = 15}
 	{ gsub(/[\300-\337][\200-\277]/, "1")
 	  sub(/ +$/, "")
@@ -74,7 +74,7 @@ set_query ()
     if test -n "$query"; then
 	return 0
     fi
-    query=`$XCLIP_PROG -utf8 -o`
+    query=`$D_XCLIP_PROG -utf8 -o`
     if test -z "$query"; then
 	exit
     fi
@@ -99,8 +99,8 @@ while getopts x:y:s:q: f
 do
     case $f in
 	h)      help; exit 0;;
-	x)      TERM_X=+$OPTARG;;
-	y)      TERM_Y=+$OPTARG;;
+	x)      D_TERM_X=+$OPTARG;;
+	y)      D_TERM_Y=+$OPTARG;;
 	s)      TERM_WH=$OPTARG;;
 	q)      query=$OPTARG;;
 	'?')    help; exit 1;;
@@ -114,17 +114,17 @@ tmp_dir="/tmp/`basename $0`.$$"
 trap "rm -rf $tmp_dir" 0 1 2 3 15
 mkdir -m 700 "$tmp_dir"
 
-$DICT_PROG $DICT_SERVER_OPT $DICT_PORT_OPT $DICT_DB_OPT "$query" 2>&1 |
+$D_DICT_PROG $DICT_SERVER_OPT $DICT_PORT_OPT $DICT_DB_OPT "$query" 2>&1 |
 env LC_ALL=C grep -Ev "definitions? found" > "$tmp_dir/res.txt"
 
 if test -z "$TERM_WH"; then
     TERM_WH=`$TEXT_WIDTH "$tmp_dir/res.txt"`
 fi
 
-geometry="-geometry ${TERM_WH}${TERM_X}${TERM_Y}"
+geometry="-geometry ${TERM_WH}${D_TERM_X}${D_TERM_Y}"
 
 unset LC_ALL || true
 unset LANG || true
-LC_CTYPE=$UTF8_LOCALE $XTERM_PROG $geometry \
+LC_CTYPE=$D_UTF8_LOCALE $D_XTERM_PROG $geometry \
     -u8 $X_CLASS $XTERM_DICT_NAME $XTERM_DICT_TITLE \
-    -e "$COLORIZER < $tmp_dir/res.txt | $LESS_PROG"
+    -e "$COLORIZER < $tmp_dir/res.txt | $D_LESS_PROG"
