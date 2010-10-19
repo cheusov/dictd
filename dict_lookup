@@ -43,7 +43,7 @@ TERM_Y=${TERM_Y-+200}
 TERM_H=${TERM_H-+20}
 
 if test -z "$COLORIZER"; then
-    colorit_config=$HOME/.colorit.d/coloritrc_dict
+    colorit_config=$HOME/.colorit.d/dict
     if test -f "$colorit_config"; then
 	COLORIZER="colorit -P - -c $colorit_config"
     else
@@ -126,4 +126,4 @@ geometry="-geometry ${TERM_WH}${TERM_X}${TERM_Y}"
 unset LC_ALL || true
 unset LANG || true
 LC_CTYPE=$UTF8_LOCALE $XTERM_PROG $geometry \
-    -u8 $X_CLASS $XTERM_DICT_NAME $XTERM_DICT_TITLE -e "less < $tmp_dir/res.txt"
+    -u8 $X_CLASS $XTERM_DICT_NAME $XTERM_DICT_TITLE -e "less -R < $tmp_dir/res.txt"
