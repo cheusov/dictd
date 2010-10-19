@@ -38,6 +38,9 @@ XTERM_DICT_CLASS=${XTERM_DICT_CLASS--class XTerm}
 XTERM_DICT_NAME=${XTERM_DICT_NAME--name xterm_dict}
 XTERM_DICT_TITLE=${XTERM_DICT_TITLE--title dict_lookup}
 TEXT_WIDTH=${TEXT_WIDTH-cyrillic_text_width}
+TERM_X=${TERM_X-+200}
+TERM_Y=${TERM_Y-+200}
+TERM_H=${TERM_H-+20}
 
 if test -z "$COLORIZER"; then
     colorit_config=$HOME/.colorit.d/coloritrc_dict
@@ -55,57 +58,70 @@ fi
 cyrillic_text_width (){
     # This function may not to work properly for languages
     # other than Russian. wcwidth(3) and C language is needed!
-    LC_ALL=C awk '
+    LC_ALL=C $AWK_PROG -v h="$TERM_H" '
 	BEGIN {max = 15}
 	{ gsub(/[\300-\337][\200-\277]/, "1")
 	  sub(/ +$/, "")
 	  curr=length($0)
 	  if (curr > max) max=curr
 	}
-	END { print max "x" (NR < 20 ? NR : 20)+1}' "$@"
+	END { print max "x" (NR < h ? NR : h)+1}' "$@"
 }
 
-set_selection ()
+set_query ()
 {
-    selection=`$XCLIP_PROG -utf8 -o`
-    if test -z "$selection"; then
+    if test -n "$query"; then
+	return 0
+    fi
+    query=`$XCLIP_PROG -utf8 -o`
+    if test -z "$query"; then
 	exit
     fi
-}
-
-set_geometry()
-{
-    # $1 - text
-    # $2 - X
-    # $3 - Y
-    if test -z "$TERM_WH"; then
-	TERM_WH=`$TEXT_WIDTH "$1"`
-    fi
-    if test -z "$2"; then
-	TERM_X=+200
-    fi
-    if test -z "$3"; then
-	TERM_Y=+200
-    fi
-
-    geometry="-geometry ${TERM_WH}${TERM_X}${TERM_Y}"
 }
 
 ############################################################
 # main
 #
 
-set_selection
+help (){
+    cat 1>&2 <<'EOF'
+usage: dict_lookup [OPTIONS]
+   -h           display this help
+   -x <x>       X coordinate of xterm
+   -y <y>       Y coordinate of xterm
+   -s <WxH>     size of xterm in symbols, e.g. 50x20
+   -q <query>   query
+EOF
+}
+
+while getopts x:y:s:q: f
+do
+    case $f in
+	h)      help; exit 0;;
+	x)      TERM_X=+$OPTARG;;
+	y)      TERM_Y=+$OPTARG;;
+	s)      TERM_WH=$OPTARG;;
+	q)      query=$OPTARG;;
+	'?')    help; exit 1;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
+set_query
 
 tmp_dir="/tmp/`basename $0`.$$"
 trap "rm -rf $tmp_dir" 0 1 2 3 15
 mkdir -m 700 "$tmp_dir"
 
-$DICT_PROG $DICT_SERVER_OPT $DICT_PORT_OPT $DICT_DB_OPT "$selection" |
+$DICT_PROG $DICT_SERVER_OPT $DICT_PORT_OPT $DICT_DB_OPT "$query" |
 env LC_ALL=C grep -Ev "definitions? found" |
 $COLORIZER > "$tmp_dir/res.txt"
 
-set_geometry "$tmp_dir/res.txt" "$1" "$2"
+if test -z "$TERM_WH"; then
+    TERM_WH=`$TEXT_WIDTH "$tmp_dir/res.txt"`
+fi
+
+geometry="-geometry ${TERM_WH}${TERM_X}${TERM_Y}"
 
 unset LC_ALL || true
 unset LANG || true
