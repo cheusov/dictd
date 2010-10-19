@@ -57,7 +57,7 @@ fi
 #
 
 cyrillic_text_width (){
-    # This function may not to work properly for languages
+    # This function may not work properly for languages
     # other than Russian. wcwidth(3) and C language is needed!
     LC_ALL=C $D_AWK_PROG -v h="$D_TERM_H" '
 	BEGIN {max = 15}
