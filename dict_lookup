@@ -40,7 +40,7 @@ XTERM_DICT_TITLE=${XTERM_DICT_TITLE--title dict_lookup}
 TEXT_WIDTH=${TEXT_WIDTH-cyrillic_text_width}
 TERM_X=${TERM_X-+200}
 TERM_Y=${TERM_Y-+200}
-TERM_H=${TERM_H-+20}
+TERM_H=${TERM_H-+40}
 LESS_PROG=${LESS_PROG-less}
 
 if test -z "$COLORIZER"; then
@@ -115,8 +115,7 @@ trap "rm -rf $tmp_dir" 0 1 2 3 15
 mkdir -m 700 "$tmp_dir"
 
 $DICT_PROG $DICT_SERVER_OPT $DICT_PORT_OPT $DICT_DB_OPT "$query" 2>&1 |
-env LC_ALL=C grep -Ev "definitions? found" |
-$COLORIZER > "$tmp_dir/res.txt"
+env LC_ALL=C grep -Ev "definitions? found" > "$tmp_dir/res.txt"
 
 if test -z "$TERM_WH"; then
     TERM_WH=`$TEXT_WIDTH "$tmp_dir/res.txt"`
@@ -127,4 +126,5 @@ geometry="-geometry ${TERM_WH}${TERM_X}${TERM_Y}"
 unset LC_ALL || true
 unset LANG || true
 LC_CTYPE=$UTF8_LOCALE $XTERM_PROG $geometry \
-    -u8 $X_CLASS $XTERM_DICT_NAME $XTERM_DICT_TITLE -e "$LESS_PROG < $tmp_dir/res.txt"
+    -u8 $X_CLASS $XTERM_DICT_NAME $XTERM_DICT_TITLE \
+    -e "$COLORIZER < $tmp_dir/res.txt | $LESS_PROG"
