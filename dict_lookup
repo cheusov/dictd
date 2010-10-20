@@ -26,18 +26,19 @@
 ############################################################
 # Variables settable by user
 
+#D_DICT_CMD=$HOME/bin/your-own-dict-program
 D_AWK_PROG=${D_AWK_PROG-awk}
 D_XCLIP_PROG=${D_XCLIP_PROG-xclip}
 D_XTERM_PROG=${D_XTERM_PROG-xterm}
 D_UTF8_LOCALE=${D_UTF8_LOCALE-en_US.UTF-8}
 D_DICT_PROG=${D_DICT_PROG-dict}
-DICT_SERVER_OPT=${DICT_SERVER_OPT--h dictd.xdsl.by}
-DICT_PORT_OPT=${DICT_PORT_OPT--p 2628}
-DICT_DB_OPT=${DICT_DB_OPT--d en-ru}
-XTERM_DICT_CLASS=${XTERM_DICT_CLASS--class XTerm}
-XTERM_DICT_NAME=${XTERM_DICT_NAME--name xterm_dict}
-XTERM_DICT_TITLE=${XTERM_DICT_TITLE--title dict_lookup}
-TEXT_WIDTH=${TEXT_WIDTH-cyrillic_text_width}
+D_DICT_SERVER=${D_DICT_SERVER--h dictd.xdsl.by}
+D_DICT_PORT=${D_DICT_PORT--p 2628}
+D_DICT_DB_OPT=${D_DICT_DB_OPT--d en-ru}
+D_XTERM_CLASS=${D_XTERM_CLASS--class XTerm}
+D_XTERM_NAME=${D_XTERM_NAME--name xterm_dict}
+D_XTERM_TITLE=${D_XTERM_TITLE--title dict_lookup}
+D_TEXT_WIDTH=${D_TEXT_WIDTH-cyrillic_text_width}
 D_TERM_X=${D_TERM_X-+200}
 D_TERM_Y=${D_TERM_Y-+200}
 D_TERM_H=${D_TERM_H-+40}
@@ -114,11 +115,15 @@ tmp_dir="/tmp/`basename $0`.$$"
 trap "rm -rf $tmp_dir" 0 1 2 3 15
 mkdir -m 700 "$tmp_dir"
 
-$D_DICT_PROG $DICT_SERVER_OPT $DICT_PORT_OPT $DICT_DB_OPT "$query" 2>&1 |
+if test -z "$D_DICT_CMD"; then
+    D_DICT_CMD="$D_DICT_PROG $D_DICT_SERVER $D_DICT_PORT $D_DICT_DB_OPT"
+fi
+
+$D_DICT_CMD "$query" 2>&1 |
 env LC_ALL=C grep -Ev "definitions? found" > "$tmp_dir/res.txt"
 
 if test -z "$TERM_WH"; then
-    TERM_WH=`$TEXT_WIDTH "$tmp_dir/res.txt"`
+    TERM_WH=`$D_TEXT_WIDTH "$tmp_dir/res.txt"`
 fi
 
 geometry="-geometry ${TERM_WH}${D_TERM_X}${D_TERM_Y}"
@@ -126,5 +131,5 @@ geometry="-geometry ${TERM_WH}${D_TERM_X}${D_TERM_Y}"
 unset LC_ALL || true
 unset LANG || true
 LC_CTYPE=$D_UTF8_LOCALE $D_XTERM_PROG $geometry \
-    -u8 $X_CLASS $XTERM_DICT_NAME $XTERM_DICT_TITLE \
+    -u8 $D_XTERM_CLASS $D_XTERM_NAME $D_XTERM_TITLE \
     -e "$COLORIZER < $tmp_dir/res.txt | $D_LESS_PROG"
