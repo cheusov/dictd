@@ -96,7 +96,7 @@ usage: dict_lookup [OPTIONS]
 EOF
 }
 
-while getopts x:y:s:q: f
+while getopts x:y:s:q:h f
 do
     case $f in
 	h)      help; exit 0;;
