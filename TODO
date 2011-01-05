@@ -1,4 +1,5 @@
 strategies:
+  - noname? (inverted prefix when headword is a prefix for query)
   - double metaphone
   - cjk
 
