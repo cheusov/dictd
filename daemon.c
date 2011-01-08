@@ -1491,7 +1491,7 @@ static void daemon_quit( const char *cmdline, int argc, const char **argv )
 /* The whole sub should be moved here, but I want to keep the diff small. */
 int _handleconn (int error);
 
-int dict_inetd (char ***argv0, int error)
+int dict_inetd (int error)
 {
    if (setjmp(env)) return 0;
 
@@ -1506,8 +1506,7 @@ int dict_inetd (char ***argv0, int error)
    return _handleconn (error);
 }
 
-int dict_daemon( int s, struct sockaddr_in *csin, char ***argv0,
-		 int error )
+int dict_daemon( int s, struct sockaddr_in *csin, int error )
 {
    struct hostent *h;
 	

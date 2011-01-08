@@ -312,6 +312,42 @@ static void reload_config (void)
    dict_init_databases (DictConfig);
 }
 
+static void xsigaddset (sigset_t *set, int signo)
+{
+   if (sigaddset (set, signo)){
+      log_error ("", "sigaddset(2) failed: %s\n", strerror (errno));
+   }
+}
+
+static void xsigprocmask (int how, const sigset_t *set, sigset_t *oset)
+{
+   if (sigprocmask (how, set, oset)){
+      log_error ("", "sigaddset(2) failed: %s\n", strerror (errno));
+   }
+}
+
+static void block_signals (void)
+{
+   sigset_t set;
+
+   sigemptyset (&set);
+   xsigaddset (&set, SIGALRM);
+   xsigaddset (&set, SIGCHLD);
+
+   xsigprocmask (SIG_BLOCK, &set, NULL);
+}
+
+static void unblock_signals (void)
+{
+   sigset_t set;
+
+   sigemptyset (&set);
+   xsigaddset (&set, SIGALRM);
+   xsigaddset (&set, SIGCHLD);
+
+   xsigprocmask (SIG_UNBLOCK, &set, NULL);
+}
+
 static void handler( int sig )
 {
    const char *name = NULL;
@@ -1449,6 +1485,8 @@ int main (int argc, char **argv, char **envp)
    int                forceStartup = 0;
    int                i;
 
+   int                errno_accept = 0;
+
    const char *       default_strategy_arg = "???";
 
    char *             new_strategy;
@@ -1674,7 +1712,7 @@ int main (int argc, char **argv, char **envp)
 
    sanity(configFile);
 
-   setsig(SIGCHLD, reaper, SA_RESTART);
+   setsig(SIGCHLD, reaper, 0);
    setsig(SIGHUP,   handler_sighup, 0);
    setsig(SIGUSR1,  handler_sigusr1, 0);
    if (!dbg_test(DBG_NOFORK))
@@ -1684,7 +1722,7 @@ int main (int argc, char **argv, char **envp)
    setsig(SIGTRAP, handler, 0);
    setsig(SIGTERM, handler, 0);
    setsig(SIGPIPE, handler, 0);
-   setsig(SIGALRM, handler, SA_RESTART);
+   setsig(SIGALRM, handler, 0);
 
    fflush(stdout);
    fflush(stderr);
@@ -1700,7 +1738,7 @@ int main (int argc, char **argv, char **envp)
    dict_initsetproctitle(argc, argv, envp);
 
    if (inetd) {
-      dict_inetd(&argv, 0);
+      dict_inetd(0);
       exit(0);
    }
 
@@ -1715,10 +1753,15 @@ int main (int argc, char **argv, char **envp)
 
       if (flg_test(LOG_SERVER))
          log_info( ":I: %d accepting on %s\n", getpid(), daemon_service );
-      if ((childSocket = accept(masterSocket,
-				(struct sockaddr *)&csin, &alen)) < 0)
-      {
-	 switch (errno){
+
+      unblock_signals ();
+      childSocket = accept (masterSocket,
+			    (struct sockaddr *)&csin, &alen);
+      errno_accept = errno;
+      block_signals ();
+
+      if (childSocket < 0){
+	 switch (errno_accept){
 	 case EINTR:
 	    if (need_reload_config){
 	       reload_config ();
@@ -1740,13 +1783,13 @@ int main (int argc, char **argv, char **envp)
 	    continue;
 	 default:
 	    log_info (":E: can't accept: errno = %d: %s\n",
-		      errno, strerror (errno));
+		      errno_accept, strerror (errno_accept));
 	    err_fatal_errno (__func__, ":E: can't accept");
 	 }
       }
 
       if (_dict_daemon || dbg_test(DBG_NOFORK)) {
-	 dict_daemon(childSocket,&csin,&argv,0);
+	 dict_daemon(childSocket,&csin,0);
       } else {
 	 if (_dict_forks - _dict_reaps < _dict_daemon_limit_childs) {
 	    if (!start_daemon()) { /* child */
@@ -1758,16 +1801,14 @@ int main (int argc, char **argv, char **envp)
 		  alarm(_dict_daemon_limit_time);
 	       }
 
-	       dict_daemon (
-		  childSocket, &csin, &argv,
-		  databases_loaded ? 0 : 2);
+	       dict_daemon (childSocket, &csin, databases_loaded ? 0 : 2);
 
 	       exit(0);
 	    } else {		   /* parent */
 	       close(childSocket);
 	    }
 	 } else {
-	    dict_daemon(childSocket, &csin, &argv, 1);
+	    dict_daemon(childSocket, &csin, 1);
 	 }
       }
    }
