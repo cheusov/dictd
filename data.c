@@ -104,7 +104,7 @@ static int dict_read_header( const char *filename,
 	 rewind( str );
 	 while (!feof( str )) {
 	    if ((count = fread( buffer, 1, BUFFERSIZE, str ))) {
-	       crc = crc32( crc, buffer, count );
+	       crc = crc32( crc, (Bytef *) buffer, count );
 	    }
 	 }
       }
@@ -476,9 +476,9 @@ char *dict_data_read_ (
 	    memcpy( outBuffer, h->start + h->offsets[i], h->chunks[i] );
 	    dict_data_filter( outBuffer, &count, OUT_BUFFER_SIZE, preFilter );
 	 
-	    h->zStream.next_in   = outBuffer;
+	    h->zStream.next_in   = (Bytef *) outBuffer;
 	    h->zStream.avail_in  = h->chunks[i];
-	    h->zStream.next_out  = inBuffer;
+	    h->zStream.next_out  = (Bytef *) inBuffer;
 	    h->zStream.avail_out = IN_BUFFER_SIZE;
 	    if (inflate( &h->zStream,  Z_PARTIAL_FLUSH ) != Z_OK)
 	       err_fatal( __func__, "inflate: %s\n", h->zStream.msg );

@@ -930,7 +930,11 @@ static int dict_search_brute( lst_List l,
       }
 
       if (c == *word) {
-	 result = compare( word, dbindex, p, end );
+	 result = compare( (const char *) word,
+			   dbindex,
+			   (const char *) p,
+			   (const char *) end );
+
 	 if (result == -1 || result == 0) {
 	    switch (flag){
 	    case BMH_SUBSTRING:
@@ -965,13 +969,14 @@ static int dict_search_brute( lst_List l,
 	       if (*pt == '\t')
 		  goto continue2;
 
-	    if (!previous || compare_1or4 (previous, dbindex, pt + 1, end,
-					   &previous))
+	    if (!previous ||
+		compare_1or4 (previous, dbindex, (char*) pt + 1,
+			      (const char *) end, &previous))
 	    {
 	       ++count;
 
 	       if (!dict_add_word_to_list
-		   (l, database, dbindex, pt + 1))
+		   (l, database, dbindex, (const char *) pt + 1))
 	       {
 		  break;
 	       }
@@ -998,9 +1003,9 @@ static int dict_search_bmh( lst_List l,
 			    dictIndex *dbindex,
 			    int flag )
 {
-   const unsigned char *const start = dbindex->start;
-   const unsigned char *const end   = dbindex->end;
-   const int  patlen = strlen( word );
+   const unsigned char *const start = (const unsigned char *) dbindex->start;
+   const unsigned char *const end   = (const unsigned char *) dbindex->end;
+   const unsigned patlen = strlen( (const char *) word );
    int        skip[UCHAR_MAX + 1];
    int        i;
    int        j;
@@ -1096,13 +1101,14 @@ static int dict_search_bmh( lst_List l,
 
 	 assert (pt >= start && pt < end);
 
-	 if (!previous || compare_1or4 (previous, dbindex, pt, dbindex->end,
-					&previous))
+	 if (!previous ||
+	     compare_1or4 (previous, dbindex, (const char *) pt,
+			   dbindex->end, &previous))
 	 {
 	    ++count;
 	    if (l){
 	       if (!dict_add_word_to_list
-		   (l, database, dbindex, pt))
+		   (l, database, dbindex, (const char *) pt))
 	       {
 		  return count;
 	       }
@@ -1330,7 +1336,8 @@ static int dict_search_soundex( lst_List l,
    txt_soundex2 (word, soundex);
 
    while (pt && pt < end) {
-      for (i = 0, s = pt, d = buffer; i < MAXWORDLEN - 1; i++, ++s) {
+      s = (const unsigned char *) pt;
+      for (i = 0, d = buffer; i < MAXWORDLEN - 1; i++, ++s) {
 	 if (*s == '\t') break;
 	 if (!dbindex -> isspacealnum [*s]) continue;
 	 *d++ = *s;
@@ -1535,7 +1542,9 @@ static int dict_search_suffix(
       }
       return ret;
    }else{
-      return dict_search_bmh( l, word, database, database -> index, BMH_SUFFIX );
+      return dict_search_bmh(
+	 l, (const unsigned char *) word,
+	 database, database -> index, BMH_SUFFIX );
    }
 }
 

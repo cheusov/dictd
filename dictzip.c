@@ -208,10 +208,10 @@ int dict_data_zip( const char *inFilename, const char *outFilename,
       if ((count = fread( inBuffer, 1, chunkLength, inStr ))) {
 	 dict_data_filter( inBuffer, &count, IN_BUFFER_SIZE, preFilter );
 
-	 inputCRC = crc32( inputCRC, inBuffer, count );
-	 zStream.next_in   = inBuffer;
+	 inputCRC = crc32( inputCRC, (const Bytef *) inBuffer, count );
+	 zStream.next_in   = (Bytef *) inBuffer;
 	 zStream.avail_in  = count;
-	 zStream.next_out  = outBuffer;
+	 zStream.next_out  = (Bytef *) outBuffer;
 	 zStream.avail_out = OUT_BUFFER_SIZE;
 	 if (deflate( &zStream, Z_FULL_FLUSH ) != Z_OK)
 	    err_fatal( __func__, "deflate: %s\n", zStream.msg );
@@ -241,9 +241,9 @@ int dict_data_zip( const char *inFilename, const char *outFilename,
 #if 0
    dmalloc_verify(0);
 #endif
-   zStream.next_in   = inBuffer;
+   zStream.next_in   = (Bytef *) inBuffer;
    zStream.avail_in  = 0;
-   zStream.next_out  = outBuffer;
+   zStream.next_out  = (Bytef *) outBuffer;
    zStream.avail_out = OUT_BUFFER_SIZE;
    if (deflate( &zStream, Z_FINISH ) != Z_STREAM_END)
       err_fatal( __func__, "deflate: %s\n", zStream.msg );

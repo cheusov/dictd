@@ -668,8 +668,8 @@ static void request( void )
 	 if (!cmd_reply.key || !cmd_reply.user)                       break;
 	 if (!cmd_reply.msgid)                                        goto end;
 	 MD5Init(&ctx);
-	 MD5Update(&ctx, cmd_reply.msgid, strlen(cmd_reply.msgid));
-	 MD5Update(&ctx, cmd_reply.key, strlen(cmd_reply.key));
+	 MD5Update(&ctx, (const unsigned char *) cmd_reply.msgid, strlen(cmd_reply.msgid));
+	 MD5Update(&ctx, (const unsigned char *) cmd_reply.key, strlen(cmd_reply.key));
 	 MD5Final(digest, &ctx );
 	 for (i = 0; i < 16; i++)
 	    sprintf( hex+2*i, "%02x", digest[i] );

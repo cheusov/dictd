@@ -1507,7 +1507,7 @@ int main( int argc, char **argv )
 	    ++buf;
 	 }
 	 if (*buf == '\t') {
-	    memmove( buf+2, buf, strlen(buf)+1 ); /* move \0 */
+	    memmove( buf+2, buf, strlen((char *) buf)+1 ); /* move \0 */
 	    buf[0] = buf[1] = buf[2] = ' ';
 	 }
 	 break;
