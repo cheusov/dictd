@@ -1339,7 +1339,7 @@ static void daemon_show_server (
 	 max_dbname_len = daemon_get_max_dbname_length ();
 
 	 daemon_printf(
-	    "%-*.*s %10lu %10lu %cB %10lu %cB %10lu %cB\n",
+	    "%-*.*s %10i %10i %cB %10i %cB %10i %cB\n",
 	    max_dbname_len,
 	    max_dbname_len,
 
