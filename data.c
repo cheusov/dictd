@@ -428,7 +428,10 @@ char *dict_data_read_ (
       }
       firstChunk  = start / h->chunkLength;
       firstOffset = start - firstChunk * h->chunkLength;
-      lastChunk   = end / h->chunkLength;
+      lastChunk   = (end - 1) / h->chunkLength;
+      if (lastChunk < firstChunk) {
+	 lastChunk = firstChunk;
+      }
       lastOffset  = end - lastChunk * h->chunkLength;
       PRINTF(DBG_UNZIP,
 	     ("   start = %lu, end = %lu\n"

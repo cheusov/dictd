@@ -28,7 +28,7 @@ define(VERSION, 1.11.2)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.139 $)
+AC_REVISION($Revision: 1.140 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 
@@ -297,6 +297,7 @@ AC_CONFIG_FILES(dictzip.1)
 AC_CONFIG_FILES(dictd.8)
 
 AC_CONFIG_FILES(test/dictd_test)
+AC_CONFIG_FILES(test/dictzip_test)
 
 AC_OUTPUT
 

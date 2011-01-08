@@ -389,7 +389,8 @@ distclean: recursive-clean
 	done
 	rm -f config.h config.cache config.status stamp-h.in stamp-h
 	rm -f Makefile doc/Makefile dictdplugin-config
-	rm -f colorit dictl dictunformat test/dictd_test
+	rm -f colorit dictl dictunformat
+	rm -f test/dictd_test test/dictzip_test
 	rm -rf autom4te.cache libmaa/autom4te.cache
 	rm -f  dictfmt_index2suffix dictfmt_index2word
 	rm -f *.1 *.8
@@ -408,7 +409,7 @@ deps:
 
 .PHONY: test
 test: $(EXES) $(LIBRARIES)
-	cd test && sh dictd_test
+	cd test && sh dictd_test && sh dictzip_test
 
 # The following is based on the "Automatic Remaking" node in the GNU
 # Autoconf documentation:
