@@ -4,9 +4,6 @@ set -e
 
 export LC_ALL=C
 
-if test -f /dev/urandom; then
-fi
-
 DICTZIP=${DICTZIP-../dictzip}
 
 gen_file (){
