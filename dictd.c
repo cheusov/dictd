@@ -48,7 +48,10 @@
 #define GID_NOGROUP 65534
 #endif
 
-
+#ifndef SA_RESTART
+/* ... and hope for the best */
+#define SA_RESTART 0
+#endif
 
 
 
@@ -1754,11 +1757,11 @@ int main (int argc, char **argv, char **envp)
       if (flg_test(LOG_SERVER))
          log_info( ":I: %d accepting on %s\n", getpid(), daemon_service );
 
-      unblock_signals ();
+/*unblock_signals ();*/
       childSocket = accept (masterSocket,
 			    (struct sockaddr *)&csin, &alen);
       errno_accept = errno;
-      block_signals ();
+/*block_signals ();*/
 
       if (childSocket < 0){
 	 switch (errno_accept){
