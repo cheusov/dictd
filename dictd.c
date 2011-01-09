@@ -1715,7 +1715,7 @@ int main (int argc, char **argv, char **envp)
 
    sanity(configFile);
 
-   setsig(SIGCHLD, reaper, 0);
+   setsig(SIGCHLD, reaper, SA_RESTART);
    setsig(SIGHUP,   handler_sighup, 0);
    setsig(SIGUSR1,  handler_sigusr1, 0);
    if (!dbg_test(DBG_NOFORK))
@@ -1725,7 +1725,7 @@ int main (int argc, char **argv, char **envp)
    setsig(SIGTRAP, handler, 0);
    setsig(SIGTERM, handler, 0);
    setsig(SIGPIPE, handler, 0);
-   setsig(SIGALRM, handler, 0);
+   setsig(SIGALRM, handler, SA_RESTART);
 
    fflush(stdout);
    fflush(stderr);
