@@ -1,11 +1,16 @@
+----------------------------------------------------------------------
 Version 1.11.3, by Aleksey Cheusov, Sun,  9 Jan 2011 18:16:34 +0200
+
+  New script dict_lookup for translating words and phrases from X
+  selection. It makes sense to configure launching dict_lookup on a
+  keyboard shortcut in the window manager.
 
   dictd: Fix for SHOW SERVER command (dict -I).  On systems where
   sizeof(int) != sizeof (long) values in "Uncompressed" column may
   contain random garbage.  This problem was seen on NetBSD/x86_64/5.1
 
   Fix for sf bug #3098788
-  https://sourceforge.net/tracker/?func=detail&aid=3098788&group_id=605&atid=100605
+  https://sf.net/tracker/?func=detail&aid=3098788&group_id=605&atid=100605
   Regresson tests for dictzip were added.
 
   Fix in Makefile: non standard option for lex(1) was removed
@@ -18,6 +23,7 @@ Version 1.11.3, by Aleksey Cheusov, Sun,  9 Jan 2011 18:16:34 +0200
 
   Other minor fixes and cleanups
 
+----------------------------------------------------------------------
 Version 1.11.2, by Aleksey Cheusov, Sun,  4 Oct 2009 10:55:28 +0300
 
   FIX: When search is handled by dict_search_bmh() function, the first
@@ -41,6 +47,7 @@ Version 1.11.2, by Aleksey Cheusov, Sun,  4 Oct 2009 10:55:28 +0300
 
   Regression tests updated.
 
+----------------------------------------------------------------------
 Version 1.11.1, by Aleksey Cheusov, Fri, 27 Feb 2009 22:16:49 +0200
 
   FIXES:
@@ -108,6 +115,7 @@ Version 1.11.1, by Aleksey Cheusov, Fri, 27 Feb 2009 22:16:49 +0200
 
   Minor spelling fixes in NEWS
 
+----------------------------------------------------------------------
 Version 1.11.0, by Aleksey Cheusov, Sun,  7 Dec 2008 23:05:21 +0200
 
   dictd tarball no longer contains libmaa library.  Now
@@ -141,6 +149,7 @@ Version 1.11.0, by Aleksey Cheusov, Sun,  7 Dec 2008 23:05:21 +0200
 
   Lots of GCC warning messages were also fixed
 
+----------------------------------------------------------------------
 Version 1.10.11, by Aleksey Cheusov, Mon,  7 Apr 2008 00:28:10 +0300
 
  Everything can now be compiled with pcc (Portable C Compiler),
@@ -193,6 +202,7 @@ Version 1.10.11, by Aleksey Cheusov, Mon,  7 Apr 2008 00:28:10 +0300
      - fixed: missed header file, seen with gcc-4.3.
        Thanks to Martin Michlmayr for report
 
+----------------------------------------------------------------------
 Version 1.10.10, by Aleksey Cheusov, Sat, 10 Nov 2007 22:03:06 +0200
 
  dict, dictl, colorit:
