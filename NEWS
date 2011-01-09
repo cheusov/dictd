@@ -8,6 +8,9 @@ Version 1.11.3, by Aleksey Cheusov, Sun,  9 Jan 2011 18:16:34 +0200
   https://sourceforge.net/tracker/?func=detail&aid=3098788&group_id=605&atid=100605
   Regresson tests for dictzip were added.
 
+  SA_RESTART is not needed anymore. This unbreaks dictd on some
+  platforms.  Minor clean-ups.
+
   Fix in Makefile: non standard option for lex(1) was removed
   (This may unbreak compilation on SunOS, HP-UX...).
 
@@ -15,6 +18,8 @@ Version 1.11.3, by Aleksey Cheusov, Sun,  9 Jan 2011 18:16:34 +0200
   Internal buffer size was increased from 10240 to 102400 bytes.
 
   Fixes for Tru64.
+
+  Other minor fixes and cleanups
 
 Version 1.11.2, by Aleksey Cheusov, Sun,  4 Oct 2009 10:55:28 +0300
 
