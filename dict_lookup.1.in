@@ -9,9 +9,12 @@ dict_lookup \- DICT Protocol Client
 .fi
 .SH DESCRIPTION
 .B dict_lookup
-reads X selection, then open terminal application and run
-.I dict
-client in it allowing user to view the translation using pager.
+reads X selection, then open
+.B terminal
+emulator and run
+.B dict
+client in it allowing user to view content using
+.BR pager .
 .SH OPTIONS
 .TP
 .B \-h
@@ -30,7 +33,7 @@ width and height of terminal emulator separated by 'x'.
 query, if it is specified, X selection is not read.
 .SH ENVIRONMENT
 .B dict_lookup
-recognize the following environment variables.
+recognizes the following environment variables.
 The default value is specified in square brackets.
 .TP
 .B D_AWK_PROG
@@ -42,7 +45,7 @@ xclip application.
 .RI [ xclip ]
 .TP
 .B D_XTERM_PROG
-xterm or equivalent termunal emulator.
+xterm or equivalent terminal emulator.
 .RI [ xterm ]
 .TP
 .B D_UTF8_LOCALE
@@ -66,15 +69,15 @@ Option for dictionary client specifying the database.
 .RI [ "-d en-ru" ]
 .TP
 .B D_XTERM_CLASS
-Option for terminal emulator for specifying class.
+Option for terminal emulator specifying the class.
 .RI [ "-class XTerm" ]
 .TP
 .B D_XTERM_NAME
-Option for terminal emulator for specifying name.
+Option for terminal emulator specifying the name.
 .RI [ "-name xterm_dict" ]
 .TP
 .B D_XTERM_TITLE
-Option for terminal emulator for specifying title.
+Option for terminal emulator specifying the title.
 .RI [ "-title dict_lookup" ]
 .TP
 .B D_TEXT_WIDTH
