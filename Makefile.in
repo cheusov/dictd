@@ -202,10 +202,12 @@ clientparse.o: clientparse.c
 install.dict: dict
 	mkdir -p $(DESTDIR)$(bindir) && \
         mkdir -p $(DESTDIR)$(man1_prefix) && \
-	$(LIBTOOL) --mode=install $(INSTALL_PROGRAM) dict$(EXEEXT) $(DESTDIR)$(bindir) && \
-	$(INSTALL_DATA) dict.1 $(DESTDIR)$(man1_prefix)/dict.1 && \
-	$(INSTALL_SCRIPT) dictl $(DESTDIR)$(bindir) && \
-	$(INSTALL_DATA) dictl.1 $(DESTDIR)$(man1_prefix)/dictl.1
+	$(LIBTOOL) --mode=install $(INSTALL_PROGRAM) dict$(EXEEXT) $(DESTDIR)$(bindir)/ && \
+	$(INSTALL_DATA) dict.1 $(DESTDIR)$(man1_prefix)/ && \
+	$(INSTALL_SCRIPT) dictl $(DESTDIR)$(bindir)/ && \
+	$(INSTALL_DATA) dictl.1 $(DESTDIR)$(man1_prefix)/
+	$(INSTALL_SCRIPT) dict_lookup $(DESTDIR)$(bindir)/ && \
+	$(INSTALL_DATA) dict_lookup.1 $(DESTDIR)$(man1_prefix)/
 
 install.colorit: colorit
 	mkdir -p $(DESTDIR)$(bindir) && \

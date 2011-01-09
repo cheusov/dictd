@@ -42,7 +42,7 @@ D_TEXT_WIDTH=${D_TEXT_WIDTH-cyrillic_text_width}
 D_TERM_X=${D_TERM_X-+200}
 D_TERM_Y=${D_TERM_Y-+200}
 D_TERM_H=${D_TERM_H-+40}
-D_LESS_PROG=${D_LESS_PROG-less}
+D_PAGER=${D_PAGER-less}
 
 if test -z "$COLORIZER"; then
     colorit_config=$HOME/.colorit.d/dict
@@ -132,4 +132,4 @@ unset LC_ALL || true
 unset LANG || true
 LC_CTYPE=$D_UTF8_LOCALE $D_XTERM_PROG $geometry \
     -u8 $D_XTERM_CLASS $D_XTERM_NAME $D_XTERM_TITLE \
-    -e "$COLORIZER < $tmp_dir/res.txt | $D_LESS_PROG"
+    -e "$COLORIZER < $tmp_dir/res.txt | $D_PAGER"
