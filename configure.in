@@ -24,11 +24,11 @@ dnl             for optimization and stripping.
 dnl     LIBOBJS is an automatically-generated list of extra objects we need
 
 
-define(VERSION, 1.11.2)
+define(VERSION, 1.11.3)
 
 
 AC_PREREQ(2.53)
-AC_REVISION($Revision: 1.140 $)
+AC_REVISION($Revision: 1.141 $)
 
 AC_INIT([dict],[VERSION],["dict-beta@dict.org"])
 

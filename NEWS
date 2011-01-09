@@ -1,3 +1,21 @@
+Version 1.11.3, by Aleksey Cheusov, Sun,  9 Jan 2011 18:16:34 +0200
+
+  dictd: Fix for SHOW SERVER command (dict -I).  On systems where
+  sizeof(int) != sizeof (long) values in "Uncompressed" column may
+  contain random garbage.  This problem was seen on NetBSD/x86_64/5.1
+
+  Fix for sf bug #3098788
+  https://sourceforge.net/tracker/?func=detail&aid=3098788&group_id=605&atid=100605
+  Regresson tests for dictzip were added.
+
+  Fix in Makefile: non standard option for lex(1) was removed
+  (This may unbreak compilation on SunOS, HP-UX...).
+
+  dictfmt:
+  Internal buffer size was increased from 10240 to 102400 bytes.
+
+  Fixes for Tru64.
+
 Version 1.11.2, by Aleksey Cheusov, Sun,  4 Oct 2009 10:55:28 +0300
 
   FIX: When search is handled by dict_search_bmh() function, the first
