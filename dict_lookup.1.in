@@ -60,7 +60,7 @@ Dictionary client program.
 .TP
 .B D_DICT_SERVER
 Option for dictionary client specifying the server.
-.RI [ "-h dictd.xdsl.by" ]
+.RI [ "-h dict.org" ]
 .TP
 .B D_DICT_PORT
 Option for dictionary client specifying the port.
@@ -68,7 +68,7 @@ Option for dictionary client specifying the port.
 .TP
 .B D_DICT_DB_OPT
 Option for dictionary client specifying the database.
-.RI [ "-d en-ru" ]
+.RI [ "-d foldoc" ]
 .TP
 .B D_XTERM_CLASS
 Option for terminal emulator specifying the class.

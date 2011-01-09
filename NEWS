@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------
-Version 1.11.3, by Aleksey Cheusov, Sun,  9 Jan 2011 18:16:34 +0200
+Version 1.12, by Aleksey Cheusov, Sun,  9 Jan 2011 18:16:34 +0200
 
   New script dict_lookup for translating words and phrases from X
   selection. It makes sense to configure launching dict_lookup on a
