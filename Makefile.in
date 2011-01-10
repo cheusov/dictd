@@ -206,7 +206,7 @@ install.dict: dict
 	$(INSTALL_DATA) dict.1 $(DESTDIR)$(man1_prefix)/ && \
 	$(INSTALL_SCRIPT) dictl $(DESTDIR)$(bindir)/ && \
 	$(INSTALL_DATA) dictl.1 $(DESTDIR)$(man1_prefix)/
-	$(INSTALL_SCRIPT) dict_lookup $(DESTDIR)$(bindir)/ && \
+	$(INSTALL_SCRIPT) @srcdir@/dict_lookup $(DESTDIR)$(bindir)/ && \
 	$(INSTALL_DATA) dict_lookup.1 $(DESTDIR)$(man1_prefix)/
 
 install.colorit: colorit
