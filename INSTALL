@@ -121,7 +121,7 @@ INSTALLATION
     server process has access to.  The preformatted dictd-usable databases
     you need can be found at any of the following locations:
 
-        ftp://ftp.dict.org/pub/dict/pre/               [most up to date]
+        ftp://ftp.dict.org/dict/pre/               [most up to date]
         ftp://ftp.cs.unc.edu/pub/users/faith/dict/pre/ [mirror]
 
     a)  Make a directory to contain the dictionary database(s).  We'll
