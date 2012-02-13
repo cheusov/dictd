@@ -1009,7 +1009,7 @@ per database. For example, instead of strategy
 .I lev
 , the strategy
 .I word
-may be prefered for databases mainly containing
+may be preferred for databases mainly containing
 the multiword phrases but the single words.
 .RE
 .TP
@@ -1330,7 +1330,7 @@ Some headwords are used by
 especially
 .P
 .BI 00-database-info
-Containts the informarion about database
+Containts the information about database
 which is 
 returned by SHOW INFO command,
 unless it is specified in the configuration file.
