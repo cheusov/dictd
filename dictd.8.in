@@ -139,7 +139,7 @@ intended to run from inetd, with a fast processor it is feasible to do
 so. This option also implies \-\-fast-start.
 .TP
 .BI \-\-pp " prog"
-Sets a preprocessor for configuarion file.
+Sets a preprocessor for configuration file.
 like
 .I " m4"
 or
@@ -321,7 +321,7 @@ with # and extend to the end of the line.
 .BI "global {" " global settings specification " "}"
 Used to set global
 .B dictd
-setting such as log file, syslog faility, locale and so on.
+setting such as log file, syslog facility, locale and so on.
 .TP
 .B EXAMPLE:
 See
@@ -423,7 +423,7 @@ All this is about
 .I DEFINE
 command only.
 .I MATCH, SHOW DB, SHOW STRAT, SHOW INFO, SHOW SERVER and HELP
-commands return texts prepanded with empty line only.
+commands return texts prepended with empty line only.
 .RE
 .P
 .RS
@@ -986,7 +986,7 @@ the name of the upper visible virtual dictionary is returned.
 Dictionaries '*' and '!' don't include invisible ones.
 .B NOTE:
 Invisible dictionaries are completely
-inaccesible (and invisible) to the client
+inaccessible (and invisible) to the client
 unless they are included
 to the virtual or MIME dictionary
 (See
