@@ -59,11 +59,17 @@ echo apple |
 
 #####################################
 
+shquote (){
+    __cmd=`printf '%s\n' "$1" | sed "s|'|'\\\\\''|g"`
+    printf "%s\n" "'$__cmd'"
+}
+
 cmd='dict'
 while test $# -ne 0; do
-    cmd="$cmd '$1'"
+    cmd="$cmd "`shquote "$1"`
     shift
 done
-cmd=$(echo $cmd | charset2charset $DICTL_CHARSET $DICTL_SERVER_CHARSET)
 
-eval $cmd -P - | charset2charset $DICTL_SERVER_CHARSET $DICTL_CHARSET
+cmd=$(printf '%s\n' "$cmd" | charset2charset $DICTL_CHARSET $DICTL_SERVER_CHARSET)
+
+eval "$cmd" | charset2charset $DICTL_SERVER_CHARSET $DICTL_CHARSET
