@@ -1,4 +1,26 @@
 ----------------------------------------------------------------------
+Version 1.12.1, by Aleksey Cheusov, Sun, 22 Jul 2012 16:33:39 +0300
+
+  dictl.in:
+    Fix for Debian bug #677868 reported by Stepan Golosunov.
+
+  dictd.8:
+    Fixes for mistypes found by A. Costa. Thanks!
+
+  dictzip:
+    Fix for sf.net bug #3390567 reported by Ivo Danihelka.
+
+  INSTALL:
+    Fix for sf.net bug #3398178
+
+  colorit:
+    Fix for option -c. Now it works correctly.
+
+  examples/dictd_virtual.conf:
+    Fix incorrect keyword for virtual database.
+      Thanks to Marc-Jano Knopp for the report!
+
+----------------------------------------------------------------------
 Version 1.12, by Aleksey Cheusov, Sun,  9 Jan 2011 18:16:34 +0200
 
   New script dict_lookup for translating words and phrases from X
