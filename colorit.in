@@ -6,15 +6,6 @@
 
 sysconfdir=@sysconfdir@
 
-if test -r $HOME/.coloritrc; then
-   config_file=$HOME/.coloritrc
-else if test -r "$sysconfdir/colorit.conf"; then
-   config_file="$sysconfdir/colorit.conf"
-else
-   echo "configuration file is not readable" > "/dev/stderr"
-   exit 1
-fi fi
-
 usage (){
    printf "\
 colorit is intended to markup stdin or input files\n\
@@ -36,6 +27,8 @@ colorit 0.0.1\n\
 }
 
 pp='m4'
+
+config_file=$HOME/.coloritrc
 
 while test $# -ne 0; do
     case $1 in
@@ -69,6 +62,15 @@ while test $# -ne 0; do
     esac
     shift
 done
+
+if test -r "$config_file"; then
+    :
+elif test -r "$sysconfdir/colorit.conf"; then
+   config_file="$sysconfdir/colorit.conf"
+else
+   echo "configuration file is not readable" > "/dev/stderr"
+   exit 1
+fi
 
 if test "_$pp" = "_-"; then
    pp=
