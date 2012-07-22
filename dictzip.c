@@ -22,6 +22,34 @@
 #include "data.h"
 
 #include <sys/stat.h>
+#include <stdlib.h>
+
+static void xfwrite(
+   const void *ptr, size_t size, size_t nmemb,
+   FILE * stream)
+{
+   size_t ret = fwrite(ptr, size, nmemb, stream);
+   if (ret < nmemb){
+      perror("fwrite(3) failed");
+      exit ( 1 );
+   }
+}
+
+static void xfflush(FILE *stream)
+{
+   if (fflush(stream) != 0){
+      perror("fflush(3) failed");
+      exit ( 1 );
+   }
+}
+
+static void xfclose(FILE *stream)
+{
+   if (fclose(stream) != 0){
+      perror("fclose(3) failed");
+      exit ( 1 );
+   }
+}
 
 void dict_data_print_header( FILE *str, dictData *header )
 {
@@ -201,7 +229,7 @@ int dict_data_zip( const char *inFilename, const char *outFilename,
    header[GZ_CHUNKCNT+1] = (chunks & 0xff00) >> 8;
    header[GZ_CHUNKCNT+0] = (chunks & 0x00ff) >> 0;
    strcpy( &header[GZ_FEXTRA_START + extraLength], origFilename );
-   fwrite( header, 1, headerLength, outStr );
+   xfwrite( header, 1, headerLength, outStr );
     
    /* Read, compress, write */
    while (!feof( inStr )) {
@@ -224,14 +252,14 @@ int dict_data_zip( const char *inFilename, const char *outFilename,
 	 assert( len <= 0xffff );
 	 header[GZ_RNDDATA + chunk*2 + 1] = (len & 0xff00) >>  8;
 	 header[GZ_RNDDATA + chunk*2 + 0] = (len & 0x00ff) >>  0;
-	 fwrite( outBuffer, 1, len, outStr );
+	 xfwrite( outBuffer, 1, len, outStr );
 
 	 ++chunk;
 	 total += count;
 	 if (dbg_test( DBG_VERBOSE )) {
 	    printf( "chunk %5lu: %lu of %lu total\r",
 		    chunk, total, (unsigned long) st.st_size );
-	    fflush( stdout );
+	    xfflush( stdout );
 	 }
       }
    }
@@ -249,7 +277,7 @@ int dict_data_zip( const char *inFilename, const char *outFilename,
       err_fatal( __func__, "deflate: %s\n", zStream.msg );
    assert( zStream.avail_in == 0 );
    len = OUT_BUFFER_SIZE - zStream.avail_out;
-   fwrite( outBuffer, 1, len, outStr );
+   xfwrite( outBuffer, 1, len, outStr );
    PRINTF(DBG_VERBOSE,("(wrote %d bytes, final, crc = %lx)\n",
 		       len, inputCRC ));
 
@@ -265,7 +293,7 @@ int dict_data_zip( const char *inFilename, const char *outFilename,
    tail[4 + 2] = (st.st_size & 0x00ff0000) >> 16;
    tail[4 + 1] = (st.st_size & 0x0000ff00) >>  8;
    tail[4 + 0] = (st.st_size & 0x000000ff) >>  0;
-   fwrite( tail, 1, 8, outStr );
+   xfwrite( tail, 1, 8, outStr );
 
    /* Write final header information */
 #if 0
@@ -278,14 +306,14 @@ int dict_data_zip( const char *inFilename, const char *outFilename,
    header[headerLength - 1] = (headerCRC & 0xff00) >> 8;
    header[headerLength - 2] = (headerCRC & 0x00ff) >> 0;
 #endif
-   fwrite( header, 1, headerLength, outStr );
+   xfwrite( header, 1, headerLength, outStr );
 
    /* Close files */
 #if 0
    dmalloc_verify(0);
 #endif
-   fclose( outStr );
-   fclose( inStr );
+   xfclose( outStr );
+   xfclose( inStr );
     
    /* Shut down compression */
    if (deflateEnd( &zStream ) != Z_OK)
@@ -476,14 +504,14 @@ int main( int argc, char **argv )
 	       for (j = 0; j < size; j += len) {
 		  if (j + len >= size) len = size - j;
 		  buf = dict_data_read_ ( header, j, len, pre, post );
-		  fwrite( buf, len, 1, stdout );
-		  fflush( stdout );
+		  xfwrite( buf, len, 1, stdout );
+		  xfflush( stdout );
 		  xfree( buf );
 	       }
 	    } else {
 	       buf = dict_data_read_ ( header, start, size, pre, post );
-	       fwrite( buf, size, 1, stdout );
-	       fflush( stdout );
+	       xfwrite( buf, size, 1, stdout );
+	       xfflush( stdout );
 	       xfree( buf );
 	    }
 	    dict_data_close( header );
@@ -504,8 +532,8 @@ int main( int argc, char **argv )
 	    for (j = 0; j < size; j += len) {
 	       if (j + len >= size) len = size - j;
 	       buf = dict_data_read_ ( header, j, len, pre, post );
-	       fwrite( buf, len, 1, str );
-	       fflush( str );
+	       xfwrite( buf, len, 1, str );
+	       xfflush( str );
 	       xfree( buf );
 	    }	    
 	    dict_data_close( header );
