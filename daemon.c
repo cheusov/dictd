@@ -58,11 +58,13 @@ static void daemon_status( const char *cmdline, int argc, const char **argv );
 static void daemon_help( const char *cmdline, int argc, const char **argv );
 static void daemon_quit( const char *cmdline, int argc, const char **argv );
 
+typedef void (*command_t)( const char *cmdline, int argc, const char **argv );
+
 #define MAXARGCS 3
 static struct {
    int        argc;
    const char *name[MAXARGCS];
-   void       (*f)( const char *cmdline, int argc, const char **argv );
+   command_t  f;
 } commandInfo[] = {
    { 1, {"define"},             daemon_define },
    { 1, {"d"},                  daemon_define },
@@ -88,7 +90,7 @@ static struct {
 };
 #define COMMANDS (sizeof(commandInfo)/sizeof(commandInfo[0]))
 
-static void *(lookup_command)( int argc, const char **argv )
+static command_t lookup_command( int argc, const char **argv )
 {
    size_t i;
    int j;
