@@ -1,13 +1,13 @@
 #include "dictP.h"
 
 static const wint_t start [] = {
-     0,
-     9,    32,  5760,  8192,  8200,  8232, 12288,
+      9,     32,    133,    160,   5760,   8192,   8232,   8239,
+   8287,  12288,  12288,  12288,  12288,  12288,  12288,  12288,
 };
 
 static int count [] = {
-     0,
-     5,     1,     1,     7,     4,     2,     1,
+      5,      1,      1,      1,      1,     12,      2,      1,
+      1,      1,      1,      1,      1,      1,      1,      1,
 };
 
 #define ARRAY_SIZE (sizeof (start) / sizeof (start [0]))
@@ -34,6 +34,8 @@ int iswspace__ (wint_t wc)
    }
 
    --l;
+   if (l < start)
+      return 0;
 
    if (wc < l [0] + count [l - start])
       return 1;
