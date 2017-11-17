@@ -165,14 +165,6 @@ AC_CHECK_HEADERS(ctype.h getopt.h)
 AC_CHECK_HEADER([zlib.h], ,
     [AC_MSG_ERROR([zlib.h is required for dictd])])
 
-AC_CHECK_TYPES(wint_t,,, [#include <wchar.h>])
-AC_CHECK_TYPES(mbstate_t, , , [#include <wchar.h>])
-AC_CHECK_TYPES(wchar_t,   , , [#include <stddef.h>])
-AC_CHECK_TYPES(size_t)
-AC_CHECK_TYPES(socklen_t,,,
-  [#include <sys/types.h>
-   #include <sys/socket.h>])
-
 echo .
 echo Checking for system constants
 
@@ -181,9 +173,6 @@ AC_C_INLINE
 
 echo .
 echo Checking for library functions
-
-AC_FUNC_ALLOCA
-#AC_FUNC_STAT
 
 AC_CHECK_FUNCS(dlopen)
 
@@ -204,8 +193,6 @@ AC_LIBOBJ([towlower])
 #	AC_LIBOBJ([wcwidth])
 
 AC_REPLACE_FUNCS(strlcpy strlcat)
-
-AC_CHECK_DECLS(CODESET,, [AC_LIBOBJ(nl_langinfo)], [#include <langinfo.h>])
 
 echo .
 echo Making output files

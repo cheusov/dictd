@@ -52,25 +52,13 @@
 /* Get string functions */
 #include <string.h>
 
-#if HAVE_SIZE_T
 #include <stddef.h>
-#else
-typedef unsigned int size_t;
-#endif
-
-#if !HAVE_SOCKLEN_T
-typedef int socklen_t;
-#endif
 
 #if !HAVE_DAEMON
 extern int daemon(int nochdir, int noclose);
 #endif
 
-#if HAVE_WINT_T
 #include <wchar.h>
-#else
-typedef unsigned int wint_t;
-#endif
 
 #if !HAVE_ISWALNUM
 extern int iswalnum__ (wint_t wc);
@@ -90,11 +78,7 @@ extern wint_t towlower__ (wint_t wc);
 #define towlower__ towlower
 #endif
 
-#if HAVE_WCHAR_T
 #include <stddef.h>
-#else
-typedef unsigned int wchar_t;
-#endif
 
 #include <langinfo.h>
 
@@ -104,11 +88,7 @@ typedef unsigned int wchar_t;
 #define MB_CUR_MAX__ MB_CUR_MAX
 #endif
 
-#if HAVE_MBSTATE_T
 #include <wchar.h>
-#else
-typedef char mbstate_t;
-#endif
 
 #if !HAVE_STRLCPY
 extern size_t strlcpy (char *s, const char * wc, size_t size);
