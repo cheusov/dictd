@@ -92,14 +92,6 @@ typedef unsigned int size_t;
 typedef int socklen_t;
 #endif
 
-#if !HAVE_STRDUP
-extern char *strdup( const char * );
-#endif
-
-#if !HAVE_STRTOL
-extern long strtol( const char *, char **, int );
-#endif
-
 #if !HAVE_STRTOUL
 extern unsigned long int strtoul( const char *, char **, int );
 #endif
@@ -226,11 +218,6 @@ extern int mbtowc__ (wchar_t *pwc, const char *s, size_t n);
 #define initgroups(a,b)
 #endif
 
-#if defined(HAVE_WAITPID) && !defined(HAVE_WAIT3)
-#define wait3(status,options,rusage) \
-        waitpid(-1, (status),(options))
-#endif
-
 #ifdef USE_PLUGIN
 # if HAVE_DLFCN_H
 #  include <dlfcn.h>
@@ -264,7 +251,6 @@ extern int mbtowc__ (wchar_t *pwc, const char *s, size_t n);
 
 /* We actually need a few non-ANSI C things... */
 #if defined(__STRICT_ANSI__)
-extern char     *strdup( const char * );
 #if !HAVE_FILENO
 extern int      fileno( FILE *stream );
 #endif

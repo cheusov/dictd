@@ -221,7 +221,7 @@ static void reaper( int dummy )
 #endif
    pid_t      pid;
 
-   while ((pid = wait3(&status, WNOHANG, NULL)) > 0) {
+   while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
       ++_dict_reaps;
 
       if (flg_test(LOG_SERVER))
