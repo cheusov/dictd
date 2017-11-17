@@ -55,25 +55,6 @@ if test "$CC" = gcc; then
     CFLAGS="$CFLAGS -Wshadow -Wnested-externs -Waggregate-return"
 fi
 
-AC_ARG_WITH(nec-socks5,
-[  --with-nec-socks5       with NEC socks5 library],
-[
-if test "x${withval}" = xyes; then
-    CFLAGS="$CFLAGS -Dconnect=Rconnect \
-    -Dgetsockname=Rgetsockname -Dgetpeername=Rgetpeername \
-    -Dbind=Rbind -Daccept=Raccept \
-    -Dselect=Rselect -DRconnect=SOCKSconnect \
-    -DRgetsockname=SOCKSgetsockname -DRgetpeername=SOCKSgetpeername \
-    -DRbind=SOCKSbind -DRaccept=SOCKSaccept -DRlisten=SOCKSlisten \
-    -DRselect=SOCKSselect -Drecvfrom=SOCKSrecvfrom -Dsendto=SOCKSsendto \
-    -Drecv=SOCKSrecv -Dsend=SOCKSsend -Dread=SOCKSread -Dwrite=SOCKSwrite \
-    -Drresvport=SOCKSrresvport -Dshutdown=SOCKSshutdown -Dlisten=SOCKSlisten \
-    -Dclose=SOCKSclose -Ddup=SOCKSdup -Ddup2=SOCKSdup2 \
-    -Dgethostbyname=SOCKSgethostbyname"
-    LIBS="$LIBS -lsocks5"
-fi
-])
-
 AC_ARG_ENABLE([plugin],[  --disable-plugin        without plugin support])
 if test "x${enableval}" != xno; then
     AC_CHECK_LIB(c, dlopen,
