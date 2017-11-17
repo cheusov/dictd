@@ -101,10 +101,6 @@ extern int daemon(int nochdir, int noclose);
 extern int vsnprintf(char *str, size_t size, const char *format, va_list ap);
 #endif
 
-#if !HAVE_INET_ATON
-#define inet_aton(a,b) (b)->s_addr = inet_addr(a)
-#endif
-
 #if HAVE_WINT_T
 #include <wchar.h>
 #else

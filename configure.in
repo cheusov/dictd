@@ -188,8 +188,8 @@ AC_FUNC_ALLOCA
 #AC_FUNC_MMAP
 AC_CHECK_FUNCS(mmap munmap)
 
-AC_CHECK_FUNCS(semget inet_aton)
-AC_CHECK_FUNCS(alarm gethostbyaddr gethostbyname gethostname gettimeofday)
+AC_CHECK_FUNCS(semget)
+AC_CHECK_FUNCS(alarm)
 AC_CHECK_FUNCS(inet_ntoa setlocale)
 AC_CHECK_FUNCS(socket)
 
