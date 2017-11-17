@@ -185,15 +185,7 @@ echo Checking for library functions
 AC_FUNC_ALLOCA
 #AC_FUNC_STAT
 
-#AC_FUNC_MMAP
-AC_CHECK_FUNCS(mmap munmap)
-
-AC_CHECK_FUNCS(semget)
-AC_CHECK_FUNCS(alarm)
-AC_CHECK_FUNCS(socket)
-
 AC_CHECK_FUNCS(dlopen)
-AC_CHECK_FUNCS(initgroups)
 
 AC_CHECK_FUNC(daemon,, [AC_LIBOBJ([daemon3])])
 

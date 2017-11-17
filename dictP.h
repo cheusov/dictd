@@ -49,34 +49,8 @@
 #include <ctype.h>
 #endif
 
-/* AIX requires this to be the first thing in the file.  */
-#if defined(__IRIX__) && defined(__sgi__) && !HAVE_ALLOCA_H
-# undef HAVE_ALLOCA_H
-# define HAVE_ALLOCA_H 1
-#endif
-
-#if HAVE_ALLOCA_H
-# include <alloca.h>
-#endif
-
-#ifndef HAVE_ALLOCA
-# ifndef alloca /* predefined by HP cc +Olibcalls */
-#  ifdef _AIX
-#    pragma alloca
-#  else
-     void *alloca(size_t size);
-#  endif
-# endif
-#endif
-
 /* Get string functions */
-#if STDC_HEADERS
-# include <string.h>
-#else
-# if HAVE_STRINGS_H
-#  include <strings.h>
-# endif
-#endif
+#include <string.h>
 
 #if HAVE_SIZE_T
 #include <stddef.h>
@@ -122,12 +96,7 @@ extern wint_t towlower__ (wint_t wc);
 typedef unsigned int wchar_t;
 #endif
 
-#if HAVE_DECL_CODESET
 #include <langinfo.h>
-#else
-extern const char * nl_langinfo (int ITEM);
-#define CODESET 1234
-#endif
 
 #ifndef SYSTEM_UTF8_FUNCS
 #define MB_CUR_MAX__ 6
@@ -191,10 +160,6 @@ extern int mbtowc__ (wchar_t *pwc, const char *s, size_t n);
 
 #if !HAVE_WCWIDTH
 #define wcwidth__(x) (1)
-#endif
-
-#if !HAVE_INITGROUPS
-#define initgroups(a,b)
 #endif
 
 #ifdef USE_PLUGIN
