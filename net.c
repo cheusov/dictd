@@ -18,16 +18,12 @@
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include "dictP.h"
+
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
-
-#include "dictP.h"
-
-#if HAVE_SYS_PARAM_H
-# include <sys/param.h>
-#endif
-
+#include <sys/param.h>
 #include <fcntl.h>
 
 #include "dictd.h"

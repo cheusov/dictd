@@ -26,21 +26,12 @@
 
 #include <maa.h>
 #include <Judy.h>
-
-#if STRING_H
 #include <string.h>
-#endif
 
 #include <stdio.h>
 #include <errno.h>
-
-#if HAVE_LIMITS_H
 #include <limits.h>
-#endif
-
-#if WCTYPE_H
 #include <ctype.h>
-#endif
 
 #define BUFSIZE 4096
 

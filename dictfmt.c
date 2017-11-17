@@ -28,13 +28,8 @@
 #include <string.h>
 #include <time.h>
 #include <ctype.h>
-
-#if HAVE_WCTYPE_H
 #include <wctype.h>
-#endif
-
 #include <locale.h>
-
 #include <getopt.h>
 
 #define FMT_MAXPOS  72

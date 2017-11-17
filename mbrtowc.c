@@ -8,10 +8,7 @@
 
 #include "dictP.h"
 
-#if HAVE_WCHAR_H
 #include <wchar.h>
-#endif
-
 #include <assert.h>
 
 static const char * utf8_to_ucs4 (

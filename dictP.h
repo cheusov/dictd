@@ -40,18 +40,9 @@
 #include <sys/wait.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-
-#if defined(HAVE_WCTYPE_H) && defined(SYSTEM_UTF8_FUNCS)
 #include <wctype.h>
-#endif
-
-#ifdef HAVE_CTYPE_H
 #include <ctype.h>
-#endif
-
-/* Get string functions */
 #include <string.h>
-
 #include <stddef.h>
 
 #if !HAVE_DAEMON
@@ -156,16 +147,8 @@ extern int mbtowc__ (wchar_t *pwc, const char *s, size_t n);
 #endif
 
 /* Get time functions */
-#if TIME_WITH_SYS_TIME
-# include <sys/time.h>
-# include <time.h>
-#else
-# if HAVE_SYS_TIME_H
-#  include <sys/time.h>
-# else
-#  include <time.h>
-# endif
-#endif
+#include <sys/time.h>
+#include <time.h>
 
 /* Include some standard header files. */
 #include <stdio.h>
@@ -181,9 +164,7 @@ extern int      fileno( FILE *stream );
 extern FILE     *fdopen( int fildes, const char *mode );
 #endif
 
-#if HAVE_SYS_RESOURCE_H
-# include <sys/resource.h>
-#endif
+#include <sys/resource.h>
 
 /* Provide assert() */
 #include <assert.h>
@@ -192,9 +173,7 @@ extern FILE     *fdopen( int fildes, const char *mode );
 #include <stdarg.h>
 
 /* Provide networking stuff */
-#if HAVE_SYS_WAIT_H
-# include <sys/wait.h>
-#endif
+#include <sys/wait.h>
 #ifndef WEXITSTATUS
 # define WEXITSTATUS(stat_val) ((unsigned)(stat_val) >> 8)
 #endif
@@ -208,9 +187,7 @@ extern FILE     *fdopen( int fildes, const char *mode );
 /* Provide mmap stuff */
 #include <sys/mman.h>
 
-#if HAVE_LIMITS_H
 #include <limits.h>
-#endif
 
 /* Handle getopt correctly */
 #include <getopt.h>

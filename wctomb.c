@@ -6,13 +6,8 @@
 
 #include "dictP.h"
 
-#if HAVE_WCHAR_H
 #include <wchar.h>
-#endif
-
-#if HAVE_WCTYPE_H
 #include <wctype.h>
-#endif
 
 #include <stdlib.h>
 

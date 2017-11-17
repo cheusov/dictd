@@ -156,12 +156,6 @@ if test "x${USE_PLUGIN}" = "x1"; then
    AC_CHECK_HEADERS(ltdl.h, [CFLAGS="$CFLAGS -DUSE_PLUGIN"], [USE_PLUGIN=])
 fi
 
-AC_CHECK_HEADERS(strings.h limits.h)
-AC_CHECK_HEADERS(inttypes.h)
-AC_CHECK_HEADERS(sys/resource.h sys/time.h sys/param.h sys/wait.h)
-AC_CHECK_HEADERS(wctype.h wchar.h)
-AC_CHECK_HEADERS(ctype.h getopt.h)
-
 AC_CHECK_HEADER([zlib.h], ,
     [AC_MSG_ERROR([zlib.h is required for dictd])])
 

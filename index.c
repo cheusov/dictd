@@ -34,15 +34,8 @@
 
 #include <fcntl.h>
 #include <ctype.h>
-
-#if HAVE_WCTYPE_H
 #include <wctype.h>
-#endif
-
-#if HAVE_WCHAR_H
 #include <wchar.h>
-#endif
-
 #include <stdio.h>
 #include <sys/stat.h>
 
