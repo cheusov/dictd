@@ -55,7 +55,6 @@ extern int dict_search_databases (
    int *db_found);
 
 extern int        utf8_mode;
-extern int        bit8_mode;
 extern int        optStart_mode;
 
 extern char global_alphabet_8bit [];

@@ -1407,8 +1407,6 @@ static void set_locale_and_flags (const char *loc)
       !strcmp (charset, "ANSI_X3.4-1968") ||
       !strcmp (charset, "US-ASCII") ||
       (locale [0] == 'C' && locale [1] == 0);
-
-   bit8_mode = !ascii_mode && !utf8_mode;
 }
 
 static void set_umask (void)
