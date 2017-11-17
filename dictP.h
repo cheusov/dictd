@@ -88,17 +88,8 @@ typedef unsigned int size_t;
 typedef int socklen_t;
 #endif
 
-#if !HAVE_SNPRINTF
-extern int snprintf(char *str, size_t size, const char *format, ...);
-#endif
-
 #if !HAVE_DAEMON
 extern int daemon(int nochdir, int noclose);
-#endif
-
-#if !HAVE_VSNPRINTF
-#include <stdarg.h>
-extern int vsnprintf(char *str, size_t size, const char *format, va_list ap);
 #endif
 
 #if HAVE_WINT_T

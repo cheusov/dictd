@@ -201,8 +201,6 @@ AC_CHECK_FUNC(daemon,, [AC_LIBOBJ([daemon3])])
 AC_REPLACE_FUNCS(setenv)
 AC_CHECK_FUNCS(putenv)
 
-AC_CHECK_FUNCS(fileno)
-
 AC_LIBOBJ([wcrtomb])
 AC_LIBOBJ([wctomb])
 AC_LIBOBJ([mbrlen])
@@ -215,8 +213,6 @@ AC_LIBOBJ([towlower])
 #	AC_LIBOBJ([wcwidth])
 
 AC_REPLACE_FUNCS(strlcpy strlcat)
-AC_REPLACE_FUNCS(getopt_long)
-AC_REPLACE_FUNCS(snprintf vsnprintf)
 
 AC_CHECK_DECLS(CODESET,, [AC_LIBOBJ(nl_langinfo)], [#include <langinfo.h>])
 
