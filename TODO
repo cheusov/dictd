@@ -1,3 +1,6 @@
+colorit: check for m4 when running
+colorit: special option for running PAGER/COLORIT_PAGER
+
 strategies:
   - noname? (inverted prefix when headword is a prefix for query)
   - double metaphone
