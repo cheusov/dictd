@@ -35,9 +35,7 @@
 
 #include <locale.h>
 
-#if HAVE_GETOPT_H
 #include <getopt.h>
-#endif
 
 #define FMT_MAXPOS  72
 #define FMT_INDENT  0

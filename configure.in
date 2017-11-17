@@ -188,14 +188,12 @@ AC_FUNC_ALLOCA
 #AC_FUNC_MMAP
 AC_CHECK_FUNCS(mmap munmap)
 
-AC_CHECK_FUNCS(strtol strtoul semget strerror inet_aton)
-AC_CHECK_FUNCS(strtol strtoul)
+AC_CHECK_FUNCS(semget inet_aton)
 AC_CHECK_FUNCS(alarm gethostbyaddr gethostbyname gethostname gettimeofday)
-AC_CHECK_FUNCS(inet_ntoa regcomp setlocale)
-AC_CHECK_FUNCS(socket strcasecmp strchr strrchr strstr uname)
+AC_CHECK_FUNCS(inet_ntoa setlocale)
+AC_CHECK_FUNCS(socket)
 
 AC_CHECK_FUNCS(dlopen)
-AC_CHECK_FUNCS(getopt)
 AC_CHECK_FUNCS(initgroups)
 
 AC_CHECK_FUNC(daemon,, [AC_LIBOBJ([daemon3])])

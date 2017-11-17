@@ -425,15 +425,9 @@ static void daemon_write( const char *buf, int len )
 	    if (errno == EPIPE) {
 	       daemon_terminate( 0, "pipe" );
 	    }
-#if HAVE_STRERROR
             log_info( ":E: writing %d of %d bytes:"
                       " retval = %d, errno = %d (%s)\n",
                       left, len, count, errno, strerror(errno) );
-#else
-            log_info( ":E: writing %d of %d bytes:"
-                      " retval = %d, errno = %d\n",
-                      left, len, count, errno );
-#endif
             daemon_terminate( 0, __func__ );
          }
       }

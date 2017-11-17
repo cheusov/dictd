@@ -76,10 +76,6 @@
 # if HAVE_STRINGS_H
 #  include <strings.h>
 # endif
-# if !HAVE_STRCHR
-#  define strchr index
-#  define strrchr rindex
-# endif
 #endif
 
 #if HAVE_SIZE_T
@@ -90,10 +86,6 @@ typedef unsigned int size_t;
 
 #if !HAVE_SOCKLEN_T
 typedef int socklen_t;
-#endif
-
-#if !HAVE_STRTOUL
-extern unsigned long int strtoul( const char *, char **, int );
 #endif
 
 #if !HAVE_SNPRINTF
@@ -291,25 +283,7 @@ extern FILE     *fdopen( int fildes, const char *mode );
 #endif
 
 /* Handle getopt correctly */
-#if HAVE_GETOPT_H
-# include <getopt.h>
-#endif /* HAVE_GETOPT_H */
-
-#if !HAVE_GETOPT_LONG
-struct option
-{
-  const char *name;
-  int has_arg;
-  int *flag;
-  int val;
-};
-
-int getopt_long(int argc, char * const argv[],
-                  const char *optstring,
-                  const struct option *longopts, int *longindex);
-extern int  optind;
-extern char *optarg;
-#endif /* HAVE_GETOPT_LONG */
+#include <getopt.h>
 
 				/* Local stuff */
 #ifndef max
