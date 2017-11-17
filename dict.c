@@ -1599,16 +1599,10 @@ int main( int argc, char **argv )
 					  s->user,
 					  s->secret ) );
 	 }
-#ifdef USE_DICT_ORG
-      }
-      append_command(make_command(CMD_CONNECT,"dict.org",     NULL,user,key));
-      append_command(make_command(CMD_CONNECT,"alt0.dict.org",NULL,user,key));
-#else
       }else{
 	 fprintf (stderr, "'dict.conf' doesn't specify any dict server\n");
 	 exit (1);
       }
-#endif
    }
    append_command( make_command( CMD_CLIENT, client_get_banner() ) );
    if (doauth) append_command( make_command( CMD_AUTH ) );

@@ -65,11 +65,6 @@ if test "x${enableval}" != xno; then
                 [LIBS="$LIBS -lltdl"; USE_PLUGIN=1])))
 fi
 
-AC_ARG_ENABLE([dictorg],[  --enable-dictorg        use predefined dict servers])
-if test "x${enableval}" = xyes; then
-    CFLAGS="$CFLAGS -DUSE_DICT_ORG"
-fi
-
 dnl Checks for programs.
 echo Checking for programs
 
