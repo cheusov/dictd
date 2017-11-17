@@ -1231,10 +1231,8 @@ static void help( void )
 "   --listen-to                     bind a socket to the specified address",
 "\n------------------ options for debugging ---------------------------",
 "   --fast-start                 don't create additional (internal) index.",
-#ifdef HAVE_MMAP
 "   --without-mmap               do not use mmap() function and load files\n\
                                 into memory instead.",
-#endif
 "   --stdin2stdout               copy stdin to stdout (addition to -i option).",
       0 };
    const char        **p = help_msg;
@@ -1512,10 +1510,8 @@ int main (int argc, char **argv, char **envp)
       { "force",    1, 0, 'f' },
       { "inetd",    0, 0, 'i' },
       { "locale",           1, 0, 506 },
-#ifdef HAVE_MMAP
       { "no-mmap",          0, 0, 508 },
       { "without-mmap",     0, 0, 508 },
-#endif
       { "default-strategy", 1, 0, 511 },
       { "without-strategy", 1, 0, 513 },
       { "add-strategy",     1, 0, 516 },

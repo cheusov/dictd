@@ -24,15 +24,10 @@
 #include "dictzip.h"
 
 #include <sys/stat.h>
-#ifdef HAVE_MMAP
 #include <sys/mman.h>
-#endif
 #include <ctype.h>
 #include <fcntl.h>
 #include <assert.h>
-#ifdef HAVE_MMAP
-#include <sys/mman.h>
-#endif
 
 #include <sys/stat.h>
 
@@ -271,15 +266,11 @@ dictData *dict_data_open( const char *filename, int computeCRC )
    h->size = sb.st_size;
 
    if (mmap_mode){
-#ifdef HAVE_MMAP
       h->start = mmap( NULL, h->size, PROT_READ, MAP_SHARED, h->fd, 0 );
       if ((void *)h->start == (void *)(-1))
 	 err_fatal_errno(
 	    __func__,
 	    "Cannot mmap data file \"%s\"\n", filename );
-#else
-      err_fatal (__func__, "This should not happen");
-#endif
    }else{
       h->start = xmalloc (h->size);
       if (-1 == read (h->fd, (char *) h->start, h->size))
@@ -312,14 +303,10 @@ void dict_data_close( dictData *header )
 
    if (header->fd >= 0) {
       if (mmap_mode){
-#ifdef HAVE_MMAP
 	 munmap( (void *)header->start, header->size );
 	 close( header->fd );
 	 header->fd = 0;
 	 header->start = header->end = NULL;
-#else
-	 err_fatal (__func__, "This should not happen");
-#endif
       }else{
 	 if (header -> start)
 	    xfree ((char *) header -> start);

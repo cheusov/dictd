@@ -190,7 +190,6 @@ AC_CHECK_FUNCS(mmap munmap)
 
 AC_CHECK_FUNCS(semget)
 AC_CHECK_FUNCS(alarm)
-AC_CHECK_FUNCS(inet_ntoa setlocale)
 AC_CHECK_FUNCS(socket)
 
 AC_CHECK_FUNCS(dlopen)

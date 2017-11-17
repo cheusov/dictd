@@ -1873,7 +1873,6 @@ dictIndex *dict_index_open(
    i->size = sb.st_size;
 
    if (mmap_mode){
-#ifdef HAVE_MMAP
       if (i->size) {
          i->start = mmap( NULL, i->size, PROT_READ, MAP_SHARED, i->fd, 0 );
          if ((void *)i->start == (void *)(-1))
@@ -1881,9 +1880,6 @@ dictIndex *dict_index_open(
                __func__,
                "Cannot mmap index file \"%s\"\b", filename );
       } else i->start = NULL;  /* allow for /dev/null dummy index */
-#else
-      err_fatal (__func__, "This should not happen");
-#endif
    }else{
       i->start = xmalloc (i->size);
       if (-1 == read (i->fd, (char *) i->start, i->size))
@@ -2020,16 +2016,12 @@ void dict_index_close( dictIndex *i )
       return;
 
    if (mmap_mode){
-#ifdef HAVE_MMAP
       if (i->fd >= 0) {
          if(i->start)
             munmap( (void *)i->start, i->size );
 	 close( i->fd );
 	 i->fd = 0;
       }
-#else
-      err_fatal (__func__, "This should not happen");
-#endif
    }else{
       if (i -> start)
 	 xfree ((char *) i -> start);

@@ -261,9 +261,7 @@ extern FILE     *fdopen( int fildes, const char *mode );
 #include <netinet/in.h>
 
 /* Provide mmap stuff */
-#ifdef HAVE_MMAP
 #include <sys/mman.h>
-#endif
 
 #if HAVE_LIMITS_H
 #include <limits.h>
