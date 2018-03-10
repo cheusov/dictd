@@ -160,11 +160,15 @@ static void destroy_and_exit (int exit_status)
 static void fmt_openindex( const char *filename )
 {
    char buffer [1024];
+   const char *sort_cmd = getenv("DICTFMT_SORT");
+
+   if (!sort_cmd)
+      sort_cmd = "sort";
 
    if (bit8_mode || utf8_mode || allchars_mode)
-      snprintf( buffer, sizeof (buffer), "sort -st '\t' -k 1,1 " );
+      snprintf( buffer, sizeof (buffer), "%s -st '\t' -k 1,1 ", sort_cmd );
    else
-      snprintf( buffer, sizeof (buffer), "sort -st '\t' -df -k 1,1 " );
+      snprintf( buffer, sizeof (buffer), "%s -st '\t' -df -k 1,1 ", sort_cmd );
 
    if (filename){
       strlcat (buffer, "> ", sizeof (buffer));
