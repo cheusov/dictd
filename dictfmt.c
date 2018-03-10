@@ -157,7 +157,7 @@ static void fmt_openindex( const char *filename )
    if (!sort_cmd)
       sort_cmd = "sort";
 
-   if (bit8_mode || utf8_mode || allchars_mode)
+   if (utf8_mode || allchars_mode)
       snprintf( buffer, sizeof (buffer), "%s -st '\t' -k 1,1 ", sort_cmd );
    else
       snprintf( buffer, sizeof (buffer), "%s -st '\t' -df -k 1,1 ", sort_cmd );
