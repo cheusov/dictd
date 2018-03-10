@@ -45,6 +45,10 @@
 #include <string.h>
 #include <stddef.h>
 
+#if HAVE_ALLOCA_H
+# include <alloca.h>
+#endif
+
 #if !HAVE_DAEMON
 extern int daemon(int nochdir, int noclose);
 #endif
