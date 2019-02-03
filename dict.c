@@ -1363,7 +1363,7 @@ int main( int argc, char **argv )
       { "debug",      1, 0, 502 },
       { "pipesize",   1, 0, 504 },
       { "client",     1, 0, 505 },
-      { "mime",       1, 0, 'M' },
+      { "mime",       0, 0, 'M' },
       { "formatted",  0, 0, 'f' },
       { "flush",      0, 0, 'F' },
       { 0,            0, 0,  0  }
