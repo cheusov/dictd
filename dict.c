@@ -1090,7 +1090,7 @@ static void process( void )
 	       err_internal( __func__,
 			     "%d matches, but no list\n", cmd_reply.matches );
 
-	    for (i = cmd_reply.matches; i > 0; --i) {
+	    for (i = cmd_reply.matches + option_mime; i > 0; --i) {
 	       /* skip MIME header */
 	       const char *line = lst_nth_get( cmd_reply.data, i );
 	       arg_List   a;
