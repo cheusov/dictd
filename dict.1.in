@@ -54,10 +54,9 @@ Specifies the hostname for the DICT server.  Server/port combinations can
 be specified in the configuration file.  If no servers are specified
 in the configuration file or or on the command line, 
 .B dict 
-will fail.  (This is a compile-time option, ./configure
---enable-dictorg, which is disabled by default.)  If IP lookup for a
-server expands to a list of IP addresses (as dict.org does currently),
-then each IP will be tried in the order listed.
+will fail.  If IP lookup for a server expands to a list of IP addresses
+(as dict.org does currently), then each IP will be tried in the order
+listed.
 .TP
 .BI \-p " service\fR or " \-\-port " service"
 Specifies the port (e.g., 2628) or service (e.g., dict) for connections.
@@ -250,18 +249,7 @@ dict) for the TCP/IP connection.  The
 option is used to specify a username and shared secret to be used for
 authentication to this particular server.
 .P
-Servers are tried in the order listed until a connection is made.  If none
-of the specified servers are available, and the compile-time option
-(./configure --enable-dictorg) is enabled, then an attempt will be made to
-connect on
-.B localhost
-and on
-.B dict.org
-at the standard part (2628).  (This option is disabled by default.)
-We expect that dict.org will point to one or more DICT servers
-(perhaps in round-robin fashion) for the foreseeable future (starting
-in July 1997), although it is difficult to predict anything on the
-Internet for more than about 3-6 months.
+Servers are tried in the order listed until a connection is made.
 .SH EXIT STATUS
 .br
  0  Successful completion
