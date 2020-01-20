@@ -148,6 +148,8 @@ AC_CHECK_FUNCS(dlopen)
 
 AC_CHECK_FUNC(daemon,, [AC_LIBOBJ([daemon3])])
 
+AC_FUNC_ALLOCA
+
 AC_REPLACE_FUNCS(setenv)
 AC_CHECK_FUNCS(putenv)
 
