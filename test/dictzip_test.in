@@ -43,7 +43,7 @@ EOF
 gen_regions (){
     # $1 - size
     # $2 - step
-    awk -v size="$1" -v step="$2" '
+    @AWK@ -v size="$1" -v step="$2" '
     BEGIN {
         for (i=0; i < size; i += step)
             for (j=i+step; j <= size; j += step)
