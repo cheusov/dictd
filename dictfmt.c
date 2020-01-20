@@ -438,7 +438,9 @@ static void trim_center (char *s)
 
 	 if (spc && prev_spc){
 	 }else{
-	    memcpy (t, h, len);
+	    if (t != h){
+	       memmove(t, h, len);
+	    }
 	    t += len;
 	 }
 	 h += len;
