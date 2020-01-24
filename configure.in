@@ -113,9 +113,9 @@ fi
 ])
 
 AC_CHECK_LIB(socket,main)
-AC_CHECK_LIB(c,inet_ntoa,
+AC_CHECK_LIB(c,gethostbyname,
 	[true],
-	[AC_CHECK_LIB(nsl,inet_ntoa)])
+	[AC_CHECK_LIB(nsl,gethostbyname)])
 
 echo .
 echo Checking for header files
