@@ -1502,24 +1502,28 @@ int dict_inetd (int error)
    return _handleconn (error);
 }
 
-int dict_daemon( int s, struct sockaddr_in *csin, int error )
+int dict_daemon( int s, struct sockaddr_storage *csin, int error )
 {
    struct hostent *h;
-	
+   int err = 0;
+   static char hostname[NI_MAXHOST], service[NI_MAXSERV];
+
    if (setjmp(env)) return 0;
 
-   daemonPort = ntohs(csin->sin_port);
-   daemonIP   = str_find( inet_ntoa(csin->sin_addr) );
-   if ((h = gethostbyaddr((void *)&csin->sin_addr,
-			  sizeof(csin->sin_addr), csin->sin_family))) {
-      daemonHostname = str_find( h->h_name );
-   } else
-      daemonHostname = daemonIP;
+   err = getnameinfo ((const struct sockaddr *)csin,
+		sizeof (struct sockaddr_storage),
+		      hostname, NI_MAXHOST, service, NI_MAXSERV, NI_NUMERICSERV);
+   if (err){
+      fprintf(stderr, "getnameinfo(3) failed: %s\n", gai_strerror(err));
+      exit(2);
+   }
 
-   daemonS_in        = s;
-   daemonS_out       = s;
+   daemonPort = strtol (service, NULL, 10);
+   daemonIP = str_find (inet_ntopW ((struct sockaddr *)csin));
+   daemonHostname = str_find (hostname);
+   daemonS_in = daemonS_out = s;
 
-   return _handleconn (error);
+   return _handleconn(error);
 }
 
 int _handleconn (int error) {

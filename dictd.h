@@ -122,7 +122,7 @@ extern const char *postprocess_plugin_filename (const char *fn);
 
 /* daemon.c */
 
-extern int  dict_daemon( int s, struct sockaddr_in *csin, int error );
+extern int  dict_daemon( int s, struct sockaddr_storage *csin, int error );
 extern int  dict_inetd( int error );
 extern void daemon_terminate( int sig, const char *name );
 

@@ -18,7 +18,7 @@
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-
+extern const char *inet_ntopW (struct sockaddr *sa);
 extern const char *net_hostname( void );
 extern int        net_connect_tcp( const char *host, const char *service );
 extern int        net_open_tcp (const char *address,

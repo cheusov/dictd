@@ -74,7 +74,7 @@ static int escape_string (char *s, int len)
 %s OTHER
 integer                     [[:digit:]]+
 comment                     #.*
-word                        ([[:alnum:]_/\-\.\*][[:alnum:]_/\-\.\*]*)
+word                        ([[:alnum:]_/:.*-][[:alnum:]_/:.*%-]*)
 string                      \"(([^\"\n])|\"\"|\\\n|\\\")*\"
 NL                          \n
 WS                          [[:blank:]]+

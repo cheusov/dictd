@@ -1476,7 +1476,7 @@ int main (int argc, char **argv, char **envp)
 {
    int                childSocket;
    int                masterSocket;
-   struct sockaddr_in csin;
+   struct sockaddr_storage csin;
    int                c;
    time_t             startTime;
    socklen_t          alen         = sizeof (csin);
