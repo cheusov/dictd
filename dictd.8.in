@@ -184,7 +184,7 @@ in
 .I Global Settings Specification
 section of configuration file.
 .TP
-.BI \-\-listen\-to " address"
+.BI \-\-listen\-to " host"
 Overrides the keyword
 .B listen\_to
 in
@@ -859,12 +859,11 @@ keyword in
 .I Database specification
 section.
 .TP
-.BI listen_to " string"
-Binds socket to the specified address.
-If you want to allow connections to dict server from localhost only,
-apply 
-.br
-.B listen_to 127.0.0.1
+.BI listen_to " host"
+Local host name or IP address for bind.  If unspecified or
+.IR * ,
+dictd will bind to all interfaces.  Otherwise, dictd
+will bind to this address only.
 .TP
 .BI syslog " string"
 Log using the

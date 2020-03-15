@@ -281,7 +281,8 @@ GlobalSpec : TOKEN_PORT             TOKEN_STRING
    | TOKEN_LISTEN_TO        TOKEN_STRING
      {
 	if (!bind_to_set)
-	   bind_to = str_copy ($2.string);
+	   if ($2.string[0] != '*' || $2.string[1] != '\0')
+	      bind_to = str_copy ($2.string);
      }
    | TOKEN_SYSLOG
      {

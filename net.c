@@ -165,6 +165,8 @@ int net_open_tcp (
 	 err_fatal_errno( __FUNCTION__, "Can't listen to %s/tcp on %s\n",
 			  service, address );
       }
+
+      break;
    }
    freeaddrinfo (rtmp);
 
