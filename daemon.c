@@ -1506,13 +1506,22 @@ int dict_daemon( int s, struct sockaddr_storage *csin, int error )
 {
    struct hostent *h;
    int err = 0;
+   socklen_t csin_len;
    static char hostname[NI_MAXHOST], service[NI_MAXSERV];
 
    if (setjmp(env)) return 0;
 
-   err = getnameinfo ((const struct sockaddr *)csin,
-		sizeof (struct sockaddr_storage),
-		      hostname, NI_MAXHOST, service, NI_MAXSERV, NI_NUMERICSERV);
+   // We calculate csin_len for NetBSD-9.0 and Solaris-10/11 where
+   // getnameinfo(*,sizeof(sockaddr_storage),*,*,*,*,*) does not work.
+   if (((struct sockaddr *)csin)->sa_family == AF_INET)
+      csin_len = sizeof(struct sockaddr_in);
+   else
+      csin_len = sizeof(struct sockaddr_in6);
+
+   //
+   err = getnameinfo ((const struct sockaddr *)csin, csin_len,
+		      hostname, NI_MAXHOST, service, NI_MAXSERV,
+		      NI_NUMERICSERV);
    if (err){
       fprintf(stderr, "getnameinfo(3) failed: %s\n", gai_strerror(err));
       exit(2);
