@@ -121,6 +121,7 @@ int net_open_tcp (
 {
    struct addrinfo hints, *r, *rtmp;
    int s = -1;
+   int err;
 
    memset (&hints, 0, sizeof (struct addrinfo));
    hints.ai_family = PF_UNSPEC;
@@ -142,8 +143,12 @@ int net_open_tcp (
 	 err_fatal_errno (__FUNCTION__, "Can't open socket\n");
       }
 
-      { const int one = 1;
-	 setsockopt (s, SOL_SOCKET, SO_REUSEADDR, &one, sizeof (one));
+      {
+	 const int one = 1;
+	 err = setsockopt (s, SOL_SOCKET, SO_REUSEADDR, &one, sizeof (one));
+	 if (err != 0){
+	    err_fatal_errno (__FUNCTION__, "Can't setsockopt\n");
+	 }
       }
 
       if (bind(s, r->ai_addr, r->ai_addrlen) < 0) {
