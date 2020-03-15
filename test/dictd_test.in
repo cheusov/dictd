@@ -312,6 +312,27 @@ dictd_test_inetd2_noorder (){
 	'env LC_ALL=C sort' "$@"
 }
 
+dictd_test_daemon (){
+    test $# -eq 2
+
+    dbname="$1"
+    shift
+
+    expect_name="$1"
+    shift
+
+    conf_name=`pwd`/"_testdb.${dbname}.conf"
+
+    $DICTD -c $conf_name --pid-file _dictd.pid 2>&1
+    dictd_pid=`cat _dictd.pid`
+
+    trap "kill -TERM $dictd_pid" 0
+
+    $DICT -h localhost -p 26281 -DS > _dict_nodetach_test.out 2>&1
+
+    cmp_2_files "$expect_name" _dict_nodetach_test.out
+}
+
 #dictd_test_inetd smiley_1 smiley_1
 #printf 'smiley_1 passed\n'
 dictd_test_inetd @srcdir@ smiley_2 smiley_2 exact
@@ -335,10 +356,13 @@ dictd_test_inetd @srcdir@ hello_5 hello_5 exact
 printf 'hello_5 passed\n'
 
 dictd_test_inetd \
-    @srcdir@ \
+    `pwd` \
     cyrillic_1 cyrillic_1 \
     'exact word lev suffix prefix substring'
 printf 'cyrillic_1 passed\n'
+
+dictd_test_daemon cyrillic_1 cyrillic_nodetach_expect.out
+printf 'cyrillic_1 nodetach nofork passed\n'
 
 #LC_ALL=C sort dictd_cyrillic_1_res.expected.txt \
 #            > dictd_cyrillic_2_res.expected.txt
