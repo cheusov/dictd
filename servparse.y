@@ -345,7 +345,7 @@ AccessSpecList : AccessSpec { $$ = lst_create(); lst_append($$, $1); }
 Site : TOKEN_SITE TOKEN_STRING
        {
 	  $$ = $2;
-	  log_error (NULL, ":E: Move \"site\" directive to section \"global\" of the configuration file!");
+	  log_error (NULL, ":E: Move \"site\" directive to section \"global\" of the configuration file!\n");
        }
      ;
 
