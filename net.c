@@ -124,7 +124,7 @@ int net_open_tcp (
    int err;
 
    memset (&hints, 0, sizeof (struct addrinfo));
-   hints.ai_family = PF_UNSPEC;
+   hints.ai_family = address_family;
    hints.ai_protocol = IPPROTO_TCP;
    hints.ai_socktype = SOCK_STREAM;
    hints.ai_flags = AI_PASSIVE;

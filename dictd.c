@@ -109,6 +109,9 @@ const char        *preprocessor = NULL;
 const char        *bind_to      = NULL;
 int bind_to_set; /* 1 if set by command line option */
 
+int address_family              = AF_INET;
+int address_family_set;
+
 /* information about dict server, i.e.
    text returned by SHOW SERVER command
 */
@@ -1520,6 +1523,7 @@ int main (int argc, char **argv, char **envp)
       { "listen-to",        1, 0, 519 },
       { "pid-file",         1, 0, 521 },
       { "stdin2stdout",     0, 0, 522 },
+      { "address-family",   1, 0, 523 },
       { 0,                  0, 0, 0  }
    };
 
@@ -1642,6 +1646,18 @@ int main (int argc, char **argv, char **envp)
 	 break;
       case 522:
 	 stdin2stdout_mode = 1;
+	 break;
+      case 523:
+	 if (optarg[0] == '4' && optarg[1] == '\0')
+	    address_family     = AF_INET;
+	 else if (optarg[0] == '6' && optarg[1] == '\0')
+	    address_family     = AF_INET6;
+	 else {
+	    fprintf (stderr, "incorrect value for option --address-family\n");
+	    exit (1);
+	 }
+
+	 address_family_set = 1;
 	 break;
       case 'h':
       default:  help(); exit(0);                          break;

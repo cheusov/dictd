@@ -33,6 +33,9 @@ extern int         yy_flex_debug;
 const char *host_connected    = NULL;
 const char *service_connected = NULL;
 
+int address_family = AF_INET;
+int address_family_set;
+
 #define BUFFERSIZE  2048
 #define PIPESIZE     256
 #define DEF_STRAT    "."

@@ -191,6 +191,13 @@ in
 .I Global Settings Specification
 section of configuration file.
 .TP
+.BI \-\-address\-family " family"
+Overrides the keyword
+.B address\_family
+in
+.I Global Settings Specification
+section of configuration file.
+.TP
 .BI \-\-locale " locale"
 Overrides the keyword
 .B locale
@@ -864,6 +871,13 @@ Local host name or IP address for bind.  If unspecified or
 .IR * ,
 dictd will bind to all interfaces.  Otherwise, dictd
 will bind to this address only.
+.TP
+.BI address_family " family"
+If
+.IR 4 ,
+address family is IPv4 (the default), if
+.IR 6 ,
+address family is IPv6.
 .TP
 .BI syslog " string"
 Log using the

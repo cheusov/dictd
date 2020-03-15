@@ -129,6 +129,7 @@ debug_option                RETURN(TOKEN_DEBUG_OPTION);
 locale                      RETURN(TOKEN_LOCALE);
 add_strategy                RETURN(TOKEN_ADD_STRAT);
 listen_to                   RETURN(TOKEN_LISTEN_TO);
+address_family              RETURN(TOKEN_ADDRESS_FAMILY);
 syslog                      RETURN(TOKEN_SYSLOG);
 syslog_facility             RETURN(TOKEN_SYSLOG_FACILITY);
 log_file                    RETURN(TOKEN_LOG_FILE);
