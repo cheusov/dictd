@@ -1523,8 +1523,8 @@ int dict_daemon( int s, struct sockaddr_storage *csin, int error )
 		      hostname, NI_MAXHOST, service, NI_MAXSERV,
 		      NI_NUMERICSERV);
    if (err){
-      fprintf(stderr, "getnameinfo(3) failed: %s\n", gai_strerror(err));
-      exit(2);
+      log_error(__func__, ":E: getnameinfo(3) failed: %s\n", gai_strerror(err));
+      exit(1);
    }
 
    daemonPort = strtol (service, NULL, 10);
