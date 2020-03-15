@@ -33,9 +33,6 @@ extern int         yy_flex_debug;
 const char *host_connected    = NULL;
 const char *service_connected = NULL;
 
-int address_family = AF_INET;
-int address_family_set;
-
 #define BUFFERSIZE  2048
 #define PIPESIZE     256
 #define DEF_STRAT    "."
@@ -733,10 +730,9 @@ end:				/* Ready to send buffer, but are we
       if (c->command != CMD_CONNECT) {
 	 err_internal( __func__, "Not connected, but no CMD_CONNECT\n" );
       }
-      if ((cmd_reply.s = net_connect_tcp( c->host,
-					     c->service
-					     ? c->service
-					     : DICT_DEFAULT_SERVICE )) < 0) {
+      if ((cmd_reply.s = net_connect_tcp(
+	      c->host, c->service ? c->service : DICT_DEFAULT_SERVICE, AF_UNSPEC )) < 0)
+      {
 	 const char *message;
 	 
 	 switch (cmd_reply.s) {

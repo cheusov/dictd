@@ -287,11 +287,11 @@ GlobalSpec : TOKEN_PORT             TOKEN_STRING
      }
    | TOKEN_ADDRESS_FAMILY        TOKEN_NUMBER
      {
-	if (!address_family_set){
+	if (!dictd_address_family_set){
 	   if ($2 == 4)
-	      address_family = AF_INET;
+	      dictd_address_family = AF_INET;
 	   else if ($2 == 6)
-	      address_family = AF_INET6;
+	      dictd_address_family = AF_INET6;
 	   else {
 	      log_error (NULL, ":E: Incorrect value '%d' for global option 'address_family'\n", $2);
 	      exit(1);

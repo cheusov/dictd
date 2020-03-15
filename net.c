@@ -71,7 +71,7 @@ const char *net_hostname( void )
    return hostname;
 }
 
-int net_connect_tcp( const char *host, const char *service )
+int net_connect_tcp( const char *host, const char *service, int address_family )
 {
    struct addrinfo *r = NULL;
    struct addrinfo *rtmp = NULL;
@@ -79,7 +79,7 @@ int net_connect_tcp( const char *host, const char *service )
    int s;
 
    memset (&hints, 0, sizeof (struct addrinfo));
-   hints.ai_family = PF_UNSPEC;
+   hints.ai_family = address_family;
    hints.ai_protocol = IPPROTO_TCP;
    hints.ai_socktype = SOCK_STREAM;
    hints.ai_flags = AI_ADDRCONFIG;
@@ -117,7 +117,8 @@ int net_connect_tcp( const char *host, const char *service )
 int net_open_tcp (
    const char *address,
    const char *service,
-   int queueLength)
+   int queueLength,
+   int address_family)
 {
    struct addrinfo hints, *r, *rtmp;
    int s = -1;

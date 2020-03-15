@@ -62,7 +62,7 @@ extern const char *logFile;
 extern const char *pidFile;
 extern int logOptions;
 extern const char *bind_to;
-extern int address_family;
+extern int dictd_address_family;
 extern int useSyslog;
 extern const char *logFile;
 
@@ -76,7 +76,7 @@ extern int syslog_facility_set;
 extern int locale_set;
 extern int default_strategy_set;
 extern int bind_to_set;
-extern int address_family_set;
+extern int dictd_address_family_set;
 
 
 

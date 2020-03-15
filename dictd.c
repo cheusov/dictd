@@ -109,8 +109,8 @@ const char        *preprocessor = NULL;
 const char        *bind_to      = NULL;
 int bind_to_set; /* 1 if set by command line option */
 
-int address_family              = AF_INET;
-int address_family_set;
+int dictd_address_family              = AF_INET;
+int dictd_address_family_set;
 
 /* information about dict server, i.e.
    text returned by SHOW SERVER command
@@ -1649,15 +1649,15 @@ int main (int argc, char **argv, char **envp)
 	 break;
       case 523:
 	 if (optarg[0] == '4' && optarg[1] == '\0')
-	    address_family     = AF_INET;
+	    dictd_address_family     = AF_INET;
 	 else if (optarg[0] == '6' && optarg[1] == '\0')
-	    address_family     = AF_INET6;
+	    dictd_address_family     = AF_INET6;
 	 else {
 	    fprintf (stderr, "incorrect value for option --address-family\n");
 	    exit (1);
 	 }
 
-	 address_family_set = 1;
+	 dictd_address_family_set = 1;
 	 break;
       case 'h':
       default:  help(); exit(0);                          break;
@@ -1755,7 +1755,7 @@ int main (int argc, char **argv, char **envp)
       exit(0);
    }
 
-   masterSocket = net_open_tcp( bind_to, daemon_service, depth );
+   masterSocket = net_open_tcp( bind_to, daemon_service, depth, dictd_address_family );
 
 
    for (;;) {
