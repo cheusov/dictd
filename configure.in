@@ -112,10 +112,13 @@ if test "x${withval}" != xno; then
 fi
 ])
 
-AC_CHECK_LIB(socket,main)
-AC_CHECK_LIB(c,gethostbyname,
+AC_CHECK_LIB(c,getnameinfo,
 	[true],
-	[AC_CHECK_LIB(nsl,gethostbyname)])
+	[AC_CHECK_LIB(socket,getnameinfo)])
+
+AC_CHECK_LIB(c,inet_ntop,
+	[true],
+	[AC_CHECK_LIB(nsl,inet_ntop)])
 
 echo .
 echo Checking for header files
