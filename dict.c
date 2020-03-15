@@ -1486,14 +1486,20 @@ int main( int argc, char **argv )
 
     dict://<host>/m:<word>:<database>:<strat>:<n>
            000000 4 555555 6666666666 7777777 888
-	   
+
+    Instead of <host> one may use [IPv6address]	where [ and ] are symbols.
+    States for '[' and IPv6 address characters is '[', state for ']' -- ']'.
 */
 
       for (s = p = argv[optind] + 7, state = 0, fin = 0; !fin; ++p) {
 	 switch (*p) {
 	 case '\0': ++fin;
+	 case '[': state = '['; s=p+1; break;
+	 case ']': *p = '\0'; host = cpy(s); state = ']'; s=p+1; break;
 	 case ':':
 	    switch (state) {
+	    case '[': continue;
+	    case ']': state = 1; s=p+1; break;
 	    case 0: *p = '\0'; host = user = cpy(s);     ++state; s=p+1; break;
 	    case 2: *p = '\0'; host = cpy(s);            ++state; s=p+1; break;
 	    case 4:
@@ -1539,8 +1545,10 @@ int main( int argc, char **argv )
 	 case '/':
 	    switch (state) {
 	    case 0: *p = '\0'; host = xstrdup(s);      state = 4; s=p+1; break;
+	    case 3:
 	    case 1: *p = '\0'; service = xstrdup(s);   state = 4; s=p+1; break;
 	    case 2: *p = '\0'; host = xstrdup(s);      state = 4; s=p+1; break;
+	    case ']': state = 4; s=p+1; break;
 	    default:
 	       PRINTF(DBG_URL,("State = %d, s = %s\n",state,s));
                client_close_pager();
