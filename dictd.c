@@ -1231,7 +1231,8 @@ static void help( void )
                                    <strategies> is a comma-separated list.",
 "   --add-strategy <strat>:<descr>  adds new strategy <strat>\n\
                                    with a description <descr>.",
-"   --listen-to                     bind a socket to the specified address",
+"   --listen-to <host>              listen to the specified address",
+"   --address-family <family>       listen to either IPv4 or IPv6 addresses",
 "\n------------------ options for debugging ---------------------------",
 "   --fast-start                 don't create additional (internal) index.",
 "   --without-mmap               do not use mmap() function and load files\n\
