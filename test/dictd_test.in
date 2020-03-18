@@ -145,6 +145,14 @@ dictfmt_diff_opts '1' indexdata \
 ##################################################
 echo '                       DICTD!!!'
 
+absolute_path(){
+    if printf '%s\n' "$1" | grep -q ^/; then
+	printf '%s\n' "$1"
+    else
+	printf '%s\n' `pwd`/"$1"
+    fi
+}
+
 generate_commands (){
     test $# -eq 2
 
@@ -171,7 +179,7 @@ generate_commands (){
 dictd_test_inetd_base (){
     test $# -eq 5
 
-    etadir=`readlink -f $1` # etalon directory
+    etadir=`absolute_path $1` # etalon directory
     shift
 
     confname="$1"
@@ -315,7 +323,7 @@ dictd_test_inetd2_noorder (){
 dictd_test_daemon (){
     test $# -eq 3
 
-    etadir=`readlink -f $1` # etalon directory
+    etadir=`absolute_path $1` # etalon directory
     shift
 
     dbname="$1"
