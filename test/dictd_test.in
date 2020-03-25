@@ -335,6 +335,7 @@ dictd_test_daemon (){
     conf_name=`pwd`/"_testdb.${dbname}.conf"
 
     $DICTD -c $conf_name --pid-file _dictd.pid 2>&1
+    sleep 1
     dictd_pid=`cat _dictd.pid`
 
     trap "kill -TERM $dictd_pid" 0
