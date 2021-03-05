@@ -807,7 +807,7 @@ static void help( FILE *out_stream )
    static const char *help_msg[] = {
    "Usage: dictfmt -c5|-t|-e|-f|-h|-j|-p [-u url] [-s name] [options] basename",
    "       dictfmt -i|-I [options]",
-   "Create a dictionary databse and index file for use by a dictd server",
+   "Create a dictionary database and index file for use by a dictd server",
    "",
      "-c5       headwords are preceded by a line containing at least \n\
                 5 underscore (_) characters",
@@ -838,7 +838,7 @@ static void help( FILE *out_stream )
                      Example: autumn%%%fall can be used\n\
                      if '--headword-separator %%%' is supplied",
 "--index-data-separator <sep> sets index/data separator which allows\n\
-                     to explicitely set fourth column in .index file,\n\
+                     to explicitly set fourth column in .index file,\n\
                      the default is \"\\034\"",
 "--break-headwords    multiple headwords will be written on separate lines\n\
                      in the .dict file.  For use with '--headword-separator.",
