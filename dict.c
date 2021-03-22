@@ -1091,7 +1091,7 @@ static void process( void )
 	       err_internal( __func__,
 			     "%d matches, but no list\n", cmd_reply.matches );
 
-	    for (i = cmd_reply.matches; i > 0; --i) {
+	    for (i = cmd_reply.matches + option_mime; i > 0; --i) {
 	       /* skip MIME header */
 	       const char *line = lst_nth_get( cmd_reply.data, i );
 	       arg_List   a;
@@ -1366,7 +1366,7 @@ int main( int argc, char **argv )
       { "debug",      1, 0, 502 },
       { "pipesize",   1, 0, 504 },
       { "client",     1, 0, 505 },
-      { "mime",       1, 0, 'M' },
+      { "mime",       0, 0, 'M' },
       { "formatted",  0, 0, 'f' },
       { "flush",      0, 0, 'F' },
       { 0,            0, 0,  0  }
