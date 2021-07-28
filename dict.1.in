@@ -177,6 +177,12 @@ Display version information.
 .BR \-L " or " \-\-license
 Display copyright and license information.
 .TP
+.BR \-4
+Forces dict to use IPv4 addresses only.
+.TP
+.BR \-6
+Forces dict to use IPv6 addresses only.
+.TP
 .B \-\-help
 Display help information.
 .TP

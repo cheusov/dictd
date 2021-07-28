@@ -33,6 +33,8 @@ extern int         yy_flex_debug;
 const char *host_connected    = NULL;
 const char *service_connected = NULL;
 
+static int address_family = AF_UNSPEC;
+
 #define BUFFERSIZE  2048
 #define PIPESIZE     256
 #define DEF_STRAT    "."
@@ -730,10 +732,9 @@ end:				/* Ready to send buffer, but are we
       if (c->command != CMD_CONNECT) {
 	 err_internal( __func__, "Not connected, but no CMD_CONNECT\n" );
       }
-      if ((cmd_reply.s = net_connect_tcp( c->host,
-					     c->service
-					     ? c->service
-					     : DICT_DEFAULT_SERVICE )) < 0) {
+      if ((cmd_reply.s = net_connect_tcp(
+	      c->host, c->service ? c->service : DICT_DEFAULT_SERVICE, address_family )) < 0)
+      {
 	 const char *message;
 	 
 	 switch (cmd_reply.s) {
@@ -1299,6 +1300,8 @@ static void help( FILE *out_stream )
       "-k --key <key>            shared secret for authentication",
       "-V --version              display version information",
       "-L --license              display copyright and license information",
+      "-4                        forces dict to use IPv4 addresses only.",
+      "-6                        forces dict to use IPv6 addresses only.",
       "   --help                 display this help",
       "-v --verbose              be verbose",
       "-r --raw                  trace raw transaction",
@@ -1384,11 +1387,13 @@ int main( int argc, char **argv )
    dbg_register( DBG_URL,     "url" );
 
    while ((c = getopt_long( argc, argv,
-			    "h:p:d:i:Ims:DSHau:c:Ck:VLvrP:MfF",
+			    "46h:p:d:i:Ims:DSHau:c:Ck:VLvrP:MfF",
 			    longopts, NULL )) != EOF)
    {
       switch (c) {
       case 'h': host = optarg;                         break;
+      case '4': address_family = AF_INET;              break;
+      case '6': address_family = AF_INET6;             break;
       case 'p': service = optarg;                      break;
       case 'd': database = optarg;                     break;
       case 'i': database = optarg; function |= INFO;   break;
@@ -1486,14 +1491,20 @@ int main( int argc, char **argv )
 
     dict://<host>/m:<word>:<database>:<strat>:<n>
            000000 4 555555 6666666666 7777777 888
-	   
+
+    Instead of <host> one may use [IPv6address]	where [ and ] are symbols.
+    States for '[' and IPv6 address characters is '[', state for ']' -- ']'.
 */
 
       for (s = p = argv[optind] + 7, state = 0, fin = 0; !fin; ++p) {
 	 switch (*p) {
 	 case '\0': ++fin;
+	 case '[': state = '['; s=p+1; break;
+	 case ']': *p = '\0'; host = cpy(s); state = ']'; s=p+1; break;
 	 case ':':
 	    switch (state) {
+	    case '[': continue;
+	    case ']': state = 1; s=p+1; break;
 	    case 0: *p = '\0'; host = user = cpy(s);     ++state; s=p+1; break;
 	    case 2: *p = '\0'; host = cpy(s);            ++state; s=p+1; break;
 	    case 4:
@@ -1539,8 +1550,10 @@ int main( int argc, char **argv )
 	 case '/':
 	    switch (state) {
 	    case 0: *p = '\0'; host = xstrdup(s);      state = 4; s=p+1; break;
+	    case 3:
 	    case 1: *p = '\0'; service = xstrdup(s);   state = 4; s=p+1; break;
 	    case 2: *p = '\0'; host = xstrdup(s);      state = 4; s=p+1; break;
+	    case ']': state = 4; s=p+1; break;
 	    default:
 	       PRINTF(DBG_URL,("State = %d, s = %s\n",state,s));
                client_close_pager();

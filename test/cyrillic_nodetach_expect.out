@@ -1,0 +1,15 @@
+Databases available:
+ testdb     rus words
+Strategies available:
+ exact      Match headwords exactly
+ prefix     Match prefixes
+ nprefix    Match prefixes (skip, count)
+ substring  Match substring occurring anywhere in a headword
+ suffix     Match suffixes
+ re         POSIX 1003.2 (modern) regular expressions
+ regexp     Old (basic) regular expressions
+ soundex    Match using SOUNDEX algorithm
+ lev        Match headwords within Levenshtein distance one
+ word       Match separate words within headwords
+ first      Match the first word within headwords
+ last       Match the last word within headwords

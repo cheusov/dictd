@@ -145,6 +145,14 @@ dictfmt_diff_opts '1' indexdata \
 ##################################################
 echo '                       DICTD!!!'
 
+absolute_path(){
+    if printf '%s\n' "$1" | grep -q ^/; then
+	printf '%s\n' "$1"
+    else
+	printf '%s\n' `pwd`/"$1"
+    fi
+}
+
 generate_commands (){
     test $# -eq 2
 
@@ -171,7 +179,7 @@ generate_commands (){
 dictd_test_inetd_base (){
     test $# -eq 5
 
-    etadir="$1" # etalon directory
+    etadir=`absolute_path $1` # etalon directory
     shift
 
     confname="$1"
@@ -312,6 +320,31 @@ dictd_test_inetd2_noorder (){
 	'env LC_ALL=C sort' "$@"
 }
 
+dictd_test_daemon (){
+    test $# -eq 3
+
+    etadir=`absolute_path $1` # etalon directory
+    shift
+
+    dbname="$1"
+    shift
+
+    expect_name="$1"
+    shift
+
+    conf_name=`pwd`/"_testdb.${dbname}.conf"
+
+    $DICTD -c $conf_name --pid-file _dictd.pid 2>&1
+    sleep 1
+    dictd_pid=`cat _dictd.pid`
+
+    trap "kill -TERM $dictd_pid" 0
+
+    $DICT -h localhost -p 26281 -DS > _dict_nodetach_test.out 2>&1
+
+    cmp_2_files "$etadir/$expect_name" _dict_nodetach_test.out
+}
+
 #dictd_test_inetd smiley_1 smiley_1
 #printf 'smiley_1 passed\n'
 dictd_test_inetd @srcdir@ smiley_2 smiley_2 exact
@@ -334,11 +367,12 @@ printf 'hello_4 passed\n'
 dictd_test_inetd @srcdir@ hello_5 hello_5 exact
 printf 'hello_5 passed\n'
 
-dictd_test_inetd \
-    @srcdir@ \
-    cyrillic_1 cyrillic_1 \
+dictd_test_inetd @srcdir@ cyrillic_1 cyrillic_1 \
     'exact word lev suffix prefix substring'
 printf 'cyrillic_1 passed\n'
+
+dictd_test_daemon @srcdir@ cyrillic_1 cyrillic_nodetach_expect.out
+printf 'cyrillic_1 nodetach nofork passed\n'
 
 #LC_ALL=C sort dictd_cyrillic_1_res.expected.txt \
 #            > dictd_cyrillic_2_res.expected.txt

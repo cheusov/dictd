@@ -36,6 +36,20 @@
 #define INADDR_NONE (-1)
 #endif
 
+const char *inet_ntopW (struct sockaddr *sa) {
+   static char buf[40];
+
+   switch (sa->sa_family) {
+   case AF_INET:
+      return inet_ntop (sa->sa_family, &(((struct sockaddr_in *)sa)->sin_addr), buf, sizeof(buf));
+   case AF_INET6:
+      return inet_ntop (sa->sa_family, &(((struct sockaddr_in6 *)sa)->sin6_addr), buf, sizeof(buf));
+   default:
+      errno = EAFNOSUPPORT;
+      return NULL;
+   }
+}
+
 const char *net_hostname( void )
 {
    static char hostname[128] = "";
@@ -52,52 +66,45 @@ const char *net_hostname( void )
    return hostname;
 }
 
-int net_connect_tcp( const char *host, const char *service )
+int net_connect_tcp( const char *host, const char *service, int address_family )
 {
-   struct hostent     *hostEntry;
-   struct servent     *serviceEntry;
-   struct protoent    *protocolEntry;
-   struct sockaddr_in ssin;
-   int                s;
-   int                hosts = 0;
-   char               **current;
+   struct addrinfo *r = NULL;
+   struct addrinfo *rtmp = NULL;
+   struct addrinfo hints;
+   int s;
 
-   memset( &ssin, 0, sizeof(ssin) );
-   ssin.sin_family = AF_INET;
+   memset (&hints, 0, sizeof (struct addrinfo));
+   hints.ai_family = address_family;
+   hints.ai_protocol = IPPROTO_TCP;
+   hints.ai_socktype = SOCK_STREAM;
+   hints.ai_flags = AI_ADDRCONFIG;
 
-   if ((serviceEntry = getservbyname(service, "tcp"))) {
-      ssin.sin_port = serviceEntry->s_port;
-   } else if (!(ssin.sin_port = htons(atoi(service))))
-      return NET_NOSERVICE;
-
-   if (!(protocolEntry = getprotobyname("tcp")))
-      return NET_NOPROTOCOL;
-   
-   if ((hostEntry = gethostbyname(host))) {
-      ++hosts;
-   } else if ((ssin.sin_addr.s_addr = inet_addr(host)) == htonl(INADDR_NONE))
+   if (getaddrinfo (host, service, &hints, &r) != 0) {
       return NET_NOHOST;
-   
-   if (hosts) {
-      for (current = hostEntry->h_addr_list; *current; current++) {
-	 memcpy( &ssin.sin_addr.s_addr, *current, hostEntry->h_length );
-	 PRINTF(DBG_VERBOSE,
-		("Trying %s (%s)\n",host,inet_ntoa(ssin.sin_addr)));
-	 if ((s = socket(PF_INET, SOCK_STREAM, protocolEntry->p_proto)) < 0)
-	    err_fatal_errno( __func__, "Can't open socket on port %d\n",
-			     ntohs(ssin.sin_port) );      
-	 if (connect(s, (struct sockaddr *)&ssin, sizeof(ssin)) >= 0)
-	    return s;
-	 close(s);
-      }
-   } else {
-      if ((s = socket(PF_INET, SOCK_STREAM, protocolEntry->p_proto)) < 0)
-	 err_fatal_errno( __func__, "Can't open socket on port %d\n",
-			  ntohs(ssin.sin_port) );
-      if (connect(s, (struct sockaddr *)&ssin, sizeof(ssin)) >= 0)
-	 return s;
-      close(s);
    }
+
+   for (rtmp = r; r != NULL; r = r->ai_next) {
+      s = socket (r->ai_family, r->ai_socktype, r->ai_protocol);
+      if (s < 0) {
+	 if (r->ai_next != NULL)
+	    continue;
+
+	 err_fatal_errno( __FUNCTION__, "Can't open socket\n");
+      }
+
+      PRINTF(DBG_VERBOSE,("Trying %s (%s)...", host, inet_ntopW(r->ai_addr)));
+
+      if (connect (s, r->ai_addr, r->ai_addrlen) >= 0) {
+	 PRINTF(DBG_VERBOSE,("Connected."));
+	 freeaddrinfo (rtmp);
+	 return s;
+      }
+
+      PRINTF(DBG_VERBOSE,("Failed: %s\n", strerror (errno)));
+
+      close (s);
+   }
+   freeaddrinfo (rtmp);
 
    return NET_NOCONNECT;
 }
@@ -105,40 +112,65 @@ int net_connect_tcp( const char *host, const char *service )
 int net_open_tcp (
    const char *address,
    const char *service,
-   int queueLength)
+   int queueLength,
+   int address_family)
 {
-   struct servent     *serviceEntry;
-   struct protoent    *protocolEntry;
-   struct sockaddr_in ssin;
-   int                s;
-   const int          one = 1;
+   struct addrinfo hints, *r, *rtmp;
+   int s = -1;
+   int err;
 
-   memset( &ssin, 0, sizeof(ssin) );
-   ssin.sin_family      = AF_INET;
-   ssin.sin_addr.s_addr = address ? inet_addr(address) : htonl(INADDR_ANY);
+   memset (&hints, 0, sizeof (struct addrinfo));
+   hints.ai_family = address_family;
+   hints.ai_protocol = IPPROTO_TCP;
+   hints.ai_socktype = SOCK_STREAM;
+   hints.ai_flags = AI_PASSIVE;
 
-   if ((serviceEntry = getservbyname(service, "tcp"))) {
-      ssin.sin_port = serviceEntry->s_port;
-   } else if (!(ssin.sin_port = htons(atoi(service))))
-      err_fatal( __func__, "Can't get \"%s\" service entry\n", service );
+   if (getaddrinfo (address, service, &hints, &r) != 0)
+      err_fatal ( __FUNCTION__, "getaddrinfo: Failed, address = \"%s\", service = \"%s\"\n", address, service);
 
-   if (!(protocolEntry = getprotobyname("tcp")))
-      err_fatal( __func__, "Can't get \"tcp\" protocol entry\n" );
-   
-   if ((s = socket(PF_INET, SOCK_STREAM, protocolEntry->p_proto)) < 0)
-      err_fatal_errno( __func__, "Can't open socket on port %d\n",
-		       ntohs(ssin.sin_port) );
+   for (rtmp = r; r != NULL; r = r->ai_next) {
+      s = socket (r->ai_family, r->ai_socktype, r->ai_protocol);
 
-   setsockopt( s, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one) );
+      if (s < 0) {
+	 if (r->ai_next != NULL)
+	    continue;
 
-   if (bind(s, (struct sockaddr *)&ssin, sizeof(ssin)) < 0)
-      err_fatal_errno( __func__, "Can't bind %s/tcp to port %d\n",
-		       service, ntohs(ssin.sin_port) );
+	 freeaddrinfo (rtmp);
+	 err_fatal_errno (__FUNCTION__, "Can't open socket\n");
+      }
 
-   if (listen( s, queueLength ) < 0)
-      err_fatal_errno( __func__, "Can't listen to %s/tcp on port %d\n",
-		       service, ntohs(ssin.sin_port) );
-   
+      {
+	 const int one = 1;
+	 err = setsockopt (s, SOL_SOCKET, SO_REUSEADDR, &one, sizeof (one));
+	 if (err != 0){
+	    err_fatal_errno (__FUNCTION__, "Can't setsockopt\n");
+	 }
+      }
+
+      if (bind(s, r->ai_addr, r->ai_addrlen) < 0) {
+	 if (r->ai_next != NULL) {
+	    close (s);
+	    continue;
+	 }
+	 freeaddrinfo (rtmp);
+	 err_fatal_errno( __FUNCTION__, "Can't bind %s/tcp to %s\n",
+			  service, address?address:"ANY" );
+      }
+
+      if (listen( s, queueLength ) < 0) {
+	 if (r->ai_next != NULL) {
+	    close (s);
+	    continue;
+	 }
+	 freeaddrinfo (rtmp);
+	 err_fatal_errno( __FUNCTION__, "Can't listen to %s/tcp on %s\n",
+			  service, address );
+      }
+
+      break;
+   }
+   freeaddrinfo (rtmp);
+
    return s;
 }
 

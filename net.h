@@ -18,11 +18,13 @@
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-
+extern const char *inet_ntopW (struct sockaddr *sa);
 extern const char *net_hostname( void );
-extern int        net_connect_tcp( const char *host, const char *service );
-extern int        net_open_tcp (const char *address,
-				const char *service, int queueLength);
+extern int        net_connect_tcp(
+	const char *host, const char *service, int address_family );
+extern int        net_open_tcp (
+	const char *address, const char *service, int queueLength,
+	int address_family);
 extern void       net_detach( void );
 extern int        net_read( int s, char *buf, int maxlen );
 extern int        net_write( int s, const char *buf, int len );

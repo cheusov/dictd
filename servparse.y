@@ -87,6 +87,7 @@ static int string2bool (const char *str)
 %token <token> TOKEN_LOCALE
 %token <token> TOKEN_ADD_STRAT
 %token <token> TOKEN_LISTEN_TO
+%token <token> TOKEN_ADDRESS_FAMILY
 %token <token> TOKEN_SYSLOG
 %token <token> TOKEN_SYSLOG_FACILITY
 %token <token> TOKEN_LOG_FILE
@@ -281,7 +282,21 @@ GlobalSpec : TOKEN_PORT             TOKEN_STRING
    | TOKEN_LISTEN_TO        TOKEN_STRING
      {
 	if (!bind_to_set)
-	   bind_to = str_copy ($2.string);
+	   if ($2.string[0] != '*' || $2.string[1] != '\0')
+	      bind_to = str_copy ($2.string);
+     }
+   | TOKEN_ADDRESS_FAMILY        TOKEN_NUMBER
+     {
+	if (!dictd_address_family_set){
+	   if ($2 == 4)
+	      dictd_address_family = AF_INET;
+	   else if ($2 == 6)
+	      dictd_address_family = AF_INET6;
+	   else {
+	      log_error (NULL, ":E: Incorrect value '%d' for global option 'address_family'\n", $2);
+	      exit(1);
+	   }
+	}
      }
    | TOKEN_SYSLOG
      {
@@ -330,7 +345,7 @@ AccessSpecList : AccessSpec { $$ = lst_create(); lst_append($$, $1); }
 Site : TOKEN_SITE TOKEN_STRING
        {
 	  $$ = $2;
-	  log_error (NULL, ":E: Move \"site\" directive to section \"global\" of the configuration file!");
+	  log_error (NULL, ":E: Move \"site\" directive to section \"global\" of the configuration file!\n");
        }
      ;
 
