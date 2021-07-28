@@ -36,24 +36,19 @@
 #define INADDR_NONE (-1)
 #endif
 
-static char netHostname[MAXHOSTNAMELEN];
-
 const char *net_hostname( void )
 {
-   struct hostent *hostEntry;
-   static char    *hostname = NULL;
-   
-   if (!netHostname[0]) {
-      memset( netHostname, 0, sizeof(netHostname) );
-      gethostname( netHostname, sizeof(netHostname)-1 );
-      
-      if ((hostEntry = gethostbyname(netHostname))) {
-	 hostname = xstrdup(hostEntry->h_name);
-      } else {
-	 hostname = xstrdup(netHostname);
+   static char hostname[128] = "";
+   int err;
+
+   if (!hostname[0]) {
+      if (err = gethostname(hostname, sizeof(hostname)), err != 0) {
+	 fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(err));
+	 exit(EXIT_FAILURE);
       }
    }
-   
+
+   hostname[sizeof(hostname)-1] = '\0';
    return hostname;
 }
 
