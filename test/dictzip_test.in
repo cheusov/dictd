@@ -1,10 +1,12 @@
 #!/bin/sh
 
+AWK_CMD="${AWK-awk}"
+
 set -e
 
 export LC_ALL=C
 
-DICTZIP=${DICTZIP-../dictzip}
+DICTZIP="$OBJDIR_dictzip/dictzip"
 
 gen_file (){
     # $1 - size
@@ -13,7 +15,7 @@ gen_file (){
 #	return 0
 #    fi
 
-    @AWK@ -v sz="$1" '
+    $AWK_CMD -v sz="$1" '
     BEGIN {
         c = 1
         for (i=0; i < sz; ++i) {
@@ -43,7 +45,7 @@ EOF
 gen_regions (){
     # $1 - size
     # $2 - step
-    @AWK@ -v size="$1" -v step="$2" '
+    $AWK_CMD -v size="$1" -v step="$2" '
     BEGIN {
         for (i=0; i < size; i += step)
             for (j=i+step; j <= size; j += step)

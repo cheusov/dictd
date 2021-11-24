@@ -1,0 +1,7 @@
+HELP_MSG.dict    =	"Command-line dictionary protocol client"
+HELP_MSG.dictd   =	"Dictionary protocol server"
+HELP_MSG.dictfmt =	"Formats a dictionary database for dictd"
+HELP_MSG.dictzip =	"[Un]compress files, allowing random access"
+HELP_MSG.colorit =	"Script for colorizing the text input"
+HELP_MSG.dictl       =	"dict(1) wrapper for non-UTF8 terminals"
+HELP_MSG.dict_lookup =	"Dictionary client for X Window System"

@@ -2,13 +2,16 @@
 
 set -e
 
-DICTFMT='../dictfmt --without-time --silent --without-ver'
-DICTUNFORMAT='../dictunformat'
-DICT='../dict'
-DICTD="../dictd -L `pwd`/_dictd.log"
-DICTFMT_I2W='../dictfmt_index2word --silent'
-DICTFMT_I2S='../dictfmt_index2suffix'
+DICTFMT="$OBJDIR_dictfmt/dictfmt --without-time --silent --without-ver"
+DICTUNFORMAT="$OBJDIR_dictfmt/dictunformat"
+DICT="$OBJDIR_dict/dict"
+DICTD="$OBJDIR_dictd/dictd -L `pwd`/_dictd.log"
+DICTFMT_I2W="$OBJDIR_dictfmt/dictfmt_index2word --silent"
+DICTFMT_I2S="$OBJDIR_dictfmt/dictfmt_index2suffix"
 DIFF="${DIFF_PROG-diff -u}"
+AWK_CMD="${AWK-awk}"
+
+set | grep SRC
 
 ##################################################
 PATH=$(dirname $(pwd)):$PATH
@@ -50,8 +53,8 @@ echo 'Comparing .dict and .index files (except those created by dictfmt -h)'
 
 rm -f _*
 
-$DICTFMT -c5 _db.c5 < @srcdir@/testdb.c5.txt
-$DICTFMT -h  _db.h  < @srcdir@/testdb.h.txt
+$DICTFMT -c5 _db.c5 < ./testdb.c5.txt
+$DICTFMT -h  _db.h  < ./testdb.h.txt
 $DICTUNFORMAT _db.c5.index < _db.c5.dict > _testdb.t.txt
 
 ###
@@ -63,16 +66,16 @@ printf "passed\n"
 
 ###
 printf "   -c5.utf8 ..."
-$DICTFMT --utf8 -c5 _testdb_utf8 < @srcdir@/testdb.c5.txt
-cmp_2_files _testdb_utf8.dict  @srcdir@/db.expect.testdb_utf8.dict
-cmp_index_files _testdb_utf8.index @srcdir@/db.expect.testdb_utf8.index
+$DICTFMT --utf8 -c5 _testdb_utf8 < ./testdb.c5.txt
+cmp_2_files _testdb_utf8.dict  ./db.expect.testdb_utf8.dict
+cmp_index_files _testdb_utf8.index ./db.expect.testdb_utf8.index
 printf "passed\n"
 
 ###
 printf "   -c5 == -X ..."
 dictfmt_X_eq_Y (){
     printf "   $1 == $2 ..."
-    $DICTFMT -$2  _db.$2  < @srcdir@/testdb.$2.txt
+    $DICTFMT -$2  _db.$2  < ./testdb.$2.txt
     cmp_index_files _db.$1.index _db.$2.index
     cmp_2_files _db.$1.dict  _db.$2.dict
     printf 'passed\n'
@@ -86,8 +89,8 @@ printf "passed\n"
 
 ###
 printf "   c5 == expected ..."
-cmp_index_files @srcdir@/db.expect.index _db.c5.index
-cmp_2_files @srcdir@/db.expect.dict  _db.c5.dict
+cmp_index_files ./db.expect.index _db.c5.index
+cmp_2_files ./db.expect.dict  _db.c5.dict
 printf "passed\n"
 
 ##################################################
@@ -102,9 +105,9 @@ dictfmt_diff_opts (){
 
     printf "%s" "   test $dbname $num..."
 
-    $DICTFMT "$@" _db.${dbname}_$num < @srcdir@/testdb.${dbname}.txt
-    cmp_2_files @srcdir@/db.expect.${dbname}_$num.dict  _db.${dbname}_$num.dict
-    cmp_index_files @srcdir@/db.expect.${dbname}_$num.index _db.${dbname}_$num.index
+    $DICTFMT "$@" _db.${dbname}_$num < ./testdb.${dbname}.txt
+    cmp_2_files ./db.expect.${dbname}_$num.dict  _db.${dbname}_$num.dict
+    cmp_index_files ./db.expect.${dbname}_$num.index _db.${dbname}_$num.index
 
     printf 'passed\n'
 }
@@ -162,7 +165,7 @@ generate_commands (){
     strats="$1"
     shift
 
-    @AWK@ -v strats="$strats" '
+    $AWK_CMD -v strats="$strats" '
     BEGIN {
 	cnt=split(strats, strats_arr)
     }
@@ -196,19 +199,19 @@ dictd_test_inetd_base (){
 
     #
     conf_file=_testdb.$confname.conf
-    m4 -DCURR_DIR=$etadir @srcdir@/testdb.$confname.conf >$conf_file
+    m4 -DCURR_DIR=$etadir ./testdb.$confname.conf >$conf_file
 
     #
     index_file=`sed -n 's,^.*/\(.*[.]index\).*$,\1,p' $conf_file | head -1`
 
     in_file=_dictd_${dbname}_in.txt
 
-    cut -f 1 @srcdir@/$index_file |
+    cut -f 1 ./$index_file |
     generate_commands "$conf_file" "$strats" > "$in_file"
 
     #
     $DICTD -c $conf_file -i --stdin2stdout < "$in_file" |
-    @AWK@ '/^2[25]0 / { print $1 "\r"; next; } {print}' \
+    $AWK_CMD '/^2[25]0 / { print $1 "\r"; next; } {print}' \
 	| $noorder > _dictd_${dbname}_res.txt
 
     #
@@ -270,14 +273,14 @@ dictd_test_inetd2_base (){
 
     #
     conf_file=_testdb.$confname.conf
-    m4 -DCURR_DIR=$etadir @srcdir@/testdb.$confname.conf >$conf_file
+    m4 -DCURR_DIR=$etadir ./testdb.$confname.conf >$conf_file
 
     #
     in_file=$etadir/input.${txtname}.txt
 
     #
     $DICTD -c $conf_file -i --stdin2stdout < "$in_file" |
-    @AWK@ '/^2[25]0 / { print $1 "\r"; next; } {print}' \
+    $AWK_CMD '/^2[25]0 / { print $1 "\r"; next; } {print}' \
 	| $noorder > _dictd_${txtname}_res.txt
 
     #
@@ -347,31 +350,31 @@ dictd_test_daemon (){
 
 #dictd_test_inetd smiley_1 smiley_1
 #printf 'smiley_1 passed\n'
-dictd_test_inetd @srcdir@ smiley_2 smiley_2 exact
+dictd_test_inetd . smiley_2 smiley_2 exact
 printf 'smiley_2 passed\n'
 #dictd_test_inetd smiley_3 smiley_3
 #printf 'smiley_3 passed\n'
-dictd_test_inetd @srcdir@ smiley_4 smiley_4 exact
+dictd_test_inetd . smiley_4 smiley_4 exact
 printf 'smiley_4 passed\n'
-dictd_test_inetd @srcdir@ smiley_5 smiley_5 exact
+dictd_test_inetd . smiley_5 smiley_5 exact
 printf 'smiley_5 passed\n'
 
-dictd_test_inetd @srcdir@ hello_1 hello_1 exact
+dictd_test_inetd . hello_1 hello_1 exact
 printf 'hello_1 passed\n'
-dictd_test_inetd @srcdir@ hello_2 hello_2 exact
+dictd_test_inetd . hello_2 hello_2 exact
 printf 'hello_2 passed\n'
-dictd_test_inetd @srcdir@ hello_3 hello_3 exact
+dictd_test_inetd . hello_3 hello_3 exact
 printf 'hello_3 passed\n'
-dictd_test_inetd @srcdir@ hello_4 hello_4 exact
+dictd_test_inetd . hello_4 hello_4 exact
 printf 'hello_4 passed\n'
-dictd_test_inetd @srcdir@ hello_5 hello_5 exact
+dictd_test_inetd . hello_5 hello_5 exact
 printf 'hello_5 passed\n'
 
-dictd_test_inetd @srcdir@ cyrillic_1 cyrillic_1 \
+dictd_test_inetd . cyrillic_1 cyrillic_1 \
     'exact word lev suffix prefix substring'
 printf 'cyrillic_1 passed\n'
 
-dictd_test_daemon @srcdir@ cyrillic_1 cyrillic_nodetach_expect.out
+dictd_test_daemon . cyrillic_1 cyrillic_nodetach_expect.out
 printf 'cyrillic_1 nodetach nofork passed\n'
 
 #LC_ALL=C sort dictd_cyrillic_1_res.expected.txt \
@@ -383,33 +386,33 @@ printf 'cyrillic_1 nodetach nofork passed\n'
 #dictd_test_inetd_noorder cyrillic_2 cyrillic_2 exact word lev suffix prefix substring
 #printf 'cyrillic_2 passed\n'
 
-dictd_test_inetd2 @srcdir@ cyrillic_1 cyrillic_3
+dictd_test_inetd2 . cyrillic_1 cyrillic_3
 printf 'cyrillic_3 passed\n'
 
-LC_ALL=C sort @srcdir@/dictd_cyrillic_3_res.expected.txt \
+LC_ALL=C sort ./dictd_cyrillic_3_res.expected.txt \
             > dictd_cyrillic_4_res.expected.txt
-cp @srcdir@/input.cyrillic_3.txt input.cyrillic_4.txt
-if test @srcdir@ != .; then
-   cp @srcdir@/db.expect.cyrillic_1.index .
+cp ./input.cyrillic_3.txt input.cyrillic_4.txt
+if test . != .; then
+   cp ./db.expect.cyrillic_1.index .
 fi
-if test @srcdir@ != .; then
-   cp @srcdir@/db.expect.cyrillic_1.dict .
+if test . != .; then
+   cp ./db.expect.cyrillic_1.dict .
 fi
-$DICTFMT_I2S --utf8 --silent @srcdir@/db.expect.cyrillic_1.index \
+$DICTFMT_I2S --utf8 --silent ./db.expect.cyrillic_1.index \
    > db.expect.cyrillic_1.index_suffix
 dictd_test_inetd2_noorder `pwd` cyrillic_4 cyrillic_4
 printf 'cyrillic_4 passed\n'
 
-dictd_test_inetd2 @srcdir@ mixedcase_1 mixedcase_1
+dictd_test_inetd2 . mixedcase_1 mixedcase_1
 printf 'mixedcase_1 passed\n'
 
-dictd_test_inetd2 @srcdir@ indexdata_1 indexdata_1
+dictd_test_inetd2 . indexdata_1 indexdata_1
 printf 'indexdata_1 passed\n'
 
-dictd_test_inetd2 @srcdir@ limits_1 limits_1
+dictd_test_inetd2 . limits_1 limits_1
 printf 'limits_1 passed\n'
 
-dictd_test_inetd2 @srcdir@ defstrat_1 defstrat_1
+dictd_test_inetd2 . defstrat_1 defstrat_1
 printf 'defstrat_1 passed\n'
-dictd_test_inetd2 @srcdir@ defstrat_2 defstrat_2
+dictd_test_inetd2 . defstrat_2 defstrat_2
 printf 'defstrat_2 passed\n'
