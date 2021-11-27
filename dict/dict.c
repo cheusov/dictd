@@ -33,6 +33,10 @@
 #include <arpa/inet.h>
 #include <getopt.h>
 
+#if HAVE_HEADER_ALLOCA_H
+# include <alloca.h>
+#endif
+
 extern int         yy_flex_debug;
        lst_List    dict_Servers;
        FILE        *dict_output;

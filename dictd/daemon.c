@@ -29,15 +29,21 @@
 #include "strategy.h"
 
 #include <sys/socket.h>
+#include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <ctype.h>
 #include <setjmp.h>
 #include <assert.h>
 #include <string.h>
+#include <strings.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+
+#if HAVE_HEADER_ALLOCA_H
+# include <alloca.h>
+#endif
 
 int stdin2stdout_mode = 0; /* copy stdin to stdout ( dict_dictd function ) */
 

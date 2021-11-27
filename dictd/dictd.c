@@ -47,6 +47,8 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <getopt.h>
+#include <signal.h>
+#include <unistd.h>
 
 #define MAXPROCTITLE 2048       /* Maximum amount of proc title we'll use. */
 #undef MIN

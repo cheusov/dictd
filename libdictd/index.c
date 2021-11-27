@@ -40,6 +40,10 @@
 #include <assert.h>
 #include <unistd.h>
 
+#if HAVE_HEADER_ALLOCA_H
+# include <alloca.h>
+#endif
+
 int mmap_mode;
 
 #define FIND_PREV(begin, pt) while (pt > begin && pt [-1] != '\n') --pt;

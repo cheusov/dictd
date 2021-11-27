@@ -26,7 +26,10 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <assert.h>
+
+#include <mkc_strlcpy.h>
 
 int default_strategy  = DICT_STRAT_LEVENSHTEIN;
 

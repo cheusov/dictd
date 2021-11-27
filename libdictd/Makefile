@@ -8,4 +8,6 @@ CFLAGS.check +=	-Wno-error=cast-qual -Wno-error=unused-variable
 
 MKINSTALL =	no
 
+MKC_FEATURES +=	strlcpy
+
 .include <mkc.mk>

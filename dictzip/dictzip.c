@@ -28,6 +28,8 @@
 #include <time.h>
 #include <getopt.h>
 
+#include <mkc_strlcpy.h>
+
 static void xfwrite(
    const void *ptr, size_t size, size_t nmemb,
    FILE * stream)

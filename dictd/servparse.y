@@ -26,6 +26,7 @@
 #include "maa.h"
 
 #include <string.h>
+#include <strings.h>
 #include <stdlib.h>
 
 extern void yyerror( const char *message );

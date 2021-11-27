@@ -21,12 +21,18 @@
  * 
  */
 
+#include <stdio.h>
+
 #include "maa.h"
 #include "parse.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#if HAVE_HEADER_ALLOCA_H
+# include <alloca.h>
+#endif
 
 static int           _prs_debug_flag   = 0;
 static const char    *_prs_cpp_options = NULL;
