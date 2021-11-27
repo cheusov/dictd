@@ -27,7 +27,6 @@
 #include "plugin.h"
 #include "defs.h"
 #include "strategy.h"
-#include "plugin.h"
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -36,8 +35,8 @@
 #include <setjmp.h>
 #include <assert.h>
 #include <string.h>
-#include <alloca.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <time.h>
 
 int stdin2stdout_mode = 0; /* copy stdin to stdout ( dict_dictd function ) */

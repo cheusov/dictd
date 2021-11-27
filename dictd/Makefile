@@ -4,6 +4,8 @@ MAN  =	dictd.8
 
 BINDIR =	${SBINDIR}
 
+DPSRCS =	servparse.h servparse.c
+
 .ifdef USE_PLUGIN
 SRCS     +=	plugin.c
 CPPFLAGS +=	-DUSE_PLUGIN=1
@@ -14,7 +16,7 @@ INFILES =	dictd.8
 
 YHEADER =	1
 
-CPPFLAGS +=	-I${SRCDIR_dictdplugins_include:U.} -I${SRCDIR_libdictd} \
+CPPFLAGS +=	-I${SRCTOP}/dictdplugins/include -I${SRCDIR_libdictd} \
    -I${SRCDIR_dictd} -I${SRCDIR_libcommon}
 
 CFLAGS.check +=	-Wno-error=cast-qual -Wno-error=unused-function

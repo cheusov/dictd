@@ -13,4 +13,6 @@ MKC_FEATURES +=	strlcat
 
 MKC_REQUIRE_FUNCLIBS +=	lst_create:maa
 
+CFLAGS.check +=	-Wno-error=unused-value
+
 .include <mkc.mk>

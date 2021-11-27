@@ -27,6 +27,7 @@
 #include <fcntl.h>
 #include <assert.h>
 #include <string.h>
+#include <unistd.h>
 
 #define USE_CACHE 1
 

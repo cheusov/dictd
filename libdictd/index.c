@@ -23,10 +23,7 @@
 #include "data.h"
 #include "strategy.h"
 #include "str.h"
-
-#ifdef USE_PLUGIN
 #include "plugin.h"
-#endif
 
 #include <sys/stat.h>
 
@@ -41,6 +38,7 @@
 #include <sys/mman.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <unistd.h>
 
 int mmap_mode;
 

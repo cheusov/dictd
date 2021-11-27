@@ -6,6 +6,7 @@ INFILES =	dict.1
 
 YHEADER =	1
 
+DPSRCS =	clientparse.h clientparse.c
 clientscan.o: clientparse.h
 
 .PATH:${SRCDIR_dictd}

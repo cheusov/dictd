@@ -1247,8 +1247,8 @@ static const char *client_get_banner( void )
    
    if (buffer) return buffer;
    uname( &uts );
-   buffer = xmalloc(256);
-   snprintf( buffer, 256,
+   buffer = xmalloc(1024);
+   snprintf( buffer, 1024,
 	     "%s %s/rf on %s %s", err_program_name (), id_string (),
 	     uts.sysname, uts.release );
    return buffer;

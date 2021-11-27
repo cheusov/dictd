@@ -21,12 +21,7 @@
 #define _INDEX_H_
 
 #include "defs.h"
-
-#ifdef USE_PLUGIN
 #include "dictdplugin.h"
-#else
-typedef int dictPluginData;
-#endif
 
 /* init dictIndex structure (.index file) */
 extern dictIndex  *dict_index_open(

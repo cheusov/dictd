@@ -19,7 +19,9 @@
  */
 
 #include "strategy.h"
+#ifdef USE_PLUGIN
 #include "dictdplugin.h"
+#endif
 #include "maa.h"
 
 #include <stdlib.h>

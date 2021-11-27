@@ -1158,9 +1158,9 @@ const char *dict_get_banner( int shortFlag )
       shortBuffer, 256,
       "%s %s", err_program_name(), id_string () );
 
-   longBuffer = xmalloc(256);
+   longBuffer = xmalloc(1024);
    snprintf(
-      longBuffer, 256,
+      longBuffer, 1024,
       "%s %s/rf on %s %s", err_program_name(), id_string (),
       uts.sysname,
       uts.release );
