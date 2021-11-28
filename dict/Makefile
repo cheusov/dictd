@@ -14,7 +14,8 @@ clientscan.o: clientparse.h
 CPPFLAGS +=	-I${SRCDIR_dictdplugins_include:U.} -I${SRCDIR_libdictd} \
    -I${SRCDIR_dictd} -I${SRCDIR_libcommon}
 
-CFLAGS.check +=	-Wno-error=cast-qual -Wno-error=unused-function
+CFLAGS.check +=	-Wno-error=cast-qual -Wno-error=unused-function \
+   -Wno-error=format-truncation
 
 MKC_REQUIRE_FUNCLIBS +=	lst_create:maa
 
