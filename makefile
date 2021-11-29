@@ -14,7 +14,7 @@ SUBPRJ  +=	colorit dictl dict_lookup
 SUBPRJ_DFLT +=	dict dictd dictfmt dictzip colorit dictl dict_lookup
 
 test:
-	@set -e; cd test; \
+	@set -e; cd ${.CURDIR}/test; \
 	PATH=${OBJDIR_dictd}:${OBJDIR_dict}:${OBJDIR_dictzip}:${OBJDIR_dictfmt}:$${PATH}; \
 	export PATH; \
 	sh ./dictd_test.in; \
