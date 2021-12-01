@@ -1276,17 +1276,23 @@ static void release_root_privileges( void )
       struct passwd *pwd;
 
       if ((pwd = getpwnam("dictd"))) {
-         setgid(pwd->pw_gid);
+         if (setgid(pwd->pw_gid))
+            err_fatal_errno(NULL, ":E: setgid(%u) failed\n", (unsigned)pwd->pw_gid);
          initgroups("dictd",pwd->pw_gid);
-         setuid(pwd->pw_uid);
+         if (setuid(pwd->pw_uid))
+            err_fatal_errno(NULL, ":E: setuid(%u) failed\n", (unsigned)pwd->pw_uid);
       } else if ((pwd = getpwnam("nobody"))) {
-         setgid(pwd->pw_gid);
+         if (setgid(pwd->pw_gid))
+            err_fatal_errno(NULL, ":E: setgid(%u) failed\n", (unsigned)pwd->pw_gid);
          initgroups("nobody",pwd->pw_gid);
-         setuid(pwd->pw_uid);
+         if (setuid(pwd->pw_uid))
+            err_fatal_errno(NULL, ":E: setuid(%u) failed\n", (unsigned)pwd->pw_uid);
       } else {
-         setgid(GID_NOGROUP);
+         if (setgid(GID_NOGROUP))
+            err_fatal_errno(NULL, ":E: setgid(%u) failed\n", (unsigned)pwd->pw_gid);
          initgroups("nobody", GID_NOGROUP);
-         setuid(UID_NOBODY);
+         if (setuid(UID_NOBODY))
+            err_fatal_errno(NULL, ":E: setuid(%u) failed\n", (unsigned)pwd->pw_uid);
       }
    }
 }
@@ -1463,9 +1469,12 @@ static void reopen_012 (void)
    close (1);
    close (2);
 
-   dup (fd);
-   dup (fd);
-   dup (fd);
+   if (dup (fd) == -1)
+      err_fatal_errno(NULL, ":E: dup(2) failed\n");
+   if (dup (fd) == -1)
+      err_fatal_errno(NULL, ":E: dup(2) failed\n");
+   if (dup (fd) == -1)
+      err_fatal_errno(NULL, ":E: dup(2) failed\n");
 }
 
 int main (int argc, char **argv, char **envp)
@@ -1699,7 +1708,8 @@ int main (int argc, char **argv, char **envp)
 
    if (detach){
       /* become a daemon */
-      daemon (0, 1);
+      if (daemon (0, 1))
+         err_fatal_errno(NULL, ":E: daemon(3) failed\n");
       reopen_012 ();
 
       /* after fork from daemon(3) */
