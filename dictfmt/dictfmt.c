@@ -929,7 +929,7 @@ static int qsort_compare_strings (const void *a, const void *b)
 
 static void fmt_headword_for_alphabet (void)
 {
-   const char *key;
+   const char *key = NULL;
    size_t sum_size = 0;
    str_Position pos;
    char *alphabet;
