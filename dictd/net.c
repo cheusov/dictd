@@ -18,9 +18,10 @@
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
-#include <sys/socket.h>
 #include <sys/param.h>
 #include <fcntl.h>
 #include <string.h>
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <netdb.h>
 
 #include "dictd.h"
 

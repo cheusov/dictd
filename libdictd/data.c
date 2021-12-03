@@ -28,6 +28,7 @@
 #include <assert.h>
 #include <string.h>
 #include <unistd.h>
+#include <limits.h>
 
 #define USE_CACHE 1
 

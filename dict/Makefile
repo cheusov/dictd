@@ -13,6 +13,7 @@ clientscan.o: clientparse.h
 
 CPPFLAGS +=	-I${SRCDIR_dictdplugins_include:U.} -I${SRCDIR_libdictd} \
    -I${SRCDIR_dictd} -I${SRCDIR_libcommon} -I${.CURDIR}
+CPPFLAGS +=	-D_POSIX_C_SOURCE=200809L
 
 CFLAGS.check +=	-Wno-error=cast-qual -Wno-error=unused-function \
    -Wno-error=format-truncation

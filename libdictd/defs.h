@@ -24,6 +24,7 @@
 #include "dictdplugin.h"
 #endif
 
+#include <limits.h>
 #include <zlib.h>
 #include <maa.h>
 
