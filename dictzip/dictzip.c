@@ -27,6 +27,7 @@
 #include <assert.h>
 #include <time.h>
 #include <getopt.h>
+#include <unistd.h>
 
 #include <mkc_strlcpy.h>
 

@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <arpa/inet.h>
+#include <netinet/in.h>
 
 #include "dictd.h"
 
