@@ -1485,8 +1485,10 @@ int main( int argc, char **argv )
 	    buf++;
 	 } else if (strncmp(buffer, "_____",5) == 0) {
 	    buf = (unsigned char *) buffer;
-	    fgets (buffer,BSIZE-1,stdin); /* empty line */
-	    fgets (buffer,BSIZE-1,stdin);
+	    if (!fgets (buffer,BSIZE-1,stdin)) /* empty line */
+	       err_fatal_errno (NULL, "fgets(3) failed\n");
+	    if (!fgets (buffer,BSIZE-1,stdin))
+	       err_fatal_errno (NULL, "fgets(3) failed\n");
 	    if (strlen(buffer))
 	       buffer[strlen(buffer)-1] = '\0'; /* remove newline */
 
