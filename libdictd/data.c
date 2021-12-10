@@ -62,7 +62,7 @@ static int dict_read_header( const char *filename,
    FILE          *str;
    int           id1, id2, si1, si2;
    char          buffer[BUFFERSIZE];
-   int           extraLength, subLength;
+   int           extraLength/*, subLength*/;
    int           i;
    char          *pt;
    int           c;
@@ -119,8 +119,8 @@ static int dict_read_header( const char *filename,
       si2                  = getc( str );
       
       if (si1 == GZ_RND_S1 && si2 == GZ_RND_S2) {
-	 subLength            = getc( str ) << 0;
-	 subLength           |= getc( str ) << 8;
+	 /*subLength            =*/ (void)getc( str )/* << 0*/;
+	 /*subLength           |=*/ (void)getc( str )/* << 8*/;
 	 header->version      = getc( str ) << 0;
 	 header->version     |= getc( str ) << 8;
 	 
