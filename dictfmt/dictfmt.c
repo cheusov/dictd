@@ -581,7 +581,7 @@ static int contain_nonascii_symbol (const char *word)
 
 static void update_alphabet (const char *word)
 {
-   char *p;
+   char *p, *p_original;
    size_t len = 0;
    mbstate_t ps;
    char old_char;
@@ -594,7 +594,7 @@ static void update_alphabet (const char *word)
    }
 
    len = strlen (word);
-   p = (char *) alloca (len + 1);
+   p_original = p = (char *) xmalloc (len + 1);
    tolower_alnumspace (word, p, allchars_mode, cs_mode, utf8_mode);
 
    memset (&ps, 0, sizeof (ps));
@@ -610,6 +610,8 @@ static void update_alphabet (const char *word)
 
       p += len;
    }
+
+   xfree (p_original);
 }
 
 /* return 1 if word should be skipped */
