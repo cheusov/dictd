@@ -17,7 +17,7 @@ CPPFLAGS +=	-D_POSIX_C_SOURCE=200809L
 CPPFLAGS +=	-D_NETBSD_SOURCE
 
 CFLAGS.check +=	-Wno-error=cast-qual -Wno-error=unused-function \
-   -Wno-error=format-truncation
+   -Wno-error=format-truncation -Wno-error=unused-const-variable
 
 MKC_REQUIRE_FUNCLIBS +=	lst_create:maa
 
