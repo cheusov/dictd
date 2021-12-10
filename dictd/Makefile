@@ -19,6 +19,7 @@ YHEADER =	1
 CPPFLAGS +=	-I${SRCTOP}/dictdplugins/include -I${SRCDIR_libdictd} \
    -I${SRCDIR_dictd} -I${SRCDIR_libcommon}
 CPPFLAGS +=	-D_POSIX_C_SOURCE=200809L
+CPPFLAGS +=	-D_NETBSD_SOURCE
 
 CFLAGS.check +=	-Wno-error=cast-qual -Wno-error=unused-function
 
