@@ -40,10 +40,6 @@
 #include <assert.h>
 #include <unistd.h>
 
-#if HAVE_HEADER_ALLOCA_H
-# include <alloca.h>
-#endif
-
 int mmap_mode;
 
 #define FIND_PREV(begin, pt) while (pt > begin && pt [-1] != '\n') --pt;
@@ -1198,10 +1194,11 @@ static int dict_match (
    subs [0].rm_eo = word_len;
    return !regexec(re, word, 1, subs, eflags | REG_STARTEND);
 #else
-   char *word_copy = (char *) alloca (word_len + 1);
+   char *word_copy = (char *) malloc (word_len + 1);
    memcpy (word_copy, word, word_len);
    word_copy [word_len] = 0;
-   return !regexec(re, word_copy, 0, NULL, eflags);
+   int ret = !regexec(re, word_copy, 0, NULL, eflags);
+   return ret;
 #endif
 }
 
