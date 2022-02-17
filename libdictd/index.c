@@ -1503,12 +1503,13 @@ static int dict_search_suffix(
    assert (database);
 
    if (database->index_suffix){
-      buf = (char *) alloca (strlen (word));
+      buf = (char *) malloc (strlen (word));
       strcpy (buf, word);
 
       PRINTF(DBG_SEARCH, ("anagram: '%s' ==> ", buf));
       if (!stranagram (buf, utf8_mode)){
 	 PRINTF(DBG_SEARCH, ("failed building anagram\n"));
+	 xfree(buf);
 	 return 0; /* invalid utf8 string */
       }
 
@@ -1525,6 +1526,8 @@ static int dict_search_suffix(
 
 	 --count;
       }
+
+      xfree(buf);
       return ret;
    }else{
       return dict_search_bmh(
@@ -1547,12 +1550,13 @@ static int dict_search_last (
    assert (database);
 
    if (database->index_suffix){
-      buf = (char *) alloca (strlen (word));
+      buf = (char *) xmalloc (strlen (word));
       strcpy (buf, word);
 
       PRINTF(DBG_SEARCH, ("anagram: '%s' ==> ", buf));
       if (!stranagram (buf, utf8_mode)){
 	 PRINTF(DBG_SEARCH, ("failed building anagram\n"));
+	 xfree(buf);
 	 return 0; /* invalid utf8 string */
       }
 
@@ -1566,6 +1570,8 @@ static int dict_search_last (
 	    stranagram (dw -> word, utf8_mode);
 	 }
       }
+
+      xfree(buf);
       return ret;
    }else{
       return dict_search_bmh(
@@ -1611,7 +1617,7 @@ int dict_search_database_ (
       }
    }
 
-   buf = alloca( strlen( word ) + 1 );
+   buf = xmalloc( strlen( word ) + 1 );
 
    if (
       !strcmp(utf8_err_msg, word) ||
@@ -1633,6 +1639,7 @@ int dict_search_database_ (
       
       lst_append (l, dw);
 
+      xfree(buf);
       return -1;
    }
 
@@ -1642,50 +1649,66 @@ int dict_search_database_ (
 	Without following line entire dictionary will be returned
           for non-ASCII words.
       */
+      xfree(buf);
       return 0;
    }
 
+   int ret = 0;
    switch (strategy) {
    case DICT_STRAT_EXACT:
-      return dict_search_exact( l, buf, database, database->index,
-				strategy_or_define != strategy);
+      ret = dict_search_exact( l, buf, database, database->index,
+			       strategy_or_define != strategy);
+      break;
 
    case DICT_STRAT_PREFIX:
    case DICT_STRAT_NPREFIX:
-      return dict_search_prefix (l, buf, database, database->index,
-				 skip_count, item_count);
+      ret = dict_search_prefix (l, buf, database, database->index,
+				skip_count, item_count);
+      break;
 
    case DICT_STRAT_SUBSTRING:
-      return dict_search_substring( l, buf, database, database->index );
+      ret = dict_search_substring( l, buf, database, database->index );
+      break;
 
    case DICT_STRAT_SUFFIX:
-      return dict_search_suffix( l, buf, database );
+      ret = dict_search_suffix( l, buf, database );
+      break;
 
    case DICT_STRAT_RE:
-      return dict_search_re( l, word, database, database->index );
+      ret = dict_search_re( l, word, database, database->index );
+      break;
 
    case DICT_STRAT_REGEXP:
-      return dict_search_regexp( l, word, database, database->index );
+      ret = dict_search_regexp( l, word, database, database->index );
+      break;
 
    case DICT_STRAT_SOUNDEX:
-      return dict_search_soundex( l, buf, database, database->index );
+      ret = dict_search_soundex( l, buf, database, database->index );
+      break;
 
    case DICT_STRAT_LEVENSHTEIN:
-      return dict_search_levenshtein( l, buf, database, database->index);
+      ret = dict_search_levenshtein( l, buf, database, database->index);
+      break;
 
    case DICT_STRAT_WORD:
-      return dict_search_word( l, buf, database);
+      ret = dict_search_word( l, buf, database);
+      break;
 
    case DICT_STRAT_FIRST:
-      return dict_search_first( l, buf, database, database->index );
+      ret = dict_search_first( l, buf, database, database->index );
+      break;
 
    case DICT_STRAT_LAST:
-      return dict_search_last( l, buf, database );
+      ret = dict_search_last( l, buf, database );
+      break;
 
    default:
       /* plugins may support unusual search strategies */
-      return 0;
+      ret = 0;
    }
+
+   xfree(buf);
+   return ret;
 }
 
 /*
