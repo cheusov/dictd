@@ -33,10 +33,6 @@
 #include <arpa/inet.h>
 #include <getopt.h>
 
-#if HAVE_HEADER_ALLOCA_H
-# include <alloca.h>
-#endif
-
 extern int         yy_flex_debug;
        lst_List    dict_Servers;
        FILE        *dict_output;
@@ -648,7 +644,7 @@ static void prepend_command( struct cmd *c )
 static void request( void )
 {
    char              b[BUFFERSIZE];
-   char              *buffer = alloca( client_pipesize );
+   char              *buffer = xmalloc( client_pipesize );
    char              *p = buffer;
    lst_Position      pos;
    struct cmd        *c = NULL;
@@ -727,7 +723,8 @@ static void request( void )
 				/* The buffer is too small, but we have to
 				   send something...  */
 	    PRINTF(DBG_PIPE,("* Reallocating buffer to %d bytes\n",len+1));
-	    p = buffer = alloca( len + 1 );
+	    xfree(buffer);
+	    p = buffer = xmalloc( len + 1 );
 	 } else {
 	    break;
 	 }
@@ -788,13 +785,16 @@ end:				/* Ready to send buffer, but are we
 
       PRINTF(DBG_PIPE,("* Sending %d commands (%d bytes)\n",count,len));
       PRINTF(DBG_RAW,("* Send/%d: %s",c->command,buffer));
-      pt = alloca(2*len);
+      pt = xmalloc(2*len);
       client_crlf(pt,buffer);
       net_write( cmd_reply.s, pt, strlen(pt) );
+      xfree(pt);
    } else {
       PRINTF(DBG_PIPE,("* Sending nothing\n"));
       PRINTF(DBG_RAW,("* Send/%d\n",c->command)); 
    }
+
+   xfree(buffer);
 }
 
 static void process( void )
