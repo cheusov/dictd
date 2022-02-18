@@ -47,7 +47,7 @@ static int dict_search_lev_8bit (
    LEV_ARGS *args)
 {
    int        len   = strlen(word);
-   char       *buf  = alloca(len+2);
+   char       *buf  = xmalloc(len+2);
    char       *p    = buf;
    int        count = 0;
    set_Set    s     = set_create(NULL,NULL);
@@ -98,6 +98,8 @@ static int dict_search_lev_8bit (
       }
    }
 
+   xfree(buf);
+   
    PRINTF(DBG_LEV,("  Got %d matches\n",count));
    set_destroy(s);
 

@@ -41,10 +41,6 @@
 #include <unistd.h>
 #include <time.h>
 
-#if HAVE_HEADER_ALLOCA_H
-# include <alloca.h>
-#endif
-
 int stdin2stdout_mode = 0; /* copy stdin to stdout ( dict_dictd function ) */
 
 static int          _dict_defines, _dict_matches;
@@ -218,7 +214,7 @@ static void daemon_log( int type, const char *format, ... )
       len = strlen(buf);
    }
 
-   buf2 = alloca( 3*(len+3) );
+   buf2 = xmalloc( 3*(len+3) );
 
    for (s = buf, d = buf2; *s; s++) {
       c = (unsigned char)*s;
@@ -235,26 +231,28 @@ static void daemon_log( int type, const char *format, ... )
 
    if (d != buf2) d[-1] = '\0';	/* kill newline */
    dict_setproctitle( "dictd %s", buf2 );
+   xfree(buf2);
 }
 
 static int daemon_check_mask(const char *spec, const char *ip)
 {
-   char           *tmp = alloca(strlen(spec) + 1);
+   char           *tmp = xstrdup(spec);
    char           *pt;
    char           tstring[64], mstring[64];
    struct in_addr target, mask;
    int            bits;
    unsigned long  bitmask;
    
-   strcpy(tmp, spec);
    if (!(pt = strchr(tmp, '/'))) {
       log_info( ":E: No / in %s, denying access to %s\n", spec, ip);
+	  xfree(tmp);
       return DICT_DENY;
    }
    *pt++ = '\0';
    if (!*pt) {
       log_info( ":E: No bit count after / in %s, denying access to %s\n",
                 spec, ip);
+	  xfree(tmp);
       return DICT_DENY;
    }
    
@@ -266,38 +264,43 @@ static int daemon_check_mask(const char *spec, const char *ip)
    if (bits < 0 || bits > 32) {
       log_info( ":E: Bit count (%d) out of range, denying access to %s\n",
                 bits, ip);
+	  xfree(tmp);
       return DICT_DENY;
    }
    
    bitmask = daemon_compute_mask(bits);
    if ((ntohl(target.s_addr) & bitmask) == (ntohl(mask.s_addr) & bitmask)) {
       PRINTF(DBG_AUTH, ("%s matches %s/%d\n", tstring, mstring, bits));
+	  xfree(tmp);
       return DICT_MATCH;
    }
    PRINTF(DBG_AUTH, ("%s does NOT match %s/%d\n", tstring, mstring, bits));
+   xfree(tmp);
    return DICT_NOMATCH;
 }
 
 static int daemon_check_range(const char *spec, const char *ip)
 {
-   char           *tmp = alloca(strlen(spec) + 1);
+   char           *tmp = xstrdup(spec);
    char           *pt;
    char           tstring[64], minstring[64], maxstring[64];
    struct in_addr target, min, max;
    
-   strcpy(tmp, spec);
    if (!(pt = strchr(tmp, ':'))) {
       log_info( ":E: No : in range %s, denying access to %s\n", spec, ip);
+	  xfree(tmp);
       return DICT_DENY;
    }
    *pt++ = '\0';
    if (strchr(pt, ':')) {
       log_info( ":E: More than one : in range %s, denying access to %s\n",
                 spec, ip);
+	  xfree(tmp);
       return DICT_DENY;
    }
    if (!*pt) {
       log_info( ":E: Misformed range %s, denying access to %s\n", spec, ip);
+	  xfree(tmp);
       return DICT_DENY;
    }
    
@@ -308,13 +311,16 @@ static int daemon_check_range(const char *spec, const char *ip)
    strcpy(minstring, inet_ntoa(min));
    strcpy(maxstring, inet_ntoa(max));
    if (ntohl(target.s_addr) >= ntohl(min.s_addr)
-       && ntohl(target.s_addr) <= ntohl(max.s_addr)) {
+       && ntohl(target.s_addr) <= ntohl(max.s_addr))
+   {
       PRINTF(DBG_AUTH,("%s in range from %s to %s\n",
                        tstring, minstring, maxstring));
+	  xfree(tmp);
       return DICT_MATCH;
    }
    PRINTF(DBG_AUTH,("%s NOT in range from %s to %s\n",
                     tstring, minstring, maxstring));
+   xfree(tmp);
    return DICT_NOMATCH;
 }
 
@@ -521,9 +527,10 @@ static void daemon_printf( const char *format, ... )
       daemon_terminate( 0, __func__ );
    }
 
-   pt = alloca(2*len + 10); /* +10 for the case when buf == "\n"*/
+   pt = xmalloc(2*len + 10); /* +10 for the case when buf == "\n"*/
    daemon_crlf(pt, buf, 0);
    daemon_write(pt, strlen(pt));
+   xfree(pt);
 }
 
 static void daemon_mime( void )
@@ -544,10 +551,11 @@ static void daemon_mime_definition (const dictDatabase *db)
 
 static void daemon_text( const char *text, int dot )
 {
-   char *pt = alloca( 2*strlen(text) + 10 );
+   char *pt = xmalloc( 2*strlen(text) + 10 );
 
    daemon_crlf(pt, text, dot);
    daemon_write(pt, strlen(pt));
+   xfree(pt);
 }
 
 static int daemon_read( char *buf, int count )
@@ -1456,12 +1464,14 @@ static void daemon_auth( const char *cmdline, int argc, const char **argv )
    }
 
    buf_size = strlen(daemonStamp) + strlen(secret) + 10;
-   buf = alloca(buf_size);
+   buf = xmalloc(buf_size);
    snprintf( buf, buf_size, "%s%s", daemonStamp, secret );
 
    MD5Init(&ctx);
    MD5Update(&ctx, (const unsigned char *) buf, strlen(buf));
    MD5Final(digest, &ctx);
+
+   xfree(buf);
 
    for (i = 0; i < 16; i++)
       snprintf( hex+2*i, 3, "%02x", digest[i] );

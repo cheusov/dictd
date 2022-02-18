@@ -30,10 +30,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#if HAVE_HEADER_ALLOCA_H
-# include <alloca.h>
-#endif
-
 static int           _prs_debug_flag   = 0;
 static const char    *_prs_cpp_options = NULL;
 
@@ -78,7 +74,7 @@ void prs_file_pp (const char *pp, const char *filename)
       return;
    }
 
-   buffer = alloca (strlen (pp) + strlen (filename) + 100);
+   buffer = xmalloc (strlen (pp) + strlen (filename) + 100);
 
    sprintf (buffer, "%s '%s' 2>/dev/null", pp, filename);
 
@@ -87,6 +83,8 @@ void prs_file_pp (const char *pp, const char *filename)
    if (!(yyin = popen( buffer, "r" )))
       err_fatal_errno( __func__,
 		       "Cannot open \"%s\" for read\n", buffer );
+
+   xfree(buffer);
 
    src_new_file( filename );
    yydebug = _prs_debug_flag;
@@ -150,7 +148,7 @@ void prs_file( const char *filename )
 		    "Cannot locate cpp -- set KHEPERA_CPP to cpp's path\n" );
    }
 
-   buffer = alloca( strlen( cpp )
+   buffer = xmalloc( strlen( cpp )
                     + sizeof( filename )
 		    + (_prs_cpp_options ? strlen( _prs_cpp_options ) : 0)
 		    + 100 );
@@ -162,6 +160,8 @@ void prs_file( const char *filename )
    if (!(yyin = popen( buffer, "r" )))
       err_fatal_errno( __func__,
 		       "Cannot open \"%s\" for read\n", filename );
+
+   xfree(buffer);
 
    src_new_file( filename );
    yydebug = _prs_debug_flag;
@@ -207,13 +207,16 @@ void prs_stream( FILE *str, const char *name )
 
 int prs_make_integer( const char *string, int length )
 {
-   char *buffer = alloca( length + 1 );
-   
-   if (!length) return 0;
+   if (!length)
+	   return 0;
+
+   char *buffer = xmalloc( length + 1 );
    strncpy( buffer, string, length );
    buffer [length] = 0;
 
-   return atoi( buffer );
+   int ret = atoi( buffer );
+   xfree(buffer);
+   return ret;
 }
 
 /* \doc |prs_make_double| converts a |string| of specified |length| to a
@@ -222,13 +225,17 @@ int prs_make_integer( const char *string, int length )
 
 double prs_make_double( const char *string, int length )
 {
-   char *buffer = alloca( length + 1 );
+   if (!length)
+	   return 0;
 
-   if (!length) return 0;
+   char *buffer = xmalloc( length + 1 );
+
    strncpy( buffer, string, length );
    buffer [length] = 0;
 
-   return atof( buffer );
+   int ret = atof( buffer );
+   xfree(buffer);
+   return ret;
 }
 
 #ifdef SHARED_LIBMAA

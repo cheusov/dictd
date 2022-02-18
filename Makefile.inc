@@ -15,5 +15,3 @@ MKC_REQUIRE_PROGS +=	${AWK}
 INTEXTS_REPLS     +=	AWK ${AWK:U${PROG.${AWK}}}
 
 CCSTD              =	c99
-
-MKC_CHECK_HEADERS +=	alloca.h
