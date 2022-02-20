@@ -281,8 +281,10 @@ static const char * signal2name (int sig)
       return "SIGQUIT";
    case SIGILL:
       return "SIGILL";
+#ifdef SIGTRAP
    case SIGTRAP:
       return "SIGTRAP";
+#endif
    case SIGTERM:
       return "SIGTERM";
    case SIGPIPE:
@@ -1737,7 +1739,9 @@ int main (int argc, char **argv, char **envp)
       setsig(SIGINT,  handler, 0);
    setsig(SIGQUIT, handler, 0);
    setsig(SIGILL,  handler, 0);
+#ifdef SIGTRAP
    setsig(SIGTRAP, handler, 0);
+#endif
    setsig(SIGTERM, handler, 0);
    setsig(SIGPIPE, handler, 0);
    setsig(SIGALRM, handler, SA_RESTART);
