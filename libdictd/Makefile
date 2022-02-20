@@ -7,8 +7,6 @@ CPPFLAGS +=	 -I${SRCTOP}/dictdplugins/include -I${SRCDIR_dictzip} \
 CFLAGS.check +=	-Wno-error=cast-qual -Wno-error=unused-variable \
    -Wno-empty-body
 
-CPPFLAGS     +=	-D_POSIX_C_SOURCE=200809L
-
 MKINSTALL =	no
 
 MKC_FEATURES +=	strlcpy
