@@ -26,6 +26,15 @@ MKC_REQUIRE_FUNCLIBS +=	lst_create:maa deflate:z
 MKC_CHECK_FUNCS2     += daemon:stdlib.h \
    initgroups:unistd.h getgroups:unistd.h
 
+MKC_REQUIRE_FUNCLIBS +=	lst_create:maa bind:socket inet_ntop:nsl
+MKC_CHECK_FUNCLIBS   +=	daemon
+
+.include <mkc.configure.mk>
+
+.if !${HAVE_FUNCLIB.daemon:U0}
+SRCS +=			daemon3.c
+.endif
+
 dictd.o: servparse.h
 
 .include <mkc.mk>
