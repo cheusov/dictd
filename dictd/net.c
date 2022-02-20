@@ -94,7 +94,7 @@ int net_connect_tcp( const char *host, const char *service, int address_family )
 	 if (r->ai_next != NULL)
 	    continue;
 
-	 err_fatal_errno( __FUNCTION__, "Can't open socket\n");
+	 err_fatal_errno( __func__, "Can't open socket\n");
       }
 
       PRINTF(DBG_VERBOSE,("Trying %s (%s)...", host, inet_ntopW(r->ai_addr)));
@@ -131,7 +131,7 @@ int net_open_tcp (
    hints.ai_flags = AI_PASSIVE;
 
    if (getaddrinfo (address, service, &hints, &r) != 0)
-      err_fatal ( __FUNCTION__, "getaddrinfo: Failed, address = \"%s\", service = \"%s\"\n", address, service);
+      err_fatal ( __func__, "getaddrinfo: Failed, address = \"%s\", service = \"%s\"\n", address, service);
 
    for (rtmp = r; r != NULL; r = r->ai_next) {
       s = socket (r->ai_family, r->ai_socktype, r->ai_protocol);
@@ -141,14 +141,14 @@ int net_open_tcp (
 	    continue;
 
 	 freeaddrinfo (rtmp);
-	 err_fatal_errno (__FUNCTION__, "Can't open socket\n");
+	 err_fatal_errno (__func__, "Can't open socket\n");
       }
 
       {
 	 const int one = 1;
 	 err = setsockopt (s, SOL_SOCKET, SO_REUSEADDR, &one, sizeof (one));
 	 if (err != 0){
-	    err_fatal_errno (__FUNCTION__, "Can't setsockopt\n");
+	    err_fatal_errno (__func__, "Can't setsockopt\n");
 	 }
       }
 
@@ -158,7 +158,7 @@ int net_open_tcp (
 	    continue;
 	 }
 	 freeaddrinfo (rtmp);
-	 err_fatal_errno( __FUNCTION__, "Can't bind %s/tcp to %s\n",
+	 err_fatal_errno( __func__, "Can't bind %s/tcp to %s\n",
 			  service, address?address:"ANY" );
       }
 
@@ -168,7 +168,7 @@ int net_open_tcp (
 	    continue;
 	 }
 	 freeaddrinfo (rtmp);
-	 err_fatal_errno( __FUNCTION__, "Can't listen to %s/tcp on %s\n",
+	 err_fatal_errno( __func__, "Can't listen to %s/tcp on %s\n",
 			  service, address );
       }
 
