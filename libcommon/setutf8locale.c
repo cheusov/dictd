@@ -9,7 +9,6 @@
 #include "common.h"
 
 static const char *const utf8_locales [] = {
-   "UTF-8",
    "C.UTF-8",
    "en_US.UTF-8",
 };
