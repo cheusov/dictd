@@ -16,7 +16,8 @@ static const char *const utf8_locales [] = {
 
 void setutf8locale(void)
 {
-	for (size_t i = 0 ; i < sizeof(utf8_locales)/sizeof(utf8_locales[0]); ++i) {
+	size_t i;
+	for (i = 0 ; i < sizeof(utf8_locales)/sizeof(utf8_locales[0]); ++i) {
 		if (setlocale(LC_CTYPE, utf8_locales[i]))
 			return;
 	}
