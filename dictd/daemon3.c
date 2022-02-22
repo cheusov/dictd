@@ -1,55 +1,75 @@
-#include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <sys/termios.h>
+/*	$NetBSD: daemon.c,v 1.10 2012/06/25 22:32:43 abs Exp $	*/
+
+/*-
+ * Copyright (c) 1990, 1993
+ *	The Regents of the University of California.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the University nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
+
+#if defined(LIBC_SCCS) && !defined(lint)
+#if 0
+static char sccsid[] = "@(#)daemon.c	8.1 (Berkeley) 6/4/93";
+#else
+__RCSID("$NetBSD: daemon.c,v 1.10 2012/06/25 22:32:43 abs Exp $");
+#endif
+#endif /* LIBC_SCCS and not lint */
+
 #include <fcntl.h>
 #include <stdlib.h>
+#include <unistd.h>
 
-#include "dictd.h"
+int
+daemon(int nochdir, int noclose);
 
-int daemon (int nochdir, int noclose);
-
-int daemon (int nochdir, int noclose)
+int
+daemon(int nochdir, int noclose)
 {
-   int i;
-   int fd;
+	int fd;
 
-   switch (fork()) {
-   case -1: err_fatal_errno( __func__, "Cannot fork\n" ); break;
-   case 0:  break;		/* child */
-   default: exit(0);		/* parent */
-   }
-   
-   /* The detach algorithm is a modification of that presented by Comer,
-      Douglas E. and Stevens, David L. INTERNETWORKING WITH TCP/IP, VOLUME
-      III: CLIENT-SERVER PROGRAMMING AND APPLICATIONS (BSD SOCKET VERSION).
-      Englewood Cliffs, New Jersey: Prentice Hall, 1993 (Chapter 27). */
+	switch (fork()) {
+	case -1:
+		return (-1);
+	case 0:
+		break;
+	default:
+		_exit(0);
+	}
 
-   if (!noclose)
-      for (i=getdtablesize()-1; i >= 0; --i)
-	 close(i); /* close everything */
+	if (setsid() == -1)
+		return (-1);
 
-#if defined(__hpux__) || defined(__CYGWIN__) || defined(__INTERIX) || defined(__OPENNT)
-#ifndef TIOCNOTTY
-#define NO_IOCTL_TIOCNOTTY
-#endif /* TIOCNOTTY */
-#endif /* strange platforms */
+	if (!nochdir)
+		(void)chdir("/");
 
-#ifndef NO_IOCTL_TIOCNOTTY
-   if ((fd = open("/dev/tty", O_RDWR)) >= 0) {
-				/* detach from controlling tty */
-      ioctl(fd, TIOCNOTTY, 0);
-      close(fd);
-   }
-#endif
-
-   if (!nochdir)
-      chdir("/");		/* cd to safe directory */
-
-   setpgid(0,getpid());	/* Get process group */
-
-   if (!noclose){
-      fd = open("/dev/null", O_RDWR);    /* stdin */
-      dup(fd);			      /* stdout */
-      dup(fd);			      /* stderr */
-   }
+	if (!noclose && (fd = open("/dev/null", O_RDWR, 0)) != -1) {
+		(void)dup2(fd, STDIN_FILENO);
+		(void)dup2(fd, STDOUT_FILENO);
+		(void)dup2(fd, STDERR_FILENO);
+		if (fd > STDERR_FILENO)
+			(void)close(fd);
+	}
+	return (0);
 }
