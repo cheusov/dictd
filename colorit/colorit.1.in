@@ -46,6 +46,8 @@ Shows help information.
 .TP
 .BI \-c " file\fR or "  \-\-config " file"
 Specify configuration file.  The default is
+.I $XDG_CONFIG_HOME/coloritrc
+or
 .I ~/.coloritrc
 or
 .I @SYSCONFDIR@/colorit.conf
@@ -58,7 +60,7 @@ Specify a pager (- for none). The default is
 Specify a preprocessor (- for none).
 .SH "FILES"
 .TP
-.I ~/.coloritrc
+.I ~/.coloritrc\fR or \fI$XDG_CONFIG_HOME/coloritrc
 User's
 .B colorit
 configuration file
