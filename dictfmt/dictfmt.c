@@ -19,10 +19,7 @@
  */
 
 #include <stdlib.h>
-
-#define _XOPEN_SOURCE
 #include <wchar.h>
-#undef _XOPEN_SOURCE
 
 extern int wcwidth(wchar_t c);
 
