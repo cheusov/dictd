@@ -1,5 +1,7 @@
 WARNS     =	4
 
+MKC_CHECK_FUNCS2 +=	initgroups:unistd.h getgroups:unistd.h daemon:stdlib.h
+
 CPPFLAGS +=	-DDICT_VERSION=2.0.0
 CPPFLAGS +=	-DDICT_CONFIG_PATH=$(SYSCONFDIR:U.)/
 CPPFLAGS +=	-DDICT_PLUGIN_PATH=$(LIBEXECDIR:U.)/
