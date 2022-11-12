@@ -22,6 +22,7 @@ CPPFLAGS +=	-I${SRCTOP}/dictdplugins/include -I${SRCDIR_libdictd} \
 CFLAGS.check +=	-Wno-error=cast-qual -Wno-error=unused-function \
    -Wno-error=unused-const-variable -Wno-error=format-truncation
 CFLAGS.check +=	-erroff=E_STATEMENT_NOT_REACHED
+CFLAGS.check +=	-Wno-error=deprecated-declarations # daemon(3) is considered deprecated
 
 MKC_REQUIRE_FUNCLIBS +=	lst_create:maa deflate:z
 MKC_CHECK_FUNCS2     += daemon:stdlib.h \
