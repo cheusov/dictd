@@ -40,6 +40,8 @@
 #include <assert.h>
 #include <unistd.h>
 
+#include <mkc_efun.h>
+
 int mmap_mode;
 
 #define FIND_PREV(begin, pt) while (pt > begin && pt [-1] != '\n') --pt;
@@ -1500,8 +1502,7 @@ static int dict_search_suffix(
    assert (database);
 
    if (database->index_suffix){
-      buf = (char *) malloc (strlen (word));
-      strcpy (buf, word);
+      buf = (char *) estrdup(word);
 
       PRINTF(DBG_SEARCH, ("anagram: '%s' ==> ", buf));
       if (!stranagram (buf, utf8_mode)){
@@ -1547,8 +1548,7 @@ static int dict_search_last (
    assert (database);
 
    if (database->index_suffix){
-      buf = (char *) xmalloc (strlen (word));
-      strcpy (buf, word);
+      buf = (char *) estrdup(word);
 
       PRINTF(DBG_SEARCH, ("anagram: '%s' ==> ", buf));
       if (!stranagram (buf, utf8_mode)){

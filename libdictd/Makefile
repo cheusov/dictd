@@ -9,6 +9,6 @@ CFLAGS.check +=	-Wno-error=cast-qual -Wno-error=unused-variable \
 
 MKINSTALL =	no
 
-MKC_FEATURES +=	strlcpy
+MKC_FEATURES +=	strlcpy efun
 
 .include <mkc.mk>
