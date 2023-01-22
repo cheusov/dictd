@@ -30,6 +30,7 @@ MKC_CHECK_FUNCS2     += daemon:stdlib.h \
 
 MKC_REQUIRE_FUNCLIBS +=	lst_create:maa bind:socket inet_ntop:nsl
 MKC_CHECK_FUNCLIBS   +=	daemon
+MKC_FEATURES         += efun
 
 .include <mkc.configure.mk>
 
