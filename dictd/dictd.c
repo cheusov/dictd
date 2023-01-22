@@ -144,11 +144,11 @@ int                databases_unloaded    = 0;
 
 static const char *configFile  = "DICT_CONFIG_PATH" DICTD_CONFIG_NAME;
 
-static void dict_close_databases (dictConfig *c);
+static void dict_close_databases(dictConfig *c);
 static void sanity (const char *confFile);
-static void dict_init_databases (dictConfig *c);
+static void dict_init_databases(dictConfig *c);
 static void dict_config_print (FILE *stream, dictConfig *c);
-static void postprocess_filenames (dictConfig *dc);
+static void postprocess_filenames(dictConfig *dc);
 
 void dict_initsetproctitle( int argc, char **argv, char **envp )
 {
@@ -195,7 +195,7 @@ const char *dict_format_time( double t )
    if (++current >= 10) current = 0;
 
    if (t < 600) {
-      snprintf( this, sizeof (buf [0]), "%0.3f", t );
+      snprintf( this, sizeof(buf [0]), "%0.3f", t );
    } else {
       s = (long int)t;
       d = s / (3600*24);
@@ -206,17 +206,17 @@ const char *dict_format_time( double t )
       s -= m * 60;
 
       if (d)
-	 snprintf( this, sizeof (buf [0]), "%ld+%02ld:%02ld:%02ld", d, h, m, s );
+	 snprintf( this, sizeof(buf [0]), "%ld+%02ld:%02ld:%02ld", d, h, m, s );
       else if (h)
-	 snprintf( this, sizeof (buf [0]), "%02ld:%02ld:%02ld", h, m, s );
+	 snprintf( this, sizeof(buf [0]), "%02ld:%02ld:%02ld", h, m, s );
       else
-	 snprintf( this, sizeof (buf [0]), "%02ld:%02ld", m, s );
+	 snprintf( this, sizeof(buf [0]), "%02ld:%02ld", m, s );
    }
 
    return this;
 }
 
-static int waitpid__exit_status (int status)
+static int waitpid__exit_status(int status)
 {
    if (WIFEXITED(status)){
       return WEXITSTATUS(status);
@@ -243,7 +243,7 @@ static void reaper( int dummy )
          log_info( ":I: Reaped %d%s, exit status %i\n",
                    pid,
                    _dict_daemon ? " IN CHILD": "",
-		   waitpid__exit_status (status));
+		   waitpid__exit_status(status));
    }
 }
 
@@ -292,81 +292,81 @@ static const char * signal2name (int sig)
    case SIGALRM:
       return "SIGALRM";
    default:
-      snprintf (name, sizeof (name), "Signal %d", sig);
+      snprintf(name, sizeof(name), "Signal %d", sig);
       return name;
    }
 }
 
-static void log_sig_info (int sig)
+static void log_sig_info(int sig)
 {
-   log_info (
+   log_info(
       ":I: %s: c/f = %d/%d; %sr %su %ss\n",
       signal2name (sig),
       _dict_comparisons,
       _dict_forks,
-      dict_format_time (tim_get_real ("dictd")),
-      dict_format_time (tim_get_user ("dictd")),
-      dict_format_time (tim_get_system ("dictd")));
+      dict_format_time(tim_get_real ("dictd")),
+      dict_format_time(tim_get_user ("dictd")),
+      dict_format_time(tim_get_system ("dictd")));
 }
 
-static void unload_databases (void)
+static void unload_databases(void)
 {
-   dict_close_databases (DictConfig);
+   dict_close_databases(DictConfig);
    DictConfig = NULL;
 }
 
-static void reload_config (void)
+static void reload_config(void)
 {
-   dict_close_databases (DictConfig);
+   dict_close_databases(DictConfig);
 
    if (!access(configFile,R_OK)){
-      prs_file_pp (preprocessor, configFile);
-      postprocess_filenames (DictConfig);
+      prs_file_pp(preprocessor, configFile);
+      postprocess_filenames(DictConfig);
    }
 
    sanity (configFile);
 
-   if (dbg_test (DBG_VERBOSE))
+   if (dbg_test(DBG_VERBOSE))
       dict_config_print( NULL, DictConfig );
 
-   dict_init_databases (DictConfig);
+   dict_init_databases(DictConfig);
 }
 
 /*
-static void xsigaddset (sigset_t *set, int signo)
+static void xsigaddset(sigset_t *set, int signo)
 {
    if (sigaddset (set, signo)){
-      log_error ("", "sigaddset(2) failed: %s\n", strerror (errno));
+      log_error("", "sigaddset(2) failed: %s\n", strerror(errno));
    }
 }
 
-static void xsigprocmask (int how, const sigset_t *set, sigset_t *oset)
+static void xsigprocmask(int how, const sigset_t *set, sigset_t *oset)
 {
    if (sigprocmask (how, set, oset)){
-      log_error ("", "sigaddset(2) failed: %s\n", strerror (errno));
+      log_error("", "sigaddset(2) failed: %s\n", strerror(errno));
    }
 }
 
-static void block_signals (void)
+static void block_signals(void)
 {
    sigset_t set;
 
-   sigemptyset (&set);
-   xsigaddset (&set, SIGALRM);
-   xsigaddset (&set, SIGCHLD);
+   sigemptyset(&set);
+   xsigaddset(&set, SIGALRM);
+   xsigaddset(&set, SIGCHLD);
 
-   xsigprocmask (SIG_BLOCK, &set, NULL);
+   xsigprocmask(SIG_BLOCK, &set, NULL);
 }
 
-static void unblock_signals (void)
+static void unblock_signals(void)
 {
    sigset_t set;
 
-   sigemptyset (&set);
-   xsigaddset (&set, SIGALRM);
-   xsigaddset (&set, SIGCHLD);
+   sigemptyset(&set);
+   xsigaddset(&set, SIGALRM);
+   xsigaddset(&set, SIGCHLD);
 
-   xsigprocmask (SIG_UNBLOCK, &set, NULL);
+   xsigprocmask(SIG_UNBLOCK, &set, NULL);
 }
 */
 
@@ -399,13 +399,13 @@ static void handler( int sig )
 	 break;
       }
 
-      log_sig_info (sig);
+      log_sig_info(sig);
    }
    if (!dbg_test(DBG_NOFORK) || sig != SIGALRM)
       exit(sig+128);
 }
 
-static const char *postprocess_filename (const char *fn, const char *prefix)
+static const char *postprocess_filename(const char *fn, const char *prefix)
 {
    char *new_fn;
 
@@ -413,51 +413,51 @@ static const char *postprocess_filename (const char *fn, const char *prefix)
       return NULL;
 
    if (fn [0] != '/' && fn [0] != '.'){
-      new_fn = xmalloc (2 + strlen (prefix) + strlen (fn));
-      strcpy (new_fn, prefix);
-      strcat (new_fn, fn);
+      new_fn = xmalloc(2 + strlen(prefix) + strlen(fn));
+      strcpy(new_fn, prefix);
+      strcat(new_fn, fn);
 
       return new_fn;
    }else{
-      return xstrdup (fn);
+      return xstrdup(fn);
    }
 }
 
-const char *postprocess_plugin_filename (const char *fn)
+const char *postprocess_plugin_filename(const char *fn)
 {
-   return postprocess_filename (fn, "DICT_PLUGIN_PATH");
+   return postprocess_filename(fn, "DICT_PLUGIN_PATH");
 }
 
-const char *postprocess_dict_filename (const char *fn)
+const char *postprocess_dict_filename(const char *fn)
 {
-   return postprocess_filename (fn, "DICT_DICTIONARY_PATH");
+   return postprocess_filename(fn, "DICT_DICTIONARY_PATH");
 }
 
-static void postprocess_filenames (dictConfig *dc)
+static void postprocess_filenames(dictConfig *dc)
 {
    lst_Position p;
    dictDatabase *db;
 
    LST_ITERATE(dc -> dbl, p, db) {
-      db -> dataFilename = postprocess_dict_filename (db -> dataFilename);
-      db -> indexFilename = postprocess_dict_filename (db -> indexFilename);
-      db -> indexsuffixFilename = postprocess_dict_filename (db -> indexsuffixFilename);
-      db -> indexwordFilename = postprocess_dict_filename (db -> indexwordFilename);
-      db -> pluginFilename = postprocess_plugin_filename (db -> pluginFilename);
+      db -> dataFilename = postprocess_dict_filename(db -> dataFilename);
+      db -> indexFilename = postprocess_dict_filename(db -> indexFilename);
+      db -> indexsuffixFilename = postprocess_dict_filename(db -> indexsuffixFilename);
+      db -> indexwordFilename = postprocess_dict_filename(db -> indexwordFilename);
+      db -> pluginFilename = postprocess_plugin_filename(db -> pluginFilename);
    }
 
-   site_info = postprocess_dict_filename (site_info);
+   site_info = postprocess_dict_filename(site_info);
 }
 
 static void handler_sighup (int sig)
 {
-   log_sig_info (sig);
+   log_sig_info(sig);
    need_reload_config = 1;
 }
 
 static void handler_sigusr1 (int sig)
 {
-   log_sig_info (sig);
+   log_sig_info(sig);
    need_unload_databases = 1;
 }
 
@@ -574,12 +574,12 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
    size_t   len;
 
    if (
-      0 >= dict_search (
+      0 >= dict_search(
 	 list, entryName, db, DICT_STRAT_EXACT, 0,
 	 NULL, NULL, NULL ))
    {
 #ifdef USE_PLUGIN
-      call_dictdb_free (DictConfig->dbl);
+      call_dictdb_free(DictConfig->dbl);
 #endif
       lst_destroy( list );
       return NULL;
@@ -587,11 +587,11 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
 
    dw = lst_nth_get( list, 1 );
 
-   assert (dw -> database);
+   assert(dw -> database);
 
    buf = pt = dict_data_obtain( dw -> database, dw );
 
-   if (!strncmp (pt, "00database", 10) || !strncmp (pt, "00-database", 11)){
+   if (!strncmp(pt, "00database", 10) || !strncmp(pt, "00-database", 11)){
       while (*pt != '\n')
 	 ++pt;
 
@@ -606,13 +606,13 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
       pt [len - 1] = '\0';
 
 #ifdef USE_PLUGIN
-   call_dictdb_free (DictConfig->dbl);
+   call_dictdb_free(DictConfig->dbl);
 #endif
    dict_destroy_list( list );
 
-   pt = xstrdup (pt);
+   pt = xstrdup(pt);
 
-   xfree (buf);
+   xfree(buf);
 
    return pt;
 }
@@ -620,22 +620,22 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
 static dictDatabase *dbname2database (const char *dbname)
 {
    dictDatabase *db    = NULL;
-   lst_Position db_pos = lst_init_position (DictConfig->dbl);
+   lst_Position db_pos = lst_init_position(DictConfig->dbl);
 
    while (db_pos){
-      db = lst_get_position (db_pos);
+      db = lst_get_position(db_pos);
 
-      if (!strcmp (db -> databaseName, dbname)){
+      if (!strcmp(db -> databaseName, dbname)){
 	 return db;
       }
 
-      db_pos = lst_next_position (db_pos);
+      db_pos = lst_next_position(db_pos);
    }
 
    return NULL;
 }
 
-static lst_List string2virtual_db_list (char *s)
+static lst_List string2virtual_db_list(char *s)
 {
    int len, i;
    lst_List virtual_db_list;
@@ -644,9 +644,9 @@ static lst_List string2virtual_db_list (char *s)
    dictDatabase *db = NULL;
 
    p   = s;
-   len = strlen (s);
+   len = strlen(s);
 
-   virtual_db_list = lst_create ();
+   virtual_db_list = lst_create();
 
    for (i = 0; i <= len; ++i){
       if (s [i] == ',' || s [i] == '\n' || s [i] == '\0'){
@@ -656,11 +656,11 @@ static lst_List string2virtual_db_list (char *s)
 	    db = dbname2database (p);
 
 	    if (db){
-	       lst_append (virtual_db_list, db);
+	       lst_append(virtual_db_list, db);
 	    }else{
 	       log_info( ":E: Unknown database '%s'\n", p );
 	       PRINTF(DBG_INIT, (":E: Unknown database '%s'\n", p));
-	       exit (2);
+	       exit(2);
 	    }
 	 }
 
@@ -671,7 +671,7 @@ static lst_List string2virtual_db_list (char *s)
    return virtual_db_list;
 }
 
-static int init_virtual_db_list (const void *datum)
+static int init_virtual_db_list(const void *datum)
 {
    lst_List list;
    dictDatabase *db  = (dictDatabase *)datum;
@@ -680,38 +680,38 @@ static int init_virtual_db_list (const void *datum)
    int ret;
 
    if (db -> database_list){
-      buf = xstrdup (db -> database_list);
-      db -> virtual_db_list = string2virtual_db_list (buf);
-      xfree (buf);
+      buf = xstrdup(db -> database_list);
+      db -> virtual_db_list = string2virtual_db_list(buf);
+      xfree(buf);
    }else{
       if (!db -> index)
 	 return 0;
 
       list = lst_create();
-      ret = dict_search (
+      ret = dict_search(
 	 list, DICT_FLAG_VIRTUAL, db, DICT_STRAT_EXACT, 0,
 	 NULL, NULL, NULL);
 
       switch (ret){
       case 1: case 2:
-	 dw  = (dictWord *) lst_pop (list);
-	 buf = dict_data_obtain (db, dw);
-	 dict_destroy_datum (dw);
+	 dw  = (dictWord *) lst_pop(list);
+	 buf = dict_data_obtain(db, dw);
+	 dict_destroy_datum(dw);
 
-	 db -> virtual_db_list = string2virtual_db_list (buf);
+	 db -> virtual_db_list = string2virtual_db_list(buf);
 
-	 xfree (buf);
+	 xfree(buf);
 	 break;
       case 0:
 	 break;
       default:
-	 err_fatal (
+	 err_fatal(
 	    __func__,
 	    "index file contains more than one %s entry",
 	    DICT_FLAG_VIRTUAL);
       }
 
-      dict_destroy_list (list);
+      dict_destroy_list(list);
    }
 
    return 0;
@@ -729,13 +729,13 @@ static int init_mime_db_list (const void *datum)
       db -> mime_mimeDB = dbname2database (db -> mime_mimeDbname);
 
       if (!db -> mime_mimeDB){
-	 err_fatal (
+	 err_fatal(
 	    __func__,
 	    "Incorrect database name '%s'\n",
 	    db -> mime_mimeDbname);
       }
    }else{
-      err_fatal (
+      err_fatal(
 	 __func__,
 	 "MIME database '%s' has no mime_dbname keyword\n",
 	 db -> databaseName);
@@ -746,13 +746,13 @@ static int init_mime_db_list (const void *datum)
       db -> mime_nomimeDB = dbname2database (db -> mime_nomimeDbname);
 
       if (!db -> mime_nomimeDB){
-	 err_fatal (
+	 err_fatal(
 	    __func__,
 	    "Incorrect database name '%s'\n",
 	    db -> mime_nomimeDbname);
       }
    }else{
-      err_fatal (
+      err_fatal(
 	 __func__,
 	 "MIME database '%s' has no nomime_dbname keyword\n",
 	 db -> databaseName);
@@ -765,32 +765,32 @@ static int init_plugin( const void *datum )
 {
 #ifdef USE_PLUGIN
    dictDatabase *db = (dictDatabase *)datum;
-   dict_plugin_init (db);
+   dict_plugin_init(db);
 #endif
 
    return 0;
 }
 
-void dict_disable_strat (dictDatabase *db, const char* strategy)
+void dict_disable_strat(dictDatabase *db, const char* strategy)
 {
    int strat = -1;
-   int array_size = get_max_strategy_num () + 1;
+   int array_size = get_max_strategy_num() + 1;
 
-   assert (db);
-   assert (strategy);
+   assert(db);
+   assert(strategy);
 
    if (!db -> strategy_disabled){
-      db -> strategy_disabled = xmalloc (array_size * sizeof (int));
-      memset (db -> strategy_disabled, 0, array_size * sizeof (int));
+      db -> strategy_disabled = xmalloc(array_size * sizeof(int));
+      memset(db -> strategy_disabled, 0, array_size * sizeof(int));
    }
 
-   strat = lookup_strategy_ex (strategy);
-   assert (strat >= 0);
+   strat = lookup_strategy_ex(strategy);
+   assert(strat >= 0);
 
    db -> strategy_disabled [strat] = 1;
 }
 
-static void init_database_alphabet (dictDatabase *db)
+static void init_database_alphabet(dictDatabase *db)
 {
    int ret;
    lst_List l;
@@ -800,24 +800,24 @@ static void init_database_alphabet (dictDatabase *db)
    if (!db -> normal_db)
       return;
 
-   l = lst_create ();
+   l = lst_create();
 
-   ret = dict_search_database_ (l, DICT_FLAG_ALPHABET, db, DICT_STRAT_EXACT);
+   ret = dict_search_database_(l, DICT_FLAG_ALPHABET, db, DICT_STRAT_EXACT);
 
    if (ret){
-      dw = (const dictWord *) lst_top (l);
-      data = dict_data_obtain (db, dw);
+      dw = (const dictWord *) lst_top(l);
+      data = dict_data_obtain(db, dw);
       db -> alphabet = data;
 
-      data = strchr (db -> alphabet, '\n');
+      data = strchr(db -> alphabet, '\n');
       if (data)
 	 *data = 0;
    }
 
-   dict_destroy_list (l);
+   dict_destroy_list(l);
 }
 
-static void init_database_default_strategy (dictDatabase *db)
+static void init_database_default_strategy(dictDatabase *db)
 {
    int ret;
    lst_List l;
@@ -834,29 +834,29 @@ static void init_database_default_strategy (dictDatabase *db)
       return;
    }
 
-   l = lst_create ();
+   l = lst_create();
 
-   ret = dict_search_database_ (l, DICT_FLAG_DEFAULT_STRAT, db, DICT_STRAT_EXACT);
+   ret = dict_search_database_(l, DICT_FLAG_DEFAULT_STRAT, db, DICT_STRAT_EXACT);
 
    if (ret){
-      dw = (const dictWord *) lst_top (l);
-      data = dict_data_obtain (db, dw);
+      dw = (const dictWord *) lst_top(l);
+      data = dict_data_obtain(db, dw);
 
       for (p=data; *p && isalpha ((unsigned char) *p); ++p){
       }
       *p = '\0';
 
-      def_strat = lookup_strategy (data);
+      def_strat = lookup_strategy(data);
       if (-1 == def_strat){
-	 PRINTF (DBG_INIT, (":I:     `%s' is not supported by dictd\n", data));
+	 PRINTF(DBG_INIT, (":I:     `%s' is not supported by dictd\n", data));
       }else{
 	 db -> default_strategy = def_strat;
       }
 
-      xfree (data);
+      xfree(data);
    }
 
-   dict_destroy_list (l);
+   dict_destroy_list(l);
 }
 
 static int init_database_mime_header (const void *datum)
@@ -875,20 +875,20 @@ static int init_database_mime_header (const void *datum)
       return 0;
    }
 
-   l = lst_create ();
+   l = lst_create();
 
-   ret = dict_search_database_ (l, DICT_FLAG_MIME_HEADER, db, DICT_STRAT_EXACT);
+   ret = dict_search_database_(l, DICT_FLAG_MIME_HEADER, db, DICT_STRAT_EXACT);
 
    if (ret){
-      dw = (const dictWord *) lst_top (l);
-      data = dict_data_obtain (db, dw);
+      dw = (const dictWord *) lst_top(l);
+      data = dict_data_obtain(db, dw);
 
-      db -> mime_header = xstrdup (data);
+      db -> mime_header = xstrdup(data);
 
-      xfree (data);
+      xfree(data);
    }
 
-   dict_destroy_list (l);
+   dict_destroy_list(l);
 
    return 0;
 }
@@ -898,16 +898,16 @@ static int init_database( const void *datum )
    dictDatabase *db = (dictDatabase *)datum;
    const char *strat_name = NULL;
 
-   PRINTF (DBG_INIT, (":I: Initializing '%s'\n", db->databaseName));
+   PRINTF(DBG_INIT, (":I: Initializing '%s'\n", db->databaseName));
 
    if (db->indexFilename){
-      PRINTF (DBG_INIT, (":I:   Opening indices\n"));
+      PRINTF(DBG_INIT, (":I:   Opening indices\n"));
    }
 
    db->index        = dict_index_open( db->indexFilename, 1, NULL );
 
    if (db->indexFilename){
-      PRINTF (DBG_INIT, (":I:     .index <ok>\n"));
+      PRINTF(DBG_INIT, (":I:     .index <ok>\n"));
    }
 
    if (db->index){
@@ -921,40 +921,40 @@ static int init_database( const void *datum )
    }
 
    if (db->index_suffix){
-      PRINTF (DBG_INIT, (":I:     .indexsuffix <ok>\n"));
+      PRINTF(DBG_INIT, (":I:     .indexsuffix <ok>\n"));
       db->index_suffix->flag_8bit     = db->index->flag_8bit;
       db->index_suffix->flag_utf8     = db->index->flag_utf8;
       db->index_suffix->flag_allchars = db->index->flag_allchars;
    }
    if (db->index_word){
-      PRINTF (DBG_INIT, (":I:     .indexword <ok>\n"));
+      PRINTF(DBG_INIT, (":I:     .indexword <ok>\n"));
       db->index_word->flag_utf8     = db->index->flag_utf8;
       db->index_word->flag_8bit     = db->index->flag_8bit;
       db->index_word->flag_allchars = db->index->flag_allchars;
    }
 
    if (db->dataFilename){
-      PRINTF (DBG_INIT, (":I:   Opening data\n"));
+      PRINTF(DBG_INIT, (":I:   Opening data\n"));
    }
 
    db->data         = dict_data_open( db->dataFilename, 0 );
 
-   init_database_alphabet (db);
+   init_database_alphabet(db);
    if (db -> alphabet){
-      PRINTF (DBG_INIT, (":I:     alphabet: %s\n", db -> alphabet));
+      PRINTF(DBG_INIT, (":I:     alphabet: %s\n", db -> alphabet));
    }else{
-      PRINTF (DBG_INIT, (":I:     alphabet: (NULL)\n"));
+      PRINTF(DBG_INIT, (":I:     alphabet: (NULL)\n"));
    }
 
    if (db -> default_strategy){
-      strat_name = get_strategy (db -> default_strategy) -> name;
-      PRINTF (DBG_INIT, (":I:     default_strategy (from conf file): %s\n",
+      strat_name = get_strategy(db -> default_strategy) -> name;
+      PRINTF(DBG_INIT, (":I:     default_strategy(from conf file): %s\n",
 			 strat_name));
    }else{
-      init_database_default_strategy (db);
+      init_database_default_strategy(db);
       if (db -> default_strategy){
-	 strat_name = get_strategy (db -> default_strategy) -> name;
-	 PRINTF (DBG_INIT, (":I:     default_strategy (from db): %s\n", strat_name));
+	 strat_name = get_strategy(db -> default_strategy) -> name;
+	 PRINTF(DBG_INIT, (":I:     default_strategy(from db): %s\n", strat_name));
       }else{
 	 db -> default_strategy = default_strategy;
       }
@@ -979,22 +979,22 @@ static int init_database_short (const void *datum)
    }else if (*db->databaseShort == '@'){
       db->databaseShort = get_entry_info( db, db->databaseShort + 1 );
    }else{
-      db->databaseShort = xstrdup (db->databaseShort);
+      db->databaseShort = xstrdup(db->databaseShort);
    }
 
    if (db->databaseShort){
-      NL = strchr (db->databaseShort, '\n');
+      NL = strchr(db->databaseShort, '\n');
       if (NL)
 	 *NL = 0;
    }
 
    if (!db->databaseShort)
-      db->databaseShort = xstrdup (db->databaseName);
+      db->databaseShort = xstrdup(db->databaseName);
 
    return 0;
 }
 
-static int close_plugin (const void *datum)
+static int close_plugin(const void *datum)
 {
 #ifdef USE_PLUGIN
    dictDatabase  *db = (dictDatabase *)datum;
@@ -1004,35 +1004,35 @@ static int close_plugin (const void *datum)
    return 0;
 }
 
-static int close_database (const void *datum)
+static int close_database(const void *datum)
 {
    dictDatabase  *db = (dictDatabase *)datum;
 
-   dict_index_close (db->index);
-   dict_index_close (db->index_suffix);
-   dict_index_close (db->index_word);
+   dict_index_close(db->index);
+   dict_index_close(db->index_suffix);
+   dict_index_close(db->index_word);
 
-   dict_data_close (db->data);
+   dict_data_close(db->data);
 
    if (db -> databaseShort)
-      xfree ((void *) db -> databaseShort);
+      xfree((void *) db -> databaseShort);
 
    if (db -> indexFilename)
-      xfree ((void *) db -> indexFilename);
+      xfree((void *) db -> indexFilename);
    if (db -> dataFilename)
-      xfree ((void *) db -> dataFilename);
+      xfree((void *) db -> dataFilename);
    if (db -> indexwordFilename)
-      xfree ((void *) db -> indexwordFilename);
+      xfree((void *) db -> indexwordFilename);
    if (db -> indexsuffixFilename)
-      xfree ((void *) db -> indexsuffixFilename);
+      xfree((void *) db -> indexsuffixFilename);
    if (db -> pluginFilename)
-      xfree ((void *) db -> pluginFilename);
+      xfree((void *) db -> pluginFilename);
    if (db -> strategy_disabled)
-      xfree ((void *) db -> strategy_disabled);
+      xfree((void *) db -> strategy_disabled);
    if (db -> alphabet)
-      xfree ((void *) db -> alphabet);
+      xfree((void *) db -> alphabet);
    if (db -> mime_header)
-      xfree ((void *) db -> mime_header);
+      xfree((void *) db -> mime_header);
 
    return 0;
 }
@@ -1056,18 +1056,18 @@ static int log_database_info( const void *datum )
    return 0;
 }
 
-static void dict_ltdl_init (void)
+static void dict_ltdl_init(void)
 {
 }
 
-static void dict_ltdl_close (void)
+static void dict_ltdl_close(void)
 {
 }
 
 /*
   Makes dictionary_exit db invisible if it is the last visible one
  */
-static void make_dictexit_invisible (dictConfig *c)
+static void make_dictexit_invisible(dictConfig *c)
 {
    lst_Position p;
    dictDatabase *db;
@@ -1090,7 +1090,7 @@ static void make_dictexit_invisible (dictConfig *c)
 
 static void dict_init_databases( dictConfig *c )
 {
-   make_dictexit_invisible (c);
+   make_dictexit_invisible(c);
 
    lst_iterate( c->dbl, init_database );
    lst_iterate( c->dbl, init_plugin );
@@ -1101,7 +1101,7 @@ static void dict_init_databases( dictConfig *c )
    lst_iterate( c->dbl, log_database_info );
 }
 
-static void dict_close_databases (dictConfig *c)
+static void dict_close_databases(dictConfig *c)
 {
    dictDatabase *db;
    dictAccess   *acl;
@@ -1110,34 +1110,34 @@ static void dict_close_databases (dictConfig *c)
       return;
 
    if (c -> dbl){
-      while (lst_length (c -> dbl) > 0){
-	 db = (dictDatabase *) lst_pop (c -> dbl);
+      while (lst_length(c -> dbl) > 0){
+	 db = (dictDatabase *) lst_pop(c -> dbl);
 
 	 if (db -> virtual_db_list)
-	    lst_destroy (db -> virtual_db_list);
+	    lst_destroy(db -> virtual_db_list);
 
-	 close_plugin (db);
-	 close_database (db);
-	 xfree (db);
+	 close_plugin(db);
+	 close_database(db);
+	 xfree(db);
       }
-      lst_destroy (c -> dbl);
+      lst_destroy(c -> dbl);
    }
 
    if (c -> acl){
-      while (lst_length (c -> acl) > 0){
-	 acl = (dictAccess *) lst_pop (c->acl);
-	 xfree (acl);
+      while (lst_length(c -> acl) > 0){
+	 acl = (dictAccess *) lst_pop(c->acl);
+	 xfree(acl);
       }
-      lst_destroy (c -> acl);
+      lst_destroy(c -> acl);
    }
 
    if (site_info)
-      xfree ((void *) site_info);
+      xfree((void *) site_info);
 
-   xfree (c);
+   xfree(c);
 }
 
-static const char *id_string (void)
+static const char *id_string(void)
 {
    static char buffer [BUFFERSIZE];
 
@@ -1160,12 +1160,12 @@ const char *dict_get_banner( int shortFlag )
    shortBuffer = xmalloc(256);
    snprintf(
       shortBuffer, 256,
-      "%s %s", err_program_name(), id_string () );
+      "%s %s", err_program_name(), id_string() );
 
    longBuffer = xmalloc(1024);
    snprintf(
       longBuffer, 1024,
-      "%s %s/rf on %s %s", err_program_name(), id_string (),
+      "%s %s/rf on %s %s", err_program_name(), id_string(),
       uts.sysname,
       uts.release );
 
@@ -1245,7 +1245,7 @@ static void help( void )
 "   --fast-start                 don't create additional (internal) index.",
 "   --without-mmap               do not use mmap() function and load files\n\
                                 into memory instead.",
-"   --stdin2stdout               copy stdin to stdout (addition to -i option).",
+"   --stdin2stdout               copy stdin to stdout(addition to -i option).",
       0 };
    const char        **p = help_msg;
 
@@ -1373,7 +1373,7 @@ static void sanity(const char *confFile)
 	 }
 #ifndef USE_PLUGIN
 	 if (e -> plugin_db){
-	    log_info (
+	    log_info(
 	       ":E: plugin support was disabled at compile time\n");
 	    ++fail;
 	 }
@@ -1397,21 +1397,21 @@ static void sanity(const char *confFile)
    }
 }
 
-static void set_locale_and_flags (const char *loc)
+static void set_locale_and_flags(const char *loc)
 {
    const char *charset = NULL;
 
    if (!setlocale(LC_COLLATE, loc) || !setlocale(LC_CTYPE, loc)){
-      fprintf (stderr, "invalid locale '%s'\n", locale);
-      exit (2);
+      fprintf(stderr, "invalid locale '%s'\n", locale);
+      exit(2);
    }
 
-   charset = nl_langinfo (CODESET);
+   charset = nl_langinfo(CODESET);
 
-   utf8_mode = !strcmp (charset, "UTF-8") || !strcmp (charset, "utf-8");
+   utf8_mode = !strcmp(charset, "UTF-8") || !strcmp(charset, "utf-8");
 }
 
-static void set_umask (void)
+static void set_umask(void)
 {
 #if defined(__OPENNT) || defined(__INTERIX)
    umask(002);		/* set safe umask */
@@ -1420,62 +1420,62 @@ static void set_umask (void)
 #endif
 }
 
-static void init (const char *fn)
+static void init(const char *fn)
 {
-   maa_init (fn);
-   dict_ltdl_init ();
-   dict_init_strategies ();
+   maa_init(fn);
+   dict_ltdl_init();
+   dict_init_strategies();
 }
 
 static void destroy (void)
 {
-   maa_shutdown ();
+   maa_shutdown();
 
-   dict_ltdl_close ();
-   dict_destroy_strategies ();
+   dict_ltdl_close();
+   dict_destroy_strategies();
 }
 
 FILE *pid_fd = NULL;
 
-static void pid_file_create (void)
+static void pid_file_create(void)
 {
-   pid_fd = fopen (pidFile, "w");
+   pid_fd = fopen(pidFile, "w");
 
    if (!pid_fd){
       log_info(":E: cannot open pid file '%s'\n:E:    err msg: %s\n",
-	       pidFile, strerror (errno));
+	       pidFile, strerror(errno));
       err_fatal(__func__,
 		":E: terminating due to errors. See log file\n");
    }
 }
 
-static void pid_file_write (void)
+static void pid_file_write(void)
 {
-   if (-1 == fprintf (pid_fd, "%lu\n", (unsigned long) getpid ()) ||
-       fclose (pid_fd))
+   if (-1 == fprintf(pid_fd, "%lu\n", (unsigned long) getpid ()) ||
+       fclose(pid_fd))
    {
       log_info(":E: cannot write to pid file '%s'\n:E:    err msg: %s\n",
-	       pidFile, strerror (errno));
+	       pidFile, strerror(errno));
       err_fatal(__func__,
 		":E: terminating due to errors. See log file\n");
    }
 }
 
-static void reopen_012 (void)
+static void reopen_012(void)
 {
    int fd = open ("/dev/null", O_RDWR);
    if (fd == -1)
-      err_fatal_errno (__func__, ":E: can't open /dev/null");
+      err_fatal_errno(__func__, ":E: can't open /dev/null");
 
-   close (0);
-   close (1);
-   close (2);
+   close(0);
+   close(1);
+   close(2);
 
-   if (dup (fd) == -1)
+   if (dup(fd) == -1)
       err_fatal_errno(NULL, ":E: dup(2) failed\n");
-   if (dup (fd) == -1)
+   if (dup(fd) == -1)
       err_fatal_errno(NULL, ":E: dup(2) failed\n");
-   if (dup (fd) == -1)
+   if (dup(fd) == -1)
       err_fatal_errno(NULL, ":E: dup(2) failed\n");
 }
 
@@ -1486,7 +1486,7 @@ int main (int argc, char **argv, char **envp)
    struct sockaddr_storage csin;
    int                c;
    time_t             startTime;
-   socklen_t          alen         = sizeof (csin);
+   socklen_t          alen         = sizeof(csin);
    int                detach       = 1;
    int                forceStartup = 0;
    int                i;
@@ -1531,8 +1531,8 @@ int main (int argc, char **argv, char **envp)
       { 0,                  0, 0, 0  }
    };
 
-   set_umask ();
-   init (argv[0]);
+   set_umask();
+   init(argv[0]);
 
    flg_register( LOG_SERVER,    "server" );
    flg_register( LOG_CONNECT,   "connect" );
@@ -1559,7 +1559,7 @@ int main (int argc, char **argv, char **envp)
    dbg_register( DBG_NOFORK,   "nofork" );
    dbg_register( DBG_ALT,      "alt" );
 
-   log_stream ("dictd", stderr);
+   log_stream("dictd", stderr);
 
    while ((c = getopt_long( argc, argv,
 			    "vVd:p:c:hL:t:l:sm:fi", longopts, NULL )) != EOF)
@@ -1609,39 +1609,39 @@ int main (int argc, char **argv, char **envp)
 	 break;
       case 505:
 	 ++useSyslog;
-	 log_set_facility (optarg);
+	 log_set_facility(optarg);
 	 syslog_facility_set = 1;
 	 break;
       case 506:
-	 locale     = str_copy (optarg);
+	 locale     = str_copy(optarg);
 	 locale_set = 1;
 	 break;
       case 508:;                            break;
       case 511:
-	 default_strategy_arg = str_copy (optarg);
-	 default_strategy     = lookup_strategy_ex (default_strategy_arg);
+	 default_strategy_arg = str_copy(optarg);
+	 default_strategy     = lookup_strategy_ex(default_strategy_arg);
 	 default_strategy_set = 1;
 	 break;
       case 513:
-	 dict_disable_strategies (optarg);
+	 dict_disable_strategies(optarg);
 	 break;
       case 516:
 	 new_strategy = optarg;
-	 new_strategy_descr = strchr (new_strategy, ':');
+	 new_strategy_descr = strchr(new_strategy, ':');
 	 if (!new_strategy_descr){
-	    fprintf (stderr, "missing ':' symbol in --add-strategy option\n");
-	    exit (1);
+	    fprintf(stderr, "missing ':' symbol in --add-strategy option\n");
+	    exit(1);
 	 }
 
 	 *new_strategy_descr++ = 0;
 
-	 dict_add_strategy (new_strategy, new_strategy_descr);
+	 dict_add_strategy(new_strategy, new_strategy_descr);
 
 	 break;
       case 517: optStart_mode = 0;                        break;
-      case 518: preprocessor = str_copy (optarg);         break;
+      case 518: preprocessor = str_copy(optarg);         break;
       case 519:
-	 bind_to     = str_copy (optarg);
+	 bind_to     = str_copy(optarg);
 	 bind_to_set = 1;
 	 break;
       case 521:
@@ -1657,8 +1657,8 @@ int main (int argc, char **argv, char **envp)
 	 else if (optarg[0] == '6' && optarg[1] == '\0')
 	    dictd_address_family     = AF_INET6;
 	 else {
-	    fprintf (stderr, "incorrect value for option --address-family\n");
-	    exit (1);
+	    fprintf(stderr, "incorrect value for option --address-family\n");
+	    exit(1);
 	 }
 
 	 dictd_address_family_set = 1;
@@ -1671,17 +1671,17 @@ int main (int argc, char **argv, char **envp)
       detach = 0;
 
    if (-1 == default_strategy){
-      fprintf (stderr, "%s is not a valid search strategy\n",
+      fprintf(stderr, "%s is not a valid search strategy\n",
 	       default_strategy_arg);
 
-      fprintf (stderr, "available ones are:\n");
+      fprintf(stderr, "available ones are:\n");
 
-      for (i = 0; i < get_strategy_count (); ++i){
-	  fprintf (
+      for (i = 0; i < get_strategy_count(); ++i){
+	  fprintf(
 	      stderr, "  %15s : %s\n",
-	      get_strategies () [i] -> name, get_strategies () [i] -> description);
+	      get_strategies() [i] -> name, get_strategies() [i] -> description);
       }
-      exit (1);
+      exit(1);
    }
 
    if (dbg_test(DBG_NOFORK))    dbg_set_flag( DBG_NODETACH);
@@ -1693,29 +1693,29 @@ int main (int argc, char **argv, char **envp)
    else                         log_option( LOG_OPTION_NO_FULL );
 
    if (!access(configFile,R_OK)) {
-      prs_file_pp (preprocessor, configFile );
-      postprocess_filenames (DictConfig);
+      prs_file_pp(preprocessor, configFile );
+      postprocess_filenames(DictConfig);
    }
 
-   if (detach) pid_file_create (); /* before leaving root priviledges */
+   if (detach) pid_file_create(); /* before leaving root priviledges */
 
    release_root_privileges();
 
    if (logFile)   log_file ("dictd", logFile);
-   log_stream ("dictd", NULL);
+   log_stream("dictd", NULL);
    if (useSyslog) log_syslog ("dictd");
-   if (! inetd && ! detach)   log_stream ("dictd", stderr);
+   if (! inetd && ! detach)   log_stream("dictd", stderr);
    if ((logFile || useSyslog || !detach) && !logOptions)
       set_minimal();
 
    if (detach){
       /* become a daemon */
-      if (daemon (0, 1))
+      if (daemon(0, 1))
          err_fatal_errno(NULL, ":E: daemon(3) failed\n");
-      reopen_012 ();
+      reopen_012();
 
       /* after fork from daemon(3) */
-      pid_file_write ();
+      pid_file_write();
    }
 
    time(&startTime);
@@ -1726,7 +1726,7 @@ int main (int argc, char **argv, char **envp)
    alarm(_dict_markTime);
 
    if (locale)
-      set_locale_and_flags (locale);
+      set_locale_and_flags(locale);
    else
       setutf8locale();
 
@@ -1776,23 +1776,23 @@ int main (int argc, char **argv, char **envp)
       if (flg_test(LOG_SERVER))
          log_info( ":I: %d accepting on %s\n", getpid(), daemon_service );
 
-/*unblock_signals ();*/
+/*unblock_signals();*/
       childSocket = accept (masterSocket,
 			    (struct sockaddr *)&csin, &alen);
       errno_accept = errno;
-/*block_signals ();*/
+/*block_signals();*/
 
       if (childSocket < 0){
 	 switch (errno_accept){
 	 case EINTR:
 	    if (need_reload_config){
-	       reload_config ();
+	       reload_config();
 	       need_reload_config = 0;
 	       databases_unloaded = 0;
 	    }
 
 	    if (need_unload_databases){
-	       unload_databases ();
+	       unload_databases();
 	       need_unload_databases = 0;
 	       databases_unloaded = 1;
 	    }
@@ -1804,9 +1804,9 @@ int main (int argc, char **argv, char **envp)
 	 case ENETUNREACH:
 	    continue;
 	 default:
-	    log_info (":E: can't accept: errno = %d: %s\n",
-		      errno_accept, strerror (errno_accept));
-	    err_fatal_errno (__func__, ":E: can't accept");
+	    log_info(":E: can't accept: errno = %d: %s\n",
+		      errno_accept, strerror(errno_accept));
+	    err_fatal_errno(__func__, ":E: can't accept");
 	 }
       }
 
@@ -1823,7 +1823,7 @@ int main (int argc, char **argv, char **envp)
 		  alarm(_dict_daemon_limit_time);
 	       }
 
-	       dict_daemon (childSocket, &csin, databases_loaded ? 0 : 2);
+	       dict_daemon(childSocket, &csin, databases_loaded ? 0 : 2);
 
 	       exit(0);
 	    } else {		   /* parent */
@@ -1835,7 +1835,7 @@ int main (int argc, char **argv, char **envp)
       }
    }
 
-   dict_close_databases (DictConfig);
+   dict_close_databases(DictConfig);
 
    destroy ();
    return 0;

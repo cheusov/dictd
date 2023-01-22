@@ -38,43 +38,43 @@
 
 int net_connect_tcp( const char *host, const char *service, int address_family )
 {
-   struct addrinfo *r = NULL;
-   struct addrinfo *rtmp = NULL;
-   struct addrinfo hints;
-   int s;
+	struct addrinfo *r = NULL;
+	struct addrinfo *rtmp = NULL;
+	struct addrinfo hints;
+	int s;
 
-   memset (&hints, 0, sizeof (struct addrinfo));
-   hints.ai_family = address_family;
-   hints.ai_protocol = IPPROTO_TCP;
-   hints.ai_socktype = SOCK_STREAM;
-   hints.ai_flags = AI_ADDRCONFIG;
+	memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_family = address_family;
+	hints.ai_protocol = IPPROTO_TCP;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_ADDRCONFIG;
 
-   if (getaddrinfo (host, service, &hints, &r) != 0) {
-      return NET_NOHOST;
-   }
+	if (getaddrinfo(host, service, &hints, &r) != 0) {
+		return NET_NOHOST;
+	}
 
-   for (rtmp = r; r != NULL; r = r->ai_next) {
-      s = socket (r->ai_family, r->ai_socktype, r->ai_protocol);
-      if (s < 0) {
-	 if (r->ai_next != NULL)
-	    continue;
+	for (rtmp = r; r != NULL; r = r->ai_next) {
+		s = socket (r->ai_family, r->ai_socktype, r->ai_protocol);
+		if (s < 0) {
+			if (r->ai_next != NULL)
+				continue;
 
-	 err_fatal_errno( __func__, "Can't open socket\n");
-      }
+			err_fatal_errno( __func__, "Can't open socket\n");
+		}
 
-      PRINTF(DBG_VERBOSE,("Trying %s (%s)...", host, inet_ntopW(r->ai_addr)));
+		PRINTF(DBG_VERBOSE,("Trying %s (%s)...", host, inet_ntopW(r->ai_addr)));
 
-      if (connect (s, r->ai_addr, r->ai_addrlen) >= 0) {
-	 PRINTF(DBG_VERBOSE,("Connected."));
-	 freeaddrinfo (rtmp);
-	 return s;
-      }
+		if (connect (s, r->ai_addr, r->ai_addrlen) >= 0) {
+			PRINTF(DBG_VERBOSE,("Connected."));
+			freeaddrinfo(rtmp);
+			return s;
+		}
 
-      PRINTF(DBG_VERBOSE,("Failed: %s\n", strerror (errno)));
+		PRINTF(DBG_VERBOSE,("Failed: %s\n", strerror(errno)));
 
-      close (s);
-   }
-   freeaddrinfo (rtmp);
+		close(s);
+	}
+	freeaddrinfo(rtmp);
 
-   return NET_NOCONNECT;
+	return NET_NOCONNECT;
 }

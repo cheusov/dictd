@@ -42,7 +42,7 @@ extern int        yyparse( void );
 
 void prs_set_debug( int debug_flag )
 {
-   _prs_debug_flag = debug_flag;
+	_prs_debug_flag = debug_flag;
 }
 
 /* \doc |prs_set_cpp_options| sets the options for |cpp| to |cpp_options|,
@@ -51,7 +51,7 @@ void prs_set_debug( int debug_flag )
 
 void prs_set_cpp_options( const char *cpp_options )
 {
-   _prs_cpp_options = cpp_options ? str_find( cpp_options ) : NULL;
+	_prs_cpp_options = cpp_options ? str_find( cpp_options ) : NULL;
 }
 
 /* \doc |prs_file| calls opens |filename| for input, sets |yyerror| to the
@@ -62,111 +62,111 @@ void prs_set_cpp_options( const char *cpp_options )
    program, but this has not been implemented.  Also, either this function
    or another function should start an interactive parse session. */
 
-void prs_file_pp (const char *pp, const char *filename)
+void prs_file_pp(const char *pp, const char *filename)
 {
-   char              *buffer;
+	char              *buffer;
 
-   if (!filename)
-      err_fatal( __func__, "No filename specified\n" );
+	if (!filename)
+		err_fatal( __func__, "No filename specified\n" );
 
-   if (!pp){
-      prs_file_nocpp (filename);
-      return;
-   }
+	if (!pp){
+		prs_file_nocpp (filename);
+		return;
+	}
 
-   buffer = xmalloc (strlen (pp) + strlen (filename) + 100);
+	buffer = xmalloc(strlen(pp) + strlen(filename) + 100);
 
-   sprintf (buffer, "%s '%s' 2>/dev/null", pp, filename);
+	sprintf(buffer, "%s '%s' 2>/dev/null", pp, filename);
 
 
-   PRINTF(MAA_PARSE,("%s: %s\n", __func__, buffer));
-   if (!(yyin = popen( buffer, "r" )))
-      err_fatal_errno( __func__,
-		       "Cannot open \"%s\" for read\n", buffer );
+	PRINTF(MAA_PARSE,("%s: %s\n", __func__, buffer));
+	if (!(yyin = popen( buffer, "r" )))
+		err_fatal_errno( __func__,
+						 "Cannot open \"%s\" for read\n", buffer );
 
-   xfree(buffer);
+	xfree(buffer);
 
-   src_new_file( filename );
-   yydebug = _prs_debug_flag;
-   yyparse();
-   pclose( yyin );
+	src_new_file( filename );
+	yydebug = _prs_debug_flag;
+	yyparse();
+	pclose( yyin );
 }
 
 void prs_file( const char *filename )
 {
-   char              *buffer;
-   const char        **pt;
-   static const char *cpp = NULL;
-   static const char *cpps[] = { "/lib/cpp",
-                                 "/usr/lib/cpp",
-                                 "/usr/ccs/lib/cpp",	/* Solaris */
-                                 "/usr/lang/cpp",
-                                 0 };
-   FILE              *tmp;
-   
-   if (!filename)
-      err_fatal( __func__, "No filename specified\n" );
+	char              *buffer;
+	const char        **pt;
+	static const char *cpp = NULL;
+	static const char *cpps[] = { "/lib/cpp",
+								  "/usr/lib/cpp",
+								  "/usr/ccs/lib/cpp",	/* Solaris */
+								  "/usr/lang/cpp",
+								  0 };
+	FILE              *tmp;
 
-   if (!cpp) {
-      if ((cpp = getenv( "KHEPERA_CPP" ))) {
-         PRINTF(MAA_PARSE,("%s: Using KHEPERA_CPP from %s\n", __func__, cpp));
-      }
-      
-                                /* Always look for gcc's cpp first, since
-                                   we know it is ANSI C compliant. */
-      if (!cpp && (tmp = popen( "gcc -print-file-name=cpp", "r" ))) {
-         char buf[1024];
-         char *t;
-         
-         if (fread( buf, 1, 1023, tmp ) > 0) {
-            if ((t = strchr( buf, '\n' ))) *t = '\0';
-            PRINTF(MAA_PARSE,("%s: Using GNU cpp from %s\n", __func__, buf));
-            cpp = str_find( buf );
-         }
-         pclose( tmp );
-      }
+	if (!filename)
+		err_fatal( __func__, "No filename specified\n" );
 
-                                /* Then look for the vendor's cpp, which
-                                   may or may not be useful (e.g., on SunOS
-                                   4.x machines, it isn't ANSI C
-                                   compatible.  Considering ANSI C is C89,
-                                   and this is 1996, one might think that
-                                   Sun would have fixed this... */
-      if (!cpp) {
-         for (pt = cpps; **pt; pt++) {
-            if (!access( *pt, X_OK )) {
-               PRINTF(MAA_PARSE,
-                      ("%s: Using system cpp from %s\n", __func__, *pt));
-               cpp = *pt;
-               break;
-            }
-         }
-      }
-      
-      if (!cpp)
-	 err_fatal( __func__,
-		    "Cannot locate cpp -- set KHEPERA_CPP to cpp's path\n" );
-   }
+	if (!cpp) {
+		if ((cpp = getenv( "KHEPERA_CPP" ))) {
+			PRINTF(MAA_PARSE,("%s: Using KHEPERA_CPP from %s\n", __func__, cpp));
+		}
 
-   buffer = xmalloc( strlen( cpp )
-                    + sizeof( filename )
-		    + (_prs_cpp_options ? strlen( _prs_cpp_options ) : 0)
-		    + 100 );
+		/* Always look for gcc's cpp first, since
+		   we know it is ANSI C compliant. */
+		if (!cpp && (tmp = popen( "gcc -print-file-name=cpp", "r" ))) {
+			char buf[1024];
+			char *t;
 
-   sprintf( buffer, "%s -I. %s %s 2>/dev/null", cpp,
-	    _prs_cpp_options ? _prs_cpp_options : "", filename );
+			if (fread( buf, 1, 1023, tmp ) > 0) {
+				if ((t = strchr( buf, '\n' ))) *t = '\0';
+				PRINTF(MAA_PARSE,("%s: Using GNU cpp from %s\n", __func__, buf));
+				cpp = str_find( buf );
+			}
+			pclose( tmp );
+		}
 
-   PRINTF(MAA_PARSE,("%s: %s\n", __func__, buffer));
-   if (!(yyin = popen( buffer, "r" )))
-      err_fatal_errno( __func__,
-		       "Cannot open \"%s\" for read\n", filename );
+		/* Then look for the vendor's cpp, which
+		   may or may not be useful (e.g., on SunOS
+		   4.x machines, it isn't ANSI C
+		   compatible.  Considering ANSI C is C89,
+		   and this is 1996, one might think that
+		   Sun would have fixed this... */
+		if (!cpp) {
+			for (pt = cpps; **pt; pt++) {
+				if (!access( *pt, X_OK )) {
+					PRINTF(MAA_PARSE,
+						   ("%s: Using system cpp from %s\n", __func__, *pt));
+					cpp = *pt;
+					break;
+				}
+			}
+		}
 
-   xfree(buffer);
+		if (!cpp)
+			err_fatal( __func__,
+					   "Cannot locate cpp -- set KHEPERA_CPP to cpp's path\n" );
+	}
 
-   src_new_file( filename );
-   yydebug = _prs_debug_flag;
-   yyparse();
-   pclose( yyin );
+	buffer = xmalloc( strlen( cpp )
+					  + sizeof( filename )
+					  + (_prs_cpp_options ? strlen( _prs_cpp_options ) : 0)
+					  + 100 );
+
+	sprintf( buffer, "%s -I. %s %s 2>/dev/null", cpp,
+			 _prs_cpp_options ? _prs_cpp_options : "", filename );
+
+	PRINTF(MAA_PARSE,("%s: %s\n", __func__, buffer));
+	if (!(yyin = popen( buffer, "r" )))
+		err_fatal_errno( __func__,
+						 "Cannot open \"%s\" for read\n", filename );
+
+	xfree(buffer);
+
+	src_new_file( filename );
+	yydebug = _prs_debug_flag;
+	yyparse();
+	pclose( yyin );
 }
 
 /* \doc |prs_file_nocpp| calls opens |filename| for input, sets |yyerror|
@@ -178,27 +178,27 @@ void prs_file( const char *filename )
 
 void prs_file_nocpp( const char *filename )
 {
-   if (!filename)
-      err_fatal( __func__, "No filename specified\n" );
+	if (!filename)
+		err_fatal( __func__, "No filename specified\n" );
 
-   if (!(yyin = fopen( filename, "r" )))
-      err_fatal_errno( __func__,
-		       "Cannot open \"%s\" for read\n", filename );
+	if (!(yyin = fopen( filename, "r" )))
+		err_fatal_errno( __func__,
+						 "Cannot open \"%s\" for read\n", filename );
 
-   src_new_file( filename );
-   yydebug = _prs_debug_flag;
-   yyparse();
-   fclose( yyin );
+	src_new_file( filename );
+	yydebug = _prs_debug_flag;
+	yyparse();
+	fclose( yyin );
 }
 
 /* \doc |prs_stream| parses an already opened stream called |name|. */
 
 void prs_stream( FILE *str, const char *name )
 {
-   yyin = str;
-   src_new_file( name );
-   yydebug = _prs_debug_flag;
-   yyparse();
+	yyin = str;
+	src_new_file( name );
+	yydebug = _prs_debug_flag;
+	yyparse();
 }
 
 /* \doc |prs_make_integer| converts a |string| of specified |length| to an
@@ -207,16 +207,16 @@ void prs_stream( FILE *str, const char *name )
 
 int prs_make_integer( const char *string, int length )
 {
-   if (!length)
-	   return 0;
+	if (!length)
+		return 0;
 
-   char *buffer = xmalloc( length + 1 );
-   strncpy( buffer, string, length );
-   buffer [length] = 0;
+	char *buffer = xmalloc( length + 1 );
+	strncpy( buffer, string, length );
+	buffer [length] = 0;
 
-   int ret = atoi( buffer );
-   xfree(buffer);
-   return ret;
+	int ret = atoi( buffer );
+	xfree(buffer);
+	return ret;
 }
 
 /* \doc |prs_make_double| converts a |string| of specified |length| to a
@@ -225,17 +225,17 @@ int prs_make_integer( const char *string, int length )
 
 double prs_make_double( const char *string, int length )
 {
-   if (!length)
-	   return 0;
+	if (!length)
+		return 0;
 
-   char *buffer = xmalloc( length + 1 );
+	char *buffer = xmalloc( length + 1 );
 
-   strncpy( buffer, string, length );
-   buffer [length] = 0;
+	strncpy( buffer, string, length );
+	buffer [length] = 0;
 
-   int ret = atof( buffer );
-   xfree(buffer);
-   return ret;
+	int ret = atof( buffer );
+	xfree(buffer);
+	return ret;
 }
 
 #ifdef SHARED_LIBMAA

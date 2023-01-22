@@ -51,49 +51,49 @@
 
 int net_read( int s, char *buf, int maxlen )
 {
-   int  len;
-   int  n = 0;
-   char c;
-   char *pt = buf;
+	int  len;
+	int  n = 0;
+	char c;
+	char *pt = buf;
 
-   *pt = '\0';
+	*pt = '\0';
 
-   for (len = 0; len < maxlen && (n = read( s, &c, 1 )) > 0; /*void*/) {
-      switch (c) {
-      case '\n': *pt = '\0';       return len;
-      case '\r':                   break;
-      default:   *pt++ = c; ++len; break;
-      }
-   }
-   *pt = '\0';
-   if (!n) return len ? len : EOF;
-   return n;			/* error code */
+	for (len = 0; len < maxlen && (n = read( s, &c, 1 )) > 0; /*void*/) {
+		switch (c) {
+			case '\n': *pt = '\0';       return len;
+			case '\r':                   break;
+			default:   *pt++ = c; ++len; break;
+		}
+	}
+	*pt = '\0';
+	if (!n) return len ? len : EOF;
+	return n;			/* error code */
 }
 
 int net_write( int s, const char *buf, int len )
 {
-   int left = len;
-   int count;
-   
-   while (left) {
-      if ((count = write(s, buf, left)) != left) {
-	 if (count <= 0) return count; /* error code */
-      }
-      left -= count;
-   }
-   return len;
+	int left = len;
+	int count;
+
+	while (left) {
+		if ((count = write(s, buf, left)) != left) {
+			if (count <= 0) return count; /* error code */
+		}
+		left -= count;
+	}
+	return len;
 }
 
-const char *inet_ntopW (struct sockaddr *sa) {
-   static char buf[40];
+const char *inet_ntopW(struct sockaddr *sa) {
+	static char buf[40];
 
-   switch (sa->sa_family) {
-   case AF_INET:
-      return inet_ntop (sa->sa_family, &(((struct sockaddr_in *)sa)->sin_addr), buf, sizeof(buf));
-   case AF_INET6:
-      return inet_ntop (sa->sa_family, &(((struct sockaddr_in6 *)sa)->sin6_addr), buf, sizeof(buf));
-   default:
-      errno = EAFNOSUPPORT;
-      return NULL;
-   }
+	switch (sa->sa_family) {
+		case AF_INET:
+			return inet_ntop(sa->sa_family, &(((struct sockaddr_in *)sa)->sin_addr), buf, sizeof(buf));
+		case AF_INET6:
+			return inet_ntop(sa->sa_family, &(((struct sockaddr_in6 *)sa)->sin6_addr), buf, sizeof(buf));
+		default:
+			errno = EAFNOSUPPORT;
+			return NULL;
+	}
 }

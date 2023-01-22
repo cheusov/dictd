@@ -21,5 +21,5 @@ void setutf8locale(void)
 			return;
 	}
 
-	err_fatal (__func__, "Cannot set UTF-8 locale. Try to use --locale option\n");
+	err_fatal(__func__, "Cannot set UTF-8 locale. Try to use --locale option\n");
 }
