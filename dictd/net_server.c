@@ -41,20 +41,6 @@
 #define INADDR_NONE (-1)
 #endif
 
-const char *inet_ntopW (struct sockaddr *sa) {
-   static char buf[40];
-
-   switch (sa->sa_family) {
-   case AF_INET:
-      return inet_ntop (sa->sa_family, &(((struct sockaddr_in *)sa)->sin_addr), buf, sizeof(buf));
-   case AF_INET6:
-      return inet_ntop (sa->sa_family, &(((struct sockaddr_in6 *)sa)->sin6_addr), buf, sizeof(buf));
-   default:
-      errno = EAFNOSUPPORT;
-      return NULL;
-   }
-}
-
 const char *net_hostname( void )
 {
    static char hostname[128] = "";
@@ -69,49 +55,6 @@ const char *net_hostname( void )
 
    hostname[sizeof(hostname)-1] = '\0';
    return hostname;
-}
-
-int net_connect_tcp( const char *host, const char *service, int address_family )
-{
-   struct addrinfo *r = NULL;
-   struct addrinfo *rtmp = NULL;
-   struct addrinfo hints;
-   int s;
-
-   memset (&hints, 0, sizeof (struct addrinfo));
-   hints.ai_family = address_family;
-   hints.ai_protocol = IPPROTO_TCP;
-   hints.ai_socktype = SOCK_STREAM;
-   hints.ai_flags = AI_ADDRCONFIG;
-
-   if (getaddrinfo (host, service, &hints, &r) != 0) {
-      return NET_NOHOST;
-   }
-
-   for (rtmp = r; r != NULL; r = r->ai_next) {
-      s = socket (r->ai_family, r->ai_socktype, r->ai_protocol);
-      if (s < 0) {
-	 if (r->ai_next != NULL)
-	    continue;
-
-	 err_fatal_errno( __func__, "Can't open socket\n");
-      }
-
-      PRINTF(DBG_VERBOSE,("Trying %s (%s)...", host, inet_ntopW(r->ai_addr)));
-
-      if (connect (s, r->ai_addr, r->ai_addrlen) >= 0) {
-	 PRINTF(DBG_VERBOSE,("Connected."));
-	 freeaddrinfo (rtmp);
-	 return s;
-      }
-
-      PRINTF(DBG_VERBOSE,("Failed: %s\n", strerror (errno)));
-
-      close (s);
-   }
-   freeaddrinfo (rtmp);
-
-   return NET_NOCONNECT;
 }
 
 int net_open_tcp (
@@ -177,39 +120,4 @@ int net_open_tcp (
    freeaddrinfo (rtmp);
 
    return s;
-}
-
-int net_read( int s, char *buf, int maxlen )
-{
-   int  len;
-   int  n = 0;
-   char c;
-   char *pt = buf;
-
-   *pt = '\0';
-
-   for (len = 0; len < maxlen && (n = read( s, &c, 1 )) > 0; /*void*/) {
-      switch (c) {
-      case '\n': *pt = '\0';       return len;
-      case '\r':                   break;
-      default:   *pt++ = c; ++len; break;
-      }
-   }
-   *pt = '\0';
-   if (!n) return len ? len : EOF;
-   return n;			/* error code */
-}
-
-int net_write( int s, const char *buf, int len )
-{
-   int left = len;
-   int count;
-   
-   while (left) {
-      if ((count = write(s, buf, left)) != left) {
-	 if (count <= 0) return count; /* error code */
-      }
-      left -= count;
-   }
-   return len;
 }

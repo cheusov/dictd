@@ -1,5 +1,5 @@
 PROG =	dictd
-SRCS =	dictd.c daemon.c net.c servscan.l servparse.y
+SRCS =	dictd.c daemon.c net_server.c servscan.l servparse.y
 MAN  =	dictd.8
 
 BINDIR =	${SBINDIR}
