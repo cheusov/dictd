@@ -1,4 +1,19 @@
 ----------------------------------------------------------------------
+Version 2.0.0, by Aleksey Cheusov, Wed, 25 Jan 2023 22:55:23 +0400
+
+  Change build system to mk-configure. Have a look at INSTALL file.
+
+  Update implementation of MD5 funtions.
+
+  Get rid of alloca(3).
+
+  This has been successfully tested on the following systems: Darwin,
+  FreeBSD, Linux/glibc, Linux/musl, NetBSD, OpenBSD, Solaris-10 and
+  Solaris-11 and the following compilers: diverse versions of gcc,
+  clang, Sun/Oracle C and Intel C Compiler.  If something doesn't work
+  let me know on github!
+
+----------------------------------------------------------------------
 Version 1.13.1, by Aleksey Cheusov, Sun, 21 Nov 2021 15:46:08 +0300
 
   Remove the last call of gethostbyname(3)
