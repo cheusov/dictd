@@ -35,15 +35,17 @@ Full list of subprojects may be seen by running
 
 Building the dictd
 
-In order to build the whold project, run the following
+In order to build the whold project, run the following command.
 
         # mkcmake all
 
-for building, and
+In order to build and install the whold project, run the following command.
 
         # mkcmake install
 
-for installation.
+In order to build and test the whold project, run the following command.
+
+        # mkcmake test
 
 =item *
 
