@@ -1240,7 +1240,7 @@ static const char *id_string(void)
 {
 	static char buffer[BUFFERSIZE];
 
-	snprintf( buffer, BUFFERSIZE, "%s", "DICT_VERSION" );
+	snprintf( buffer, BUFFERSIZE, "%s", DICT_VERSION );
 
 	return buffer;
 }
@@ -1254,7 +1254,7 @@ static const char *client_get_banner( void )
 	uname( &uts );
 	buffer = xmalloc(1024);
 	snprintf( buffer, 1024,
-			  "%s %s/rf on %s %s", err_program_name(), id_string(),
+			  "%s %s on %s %s", err_program_name(), id_string(),
 			  uts.sysname, uts.release );
 	return buffer;
 }

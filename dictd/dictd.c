@@ -1141,7 +1141,7 @@ static const char *id_string(void)
 {
    static char buffer [BUFFERSIZE];
 
-   snprintf( buffer, BUFFERSIZE, "%s", "DICT_VERSION" );
+   snprintf( buffer, BUFFERSIZE, "%s", DICT_VERSION );
 
    return buffer;
 }
@@ -1165,7 +1165,7 @@ const char *dict_get_banner( int shortFlag )
    longBuffer = xmalloc(1024);
    snprintf(
       longBuffer, 1024,
-      "%s %s/rf on %s %s", err_program_name(), id_string(),
+      "%s %s on %s %s", err_program_name(), id_string(),
       uts.sysname,
       uts.release );
 
