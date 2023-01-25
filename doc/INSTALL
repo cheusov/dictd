@@ -1,15 +1,14 @@
-Please read the file README in this directory for additional important
-information on The DICT Development Group, this software, mailing lists, etc.
-
 INSTALLATION
 ============
 
-0. Since dictd-2.0.0 mk-configure is used as a build system instead of autobloat.
+0. Since dictd-2.0.0 mk-configure is used as a build system instead of
+   autobloat.
+
    So, install it first!
 
-   You also need libmaa development files.
+1. Install libmaa development files
 
-1. dictd project consists of the following subprojects:
+2. dictd project consists of the following subprojects:
 
     - dict                : Command-line dictionary protocol client
     - dictd               : Dictionary protocol server
@@ -23,40 +22,43 @@ INSTALLATION
 
         mkcmake help
 
-2. In order to build the whold project, run the following
+3. In order to build the whold project, run the following
 
         mkcmake all
 
-   for building and
+   for building, and
 
         mkcmake install
 
    for installation.
 
-3. For building some projects, one may use something like
+4. For building some projects, one may use something like
 
         mkcmake all-colorit install-colorit
 
-4. Build options are set with the help of environment variables, such as
+5. Build options are set with the help of environment variables, such as
    PREFIX, BINDIR, SYSCONFDIR, DESTDIR, CC, CFLAGS, LDFLAGS etc.
    Have a look at mk-configure(7) for details.
 
     Example:
 
         export PREFIX=/usr
+        export MANDIR=/usr/share/man
         export SYSCONFDIR=/etc
         export CC=clang
         export DESTDIR=/tmp/temp-root
         export COPTS='-O2 -g'
         mkcmake all install
 
-7.  Download dictionary databases and setup a proper server, you will
+    The default PREFIX is /usr/local.
+
+6.  Download dictionary databases and setup a proper server, you will
     need to configure a dictd.conf file.  Please see the man page
     dictd.8 and the example .conf files included with the source code
     for an explanation of the syntax needed and other important
     details.  By default, dictd will try to find this file as
     '/etc/dictd.conf', however if you start 'dictd' with the
-    '-c /your/path/to/your/conf/file/mydictd.conf', it will use that
+    '-c /your/path/to/mydictd.conf', it will use that
     file as the configuration file instead.
 
     For our example, with our web1913 database in /opt/public/dict-dbs,
@@ -65,7 +67,7 @@ INSTALLATION
         database web1913 { data "/opt/public/dict-dbs/web1913.dict.dz"
                           index "/opt/public/dict-dbs/web1913.index" }
 
-8.  If you're installing this software for "intranet" use, you will want to
+7.  If you're installing this software for "intranet" use, you will want to
     setup a 'dict.conf' file which the client software (dict) uses to
     locate servers and such.  The syntax of the dict.conf file is not
     documented anywhere that I can find, however if you have your 'dictd'
@@ -74,9 +76,9 @@ INSTALLATION
     client do not have to specify '-h dict.company.com' each time they
     want to query dictd:
 
-        server dict.company.com
+        server dict.example.com
 
-9.  That's it really.  Now pieces everything together, run your dictd and
+8.  That's it really.  Now pieces everything together, run your dictd and
     point it at your config file, and try running dict!
 
 
@@ -106,6 +108,6 @@ This setup allows ANY host on the network to quickly and easily become
 the dictd server.  All you have to do is setup a 'host alias' for the
 name 'dict' to point at whatever host you want to be the dictd server
 and then start dictd on that host.
- 
+
 NOTE:  I had to install the dictd.conf and dict.conf in that location
        BY HAND.  This is not done automatically for you.
