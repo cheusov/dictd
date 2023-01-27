@@ -30,13 +30,13 @@ extern void dict_plugin_destroy (dictDatabase *db);
 
 /* search */
 extern int dict_search_plugin (
-   lst_List l,
-   const char *const word,
-   const dictDatabase *database,
-   int strategy, /* search strategy + search type */
-   int *extra_result,
-   const dictPluginData **extra_data,
-   int *extra_data_size);
+	lst_List l,
+	const char *const word,
+	const dictDatabase *database,
+	int strategy, /* search strategy + search type */
+	int *extra_result,
+	const dictPluginData **extra_data,
+	int *extra_data_size);
 
 /* dictdb_free */
 extern void call_dictdb_free (lst_List db_list);

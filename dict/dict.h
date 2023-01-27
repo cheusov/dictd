@@ -43,21 +43,21 @@
 #define DBG_URL         (0<<30|1<< 7) /* URLs                              */
 
 typedef struct dictServer {
-   const char *host;
-   const char *port;
-   const char *user;
-   const char *secret;
+	const char *host;
+	const char *port;
+	const char *user;
+	const char *secret;
 } dictServer;
 
 typedef struct dictToken {
-   const char   *string;
-   int          integer;
-   src_Type     src;
+	const char   *string;
+	int          integer;
+	src_Type     src;
 } dictToken;
 
 extern lst_List   dict_Servers;	/* List of servers to try */
 
-				/* dmalloc must be last */
+/* dmalloc must be last */
 #ifdef DMALLOC_FUNC_CHECK
 # include "dmalloc.h"
 #endif

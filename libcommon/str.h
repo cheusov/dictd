@@ -22,14 +22,14 @@
 
 /* returns 0 if success */
 extern int tolower_alnumspace (
-   const char *src, char *dest,
-   int mode_allchars,
-   int mode_cs,
-   int mode_utf8);
+	const char *src, char *dest,
+	int mode_allchars,
+	int mode_cs,
+	int mode_utf8);
 
 extern char *strlwr_8bit (char *str);
 
 extern char *copy_utf8_string (
-   const char *MB_CUR_MAX_plus_1__bytes__blocks,
-   char *dest,
-   size_t len);
+	const char *MB_CUR_MAX_plus_1__bytes__blocks,
+	char *dest,
+	size_t len);

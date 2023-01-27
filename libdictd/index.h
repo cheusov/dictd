@@ -36,23 +36,23 @@ extern void dict_index_close (dictIndex *i);
      const char *word,
      dictIndex *idx); */
 extern int dict_search_database_ (
-   lst_List l,
-   const char *word,
-   const dictDatabase *database,
-   int strategy );
+	lst_List l,
+	const char *word,
+	const dictDatabase *database,
+	int strategy );
 extern int dict_search (
-   lst_List l,
-   const char *word,
-   const dictDatabase *database, int strategy,
-   int option_mime,
-   int *extra_result,                  /* may be NULL */
-   const dictPluginData **extra_data,  /* may be NULL */
-   int *extra_data_size);              /* may be NULL */
+	lst_List l,
+	const char *word,
+	const dictDatabase *database, int strategy,
+	int option_mime,
+	int *extra_result,                  /* may be NULL */
+	const dictPluginData **extra_data,  /* may be NULL */
+	int *extra_data_size);              /* may be NULL */
 extern int dict_search_databases (
-   lst_List *l,
-   lst_Position db_pos,
-   const char *databaseName, const char *word, int strategy,
-   int *db_found);
+	lst_List *l,
+	lst_Position db_pos,
+	const char *databaseName, const char *word, int strategy,
+	int *db_found);
 
 extern int        utf8_mode;
 extern int        optStart_mode;

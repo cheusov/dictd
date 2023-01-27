@@ -49,9 +49,9 @@
    defined for 4-byte entries. */
 
 
-				/* Output buffer must be greater than or
-                                   equal to 110% of input buffer size, plus
-                                   12 bytes. */
+/* Output buffer must be greater than or
+   equal to 110% of input buffer size, plus
+   12 bytes. */
 #define OUT_BUFFER_SIZE 0xffffL
 
 #define IN_BUFFER_SIZE ((unsigned long)((double)(OUT_BUFFER_SIZE - 12) * 0.89))
@@ -97,7 +97,7 @@
 #define GZ_ID1           0	/* GZ_MAGIC1                               */
 #define GZ_ID2           1	/* GZ_MAGIC2                               */
 #define GZ_CM            2	/* Compression Method (Z_DEFALTED)         */
-#define GZ_FLG	         3	/* FLaGs (see above)                       */
+#define GZ_FLG           3	/* FLaGs (see above)                       */
 #define GZ_MTIME         4	/* Modification TIME                       */
 #define GZ_XFL           8	/* eXtra FLags (GZ_MAX or GZ_FAST)         */
 #define GZ_OS            9	/* Operating System                        */
