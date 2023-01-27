@@ -1141,7 +1141,7 @@ static const char *id_string(void)
 {
    static char buffer [BUFFERSIZE];
 
-   snprintf( buffer, BUFFERSIZE, "%s", DICT_VERSION );
+   snprintf( buffer, BUFFERSIZE, "%s", STRINGIFY(DICT_VERSION) );
 
    return buffer;
 }

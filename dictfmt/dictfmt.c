@@ -766,7 +766,7 @@ static void fmt_closeindex( void )
 
 static void banner( FILE *out_stream )
 {
-	fprintf( out_stream, "dictfmt %s\n", DICT_VERSION );
+	fprintf( out_stream, "dictfmt %s\n", STRINGIFY(DICT_VERSION) );
 	fprintf( out_stream,
 			 "Copyright 1997-2000 Rickard E. Faith (faith@cs.unc.edu)\n"
 			 "Copyright 2002-2007 Aleksey Cheusov (vle@gmx.net)\n"
@@ -1055,7 +1055,7 @@ static void fmt_headword_for_dictfmt_ver(void)
 {
 	char ver [200];
 	snprintf(ver, sizeof(ver),
-			 "00-database-dictfmt-%s", "DICT_VERSION");
+			 "00-database-dictfmt-%s", STRINGIFY(DICT_VERSION));
 
 	if (dictfmt_ver_mode){
 		fmt_newheadword(ver);

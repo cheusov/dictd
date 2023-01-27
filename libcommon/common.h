@@ -27,4 +27,7 @@ int net_read( int s, char *buf, int maxlen );
 int net_write( int s, const char *buf, int len );
 const char *inet_ntopW (struct sockaddr *sa);
 
+#define AUX(x) #x
+#define STRINGIFY(x) AUX(x)
+
 #endif // _COMMON_H_

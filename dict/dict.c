@@ -21,6 +21,7 @@
 #include "dict.h"
 #include "parse.h"
 #include "md5.h"
+#include "common.h"
 
 #include <sys/utsname.h>
 #include <sys/wait.h>
@@ -1240,7 +1241,7 @@ static const char *id_string(void)
 {
 	static char buffer[BUFFERSIZE];
 
-	snprintf( buffer, BUFFERSIZE, "%s", DICT_VERSION );
+	snprintf( buffer, BUFFERSIZE, "%s", STRINGIFY(DICT_VERSION) );
 
 	return buffer;
 }
