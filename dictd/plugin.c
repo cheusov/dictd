@@ -29,6 +29,8 @@
 #include <ctype.h>
 #include <assert.h>
 
+#include <mkc_macro.h>
+
 int dict_search_plugin (
 	lst_List l,
 	const char *const word,
@@ -312,7 +314,7 @@ static int plugin_initdata_set_stratnames(
 			data -> size = sizeof(datum);
 			data -> data = xmalloc(sizeof(datum));
 
-			memcpy((void *) data -> data, &datum, sizeof(datum));
+			memcpy(__UNCONST(data -> data), &datum, sizeof(datum));
 
 			++data;
 			++ret;
@@ -402,7 +404,7 @@ static void plugin_init_data_free(
 
 	for (i = 0; i < data_size; ++i){
 		if (data -> data)
-			xfree((void *) data -> data);
+			xfree(__UNCONST(data -> data));
 
 		++data;
 	}

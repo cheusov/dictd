@@ -50,6 +50,8 @@
 #include <signal.h>
 #include <unistd.h>
 
+#include <mkc_macro.h>
+
 #define MAXPROCTITLE 2048       /* Maximum amount of proc title we'll use. */
 #undef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
@@ -478,7 +480,7 @@ struct access_print_struct {
 
 static int access_print( const void *datum, void *arg )
 {
-   dictAccess                 *a     = (dictAccess *)datum;
+   const dictAccess           *a     = (const dictAccess *)datum;
    struct access_print_struct *aps   = (struct access_print_struct *)arg;
    FILE                       *s     = aps->s;
    int                        offset = aps->offset;
@@ -528,7 +530,7 @@ static int user_print( const void *key, const void *datum, void *arg )
 
 static int config_print( const void *datum, void *arg )
 {
-   dictDatabase *db = (dictDatabase *)datum;
+   const dictDatabase *db = (const dictDatabase *)datum;
    FILE         *s  = (FILE *)arg;
 
    fprintf( s, "database %s {\n", db->databaseName );
@@ -674,7 +676,7 @@ static lst_List string2virtual_db_list(char *s)
 static int init_virtual_db_list(const void *datum)
 {
    lst_List list;
-   dictDatabase *db  = (dictDatabase *)datum;
+   dictDatabase *db = (dictDatabase *)__UNCONST(datum);
    dictWord *dw;
    char *buf;
    int ret;
@@ -719,7 +721,7 @@ static int init_virtual_db_list(const void *datum)
 
 static int init_mime_db_list (const void *datum)
 {
-   dictDatabase *db  = (dictDatabase *)datum;
+   dictDatabase *db  = (dictDatabase *)__UNCONST(datum);
 
    if (!db -> mime_db)
       return 0;
@@ -790,12 +792,13 @@ void dict_disable_strat(dictDatabase *db, const char* strategy)
    db -> strategy_disabled [strat] = 1;
 }
 
-static void init_database_alphabet(dictDatabase *db)
+static void init_database_alphabet(const void *datum)
 {
    int ret;
    lst_List l;
    const dictWord *dw;
    char *data;
+   dictDatabase *db = (dictDatabase *)__UNCONST(datum);
 
    if (!db -> normal_db)
       return;
@@ -817,7 +820,7 @@ static void init_database_alphabet(dictDatabase *db)
    dict_destroy_list(l);
 }
 
-static void init_database_default_strategy(dictDatabase *db)
+static void init_database_default_strategy(const void *datum)
 {
    int ret;
    lst_List l;
@@ -825,6 +828,7 @@ static void init_database_default_strategy(dictDatabase *db)
    char *data;
    int def_strat = -1;
    char *p;
+   dictDatabase *db = (dictDatabase *)__UNCONST(datum);
 
    if (!db -> normal_db)
       return;
@@ -861,7 +865,7 @@ static void init_database_default_strategy(dictDatabase *db)
 
 static int init_database_mime_header (const void *datum)
 {
-   dictDatabase *db = (dictDatabase *) datum;
+   dictDatabase *db = (dictDatabase *) __UNCONST(datum);
    int ret;
    lst_List l;
    const dictWord *dw;
@@ -893,9 +897,9 @@ static int init_database_mime_header (const void *datum)
    return 0;
 }
 
-static int init_database( const void *datum )
+static int init_database(const void *datum)
 {
-   dictDatabase *db = (dictDatabase *)datum;
+   dictDatabase *db = (dictDatabase *)__UNCONST(datum);
    const char *strat_name = NULL;
 
    PRINTF(DBG_INIT, (":I: Initializing '%s'\n", db->databaseName));
@@ -972,7 +976,7 @@ static int init_database_short (const void *datum)
 {
    char *NL;
 
-   dictDatabase *db = (dictDatabase *) datum;
+   dictDatabase *db = (dictDatabase *) __UNCONST(datum);
 
    if (!db->databaseShort){
       db->databaseShort = get_entry_info( db, DICT_SHORT_ENTRY_NAME );
@@ -1006,7 +1010,7 @@ static int close_plugin(const void *datum)
 
 static int close_database(const void *datum)
 {
-   dictDatabase  *db = (dictDatabase *)datum;
+   const dictDatabase  *db = (const dictDatabase *)datum;
 
    dict_index_close(db->index);
    dict_index_close(db->index_suffix);
@@ -1015,31 +1019,31 @@ static int close_database(const void *datum)
    dict_data_close(db->data);
 
    if (db -> databaseShort)
-      xfree((void *) db -> databaseShort);
+      xfree(__UNCONST(db -> databaseShort));
 
    if (db -> indexFilename)
-      xfree((void *) db -> indexFilename);
+      xfree(__UNCONST(db -> indexFilename));
    if (db -> dataFilename)
-      xfree((void *) db -> dataFilename);
+      xfree(__UNCONST(db -> dataFilename));
    if (db -> indexwordFilename)
-      xfree((void *) db -> indexwordFilename);
+      xfree(__UNCONST(db -> indexwordFilename));
    if (db -> indexsuffixFilename)
-      xfree((void *) db -> indexsuffixFilename);
+      xfree(__UNCONST(db -> indexsuffixFilename));
    if (db -> pluginFilename)
-      xfree((void *) db -> pluginFilename);
+      xfree(__UNCONST(db -> pluginFilename));
    if (db -> strategy_disabled)
-      xfree((void *) db -> strategy_disabled);
+      xfree(__UNCONST(db -> strategy_disabled));
    if (db -> alphabet)
-      xfree((void *) db -> alphabet);
+      xfree(__UNCONST(db -> alphabet));
    if (db -> mime_header)
-      xfree((void *) db -> mime_header);
+      xfree(__UNCONST(db -> mime_header));
 
    return 0;
 }
 
 static int log_database_info( const void *datum )
 {
-   dictDatabase  *db = (dictDatabase *)datum;
+   const dictDatabase  *db = (const dictDatabase *)datum;
    const char    *pt;
    unsigned long headwords = 0;
 
@@ -1132,7 +1136,7 @@ static void dict_close_databases(dictConfig *c)
    }
 
    if (site_info)
-      xfree((void *) site_info);
+      xfree(__UNCONST(site_info));
 
    xfree(c);
 }

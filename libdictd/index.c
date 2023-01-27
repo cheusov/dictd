@@ -41,6 +41,7 @@
 #include <unistd.h>
 
 #include <mkc_efun.h>
+#include <mkc_macro.h>
 
 int mmap_mode;
 
@@ -84,7 +85,7 @@ static int define_or_match = 0; /* 1 if define */
 */
 static int dict_table_init_compare_strcoll(const void *a, const void *b)
 {
-	return strcoll(*(const char **)a, *(const char **)b);
+	return strcoll(*(const char **)__UNCONST(a), *(const char **)__UNCONST(b));
 }
 
 /*
@@ -93,8 +94,8 @@ static int dict_table_init_compare_strcoll(const void *a, const void *b)
 */
 static int dict_table_init_compare_utf8(const void *a, const void *b)
 {
-	int c1 = ** (const unsigned char **) a;
-	int c2 = ** (const unsigned char **) b;
+	int c1 = ** (const unsigned char **) __UNCONST(a);
+	int c2 = ** (const unsigned char **) __UNCONST(b);
 
 	if (c1 <= CHAR_MAX)
 		c1 = tolower(c1);
@@ -241,8 +242,8 @@ static int compare_allchars(
 			c1 = * (unsigned char *) word;
 
 #else
-		c2 = * (unsigned char *) start;
-		c1 = * (unsigned char *) word;
+		c2 = * (unsigned char *) __UNCONST(start);
+		c1 = * (unsigned char *) __UNCONST(word);
 #endif
 		if (c1 != c2) {
 			if (c1 < c2){
@@ -698,7 +699,7 @@ static dictWord *dict_word_create(
 
 static int dict_dump_datum( const void *datum )
 {
-	dictWord *dw = (dictWord *)datum;
+	dictWord *dw = (dictWord *)__UNCONST(datum);
 	printf(
 		"\"%s\" %lu/%lu %p/%i\n",
 		dw->word, dw->start, dw->end,
@@ -714,7 +715,7 @@ void dict_dump_list( lst_List list )
 
 int dict_destroy_datum( const void *datum )
 {
-	dictWord *dw = (dictWord *)datum;
+	dictWord *dw = (dictWord *)__UNCONST(datum);
 
 	if (!datum)
 		return 0;
@@ -966,7 +967,7 @@ static int dict_search_brute(
 						goto continue2;
 
 				if (!previous ||
-					compare_1or4 (previous, dbindex, (char*) pt + 1,
+					compare_1or4 (previous, dbindex, (char*) __UNCONST(pt) + 1,
 								  (const char *) end, &previous))
 				{
 					++count;
@@ -1890,14 +1891,14 @@ dictIndex *dict_index_open(
 	if (mmap_mode){
 		if (i->size) {
 			i->start = mmap( NULL, i->size, PROT_READ, MAP_SHARED, i->fd, 0 );
-			if ((void *)i->start == (void *)(-1))
+			if (__UNCONST(i->start) == (void *)(-1))
 				err_fatal_errno(
 					__func__,
 					"Cannot mmap index file \"%s\"\b", filename );
 		} else i->start = NULL;  /* allow for /dev/null dummy index */
 	}else{
 		i->start = xmalloc(i->size);
-		if (-1 == read (i->fd, (char *) i->start, i->size))
+		if (-1 == read (i->fd, __UNCONST(i->start), i->size))
 			err_fatal_errno(
 				__func__,
 				"Cannot read index file \"%s\"\b", filename );
@@ -2033,13 +2034,13 @@ void dict_index_close( dictIndex *i )
 	if (mmap_mode){
 		if (i->fd >= 0) {
 			if(i->start)
-				munmap( (void *)i->start, i->size );
+				munmap(__UNCONST(i->start), i->size );
 			close( i->fd );
 			i->fd = 0;
 		}
 	}else{
 		if (i -> start)
-			xfree((char *) i -> start);
+			xfree(__UNCONST(i -> start));
 	}
 
 	xfree(i);

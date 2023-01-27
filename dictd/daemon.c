@@ -41,6 +41,8 @@
 #include <unistd.h>
 #include <time.h>
 
+#include <mkc_macro.h>
+
 int stdin2stdout_mode = 0; /* copy stdin to stdout( dict_dictd function ) */
 
 static int          _dict_defines, _dict_matches;
@@ -1651,8 +1653,8 @@ int _handleconn(int error) {
 		daemon_log( DICT_LOG_COMMAND, "%.80s\n", buf );
 		cmdline = arg_argify(buf,0);
 		arg_get_vector( cmdline, &argc, &argv );
-		if ((command = lookup_command (argc, (const char **) argv))) {
-			command(buf, argc, (const char **) argv);
+		if ((command = lookup_command (argc, (const char **) __UNCONST(argv)))) {
+			command(buf, argc, (const char **) __UNCONST(argv));
 		} else {
 			daemon_printf( "%d unknown command\n", CODE_SYNTAX_ERROR );
 		}

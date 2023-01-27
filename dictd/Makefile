@@ -19,7 +19,7 @@ YHEADER =	1
 CPPFLAGS +=	-I${SRCTOP}/dictdplugins/include -I${SRCDIR_libdictd} \
    -I${SRCDIR_dictd} -I${SRCDIR_libcommon}
 
-CFLAGS.check +=	-Wno-error=cast-qual -Wno-error=unused-function \
+CFLAGS.check +=	-Wno-error=unused-function \
    -Wno-error=unused-const-variable -Wno-error=format-truncation
 CFLAGS.check +=	-erroff=E_STATEMENT_NOT_REACHED
 CFLAGS.check +=	-Wno-error=deprecated-declarations # daemon(3) is considered deprecated

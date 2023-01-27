@@ -1,6 +1,7 @@
 WARNS     =	4
 
 MKC_CHECK_FUNCS2 +=	initgroups:unistd.h getgroups:unistd.h daemon:stdlib.h
+MKC_FEATURES     +=	macro
 
 DICT_VERSION =	2.0.0
 

@@ -30,6 +30,8 @@
 #include <unistd.h>
 #include <limits.h>
 
+#include <mkc_macro.h>
+
 #define USE_CACHE 1
 
 int dict_data_filter(
@@ -286,7 +288,7 @@ void dict_data_close( dictData *header )
 		return;
 
 	if (header->fd >= 0) {
-		munmap((void *)header->start, (size_t)header->size);
+		munmap(__UNCONST(header->start), (size_t)header->size);
 		close( header->fd );
 		header->fd = 0;
 		header->start = header->end = NULL;

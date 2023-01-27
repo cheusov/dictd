@@ -30,6 +30,7 @@
 #include <assert.h>
 
 #include <mkc_strlcpy.h>
+#include <mkc_macro.h>
 
 int default_strategy  = DICT_STRAT_LEVENSHTEIN;
 
@@ -77,8 +78,8 @@ static void dict_free_strategy(dictStrategy *strat)
 {
 	if (strat -> number >= NEW_STRAT_ID){
 		/* Free memory allocated for new strategies */
-		xfree((void *) strat -> name);
-		xfree((void *) strat -> description);
+		xfree(__UNCONST(strat -> name));
+		xfree(__UNCONST(strat -> description));
 	}
 
 	xfree(strat);

@@ -34,6 +34,8 @@
 #include <arpa/inet.h>
 #include <getopt.h>
 
+#include <mkc_macro.h>
+
 extern int         yy_flex_debug;
        lst_List    dict_Servers;
        FILE        *dict_output;
@@ -1594,7 +1596,7 @@ int main( int argc, char **argv )
 					database ? database : "(null)" );
 		}
 		if (host && !host[0]) {   /* Empty host causes default to be used. */
-			xfree((void *)host);
+			xfree(__UNCONST(host));
 			host = NULL;
 		}
 	}
