@@ -348,18 +348,15 @@ static void client_print_matches( lst_List l, int flag, const char *word )
 	static int   first = 1;
 	int          pos = 0;
 	int          len;
-	int          count;
 	int          empty_line_found = 0;
 
 	const char  *arg0 = NULL;
 	const char  *arg1 = NULL;
 
-	count = 0;
 	if (l) {
 		last = NULL;
 		LST_ITERATE(l,p,e) {
 			if (last && !strcmp(last,e)) continue;
-			++count;
 			last = e;
 		}
 	} else {
