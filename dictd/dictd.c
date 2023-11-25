@@ -1492,7 +1492,6 @@ int main (int argc, char **argv, char **envp)
 	time_t             startTime;
 	socklen_t          alen         = sizeof(csin);
 	int                detach       = 1;
-	int                forceStartup = 0;
 	int                i;
 
 	int                errno_accept = 0;
@@ -1518,7 +1517,6 @@ int main (int argc, char **argv, char **envp)
 		{ "depth",    1, 0, 503 },
 		{ "limit",    1, 0, 504 },
 		{ "facility", 1, 0, 505 },
-		{ "force",    1, 0, 'f' },
 		{ "inetd",    0, 0, 'i' },
 		{ "locale",           1, 0, 506 },
 		{ "no-mmap",          0, 0, 508 },
@@ -1566,7 +1564,7 @@ int main (int argc, char **argv, char **envp)
 	log_stream("dictd", stderr);
 
 	while ((c = getopt_long( argc, argv,
-							 "vVd:p:c:hL:t:l:sm:fi", longopts, NULL )) != EOF)
+							 "vVd:p:c:hL:t:l:sm:i", longopts, NULL )) != EOF)
 		switch (c) {
 			/* Remember to copy optarg since we're
 			   going to destroy argv soon... */
@@ -1587,7 +1585,6 @@ int main (int argc, char **argv, char **envp)
 				_dict_markTime     = 60*atoi(optarg);
 				_dict_markTime_set = 1;
 				break;
-			case 'f': ++forceStartup;                           break;
 			case 'i':
 				inetd         = 1;
 				optStart_mode = 0;
