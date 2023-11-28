@@ -242,8 +242,8 @@ static int compare_allchars(
 			c1 = * (unsigned char *) word;
 
 #else
-		c2 = * (unsigned char *) __UNCONST(start);
-		c1 = * (unsigned char *) __UNCONST(word);
+		c2 = (unsigned char) *start;
+		c1 = (unsigned char) *word;
 #endif
 		if (c1 != c2) {
 			if (c1 < c2){
