@@ -330,7 +330,7 @@ static int plugin_initdata_set_defdbdir(dictPluginData *data, int data_size)
 		err_fatal(__func__, "too small initial array");
 
 	data -> size = -1;
-	data -> data = xstrdup("DICT_DICTIONARY_PATH");
+	data -> data = xstrdup(DICT_DICTIONARY_PATH);
 	data -> id   = DICT_PLUGIN_INITDATA_DEFDBDIR;
 
 	return 1;
@@ -442,10 +442,10 @@ static char *dict_plugin_filename(
 	p [len] = 0;
 
 	if (p [0] != '.' && p [0] != '/'){
-		if (sizeof(filename) < strlen("DICT_PLUGIN_PATH") + strlen(p) + 1)
+		if (sizeof(filename) < strlen(DICT_PLUGIN_PATH) + strlen(p) + 1)
 			err_fatal(__func__, "too small initial array\n");
 
-		strcpy(filename, "DICT_PLUGIN_PATH");
+		strcpy(filename, DICT_PLUGIN_PATH);
 		strcat(filename, p);
 	}else{
 		strlcpy(filename, p, sizeof(filename));

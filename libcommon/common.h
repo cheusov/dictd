@@ -27,7 +27,12 @@ int net_read( int s, char *buf, int maxlen );
 int net_write( int s, const char *buf, int len );
 const char *inet_ntopW (struct sockaddr *sa);
 
-#define AUX(x) #x
-#define STRINGIFY(x) AUX(x)
+#define _STRINGIFY(x) #x
+#define STRINGIFY(x) _STRINGIFY(x)
+
+#define DICT_VERSION STRINGIFY(_DICT_VERSION)
+#define DICT_CONFIG_PATH STRINGIFY(_DICT_CONFIG_PATH)
+#define DICT_PLUGIN_PATH STRINGIFY(_DICT_PLUGIN_PATH)
+#define DICT_DICTIONARY_PATH STRINGIFY(_DICT_DICTIONARY_PATH)
 
 #endif // _COMMON_H_

@@ -1240,7 +1240,7 @@ static const char *id_string(void)
 {
 	static char buffer[BUFFERSIZE];
 
-	snprintf( buffer, BUFFERSIZE, "%s", STRINGIFY(DICT_VERSION) );
+	snprintf( buffer, BUFFERSIZE, "%s", DICT_VERSION );
 
 	return buffer;
 }
@@ -1467,9 +1467,9 @@ int main( int argc, char **argv )
 			prs_file_nocpp(b);
 		} else {
 			PRINTF(DBG_VERBOSE,("Trying %s...\n",
-								"DICT_CONFIG_PATH" DICT_CONFIG_NAME));
-			if (!access( "DICT_CONFIG_PATH" DICT_CONFIG_NAME, R_OK ))
-				prs_file_nocpp( "DICT_CONFIG_PATH" DICT_CONFIG_NAME );
+								DICT_CONFIG_PATH "/" DICT_CONFIG_NAME));
+			if (!access( DICT_CONFIG_PATH "/" DICT_CONFIG_NAME, R_OK ))
+				prs_file_nocpp( DICT_CONFIG_PATH "/" DICT_CONFIG_NAME );
 		}
 	}
 	if (dbg_test(DBG_VERBOSE)) {
@@ -1628,7 +1628,7 @@ int main( int argc, char **argv )
 											  s->secret ) );
 			}
 		}else{
-			fprintf(stderr, "'dict.conf' doesn't specify any dict server\n");
+			fprintf(stderr, DICT_CONFIG_PATH "/" DICT_CONFIG_NAME " doesn't specify any dict server\n");
 			exit(1);
 		}
 	}

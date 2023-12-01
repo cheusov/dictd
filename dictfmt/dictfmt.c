@@ -1055,7 +1055,7 @@ static void fmt_headword_for_dictfmt_ver(void)
 {
 	char ver [200];
 	snprintf(ver, sizeof(ver),
-			 "00-database-dictfmt-%s", STRINGIFY(DICT_VERSION));
+			 "00-database-dictfmt-%s", DICT_VERSION);
 
 	if (dictfmt_ver_mode){
 		fmt_newheadword(ver);

@@ -144,7 +144,7 @@ int                need_reload_config    = 0;
 int                need_unload_databases = 0;
 int                databases_unloaded    = 0;
 
-static const char *configFile  = "DICT_CONFIG_PATH" DICTD_CONFIG_NAME;
+static const char *configFile  = DICT_CONFIG_PATH "/" DICTD_CONFIG_NAME;
 
 static void dict_close_databases(dictConfig *c);
 static void sanity (const char *confFile);
@@ -427,12 +427,12 @@ static const char *postprocess_filename(const char *fn, const char *prefix)
 
 const char *postprocess_plugin_filename(const char *fn)
 {
-	return postprocess_filename(fn, "DICT_PLUGIN_PATH");
+	return postprocess_filename(fn, DICT_PLUGIN_PATH);
 }
 
 const char *postprocess_dict_filename(const char *fn)
 {
-	return postprocess_filename(fn, "DICT_DICTIONARY_PATH");
+	return postprocess_filename(fn, DICT_DICTIONARY_PATH);
 }
 
 static void postprocess_filenames(dictConfig *dc)
@@ -1145,7 +1145,7 @@ static const char *id_string(void)
 {
 	static char buffer [BUFFERSIZE];
 
-	snprintf( buffer, BUFFERSIZE, "%s", STRINGIFY(DICT_VERSION) );
+	snprintf( buffer, BUFFERSIZE, "%s", DICT_VERSION );
 
 	return buffer;
 }
