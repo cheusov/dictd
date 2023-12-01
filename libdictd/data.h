@@ -31,28 +31,28 @@
 
 /* initialize .data file */
 extern dictData *dict_data_open (
-   const char *filename, int computeCRC);
+	const char *filename, int computeCRC);
 /* */
 extern void dict_data_close (
-   dictData *data);
+	dictData *data);
 
 extern void     dict_data_print_header( FILE *str, dictData *data );
 extern int      dict_data_zip(
-   const char *inFilename, const char *outFilename,
-   const char *preFilter, const char *postFilter );
+	const char *inFilename, const char *outFilename,
+	const char *preFilter, const char *postFilter );
 
 extern char *dict_data_obtain (
-   const dictDatabase *db,
-   const dictWord *dw);
+	const dictDatabase *db,
+	const dictWord *dw);
 
 extern char *dict_data_read_ (
-   dictData *data,
-   unsigned long start, unsigned long end,
-   const char *preFilter,
-   const char *postFilter );
+	dictData *data,
+	unsigned long start, unsigned long end,
+	const char *preFilter,
+	const char *postFilter );
 
 extern int   dict_data_filter(
-   char *buffer, int *len, int maxLength,
-   const char *filter );
+	char *buffer, int *len, int maxLength,
+	const char *filter );
 
 #endif /* _DATA_H_ */

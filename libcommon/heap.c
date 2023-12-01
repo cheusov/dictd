@@ -30,147 +30,147 @@
 #define HEAP_MAGIC      711755
 
 typedef struct heap_struct {
-   char *ptr;
+	char *ptr;
 
-   char *last;
+	char *last;
 
-   int magic_num;
-   int allocated_bytes;
-   int allocation_count;
+	int magic_num;
+	int allocated_bytes;
+	int allocation_count;
 } heap_s;
 
-int heap_create (void **heap, void *opts)
+int heap_create(void **heap, void *opts)
 {
-   heap_s *h;
-   assert (heap);
+	heap_s *h;
+	assert(heap);
 
-   *heap = xmalloc (sizeof (heap_s));
-   h = (heap_s *) *heap;
+	*heap = xmalloc(sizeof(heap_s));
+	h = (heap_s *) *heap;
 
-   h -> ptr              = xmalloc (HEAP_ARRAY_SIZE);
-   h -> allocated_bytes  = 0;
-   h -> magic_num        = HEAP_MAGIC;
-   h -> allocation_count = 0;
+	h -> ptr              = xmalloc(HEAP_ARRAY_SIZE);
+	h -> allocated_bytes  = 0;
+	h -> magic_num        = HEAP_MAGIC;
+	h -> allocation_count = 0;
 
-   return 0;
+	return 0;
 }
 
 const char *heap_error (int err_code)
 {
-   assert (err_code); /* error codes are not defined yet */
-   return NULL;
+	assert(err_code); /* error codes are not defined yet */
+	return NULL;
 }
 
-void heap_destroy (void **heap)
+void heap_destroy(void **heap)
 {
-   heap_s *h;
+	heap_s *h;
 
-   assert (heap);
-   h = (heap_s *) *heap;
+	assert(heap);
+	h = (heap_s *) *heap;
 
-   assert (h -> magic_num == HEAP_MAGIC);
+	assert(h -> magic_num == HEAP_MAGIC);
 
-   xfree (h -> ptr);
-   xfree (h);
+	xfree(h -> ptr);
+	xfree(h);
 
-   *heap = NULL;
+	*heap = NULL;
 }
 
-void * heap_alloc (void *heap, size_t size)
+void * heap_alloc(void *heap, size_t size)
 {
-   heap_s *h = (heap_s *) heap;
+	heap_s *h = (heap_s *) heap;
 
-   assert (h -> magic_num == HEAP_MAGIC);
-//   fprintf (stderr, "heap_alloc\n");
+	assert(h -> magic_num == HEAP_MAGIC);
+	//   fprintf(stderr, "heap_alloc\n");
 
-   if (size >= HEAP_LIMIT || h -> allocated_bytes + size > HEAP_ARRAY_SIZE){
-      return xmalloc (size);
-   }else{
-//      fprintf (stderr, "heap alloc\n");
+	if (size >= HEAP_LIMIT || h -> allocated_bytes + size > HEAP_ARRAY_SIZE){
+		return xmalloc(size);
+	}else{
+		//      fprintf(stderr, "heap alloc\n");
 
-      h -> last = h -> ptr + h -> allocated_bytes;
-      h -> allocated_bytes  += size;
-      h -> allocation_count += 1;
+		h -> last = h -> ptr + h -> allocated_bytes;
+		h -> allocated_bytes  += size;
+		h -> allocation_count += 1;
 
-      return h -> last;
-   }
+		return h -> last;
+	}
 }
 
-char * heap_strdup (void *heap, const char *s)
+char * heap_strdup(void *heap, const char *s)
 {
-   heap_s *h = (heap_s *) heap;
-   size_t len = strlen (s);
-   char *p = (char *) heap_alloc (heap, len + 1);
+	heap_s *h = (heap_s *) heap;
+	size_t len = strlen(s);
+	char *p = (char *) heap_alloc(heap, len + 1);
 
-   assert (h -> magic_num == HEAP_MAGIC);
+	assert(h -> magic_num == HEAP_MAGIC);
 
-   memcpy (p, s, len + 1);
-   return p;
+	memcpy(p, s, len + 1);
+	return p;
 }
 
-void heap_free (void *heap, void *p)
+void heap_free(void *heap, void *p)
 {
-   heap_s *h = (heap_s *) heap;
+	heap_s *h = (heap_s *) heap;
 
-//   fprintf (stderr, "heap_free\n");
+	//   fprintf(stderr, "heap_free\n");
 
-   assert (h -> magic_num == HEAP_MAGIC);
+	assert(h -> magic_num == HEAP_MAGIC);
 
-   if (!p){
-//      fprintf (stderr, "heap_free(NULL)\n");
-      return;
-   }
+	if (!p){
+		//      fprintf(stderr, "heap_free(NULL)\n");
+		return;
+	}
 
-   if ((char *) p >= h -> ptr && (char *) p < h -> ptr + HEAP_ARRAY_SIZE){
-//      fprintf (stderr, "heap free\n");
+	if ((char *) p >= h -> ptr && (char *) p < h -> ptr + HEAP_ARRAY_SIZE){
+		//      fprintf(stderr, "heap free\n");
 
-      h -> allocation_count -= 1;
+		h -> allocation_count -= 1;
 
-      if (!h -> allocation_count){
-//	 fprintf (stderr, "heap destroied\n");
-	 h -> allocated_bytes = 0;
-      }
+		if (!h -> allocation_count){
+			//	 fprintf(stderr, "heap destroied\n");
+			h -> allocated_bytes = 0;
+		}
 
-      h -> last = NULL;
-   }else{
-      xfree (p);
-   }
+		h -> last = NULL;
+	}else{
+		xfree(p);
+	}
 }
 
-void * heap_realloc (void *heap, void *p, size_t size)
+void * heap_realloc(void *heap, void *p, size_t size)
 {
-   heap_s *h = (heap_s *) heap;
-   char *new_p;
+	heap_s *h = (heap_s *) heap;
+	char *new_p;
 
-   assert (h -> magic_num == HEAP_MAGIC);
+	assert(h -> magic_num == HEAP_MAGIC);
 
-   if (!p)
-      return heap_alloc (heap, size);
+	if (!p)
+		return heap_alloc(heap, size);
 
-   if ((char *) p >= h -> ptr && (char *) p < h -> ptr + HEAP_ARRAY_SIZE){
-      assert (h -> last == p);
+	if ((char *) p >= h -> ptr && (char *) p < h -> ptr + HEAP_ARRAY_SIZE){
+		assert(h -> last == p);
 
-      if (h -> allocated_bytes + size > HEAP_ARRAY_SIZE){
-	 new_p = xmalloc (size);
-	 memcpy (new_p, (char *) p, (h -> ptr + h -> allocated_bytes) - (char *) p);
-	 h -> allocated_bytes = (char *) p - h -> ptr;
-	 h -> last = NULL;
+		if (h -> allocated_bytes + size > HEAP_ARRAY_SIZE){
+			new_p = xmalloc(size);
+			memcpy(new_p, (char *) p, (h -> ptr + h -> allocated_bytes) - (char *) p);
+			h -> allocated_bytes = (char *) p - h -> ptr;
+			h -> last = NULL;
 
-	 return new_p;
-      }else{
-	 h -> allocated_bytes  = ((char *) p - h -> ptr) + size;
-	 return p;
-      }
-   }else{
-      return xrealloc (p, size);
-   }
+			return new_p;
+		}else{
+			h -> allocated_bytes  = ((char *) p - h -> ptr) + size;
+			return p;
+		}
+	}else{
+		return xrealloc(p, size);
+	}
 }
 
-int heap_isempty (void *heap)
+int heap_isempty(void *heap)
 {
-   heap_s *h = (heap_s *) heap;
+	heap_s *h = (heap_s *) heap;
 
-   assert (h -> magic_num == HEAP_MAGIC);
+	assert(h -> magic_num == HEAP_MAGIC);
 
-   return h -> allocation_count == 0;
+	return h -> allocation_count == 0;
 }

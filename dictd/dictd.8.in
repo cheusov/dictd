@@ -169,14 +169,6 @@ keyword in
 .I Global Settings Specification
 of configuration files.
 .TP
-.BR \-f " or " \-\-force
-Force the daemon to start even if an instance of the daemon is already
-running.  (This is of little value unless a non-default port is
-specified with
-.BR \-p ,
-since, if one instance is bound to a port, the second one fails when it
-can not bind to the port.)
-.TP
 .BI \-\-limit " children"
 Overrides the keyword
 .B limit

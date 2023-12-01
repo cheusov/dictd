@@ -32,28 +32,28 @@
   Copy alphanumeric and space characters converting them to lower case.
   Strings are encoded using 8-bit character set.
 */
-static int tolower_alnumspace_8bit (
-   const char *src, char *dest,
-   int allchars_mode,
-   int cs_mode)
+static int tolower_alnumspace_8bit(
+	const char *src, char *dest,
+	int allchars_mode,
+	int cs_mode)
 {
-   int c;
+	int c;
 
-   for (; *src; ++src) {
-      c = * (const unsigned char *) src;
+	for (; *src; ++src) {
+		c = * (const unsigned char *) src;
 
-      if (isspace (c)) {
-         *dest++ = ' ';
-      }else if (allchars_mode || isalnum (c)){
-	 if (!cs_mode)
-	    c = tolower (c);
+		if (isspace(c)) {
+			*dest++ = ' ';
+		}else if (allchars_mode || isalnum (c)){
+			if (!cs_mode)
+				c = tolower(c);
 
-	 *dest++ = c;
-      }
-   }
+			*dest++ = c;
+		}
+	}
 
-   *dest = '\0';
-   return 0;
+	*dest = '\0';
+	return 0;
 }
 
 /*
@@ -61,88 +61,88 @@ static int tolower_alnumspace_8bit (
   Strings are UTF-8 encoded.
 */
 static int tolower_alnumspace_utf8 (
-   const char *src, char *dest,
-   int allchars_mode,
-   int cs_mode)
+	const char *src, char *dest,
+	int allchars_mode,
+	int cs_mode)
 {
-   wchar_t      ucs4_char;
-   size_t len;
-   int    len2;
+	wchar_t      ucs4_char;
+	size_t len;
+	int    len2;
 
-   mbstate_t ps;
-   mbstate_t ps2;
+	mbstate_t ps;
+	mbstate_t ps2;
 
-   memset (&ps,  0, sizeof (ps));
-   memset (&ps2, 0, sizeof (ps2));
+	memset(&ps,  0, sizeof(ps));
+	memset(&ps2, 0, sizeof(ps2));
 
-   while (src && src [0]){
-      len = mbrtowc (&ucs4_char, src, MB_CUR_MAX, &ps);
-      if ((int) len < 0)
-	 return errno;
+	while (src && src [0]){
+		len = mbrtowc(&ucs4_char, src, MB_CUR_MAX, &ps);
+		if ((int) len < 0)
+			return errno;
 
-      if (iswspace (ucs4_char)){
-	 *dest++ = ' ';
-      }else if (allchars_mode || iswalnum (ucs4_char)){
-	 if (!cs_mode)
-	    ucs4_char = towlower (ucs4_char);
+		if (iswspace(ucs4_char)){
+			*dest++ = ' ';
+		}else if (allchars_mode || iswalnum (ucs4_char)){
+			if (!cs_mode)
+				ucs4_char = towlower (ucs4_char);
 
-	 len2 = wcrtomb (dest, ucs4_char, &ps2);
-	 if (len2 < 0)
-	    return errno;
+			len2 = wcrtomb (dest, ucs4_char, &ps2);
+			if (len2 < 0)
+				return errno;
 
-	 dest += len2;
-      }
+			dest += len2;
+		}
 
-      src += len;
-   }
+		src += len;
+	}
 
-   *dest = 0;
+	*dest = 0;
 
-   assert (strlen (src) == strlen (dest));
+	assert(strlen(src) == strlen(dest));
 
-   return (src == NULL);
+	return (src == NULL);
 }
 
 /* returns 0 if failed */
-int tolower_alnumspace (
-   const char *src, char *dest,
-   int allchars_mode,
-   int cs_mode,
-   int utf8_mode)
+int tolower_alnumspace(
+	const char *src, char *dest,
+	int allchars_mode,
+	int cs_mode,
+	int utf8_mode)
 {
-   if (utf8_mode){
-      return tolower_alnumspace_utf8 (src, dest, allchars_mode, cs_mode);
-   }else{
-      return tolower_alnumspace_8bit (src, dest, allchars_mode, cs_mode);
-   }
+	if (utf8_mode){
+		return tolower_alnumspace_utf8 (src, dest, allchars_mode, cs_mode);
+	}else{
+		return tolower_alnumspace_8bit(src, dest, allchars_mode, cs_mode);
+	}
 }
 
-char *strlwr_8bit (char *str)
+char *strlwr_8bit(char *str)
 {
-   char *p;
-   for (p = str; *p; ++p){
-      *p = tolower ((unsigned char) *p);
-   }
+	char *p;
+	for (p = str; *p; ++p){
+		*p = tolower((unsigned char) *p);
+	}
 
-   return str;
+	return str;
 }
 
 char *copy_utf8_string (
-   const char *src,
-   char *dest,
-   size_t len)
+	const char *src,
+	char *dest,
+	size_t len)
 {
-   size_t i;
-   const char *p;
+	size_t i;
+	const char *p;
 
-   for (i=0; i < len; ++i){
-      p = src + i * (MB_CUR_MAX + 1);
+	for (i=0; i < len; ++i){
+		p = src + i * (MB_CUR_MAX + 1);
 
-      while (*p){
-	 *dest++ = *p++;
-      }
-   }
+		while (*p){
+			*dest++ = *p++;
+		}
+	}
 
-   *dest = 0;
-   return dest;
+	*dest = 0;
+	return dest;
 }

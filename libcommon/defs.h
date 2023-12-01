@@ -28,7 +28,7 @@
 #include <zlib.h>
 #include <maa.h>
 
-				/* Configurable things */
+/* Configurable things */
 
 #define DICT_DEFAULT_SERVICE     "2628"	/* Also in dict.h */
 #define DICTD_CONFIG_NAME        "dictd.conf"
@@ -69,7 +69,7 @@
 #define DICT_PLUGINFUN_CLOSE     "dictdb_close"
 #define DICT_PLUGINFUN_SET       "dictdb_set"
 
-				/* End of configurable things */
+/* End of configurable things */
 
 #define BUFFERSIZE 10240
 
@@ -124,119 +124,119 @@ typedef struct dictCache {
 } dictCache;
 
 typedef struct dictData {
-   int           fd;		/* file descriptor */
-   const char    *start;	/* start of mmap'd area */
-   const char    *end;		/* end of mmap'd area */
-   unsigned long size;		/* size of mmap */
-   
-   int           type;
-   const char    *filename;
-   z_stream      zStream;
-   int           initialized;
+	int           fd;		/* file descriptor */
+	const char    *start;	/* start of mmap'd area */
+	const char    *end;	/* end of mmap'd area */
+	unsigned long size;	/* size of mmap */
 
-   int           headerLength;
-   int           method;
-   int           flags;
-   time_t        mtime;
-   int           extraFlags;
-   int           os;
-   int           version;
-   int           chunkLength;
-   int           chunkCount;
-   int           *chunks;
-   unsigned long *offsets;	/* Sum-scan of chunks. */
-   const char    *origFilename;
-   const char    *comment;
-   unsigned long crc;
-   unsigned long length;
-   unsigned long compressedLength;
-   dictCache     cache[DICT_CACHE_SIZE];
+	int           type;
+	const char    *filename;
+	z_stream      zStream;
+	int           initialized;
+
+	int           headerLength;
+	int           method;
+	int           flags;
+	time_t        mtime;
+	int           extraFlags;
+	int           os;
+	int           version;
+	int           chunkLength;
+	int           chunkCount;
+	int           *chunks;
+	unsigned long *offsets;	/* Sum-scan of chunks. */
+	const char    *origFilename;
+	const char    *comment;
+	unsigned long crc;
+	unsigned long length;
+	unsigned long compressedLength;
+	dictCache     cache[DICT_CACHE_SIZE];
 } dictData;
 
 typedef struct dictPlugin {
-   void *      data;
+	void *      data;
 
 #ifdef USE_PLUGIN
-   void *handle;
+	void *handle;
 
-   dictdb_open_type   dictdb_open;
-   dictdb_set_type    dictdb_set;
-   dictdb_search_type dictdb_search;
-   dictdb_free_type   dictdb_free;
-   dictdb_error_type  dictdb_error;
-   dictdb_close_type  dictdb_close;
+	dictdb_open_type   dictdb_open;
+	dictdb_set_type    dictdb_set;
+	dictdb_search_type dictdb_search;
+	dictdb_free_type   dictdb_free;
+	dictdb_error_type  dictdb_error;
+	dictdb_close_type  dictdb_close;
 
-   char dictdb_free_called; /* 1 after dictdb_free call */
+	char dictdb_free_called; /* 1 after dictdb_free call */
 #endif
 } dictPlugin;
 
 typedef struct dictIndex {
-   int           fd;		 /* file descriptor */
-   const char    *start;	 /* start of mmap'd area */
-   const char    *end;		 /* end of mmap'd area */
-   unsigned long size;		 /* size of mmap */
-   const char    *optStart[UCHAR_MAX+2]; /* Optimized starting points */
-   unsigned long headwords;	 /* computed number of headwords */
+	int           fd;		 /* file descriptor */
+	const char    *start;	 /* start of mmap'd area */
+	const char    *end;	 /* end of mmap'd area */
+	unsigned long size;	 /* size of mmap */
+	const char    *optStart[UCHAR_MAX+2]; /* Optimized starting points */
+	unsigned long headwords; /* computed number of headwords */
 
-   int    flag_utf8;         /* not zero if it has 00-database-utf8 entry*/
-   int    flag_8bit;         /* not zero if it has 00-database-8bit-new entry*/
-   int    flag_allchars;     /* not zero if it has 00-database-allchars entry*/
-   int    flag_casesensitive;/* not zero if it has 00-database-case-sensitive entry*/
+	int    flag_utf8;		/* not zero if it has 00-database-utf8 entry*/
+	int    flag_8bit;		/* not zero if it has 00-database-8bit-new entry*/
+	int    flag_allchars;	/* not zero if it has 00-database-allchars entry*/
+	int    flag_casesensitive;/* not zero if it has 00-database-case-sensitive entry*/
 
-   const int     *isspacealnum;
+	const int     *isspacealnum;
 } dictIndex;
 
 typedef struct dictDatabase {
-   const char *databaseName;
-   const char *databaseShort;
-   const char *databaseInfo;
-   const char *dataFilename;
-   const char *indexFilename;
-   const char *indexsuffixFilename;
-   const char *indexwordFilename;
-   const char *filter;
-   const char *prefilter;
-   const char *postfilter;
-   lst_List   acl;
-   int        available;	/* if user has authenticated for database */
+	const char *databaseName;
+	const char *databaseShort;
+	const char *databaseInfo;
+	const char *dataFilename;
+	const char *indexFilename;
+	const char *indexsuffixFilename;
+	const char *indexwordFilename;
+	const char *filter;
+	const char *prefilter;
+	const char *postfilter;
+	lst_List   acl;
+	int        available;	/* if user has authenticated for database */
 
-   dictData   *data;
-   dictIndex  *index;
-   dictIndex  *index_suffix;
-   dictIndex  *index_word;
+	dictData   *data;
+	dictIndex  *index;
+	dictIndex  *index_suffix;
+	dictIndex  *index_word;
 
-   int        *strategy_disabled; /* disable_strategy keyword*/
+	int        *strategy_disabled; /* disable_strategy keyword*/
 
-   lst_List   *virtual_db_list;
+	lst_List   *virtual_db_list;
 
-   char *alphabet;
+	char *alphabet;
 
-   int invisible;    /* non-zero for invisible databases */
+	int invisible;    /* non-zero for invisible databases */
 
-   int exit_db;      /* non-zero for dictionary_exit entry */
-   int virtual_db;   /* non-zero for virtual databases */
-   int plugin_db;    /* non-zero for plugin entry */
-   int normal_db;    /* non-zero for normal database */
-   int mime_db;      /* non-zero for MIME database */
+	int exit_db;      /* non-zero for dictionary_exit entry */
+	int virtual_db;   /* non-zero for virtual databases */
+	int plugin_db;    /* non-zero for plugin entry */
+	int normal_db;    /* non-zero for normal database */
+	int mime_db;      /* non-zero for MIME database */
 
-   int default_strategy;    /* default search strategy for `.' */
+	int default_strategy;    /* default search strategy for `.' */
 
-   const char *mime_header; /* MIME header for OPTION MIME command */
+	const char *mime_header; /* MIME header for OPTION MIME command */
 
-   /* database_virtual members */
-   const char *database_list;  /* comma-separated list of database names */
+	/* database_virtual members */
+	const char *database_list;  /* comma-separated list of database names */
 
-   /* database_plugin members */
-   const char *pluginFilename;
-   const char *plugin_data;    /* data for initializing plugin */
-   dictPlugin *plugin;
+	/* database_plugin members */
+	const char *pluginFilename;
+	const char *plugin_data;    /* data for initializing plugin */
+	dictPlugin *plugin;
 
-   /* database_mime members */
-   const char *mime_mimeDbname;
-   const char *mime_nomimeDbname;
+	/* database_mime members */
+	const char *mime_mimeDbname;
+	const char *mime_nomimeDbname;
 
-   struct dictDatabase *mime_mimeDB;
-   struct dictDatabase *mime_nomimeDB;
+	struct dictDatabase *mime_mimeDB;
+	struct dictDatabase *mime_nomimeDB;
 } dictDatabase;
 
 #define DICT_DENY     0
@@ -248,34 +248,34 @@ typedef struct dictDatabase {
 #define DICT_NOMATCH  6         /* For IP matching routines */
 
 typedef struct dictAccess {
-   int        type;		/* deny, allow, accessonly, user, group */
-   const char *spec;
+	int        type;		/* deny, allow, accessonly, user, group */
+	const char *spec;
 } dictAccess;
 
 typedef struct dictConfig {
-   lst_List      acl;		/* type dictAccess */
-   lst_List      dbl;		/* type dictDatabase */
-   hsh_HashTable usl;		/* username/shared-secret list */
+	lst_List      acl;		/* type dictAccess */
+	lst_List      dbl;		/* type dictDatabase */
+	hsh_HashTable usl;		/* username/shared-secret list */
 } dictConfig;
 
 typedef struct dictWord {
-   const dictDatabase  *database;
-   const dictDatabase  *database_visible;
+	const dictDatabase  *database;
+	const dictDatabase  *database_visible;
 
-   char    *word;
+	char    *word;
 
-   unsigned long start;
-   unsigned long end;
+	unsigned long start;
+	unsigned long end;
 
-/* Used by plugins */
-   const char    *def;
-   int            def_size;
+	/* Used by plugins */
+	const char    *def;
+	int            def_size;
 } dictWord;
 
 typedef struct dictToken {
-   const char   *string;
-   int          integer;
-   src_Type     src;
+	const char   *string;
+	int          integer;
+	src_Type     src;
 } dictToken;
 
 #endif /* _DEFS_H_ */

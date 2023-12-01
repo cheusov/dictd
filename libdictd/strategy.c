@@ -30,6 +30,7 @@
 #include <assert.h>
 
 #include <mkc_strlcpy.h>
+#include <mkc_macro.h>
 
 int default_strategy  = DICT_STRAT_LEVENSHTEIN;
 
@@ -56,205 +57,205 @@ static int strategy_id    = 0;
 
 #define NEW_STRAT_ID (int)(100)
 
-void dict_init_strategies (void)
+void dict_init_strategies(void)
 {
-   size_t i;
-   strategy_id = NEW_STRAT_ID;
+	size_t i;
+	strategy_id = NEW_STRAT_ID;
 
-   strategies = (dictStrategy **) xmalloc (STRATEGIES * sizeof (dictStrategy *));
+	strategies = (dictStrategy **) xmalloc(STRATEGIES * sizeof(dictStrategy *));
 
-   for (i=0; i < STRATEGIES; ++i){
-      strategies [i] = (dictStrategy *) xmalloc (sizeof (dictStrategy));
-      *strategies [i] = strategyInfo [i];
+	for (i=0; i < STRATEGIES; ++i){
+		strategies [i] = (dictStrategy *) xmalloc(sizeof(dictStrategy));
+		*strategies [i] = strategyInfo [i];
 
-      assert (strategyInfo [i].number < NEW_STRAT_ID);
-   }
+		assert(strategyInfo [i].number < NEW_STRAT_ID);
+	}
 
-   strategy_count = STRATEGIES;
+	strategy_count = STRATEGIES;
 }
 
-static void dict_free_strategy (dictStrategy *strat)
+static void dict_free_strategy(dictStrategy *strat)
 {
-   if (strat -> number >= NEW_STRAT_ID){
-      /* Free memory allocated for new strategies */
-      xfree ((void *) strat -> name);
-      xfree ((void *) strat -> description);
-   }
+	if (strat -> number >= NEW_STRAT_ID){
+		/* Free memory allocated for new strategies */
+		xfree(__UNCONST(strat -> name));
+		xfree(__UNCONST(strat -> description));
+	}
 
-   xfree (strat);
+	xfree(strat);
 }
 
-void dict_destroy_strategies (void)
+void dict_destroy_strategies(void)
 {
-   int i;
+	int i;
 
-   for (i=0; i < strategy_count; ++i){
-      dict_free_strategy (strategies [i]);
-   }
+	for (i=0; i < strategy_count; ++i){
+		dict_free_strategy(strategies [i]);
+	}
 
-   xfree (strategies);
+	xfree(strategies);
 
-   strategies     = NULL;
-   strategy_count = 0;
+	strategies     = NULL;
+	strategy_count = 0;
 }
 
-int get_strategy_count (void)
+int get_strategy_count(void)
 {
-   return strategy_count;
+	return strategy_count;
 }
 
-const dictStrategy *const *get_strategies (void)
+const dictStrategy *const *get_strategies(void)
 {
-   return (const dictStrategy *const *) strategies;
+	return (const dictStrategy *const *) strategies;
 }
 
-int get_max_strategy_num (void)
+int get_max_strategy_num(void)
 {
-   int i = get_strategy_count ();
-   if (i){
-      return get_strategies () [i-1]->number;
-   }else{
-      return -1;
-   }
+	int i = get_strategy_count();
+	if (i){
+		return get_strategies() [i-1]->number;
+	}else{
+		return -1;
+	}
 }
 
-static int lookup_strategy_index ( const char *strategy )
+static int lookup_strategy_index( const char *strategy )
 {
-   int i;
+	int i;
 
-   for (i = 0; i < strategy_count; i++) {
-      if (!strcasecmp (strategy, strategies [i] -> name)){
-         return i;
-      }
-   }
+	for (i = 0; i < strategy_count; i++) {
+		if (!strcasecmp(strategy, strategies [i] -> name)){
+			return i;
+		}
+	}
 
-   return -1;
+	return -1;
 }
 
 int lookup_strategy( const char *strategy )
 {
-   int idx;
-   if (strategy[0] == '.' && strategy[1] == '\0')
-      return DICT_STRAT_DOT;
+	int idx;
+	if (strategy[0] == '.' && strategy[1] == '\0')
+		return DICT_STRAT_DOT;
 
-   idx = lookup_strategy_index (strategy);
-   if (-1 == idx)
-      return -1;
-   else
-      return strategies [idx] -> number;
+	idx = lookup_strategy_index(strategy);
+	if (-1 == idx)
+		return -1;
+	else
+		return strategies [idx] -> number;
 }
 
-int lookup_strategy_ex (const char *strategy)
+int lookup_strategy_ex(const char *strategy)
 {
-   int strat = lookup_strategy (strategy);
+	int strat = lookup_strategy(strategy);
 
-   if (strat == -1){
-      log_info ("strategy '%s' is not available\n", strategy);
-      exit (1);
-   }else{
-      return strat;
-   }
+	if (strat == -1){
+		log_info("strategy '%s' is not available\n", strategy);
+		exit(1);
+	}else{
+		return strat;
+	}
 }
 
-static dictStrategy * lookup_strat (const char *strategy)
+static dictStrategy * lookup_strat(const char *strategy)
 {
-   int idx = lookup_strategy_index (strategy);
-   if (-1 == idx)
-      return NULL;
-   else
-      return strategies [idx];
+	int idx = lookup_strategy_index(strategy);
+	if (-1 == idx)
+		return NULL;
+	else
+		return strategies [idx];
 }
 
-static dictStrategy * lookup_strat_ex (const char *strategy)
+static dictStrategy * lookup_strat_ex(const char *strategy)
 {
-   dictStrategy *strat = lookup_strat (strategy);
+	dictStrategy *strat = lookup_strat(strategy);
 
-   if (!strat){
-      log_info ("strategy '%s' is not available\n", strategy);
-      exit (1);
-   }else{
-      return strat;
-   }
+	if (!strat){
+		log_info("strategy '%s' is not available\n", strategy);
+		exit(1);
+	}else{
+		return strat;
+	}
 }
 
 static void dict_disable_strategy (dictStrategy *strat)
 {
-   int i;
+	int i;
 
-   for (i=0; i < strategy_count; ++i){
-      if (strategies [i] == strat){
-	 dict_free_strategy (strat);
+	for (i=0; i < strategy_count; ++i){
+		if (strategies [i] == strat){
+			dict_free_strategy(strat);
 
-	 memmove (
-	    strategies + i,
-	    strategies + i + 1,
-	    (strategy_count - i - 1) * sizeof (strategies [0]));
+			memmove (
+				strategies + i,
+				strategies + i + 1,
+				(strategy_count - i - 1) * sizeof(strategies [0]));
 
-	 --strategy_count;
+			--strategy_count;
 
-	 return;
-      }
-   }
+			return;
+		}
+	}
 
-   abort ();
+	abort();
 }
 
-void dict_disable_strategies (const char *strats)
+void dict_disable_strategies(const char *strats)
 {
-   char buffer [400];
-   int  i;
-   int  len = strlen (strats);
-   const char *s = NULL;
-   dictStrategy *si = NULL;
+	char buffer [400];
+	int  i;
+	int  len = strlen(strats);
+	const char *s = NULL;
+	dictStrategy *si = NULL;
 
-   strlcpy (buffer, strats, sizeof (buffer));
+	strlcpy(buffer, strats, sizeof(buffer));
 
-   for (i = 0; i < len; ++i){
-      if (',' == buffer [i])
-	 buffer [i] = '\0';
-   }
+	for (i = 0; i < len; ++i){
+		if (',' == buffer [i])
+			buffer [i] = '\0';
+	}
 
-   for (i = 0; i < len; ++i){
-      if (!buffer [i] || (i > 0 && buffer [i-1]))
-	 continue;
+	for (i = 0; i < len; ++i){
+		if (!buffer [i] || (i > 0 && buffer [i-1]))
+			continue;
 
-      s = buffer + i;
+		s = buffer + i;
 
-      si = lookup_strat_ex (s);
+		si = lookup_strat_ex(s);
 
-      if (si){
-	 dict_disable_strategy (si);
-      }else{
-	 fprintf (stderr, "Unknown strategy '%s'\n", s);
-	 exit (1);
-      }
-   }
+		if (si){
+			dict_disable_strategy (si);
+		}else{
+			fprintf(stderr, "Unknown strategy '%s'\n", s);
+			exit(1);
+		}
+	}
 }
 
-void dict_add_strategy (const char *strat, const char *description)
+void dict_add_strategy(const char *strat, const char *description)
 {
-   strategies = xrealloc (
-      strategies, sizeof (*strategies) * (strategy_count + 1));
+	strategies = xrealloc(
+		strategies, sizeof(*strategies) * (strategy_count + 1));
 
-   strategies [strategy_count] = xmalloc (sizeof (dictStrategy));
+	strategies [strategy_count] = xmalloc(sizeof(dictStrategy));
 
-   strategies [strategy_count] -> number      = strategy_id;
-   strategies [strategy_count] -> name        = xstrdup (strat);
-   strategies [strategy_count] -> description = xstrdup (description);
+	strategies [strategy_count] -> number      = strategy_id;
+	strategies [strategy_count] -> name        = xstrdup(strat);
+	strategies [strategy_count] -> description = xstrdup(description);
 
-   ++strategy_id;
-   ++strategy_count;
+	++strategy_id;
+	++strategy_count;
 }
 
-const dictStrategy *get_strategy (int strat)
+const dictStrategy *get_strategy(int strat)
 {
-   int i;
+	int i;
 
-   for (i = 0; i < strategy_count; i++) {
-      if (strat == strategies [i] -> number){
-         return strategies [i];
-      }
-   }
+	for (i = 0; i < strategy_count; i++) {
+		if (strat == strategies [i] -> number){
+			return strategies [i];
+		}
+	}
 
-   return NULL;
+	return NULL;
 }

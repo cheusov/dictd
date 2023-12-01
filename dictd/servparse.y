@@ -29,6 +29,8 @@
 #include <strings.h>
 #include <stdlib.h>
 
+#include <mkc_macro.h>
+
 extern void yyerror( const char *message );
 extern int yylex (void);
 
@@ -192,7 +194,7 @@ GlobalSpec : TOKEN_PORT             TOKEN_STRING
      {
 	if (site_info){
 	   /* site is specified twice */
-	   xfree ((void *) site_info);
+		xfree (__UNCONST(site_info));
 	}
 
 	site_info = $2.string;

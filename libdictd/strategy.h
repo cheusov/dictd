@@ -36,9 +36,9 @@
 #define DICT_STRAT_LAST         12    /* Last */ 
 
 typedef struct dictStrategy {
-   const char *name;
-   const char *description;
-   int        number;
+	const char *name;
+	const char *description;
+	int        number;
 } dictStrategy;
 
 extern int default_strategy;

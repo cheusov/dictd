@@ -80,7 +80,7 @@ static void Encode(unsigned char *, uint32_t *, unsigned int);
 static void Decode(uint32_t *, const unsigned char *, unsigned int);
 
 /*
- * Encodes input (uint32_t) into output (unsigned char).  Assumes len is
+ * Encodes input(uint32_t) into output (unsigned char).  Assumes len is
  * a multiple of 4.
  */
 static void
@@ -97,7 +97,7 @@ Encode (unsigned char *output, uint32_t *input, unsigned int len)
 }
 
 /*
- * Decodes input (unsigned char) into output (uint32_t).  Assumes len is
+ * Decodes input(unsigned char) into output (uint32_t).  Assumes len is
  * a multiple of 4.
  */
 static void
@@ -135,25 +135,25 @@ static const unsigned char PADDING[64] = {
  */
 #define FF(a, b, c, d, x, s, ac) { \
 	(a) += F ((b), (c), (d)) + (x) + (uint32_t)(ac); \
-	(a) = ROTATE_LEFT ((a), (s)); \
+	(a) = ROTATE_LEFT((a), (s)); \
 	(a) += (b); \
 }
 
 #define GG(a, b, c, d, x, s, ac) { \
 	(a) += G ((b), (c), (d)) + (x) + (uint32_t)(ac); \
-	(a) = ROTATE_LEFT ((a), (s)); \
+	(a) = ROTATE_LEFT((a), (s)); \
 	(a) += (b); \
 }
 
 #define HH(a, b, c, d, x, s, ac) { \
 	(a) += H ((b), (c), (d)) + (x) + (uint32_t)(ac); \
-	(a) = ROTATE_LEFT ((a), (s)); \
+	(a) = ROTATE_LEFT((a), (s)); \
 	(a) += (b); \
 }
 
 #define II(a, b, c, d, x, s, ac) { \
 	(a) += I ((b), (c), (d)) + (x) + (uint32_t)(ac); \
-	(a) = ROTATE_LEFT ((a), (s)); \
+	(a) = ROTATE_LEFT((a), (s)); \
 	(a) += (b); \
 }
 
@@ -339,5 +339,5 @@ MD5Transform(uint32_t *state, const unsigned char *block)
 	state[3] += d;
 
 	/* Zeroize sensitive information. */
-	ZEROIZE((POINTER)(void *)x, sizeof (x));
+	ZEROIZE((POINTER)(void *)x, sizeof(x));
 }

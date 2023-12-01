@@ -1,0 +1,141 @@
+=pod
+
+=head1 INSTALLATION
+
+=over 2
+
+=item *
+
+Install mk-configure
+
+Since dictd-2.0.0 mk-configure is used as a build system instead of autobloat.
+So, install it first!
+
+=item *
+
+Install libmaa development files
+
+=item *
+
+dictd project consists of the following subprojects:
+
+        - dict                : Command-line dictionary protocol client
+        - dictd               : Dictionary protocol server
+        - dictfmt             : Formats a dictionary database for dictd
+        - dictzip             : [Un]compress files, allowing random access
+        - dictl               : dict(1) wrapper for non-UTF8 terminals
+        - dict_lookup         : Dictionary client for X Window System
+        - colorit             : Script for colorizing the text input
+
+Full list of subprojects may be seen by running
+
+        # mkcmake help
+
+=item *
+
+Building the dictd
+
+In order to build the whold project, run the following command.
+
+        # mkcmake all
+
+In order to build and install the whold project, run the following command.
+
+        # mkcmake install
+
+In order to build and test the whold project, run the following command.
+
+        # mkcmake test
+
+=item *
+
+For building some projects, one may use something like
+
+        # mkcmake all-colorit install-colorit
+
+=item *
+
+Configuring the build
+
+Build options are set with the help of environment variables, such as
+PREFIX, BINDIR, SYSCONFDIR, DESTDIR, CC, CFLAGS, LDFLAGS etc.
+Have a look at mk-configure(7) for details.
+
+Example:
+
+        # export PREFIX=/usr
+        # export MANDIR=/usr/share/man
+        # export SYSCONFDIR=/etc
+        # export CC=clang
+        # export DESTDIR=/tmp/temp-root
+        # export COPTS='-O2 -g'
+        # mkcmake all install
+
+The default PREFIX is /usr/local.
+
+=item *
+
+Dictionaries for dictd -- dictionary protocol server
+
+Download dictionary databases and setup a proper server, you will
+need to configure a dictd.conf file.  Please see the man page
+dictd.8 and the example .conf files included with the source code
+for an explanation of the syntax needed and other important
+details.  By default, dictd will try to find this file as
+'/etc/dictd.conf', however if you start 'dictd' with the
+'-c /your/path/to/mydictd.conf', it will use that
+file as the configuration file instead.
+
+For our example, with our web1913 database in /opt/public/dict-dbs,
+a MINIMAL dictd.conf file would be:
+
+        database web1913 { data "/opt/public/dict-dbs/web1913.dict.dz"
+                          index "/opt/public/dict-dbs/web1913.index" }
+
+=item *
+
+Configuring dict -- dictionary protocol client
+
+If you're installing this software for "intranet" use, you will want to
+setup a 'dict.conf' file which the client software (dict) uses to
+locate servers and such.  The syntax of the dict.conf file is not
+documented anywhere that I can find, however if you have your 'dictd'
+server running on the host named dict.company.com, then you should put
+the following line in your dict.conf file so that users of the 'dict'
+client do not have to specify '-h dict.company.com' each time they
+want to query dictd:
+
+        server dict.example.com
+
+=back
+
+=head1 GENERAL EXTRA INSTALL HELP
+
+If the above information all isn't very clear, here's a view of good
+distributed environment's setup:
+
+        /usr/local/sbin/dictd         # Accessible from all hosts on our net
+        /usr/local/bin/dict           # Accessible from all hosts on our net
+        /usr/local/bin/dictfmt        # Accessible from all hosts on our net
+        /usr/local/etc/dictd.conf     # Accessible from all hosts on our net
+        /usr/local/etc/dict.conf      # Accessible from all hosts on our net
+        /usr/local/lib/dict-dbs       # Accessible from all hosts on our net
+
+/usr/local/etc/dictd.conf contains 2 lines:
+
+        database web1913 { data "/opt/public/dict-dbs/web1913.dict.dz"
+                          index "/opt/public/dict-dbs/web1913.index" }
+
+/usr/local/etc/dict.conf contains 1 line:
+
+        server dict
+
+This setup allows ANY host on the network to quickly and easily become
+the dictd server.  All you have to do is setup a 'host alias' for the
+name 'dict' to point at whatever host you want to be the dictd server
+and then start dictd on that host.
+
+NOTE:  I had to install the dictd.conf and dict.conf in that location
+       BY HAND.  This is not done automatically for you.
+
+=cut
