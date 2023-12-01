@@ -2,7 +2,15 @@ PROG =	dict
 SRCS =	dict.c net_client.c clientscan.l clientparse.y
 MAN  =	dict.1
 
-INFILES =	dict.1
+CONFIG_FILES =		dict.conf dict2.conf
+
+EGDIR ?=		${DATADIR}/examples/dict # specific to pkgsrc
+
+INFILES +=	dict.1
+
+FILES +=		${INFILES} ${CONFIG_FILES}
+FILESDIR_dict.conf =	${EGDIR}
+FILESDIR_dict2.conf =	${EGDIR}
 
 YHEADER =	1
 
