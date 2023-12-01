@@ -4,6 +4,12 @@ MAN  =	dictd.8
 
 BINDIR =	${SBINDIR}
 
+EGDIR ?=	${DATADIR}/examples/dictd # specific to pkgsrc
+
+FILESDIR =	${EGDIR}
+FILES    =	dictd1.conf dictd2.conf dictd3.conf dictd4.conf \
+   dictd_complex.conf dictd_mime.conf dictd_virtual.conf dictd_site.txt
+
 DPSRCS =	servparse.h servparse.c
 
 .ifdef USE_PLUGIN
