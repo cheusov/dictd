@@ -6,16 +6,16 @@ CONFIG_FILES =		dict.conf dict2.conf
 
 EGDIR ?=		${DATADIR}/examples/dict # specific to pkgsrc
 
-INFILES +=	dict.1
+INFILES +=		dict.1
 
 FILES +=		${INFILES} ${CONFIG_FILES}
 FILESDIR_dict.conf =	${EGDIR}
 FILESDIR_dict2.conf =	${EGDIR}
 
-YHEADER =	1
+YHEADER =		1
 
-DPSRCS =	clientparse.h clientparse.c
-clientscan.o: clientparse.h
+DPSRCS =		clientparse.h clientparse.c
+clientscan.o: 		clientparse.h
 
 CPPFLAGS +=	-I${SRCDIR_dictdplugins_include:U.} -I${SRCDIR_libdictd} \
    -I${SRCDIR_dictd} -I${SRCDIR_libcommon} -I${.CURDIR}
