@@ -8,7 +8,7 @@ EGDIR ?=		${DATADIR}/examples/dict # specific to pkgsrc
 
 INFILES +=		dict.1
 
-FILES +=		${INFILES} ${CONFIG_FILES}
+FILES +=		${CONFIG_FILES}
 FILESDIR_dict.conf =	${EGDIR}
 FILESDIR_dict2.conf =	${EGDIR}
 
