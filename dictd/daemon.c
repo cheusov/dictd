@@ -43,6 +43,8 @@
 
 #include <mkc_macro.h>
 
+#define ADDR_LEN 64
+
 int stdin2stdout_mode = 0; /* copy stdin to stdout( dict_dictd function ) */
 
 static int          _dict_defines, _dict_matches;
@@ -240,7 +242,7 @@ static int daemon_check_mask(const char *spec, const char *ip)
 {
 	char           *tmp = xstrdup(spec);
 	char           *pt;
-	char           tstring[64], mstring[64];
+	char           tstring[ADDR_LEN], mstring[ADDR_LEN];
 	struct in_addr target, mask;
 	int            bits;
 	unsigned long  bitmask;
@@ -258,11 +260,17 @@ static int daemon_check_mask(const char *spec, const char *ip)
 		return DICT_DENY;
 	}
 
-	inet_aton(ip, &target);
-	inet_aton(tmp, &mask);
+	if (inet_pton(AF_INET, ip, &target) < 1) {
+		log_info(":E: Unable to parse '%s' as an IPv4 address\n", ip);
+		return DICT_DENY;
+	}
+	if (inet_pton(AF_INET, tmp, &mask) < 1) {
+		log_info(":E: Unable to parse '%s' as an IPv4 address\n", tmp);
+		return DICT_DENY;
+	}
 	bits = strtol(pt, NULL, 10);
-	strcpy(tstring, inet_ntoa(target));
-	strcpy(mstring, inet_ntoa(mask));
+	inet_ntop(AF_INET, &target, tstring, ADDR_LEN);
+	inet_ntop(AF_INET, &mask, mstring, ADDR_LEN);
 	if (bits < 0 || bits > 32) {
 		log_info( ":E: Bit count (%d) out of range, denying access to %s\n",
 				  bits, ip);
@@ -285,7 +293,7 @@ static int daemon_check_range(const char *spec, const char *ip)
 {
 	char           *tmp = xstrdup(spec);
 	char           *pt;
-	char           tstring[64], minstring[64], maxstring[64];
+	char           tstring[ADDR_LEN], minstring[ADDR_LEN], maxstring[ADDR_LEN];
 	struct in_addr target, min, max;
 
 	if (!(pt = strchr(tmp, ':'))) {
@@ -306,12 +314,22 @@ static int daemon_check_range(const char *spec, const char *ip)
 		return DICT_DENY;
 	}
 
-	inet_aton(ip, &target);
-	inet_aton(tmp, &min);
-	inet_aton(pt, &max);
-	strcpy(tstring, inet_ntoa(target));
-	strcpy(minstring, inet_ntoa(min));
-	strcpy(maxstring, inet_ntoa(max));
+	if (inet_pton(AF_INET, ip, &target) < 1) {
+		log_info(":E: Unable to parse '%s' as an IPv4 address\n", ip);
+		return DICT_DENY;
+	}
+	if (inet_pton(AF_INET, tmp, &min) < 1) {
+		log_info(":E: Unable to parse '%s' as an IPv4 address\n", tmp);
+		return DICT_DENY;
+	}
+	if (inet_pton(AF_INET, pt, &max) < 1) {
+		log_info(":E: Unable to parse '%s' as an IPv4 address\n", pt);
+		return DICT_DENY;
+	}
+
+	inet_ntop(AF_INET, &target, tstring, ADDR_LEN);
+	inet_ntop(AF_INET, &min, minstring, ADDR_LEN);
+	inet_ntop(AF_INET, &max, maxstring, ADDR_LEN);
 	if (ntohl(target.s_addr) >= ntohl(min.s_addr)
 		&& ntohl(target.s_addr) <= ntohl(max.s_addr))
 	{
