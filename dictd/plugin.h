@@ -24,9 +24,9 @@
 #include "dictdplugin.h"
 
 /* initialize the plugin associated with db*/
-extern int dict_plugin_init (dictDatabase *db);
+extern int dict_plugin_init (const dictDatabase *db);
 /* destroy the plugin associated with db*/
-extern void dict_plugin_destroy (dictDatabase *db);
+extern void dict_plugin_destroy (const dictDatabase *db);
 
 /* search */
 extern int dict_search_plugin (

@@ -16,6 +16,7 @@
  * 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include "common.h"
 #include "dictd.h"
 #include "plugin.h"
 #include "strategy.h"
@@ -555,7 +556,7 @@ static dictPlugin *create_plugin (
 	return plugin;
 }
 
-int dict_plugin_init(dictDatabase *db)
+int dict_plugin_init(const dictDatabase *db)
 {
 	int ret = 0;
 	lst_List list;
@@ -604,7 +605,7 @@ int dict_plugin_init(dictDatabase *db)
 	return 0;
 }
 
-void dict_plugin_destroy ( dictDatabase *db )
+void dict_plugin_destroy (const dictDatabase *db )
 {
 	int ret;
 
