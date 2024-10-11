@@ -41,6 +41,7 @@
 #include <locale.h>             /* setlocale */
 #include <ctype.h>
 #include <sys/stat.h>
+#include <sys/select.h>
 #include <fcntl.h>
 #include <langinfo.h>
 #include <string.h>
@@ -1485,8 +1486,7 @@ static void reopen_012(void)
 
 int main (int argc, char **argv, char **envp)
 {
-	int                childSocket;
-	int                masterSocket;
+	int                child_sock;
 	struct sockaddr_storage csin;
 	int                c;
 	time_t             startTime;
@@ -1765,7 +1765,26 @@ int main (int argc, char **argv, char **envp)
 		exit(0);
 	}
 
-	masterSocket = net_open_tcp( bind_to, daemon_service, depth, dictd_address_family );
+	fd_set master_set, read_set;
+	int *sock_fds = NULL; // sockets closed and memory freed at process termination.
+	int sock_fds_len = 0;
+	int max_sock_fd = 0;
+
+	if (!dictd_address_family_set && !bind_to_set) { // listen to ipv4 and ipv6
+		sock_fds = net_open_tcp2( bind_to, daemon_service, depth, AF_UNSPEC, &sock_fds_len );
+	} else {
+		sock_fds = net_open_tcp2( bind_to, daemon_service, depth, dictd_address_family, &sock_fds_len );
+	}
+
+	FD_ZERO(&master_set);
+	for (int j = 0; j < sock_fds_len; ++j) {
+		if (sock_fds[j] != -1) {
+			FD_SET(sock_fds[j], &master_set);
+		}
+		if (sock_fds[j] > max_sock_fd) {
+			max_sock_fd = sock_fds[j];
+		}
+	}
 
 
 	for (;;) {
@@ -1777,14 +1796,11 @@ int main (int argc, char **argv, char **envp)
 		if (flg_test(LOG_SERVER))
 			log_info( ":I: %d accepting on %s\n", getpid(), daemon_service );
 
-		/*unblock_signals();*/
-		childSocket = accept (masterSocket,
-							  (struct sockaddr *)&csin, &alen);
-		errno_accept = errno;
-		/*block_signals();*/
+		read_set = master_set;
 
-		if (childSocket < 0){
-			switch (errno_accept){
+		if (select(max_sock_fd + 1, &read_set, NULL, NULL, NULL) == -1) {
+			int errno_select = errno;
+			switch (errno_select) {
 				case EINTR:
 					if (need_reload_config){
 						reload_config();
@@ -1797,41 +1813,79 @@ int main (int argc, char **argv, char **envp)
 						need_unload_databases = 0;
 						databases_unloaded = 1;
 					}
-					continue;
-				case ECONNABORTED:
-				case ECONNRESET:
-				case ETIMEDOUT:
-				case EHOSTUNREACH:
-				case ENETUNREACH:
-					continue;
+					break;
+				case EINVAL:
+				case ENOMEM:
+				case EBADF:
 				default:
-					log_info(":E: can't accept: errno = %d: %s\n",
-							 errno_accept, strerror(errno_accept));
-					err_fatal_errno(__func__, ":E: can't accept");
+					err_fatal_errno(__func__, ":E: internal error: errno = %d: %s\n",
+								errno_select, strerror(errno_select));
+					break;
+
 			}
+			continue;
 		}
 
-		if (_dict_daemon || dbg_test(DBG_NOFORK)) {
-			dict_daemon(childSocket,&csin,0);
-		} else {
-			if (_dict_forks - _dict_reaps < _dict_daemon_limit_childs) {
-				if (!start_daemon()) { /* child */
-					int databases_loaded = (DictConfig != NULL);
+		for (int j = 0; j < sock_fds_len; ++j) {
+			if (!FD_ISSET(sock_fds[j], &read_set)) {
+				continue;
+			}
+			/*unblock_signals();*/
+			child_sock = accept (sock_fds[j],
+								(struct sockaddr *)&csin, &alen);
+			errno_accept = errno;
+			/*block_signals();*/
 
-					alarm(0);
-					if (_dict_daemon_limit_time){
-						setsig (SIGALRM, handler, 0);
-						alarm(_dict_daemon_limit_time);
-					}
+			if (child_sock < 0){
+				switch (errno_accept){
+					case EINTR:
+						if (need_reload_config){
+							reload_config();
+							need_reload_config = 0;
+							databases_unloaded = 0;
+						}
 
-					dict_daemon(childSocket, &csin, databases_loaded ? 0 : 2);
-
-					exit(0);
-				} else {		   /* parent */
-					close(childSocket);
+						if (need_unload_databases){
+							unload_databases();
+							need_unload_databases = 0;
+							databases_unloaded = 1;
+						}
+						continue;
+					case ECONNABORTED:
+					case ECONNRESET:
+					case ETIMEDOUT:
+					case EHOSTUNREACH:
+					case ENETUNREACH:
+						continue;
+					default:
+						log_info(":E: can't accept: errno = %d: %s\n",
+								errno_accept, strerror(errno_accept));
+						err_fatal_errno(__func__, ":E: can't accept");
 				}
+			}
+
+			if (_dict_daemon || dbg_test(DBG_NOFORK)) {
+				dict_daemon(child_sock,&csin,0);
 			} else {
-				dict_daemon(childSocket, &csin, 1);
+				if (_dict_forks - _dict_reaps < _dict_daemon_limit_childs) {
+					if (!start_daemon()) { /* child */
+						int databases_loaded = (DictConfig != NULL);
+
+						alarm(0);
+						if (_dict_daemon_limit_time){
+							setsig (SIGALRM, handler, 0);
+							alarm(_dict_daemon_limit_time);
+						}
+
+						dict_daemon(child_sock, &csin, databases_loaded ? 0 : 2);
+
+						exit(0);
+					} else {		   /* parent */
+						close(child_sock);
+					}
+				} else {
+					dict_daemon(child_sock, &csin, 1);
+				}
 			}
 		}
 	}

@@ -28,6 +28,9 @@ extern int        net_connect_tcp(
 extern int        net_open_tcp (
 	const char *address, const char *service, int queueLength,
 	int address_family);
+extern int *      net_open_tcp2 (
+	const char *address, const char *service, int queue_len,
+	int address_family, int * sock_fds_len);
 extern void       net_detach( void );
 extern int        net_read( int s, char *buf, int maxlen );
 extern int        net_write( int s, const char *buf, int len );
