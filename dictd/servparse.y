@@ -120,6 +120,11 @@ static int string2bool (const char *str)
 %type  <hash>   UserList
 %type  <token>  Global
 
+%code provides {
+  int yylex (void);
+  void yyerror (const char *);
+}
+
 %%
 
 Program : Global DatabaseList
