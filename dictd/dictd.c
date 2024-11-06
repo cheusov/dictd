@@ -1493,6 +1493,7 @@ int main (int argc, char **argv, char **envp)
 	socklen_t          alen         = sizeof(csin);
 	int                detach       = 1;
 	int                i;
+	int                j;
 
 	int                errno_accept = 0;
 
@@ -1777,7 +1778,7 @@ int main (int argc, char **argv, char **envp)
 	}
 
 	FD_ZERO(&master_set);
-	for (int j = 0; j < sock_fds_len; ++j) {
+	for (j = 0; j < sock_fds_len; ++j) {
 		if (sock_fds[j] != -1) {
 			FD_SET(sock_fds[j], &master_set);
 		}
@@ -1826,7 +1827,7 @@ int main (int argc, char **argv, char **envp)
 			continue;
 		}
 
-		for (int j = 0; j < sock_fds_len; ++j) {
+		for (j = 0; j < sock_fds_len; ++j) {
 			if (!FD_ISSET(sock_fds[j], &read_set)) {
 				continue;
 			}
