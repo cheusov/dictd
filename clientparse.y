@@ -24,6 +24,8 @@
 #define YYERROR_VERBOSE
 
 static dictServer *s;
+extern int yylex(void);
+extern void yyerror(const char *message);
 %}
 
 %union {

@@ -48,6 +48,10 @@ static int string2bool (const char *str)
       src_parse_error( stderr, s.src, #field "already set" ); \
    db->field = t.string;                                      \
 } while(0);
+
+extern int yylex(void);
+extern void yyerror(const char *message);
+
 %}
 
 %union {
