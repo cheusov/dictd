@@ -1,4 +1,11 @@
 ----------------------------------------------------------------------
+Version 1.13.2, by Aleksey Cheusov, Fri, 15 Nov 2024 09:08:42 +0400
+
+  Modernize configure.in and rename it configure.ac
+
+  Fix build failures with gcc-14
+
+----------------------------------------------------------------------
 Version 1.13.1, by Aleksey Cheusov, Sun, 21 Nov 2021 15:46:08 +0300
 
   Remove the last call of gethostbyname(3)
