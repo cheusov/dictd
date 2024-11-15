@@ -151,7 +151,6 @@ extern int mbtowc__ (wchar_t *pwc, const char *s, size_t n);
 #endif
 
 /* Get time functions */
-#include <sys/time.h>
 #include <time.h>
 
 /* Include some standard header files. */
