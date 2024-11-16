@@ -24,7 +24,7 @@ dnl             for optimization and stripping.
 dnl     LIBOBJS is an automatically-generated list of extra objects we need
 
 
-define(VERSION, 1.13.2)
+define(VERSION, 1.13.3)
 
 
 AC_PREREQ([2.72])

@@ -1,4 +1,11 @@
 ----------------------------------------------------------------------
+Version 1.13.3, by Aleksey Cheusov, Sat, 16 Nov 2024 20:25:34 +0400
+
+  dictd: fix buffer overflow in first/last search strategies.
+  Affected versions: 1.10.10 (May 2007).
+  Thanks a lot to Matěj Cepl <mcepl@cepl.eu> for the report!
+
+----------------------------------------------------------------------
 Version 1.13.2, by Aleksey Cheusov, Fri, 15 Nov 2024 09:08:42 +0400
 
   Modernize configure.in and rename it configure.ac
