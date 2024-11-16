@@ -1505,7 +1505,7 @@ static int dict_search_suffix(
    assert (database);
 
    if (database->index_suffix){
-      buf = (char *) alloca (strlen (word));
+      buf = (char *) alloca (strlen (word) + 1);
       strcpy (buf, word);
 
       PRINTF(DBG_SEARCH, ("anagram: '%s' ==> ", buf));
@@ -1549,7 +1549,7 @@ static int dict_search_last (
    assert (database);
 
    if (database->index_suffix){
-      buf = (char *) alloca (strlen (word));
+      buf = (char *) alloca (strlen (word) + 1);
       strcpy (buf, word);
 
       PRINTF(DBG_SEARCH, ("anagram: '%s' ==> ", buf));
