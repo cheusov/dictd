@@ -28,7 +28,11 @@ colorit 0.0.1\n\
 
 pp='m4'
 
-config_file=$HOME/.coloritrc
+if [ -d "${XDG_CONFIG_HOME}" ]; then
+	config_file=${XDG_CONFIG_HOME}/coloritrc
+else
+	config_file=$HOME/.coloritrc
+fi
 
 while test $# -ne 0; do
     case $1 in
