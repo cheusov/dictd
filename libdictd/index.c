@@ -136,24 +136,14 @@ static void dict_table_init(void)
 	unsigned char *p[UCHAR_MAX + 1];
 
 	for (i = 0; i <= UCHAR_MAX; i++) {
-		if (isspace(i) || isalnum(i) || (utf8_mode && i >= 0x80)){
-			isspacealnumtab [i] = 1;
-		}else{
-			isspacealnumtab [i] = 0;
-		}
-
-		tolowertab [i] = tolower(i);
-		if (i >= 0x80){
-			if (utf8_mode || !utf8_mode){
-				/* utf-8 or ASCII mode */
-				tolowertab [i] = i;
-			}
-		}
-
 		if (utf8_mode && i >= 0x80){
+			isspacealnumtab [i] = 1;
+			tolowertab [i] = i;
 			isspacepuncttab [i] = 0;
 		}else{
+			tolowertab [i] = tolower(i);
 			isspacepuncttab [i] = isspace(i) || ispunct(i);
+			isspacealnumtab [i] = isspace(i) || isalnum(i);
 		}
 
 		isspacealnumtab_allchars [i] = 1;
