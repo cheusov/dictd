@@ -43,6 +43,11 @@ static dictServer *s;
 %token <token>  TOKEN_STRING
 %type  <list>   Options Server ServerList
 
+%code provides {
+  int yylex (void);
+  void yyerror (const char *);
+}
+
 %%
 
 Options : ServerList
