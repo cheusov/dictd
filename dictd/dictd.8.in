@@ -1461,7 +1461,7 @@ File for storing pid of
 .B dictd
 daemon
 .TP
-.I @DATADIR@
+.I @DICT_DICTIONARY_PATH@
 The default directory for
 .B dictd
 databases (.index and .dict[.dz] files)

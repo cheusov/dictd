@@ -13,6 +13,8 @@ SUBPRJ  +=	colorit dictl dict_lookup
 
 SUBPRJ_DFLT +=	dict dictd dictfmt dictzip colorit dictl dict_lookup
 
+MKC_REQD =	0.38.2
+
 test:
 	@set -e; cd ${.CURDIR}/test; \
 	PATH=${OBJDIR_dictd}:${OBJDIR_dict}:${OBJDIR_dictzip}:${OBJDIR_dictfmt}:$${PATH}; \

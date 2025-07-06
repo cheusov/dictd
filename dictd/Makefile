@@ -12,6 +12,8 @@ FILES    =	dictd1.conf dictd2.conf dictd3.conf dictd4.conf \
 
 DPSRCS =	servparse.h servparse.c
 
+USE_DBDIR ?=	${DATADIR}/dictd
+
 .ifdef USE_PLUGIN
 SRCS     +=	plugin.c
 CPPFLAGS +=	-DUSE_PLUGIN=1
@@ -19,6 +21,7 @@ MKC_FEATURES +=	libdl
 .endif
 
 INFILES =	dictd.8
+INTEXTS_REPLS+=	DICT_DICTIONARY_PATH ${USE_DBDIR:Q}
 
 YHEADER =	1
 
@@ -36,7 +39,7 @@ MKC_CHECK_FUNCS2     += daemon:stdlib.h \
 
 MKC_REQUIRE_FUNCLIBS +=	lst_create:maa bind:socket inet_ntop:nsl
 MKC_CHECK_FUNCLIBS   +=	daemon
-MKC_FEATURES         += efun
+MKC_FEATURES         += efun strlcat
 
 .include <mkc.configure.mk>
 

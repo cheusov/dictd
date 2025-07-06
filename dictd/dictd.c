@@ -52,6 +52,7 @@
 #include <unistd.h>
 
 #include <mkc_macro.h>
+#include <mkc_strlcat.h>
 
 #define MAXPROCTITLE 2048       /* Maximum amount of proc title we'll use. */
 #undef MIN
@@ -416,9 +417,11 @@ static const char *postprocess_filename(const char *fn, const char *prefix)
 		return NULL;
 
 	if (fn [0] != '/' && fn [0] != '.'){
-		new_fn = xmalloc(2 + strlen(prefix) + strlen(fn));
+		size_t new_buf_length = 3 + strlen(prefix) + strlen(fn);
+		new_fn = xmalloc(new_buf_length);
 		strcpy(new_fn, prefix);
-		strcat(new_fn, fn);
+		strlcat(new_fn, "/", new_buf_length);
+		strlcat(new_fn, fn, new_buf_length);
 
 		return new_fn;
 	}else{
