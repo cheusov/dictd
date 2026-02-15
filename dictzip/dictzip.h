@@ -54,7 +54,7 @@
    12 bytes. */
 #define OUT_BUFFER_SIZE 0xffffL
 
-#define IN_BUFFER_SIZE ((unsigned long)((double)(OUT_BUFFER_SIZE - 12) * 0.89))
+#define IN_BUFFER_SIZE ((OUT_BUFFER_SIZE - 12) * 89 / 100)
 
 #define PREFILTER_IN_BUFFER_SIZE (IN_BUFFER_SIZE * 0.89)
 
