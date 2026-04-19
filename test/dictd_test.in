@@ -349,11 +349,9 @@ dictd_test_daemon (){
 
     rm -f _dictd.pid
 
-    set -x
     $DICTD -c "$conf_name" $extra_opts --pid-file _dictd.pid 2>&1
     sleep 1
     dictd_pid=`cat _dictd.pid`
-    set +x
 
     $DICT -h localhost -p 26281 -DS > _dict_nodetach_test.out 2>&1
 
