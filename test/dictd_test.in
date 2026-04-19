@@ -5,7 +5,8 @@ set -e
 DICTFMT="$OBJDIR_dictfmt/dictfmt --without-time --silent --without-ver"
 DICTUNFORMAT="$OBJDIR_dictfmt/dictunformat"
 DICT="$OBJDIR_dict/dict"
-DICTD="$OBJDIR_dictd/dictd -L `pwd`/_dictd.log"
+DICTD_LOG=`pwd`/_dictd.log
+DICTD="$OBJDIR_dictd/dictd -L $DICTD_LOG"
 DICTFMT_I2W="$OBJDIR_dictfmt/dictfmt_index2word --silent"
 DICTFMT_I2S="$OBJDIR_dictfmt/dictfmt_index2suffix"
 DIFF="${DIFF_PROG-diff -u}"
@@ -210,6 +211,7 @@ dictd_test_inetd_base (){
     generate_commands "$conf_file" "$strats" > "$in_file"
 
     #
+    rm -f "$DICTD_LOG"
     $DICTD -c $conf_file -i --stdin2stdout < "$in_file" |
     $AWK_CMD '/^2[25]0 / { print $1 "\r"; next; } {print}' \
 	| $noorder > _dictd_${dbname}_res.txt
@@ -279,6 +281,7 @@ dictd_test_inetd2_base (){
     in_file=$etadir/input.${txtname}.txt
 
     #
+    rm -f "$DICTD_LOG"
     $DICTD -c $conf_file -i --stdin2stdout < "$in_file" |
     $AWK_CMD '/^2[25]0 / { print $1 "\r"; next; } {print}' \
 	| $noorder > _dictd_${txtname}_res.txt
@@ -324,7 +327,11 @@ dictd_test_inetd2_noorder (){
 }
 
 dictd_test_daemon (){
-    test $# -eq 3
+    # $1 -- etalon directory
+    # $2 -- dbname
+    # $3 -- expect name
+    # $4 -- dictd extra arguments
+    test $# -eq 4
 
     etadir=`absolute_path $1` # etalon directory
     shift
@@ -335,47 +342,56 @@ dictd_test_daemon (){
     expect_name="$1"
     shift
 
+    extra_opts="$1"
+    shift
+
     conf_name=`pwd`/"_testdb.${dbname}.conf"
 
-    $DICTD -c $conf_name --pid-file _dictd.pid 2>&1
+    rm -f _dictd.pid
+
+    set -x
+    $DICTD -c "$conf_name" $extra_opts --pid-file _dictd.pid 2>&1
     sleep 1
     dictd_pid=`cat _dictd.pid`
-
-    trap "kill -TERM $dictd_pid" 0
+    set +x
 
     $DICT -h localhost -p 26281 -DS > _dict_nodetach_test.out 2>&1
 
     cmp_2_files "$etadir/$expect_name" _dict_nodetach_test.out
+
+    kill -TERM "$dictd_pid"
 }
 
-#dictd_test_inetd smiley_1 smiley_1
+inetd_test() {
+    dictd_test_inetd "$@"
+    printf "inetd test '%s %s'   passed\n" "$2" "$4"
+}
+
+# inetd_test smiley_1 smiley_1
 #printf 'smiley_1 passed\n'
-dictd_test_inetd . smiley_2 smiley_2 exact
-printf 'smiley_2 passed\n'
-#dictd_test_inetd smiley_3 smiley_3
-#printf 'smiley_3 passed\n'
-dictd_test_inetd . smiley_4 smiley_4 exact
-printf 'smiley_4 passed\n'
-dictd_test_inetd . smiley_5 smiley_5 exact
-printf 'smiley_5 passed\n'
+inetd_test `pwd` smiley_2 smiley_2 exact
+# inetd_test smiley_3 smiley_3
+inetd_test `pwd` smiley_4 smiley_4 exact
+inetd_test `pwd` smiley_5 smiley_5 exact
 
-dictd_test_inetd . hello_1 hello_1 exact
-printf 'hello_1 passed\n'
-dictd_test_inetd . hello_2 hello_2 exact
-printf 'hello_2 passed\n'
-dictd_test_inetd . hello_3 hello_3 exact
-printf 'hello_3 passed\n'
-dictd_test_inetd . hello_4 hello_4 exact
-printf 'hello_4 passed\n'
-dictd_test_inetd . hello_5 hello_5 exact
-printf 'hello_5 passed\n'
+inetd_test `pwd` hello_1 hello_1 exact
+inetd_test `pwd` hello_2 hello_2 exact
+inetd_test `pwd` hello_3 hello_3 exact
+inetd_test `pwd` hello_4 hello_4 exact
+inetd_test `pwd` hello_5 hello_5 exact
 
-dictd_test_inetd . cyrillic_1 cyrillic_1 \
+inetd_test `pwd` cyrillic_1 cyrillic_1 \
     'exact word lev suffix prefix substring'
 printf 'cyrillic_1 passed\n'
 
-dictd_test_daemon . cyrillic_1 cyrillic_nodetach_expect.out
-printf 'cyrillic_1 nodetach nofork passed\n'
+daemon_test() {
+    dictd_test_daemon "$@"
+    printf "daemon test '%s %s'   passed\n" "$2" "$4"
+}
+
+daemon_test `pwd` cyrillic_1 cyrillic_nodetach_expect.out ''
+daemon_test `pwd` cyrillic_1 cyrillic_nodetach_expect.out '--address-family 4'
+daemon_test `pwd` cyrillic_1 cyrillic_nodetach_expect.out '--address-family 6'
 
 #LC_ALL=C sort dictd_cyrillic_1_res.expected.txt \
 #            > dictd_cyrillic_2_res.expected.txt
@@ -386,7 +402,7 @@ printf 'cyrillic_1 nodetach nofork passed\n'
 #dictd_test_inetd_noorder cyrillic_2 cyrillic_2 exact word lev suffix prefix substring
 #printf 'cyrillic_2 passed\n'
 
-dictd_test_inetd2 . cyrillic_1 cyrillic_3
+dictd_test_inetd2 `pwd` cyrillic_1 cyrillic_3
 printf 'cyrillic_3 passed\n'
 
 LC_ALL=C sort ./dictd_cyrillic_3_res.expected.txt \
@@ -403,16 +419,16 @@ $DICTFMT_I2S --utf8 --silent ./db.expect.cyrillic_1.index \
 dictd_test_inetd2_noorder `pwd` cyrillic_4 cyrillic_4
 printf 'cyrillic_4 passed\n'
 
-dictd_test_inetd2 . mixedcase_1 mixedcase_1
+dictd_test_inetd2 `pwd` mixedcase_1 mixedcase_1
 printf 'mixedcase_1 passed\n'
 
-dictd_test_inetd2 . indexdata_1 indexdata_1
+dictd_test_inetd2 `pwd` indexdata_1 indexdata_1
 printf 'indexdata_1 passed\n'
 
-dictd_test_inetd2 . limits_1 limits_1
+dictd_test_inetd2 `pwd` limits_1 limits_1
 printf 'limits_1 passed\n'
 
-dictd_test_inetd2 . defstrat_1 defstrat_1
+dictd_test_inetd2 `pwd` defstrat_1 defstrat_1
 printf 'defstrat_1 passed\n'
-dictd_test_inetd2 . defstrat_2 defstrat_2
+dictd_test_inetd2 `pwd` defstrat_2 defstrat_2
 printf 'defstrat_2 passed\n'
