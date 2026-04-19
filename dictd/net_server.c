@@ -215,7 +215,7 @@ int * net_open_tcp2 (
 	int sock = -1;
 
 
-	fprintf(stderr,
+	log_info(
 		"[tcp2] address='%s' service='%s' family=%d\n",
 		address ? address : "(null)", service, address_family);
 
@@ -226,7 +226,7 @@ int * net_open_tcp2 (
 	 */
 	if (address_family == AF_UNSPEC) {
 
-		fprintf(stderr, "[tcp2] Attempting dual-stack (AF_UNSPEC)\n");
+		log_info("[tcp2] Attempting dual-stack (AF_UNSPEC)\n");
 
 		memset(&hints, 0, sizeof(struct addrinfo));
 		hints.ai_family   = AF_UNSPEC;					 // musl-friendly
@@ -236,26 +236,23 @@ int * net_open_tcp2 (
 
 		int rc = getaddrinfo(address, service, &hints, &r);
 		if (rc != 0) {
-			fprintf(stderr,
-				"[tcp2] getaddrinfo(AF_UNSPEC) failed: %s (%d)\n",
-				gai_strerror(rc), rc);
 			err_fatal(__func__,
-				"getaddrinfo: Failed, address=\"%s\", service=\"%s\"\n",
-				address, service);
+				"[tcp2] getaddrinfo(%s, %s, AF_UNSPEC) failed: %s (%d)\n",
+				address, service, gai_strerror(rc), rc);
 		}
 
 		/*
 		 * Try IPv6 first (dual-stack if possible)
 		 */
 		for (ai = r; ai != NULL; ai = ai->ai_next) {
-			fprintf(stderr,
+			log_info(
 				"[tcp2] ai_family=%d ai_socktype=%d ai_protocol=%d\n",
 				ai->ai_family, ai->ai_socktype, ai->ai_protocol);
 
 			if (ai->ai_family == AF_INET6) {
-				fprintf(stderr, "[tcp2] Trying IPv6 dual-stack socket\n");
+				log_info("[tcp2] Trying IPv6 dual-stack socket\n");
 				sock = setup_socket(ai, queue_len, true, 0);
-				fprintf(stderr, "[tcp2] setup_socket returned %d\n", sock);
+				log_info("[tcp2] setup_socket returned %d\n", sock);
 				break;
 			}
 		}
@@ -264,7 +261,7 @@ int * net_open_tcp2 (
 		 * If dual-stack failed → fall back to separate IPv4 + IPv6 sockets
 		 */
 		if (sock == ESOOPTIPV6 || sock < 0) {
-			fprintf(stderr,
+			log_info(
 				"[tcp2] Dual-stack failed (%d), falling back to separate sockets\n",
 				sock);
 
@@ -273,15 +270,15 @@ int * net_open_tcp2 (
 
 			for (ai = r; ai != NULL; ai = ai->ai_next) {
 				if (ai->ai_family == AF_INET && sock4 < 0) {
-					fprintf(stderr, "[tcp2] Trying IPv4 socket\n");
+					log_info("[tcp2] Trying IPv4 socket\n");
 					sock4 = setup_socket(ai, queue_len, false, 0);
-					fprintf(stderr, "[tcp2] IPv4 setup returned %d\n", sock4);
+					log_info("[tcp2] IPv4 setup returned %d\n", sock4);
 					if (sock4 < 0) { err = sock4; break; }
 				}
 				if (ai->ai_family == AF_INET6 && sock6 < 0) {
-					fprintf(stderr, "[tcp2] Trying IPv6-only socket\n");
+					log_info("[tcp2] Trying IPv6-only socket\n");
 					sock6 = setup_socket(ai, queue_len, true, 1);
-					fprintf(stderr, "[tcp2] IPv6 setup returned %d\n", sock6);
+					log_info("[tcp2] IPv6 setup returned %d\n", sock6);
 					if (sock6 < 0) { err = sock6; break; }
 				}
 			}
@@ -289,7 +286,7 @@ int * net_open_tcp2 (
 			freeaddrinfo(r); r = NULL;
 
 			if (err < 0) {
-				fprintf(stderr, "[tcp2] Fallback socket setup failed: %d\n", err);
+				log_info("[tcp2] Fallback socket setup failed: %d\n", err);
 				if (sock4 > 0) close(sock4);
 				if (sock6 > 0) close(sock6);
 				handle_so_setup_error(err, __func__, address, service);
@@ -300,7 +297,7 @@ int * net_open_tcp2 (
 			 * (dictd cannot handle multiple listening sockets)
 			 */
 			if (sock4 >= 0) {
-				fprintf(stderr, "[tcp2] Using IPv4 only\n");
+				log_info("[tcp2] Using IPv4 only\n");
 				if (sock6 >= 0) close(sock6);
 				sock_fds = malloc(sizeof(int));
 				sock_fds[0] = sock4;
@@ -309,7 +306,7 @@ int * net_open_tcp2 (
 			}
 
 			if (sock6 >= 0) {
-				fprintf(stderr, "[tcp2] Using IPv6 only\n");
+				log_info("[tcp2] Using IPv6 only\n");
 				sock_fds = malloc(sizeof(int));
 				sock_fds[0] = sock6;
 				*sock_fds_len = 1;
@@ -324,7 +321,7 @@ int * net_open_tcp2 (
 		 */
 		freeaddrinfo(r); r = NULL;
 
-		fprintf(stderr, "[tcp2] Dual-stack IPv6 socket succeeded\n");
+		log_info("[tcp2] Dual-stack IPv6 socket succeeded\n");
 		sock_fds = malloc(sizeof(int));
 		sock_fds[0] = sock;
 		*sock_fds_len = 1;
@@ -337,7 +334,7 @@ int * net_open_tcp2 (
 	 *  CASE 2: Caller requested a specific family (IPv4 or IPv6)
 	 * ------------------------------------------------------------
 	 */
-	fprintf(stderr, "[tcp2] Using single-family mode: %d\n", address_family);
+	log_info("[tcp2] Using single-family mode: %d\n", address_family);
 
 	sock = net_open_tcp(address, service, queue_len, address_family);
 
@@ -345,6 +342,6 @@ int * net_open_tcp2 (
 	sock_fds[0] = sock;
 	*sock_fds_len = 1;
 
-	fprintf(stderr, "[tcp2] Returning 1 socket\n");
+	log_info("[tcp2] Returning 1 socket\n");
 	return sock_fds;
 }
