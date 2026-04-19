@@ -42,6 +42,10 @@
 #define INADDR_NONE (-1)
 #endif
 
+#ifndef AI_V4MAPPED
+#define AI_V4MAPPED (0)
+#endif
+
 #define ESOOPEN -1
 #define ESOOPT -2
 #define ESOOPTIPV6 -3
