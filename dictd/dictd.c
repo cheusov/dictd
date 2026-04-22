@@ -125,7 +125,7 @@ const char        *preprocessor = NULL;
 const char        *bind_to      = NULL;
 int bind_to_set; /* 1 if set by command line option */
 
-int dictd_address_family              = AF_INET;
+int dictd_address_family              = AF_UNSPEC;
 int dictd_address_family_set;
 
 /* information about dict server, i.e.
