@@ -224,6 +224,12 @@ int * net_open_tcp2 (
 
 	int rc = getaddrinfo(address, service, &hints, &r);
 	if (rc != 0) {
+		char *af = NULL;
+		if (af == NULL && address_family == AF_UNSPEC) af = "AF_UNSPEC";
+		if (af == NULL && address_family == AF_INET6) af = "AF_INET6";
+		if (af == NULL && address_family == AF_INET) af = "AF_INET";
+		if (af == NULL) af = "unknown";
+
 		err_fatal(__func__,
 		  "[tcp2] getaddrinfo(%s, %s, AF_UNSPEC) failed: %s (%d)\n",
 		  address, service, gai_strerror(rc), rc);
@@ -240,7 +246,7 @@ int * net_open_tcp2 (
 			if (sock4 < 0) err = sock4;
 		}
 		if (ai->ai_family == AF_INET6 && sock6 < 0) {
-			log_info("[tcp2] Trying IPv6-only socket\n");
+			log_info("[tcp2] Trying IPv6 socket\n");
 			sock6 = setup_socket(ai, queue_len, true, 1);
 			log_info("[tcp2] IPv6 setup returned %d\n", sock6);
 			if (sock6 < 0) err = sock6;
@@ -269,7 +275,7 @@ int * net_open_tcp2 (
 		*sock_fds_len = 1;
 		return sock_fds;
 	} else {
-		log_info("[tcp2] Fallback socket setup failed: %d\n", err);
+		log_info("[tcp2] Socket setup failed: %d\n", err);
 		handle_so_setup_error(err, __func__, address, service);
 	}
 
