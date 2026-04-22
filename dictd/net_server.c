@@ -212,136 +212,66 @@ int * net_open_tcp2 (
 	int *sock_fds = NULL;
 	*sock_fds_len = 0;
 
-	int sock = -1;
-
-
 	log_info(
-		"[tcp2] address='%s' service='%s' family=%d\n",
-		address ? address : "(null)", service, address_family);
+	"[tcp2] address='%s' service='%s' family=%d\n",
+	address ? address : "(null)", service, address_family);
 
-	/*
-	 * ------------------------------------------------------------
-	 *  CASE 1: AF_UNSPEC → attempt dual-stack first
-	 * ------------------------------------------------------------
-	 */
-	if (address_family == AF_UNSPEC) {
+	memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_family   = address_family;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+	hints.ai_flags    = AI_ADDRCONFIG | AI_V4MAPPED;
 
-		log_info("[tcp2] Attempting dual-stack (AF_UNSPEC)\n");
-
-		memset(&hints, 0, sizeof(struct addrinfo));
-		hints.ai_family   = AF_UNSPEC;					 // musl-friendly
-		hints.ai_socktype = SOCK_STREAM;
-		hints.ai_protocol = IPPROTO_TCP;
-		hints.ai_flags    = AI_ADDRCONFIG | AI_V4MAPPED;
-
-		int rc = getaddrinfo(address, service, &hints, &r);
-		if (rc != 0) {
-			err_fatal(__func__,
-				"[tcp2] getaddrinfo(%s, %s, AF_UNSPEC) failed: %s (%d)\n",
-				address, service, gai_strerror(rc), rc);
-		}
-
-		/*
-		 * Try IPv6 first (dual-stack if possible)
-		 */
-		for (ai = r; ai != NULL; ai = ai->ai_next) {
-			log_info(
-				"[tcp2] ai_family=%d ai_socktype=%d ai_protocol=%d\n",
-				ai->ai_family, ai->ai_socktype, ai->ai_protocol);
-
-			if (ai->ai_family == AF_INET6) {
-				log_info("[tcp2] Trying IPv6 dual-stack socket\n");
-				sock = setup_socket(ai, queue_len, true, 0);
-				log_info("[tcp2] setup_socket returned %d\n", sock);
-				break;
-			}
-		}
-
-		/*
-		 * If dual-stack failed → fall back to separate IPv4 + IPv6 sockets
-		 */
-		if (sock == ESOOPTIPV6 || sock < 0) {
-			log_info(
-				"[tcp2] Dual-stack failed (%d), falling back to separate sockets\n",
-				sock);
-
-			int sock4 = -1, sock6 = -1;
-			int err = 0;
-
-			for (ai = r; ai != NULL; ai = ai->ai_next) {
-				if (ai->ai_family == AF_INET && sock4 < 0) {
-					log_info("[tcp2] Trying IPv4 socket\n");
-					sock4 = setup_socket(ai, queue_len, false, 0);
-					log_info("[tcp2] IPv4 setup returned %d\n", sock4);
-					if (sock4 < 0) { err = sock4; break; }
-				}
-				if (ai->ai_family == AF_INET6 && sock6 < 0) {
-					log_info("[tcp2] Trying IPv6-only socket\n");
-					sock6 = setup_socket(ai, queue_len, true, 1);
-					log_info("[tcp2] IPv6 setup returned %d\n", sock6);
-					if (sock6 < 0) { err = sock6; break; }
-				}
-			}
-
-			freeaddrinfo(r); r = NULL;
-
-			if (err < 0) {
-				log_info("[tcp2] Fallback socket setup failed: %d\n", err);
-				if (sock4 > 0) close(sock4);
-				if (sock6 > 0) close(sock6);
-				handle_so_setup_error(err, __func__, address, service);
-			}
-
-			/*
-			 * NEW BEHAVIOR: return only ONE socket
-			 * (dictd cannot handle multiple listening sockets)
-			 */
-			if (sock4 >= 0) {
-				log_info("[tcp2] Using IPv4 only\n");
-				if (sock6 >= 0) close(sock6);
-				sock_fds = malloc(sizeof(int));
-				sock_fds[0] = sock4;
-				*sock_fds_len = 1;
-				return sock_fds;
-			}
-
-			if (sock6 >= 0) {
-				log_info("[tcp2] Using IPv6 only\n");
-				sock_fds = malloc(sizeof(int));
-				sock_fds[0] = sock6;
-				*sock_fds_len = 1;
-				return sock_fds;
-			}
-
-			err_fatal(__func__, "No usable sockets\n");
-		}
-
-		/*
-		 * Dual-stack succeeded
-		 */
-		freeaddrinfo(r); r = NULL;
-
-		log_info("[tcp2] Dual-stack IPv6 socket succeeded\n");
-		sock_fds = malloc(sizeof(int));
-		sock_fds[0] = sock;
-		*sock_fds_len = 1;
-
-		return sock_fds;
+	int rc = getaddrinfo(address, service, &hints, &r);
+	if (rc != 0) {
+		err_fatal(__func__,
+		  "[tcp2] getaddrinfo(%s, %s, AF_UNSPEC) failed: %s (%d)\n",
+		  address, service, gai_strerror(rc), rc);
 	}
 
-	/*
-	 * ------------------------------------------------------------
-	 *  CASE 2: Caller requested a specific family (IPv4 or IPv6)
-	 * ------------------------------------------------------------
-	 */
-	log_info("[tcp2] Using single-family mode: %d\n", address_family);
+	int sock4 = -1, sock6 = -1;
+	int err = 0;
 
-	sock = net_open_tcp(address, service, queue_len, address_family);
+	for (ai = r; ai != NULL; ai = ai->ai_next) {
+		if (ai->ai_family == AF_INET && sock4 < 0) {
+			log_info("[tcp2] Trying IPv4 socket\n");
+			sock4 = setup_socket(ai, queue_len, false, 0);
+			log_info("[tcp2] IPv4 setup returned %d\n", sock4);
+			if (sock4 < 0) err = sock4;
+		}
+		if (ai->ai_family == AF_INET6 && sock6 < 0) {
+			log_info("[tcp2] Trying IPv6-only socket\n");
+			sock6 = setup_socket(ai, queue_len, true, 1);
+			log_info("[tcp2] IPv6 setup returned %d\n", sock6);
+			if (sock6 < 0) err = sock6;
+		}
+	}
 
-	sock_fds = malloc(sizeof(int));
-	sock_fds[0] = sock;
-	*sock_fds_len = 1;
+	freeaddrinfo(r); r = NULL;
 
-	log_info("[tcp2] Returning 1 socket\n");
-	return sock_fds;
+	if (sock4 >= 0 && sock6 >= 0) {
+		log_info("[tcp2] Using both IPv4 and IPv6\n");
+		sock_fds = malloc(2 * sizeof(int));
+		sock_fds[0] = sock4;
+		sock_fds[1] = sock6;
+		*sock_fds_len = 2;
+		return sock_fds;
+	} else if (sock4 >= 0) {
+		log_info("[tcp2] Using IPv4 only\n");
+		sock_fds = malloc(sizeof(int));
+		sock_fds[0] = sock4;
+		*sock_fds_len = 1;
+		return sock_fds;
+	} else if (sock6 >= 0) {
+		log_info("[tcp2] Using IPv6 only\n");
+		sock_fds = malloc(sizeof(int));
+		sock_fds[0] = sock6;
+		*sock_fds_len = 1;
+		return sock_fds;
+	} else {
+		log_info("[tcp2] Fallback socket setup failed: %d\n", err);
+		handle_so_setup_error(err, __func__, address, service);
+	}
+
+	err_fatal(__func__, "No usable sockets\n");
 }
