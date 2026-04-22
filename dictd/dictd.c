@@ -770,7 +770,7 @@ static int init_mime_db_list (const void *datum)
 static int init_plugin( const void *datum )
 {
 #ifdef USE_PLUGIN
-	dictDatabase *db = (dictDatabase *)datum;
+	const dictDatabase *db = (const dictDatabase *)datum;
 	dict_plugin_init(db);
 #endif
 
@@ -1005,7 +1005,7 @@ static int init_database_short (const void *datum)
 static int close_plugin(const void *datum)
 {
 #ifdef USE_PLUGIN
-	dictDatabase  *db = (dictDatabase *)datum;
+	const dictDatabase *db = (const dictDatabase *)datum;
 	dict_plugin_destroy (db);
 #endif
 

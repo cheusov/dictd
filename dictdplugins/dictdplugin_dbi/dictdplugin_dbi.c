@@ -27,6 +27,8 @@
 #include <dbi/dbi.h>
 
 #include <stdio.h>
+#include <string.h>
+#include <assert.h>
 
 #define BUFSIZE 4096
 
