@@ -224,7 +224,7 @@ int * net_open_tcp2 (
 
 	int rc = getaddrinfo(address, service, &hints, &r);
 	if (rc != 0) {
-		char *af = NULL;
+		char const *af = NULL;
 		if (af == NULL && address_family == AF_UNSPEC) af = "AF_UNSPEC";
 		if (af == NULL && address_family == AF_INET6) af = "AF_INET6";
 		if (af == NULL && address_family == AF_INET) af = "AF_INET";
