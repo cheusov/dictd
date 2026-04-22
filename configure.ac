@@ -24,13 +24,13 @@ dnl             for optimization and stripping.
 dnl     LIBOBJS is an automatically-generated list of extra objects we need
 
 
-define(VERSION, 1.13.3)
+define(PKG_VERSION, 1.13.3)
 
 
 AC_PREREQ([2.72])
 AC_REVISION($Revision: 1.144 $)
 
-AC_INIT([dict],[VERSION],[dict-beta@dict.org])
+AC_INIT([dict],[PKG_VERSION],[dict-beta@dict.org])
 
 AC_CONFIG_SRCDIR([dictd.c])
 AC_CONFIG_HEADERS([config.h])
@@ -38,7 +38,7 @@ AC_CONFIG_HEADERS([config.h])
 echo Configuring for dict
 echo .
 
-DICT_VERSION=VERSION
+DICT_VERSION=PKG_VERSION
 
 AC_CANONICAL_HOST
 
