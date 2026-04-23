@@ -295,14 +295,12 @@ GlobalSpec : TOKEN_PORT             TOKEN_STRING
      }
    | TOKEN_LISTEN_TO        TOKEN_STRING
      {
-	if (!bind_to_set)
-	   if ($2.string[0] != '*' || $2.string[1] != '\0')
-	      bind_to = str_copy ($2.string);
+	if ($2.string[0] != '*' || $2.string[1] != '\0')
+	   bind_to = str_copy ($2.string);
      }
    | TOKEN_ADDRESS_FAMILY        TOKEN_NUMBER
      {
-	if (!dictd_address_family_set){
-	   if ($2 == 4)
+	if ($2 == 4)
 	      dictd_address_family = AF_INET;
 	   else if ($2 == 6)
 	      dictd_address_family = AF_INET6;
@@ -311,7 +309,6 @@ GlobalSpec : TOKEN_PORT             TOKEN_STRING
 	      exit(1);
 	   }
 	}
-     }
    | TOKEN_SYSLOG
      {
 	++useSyslog;

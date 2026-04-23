@@ -123,10 +123,8 @@ int syslog_facility_set; /* 1 if set by command line option */
 const char        *preprocessor = NULL;
 
 const char        *bind_to      = NULL;
-int bind_to_set; /* 1 if set by command line option */
 
 int dictd_address_family              = AF_UNSPEC;
-int dictd_address_family_set;
 
 /* information about dict server, i.e.
    text returned by SHOW SERVER command
@@ -1647,7 +1645,6 @@ int main (int argc, char **argv, char **envp)
 			case 518: preprocessor = str_copy(optarg);         break;
 			case 519:
 				bind_to     = str_copy(optarg);
-				bind_to_set = 1;
 				break;
 			case 521:
 				pidFile     = str_copy(optarg);
@@ -1665,8 +1662,6 @@ int main (int argc, char **argv, char **envp)
 					fprintf(stderr, "incorrect value for option --address-family\n");
 					exit(1);
 				}
-
-				dictd_address_family_set = 1;
 				break;
 			case 'h':
 			default:  help(); exit(0);                          break;
@@ -1774,11 +1769,7 @@ int main (int argc, char **argv, char **envp)
 	int sock_fds_len = 0;
 	int max_sock_fd = 0;
 
-	if (!dictd_address_family_set && !bind_to_set) { // listen to ipv4 and ipv6
-		sock_fds = net_open_tcp2( bind_to, daemon_service, depth, AF_UNSPEC, &sock_fds_len );
-	} else {
-		sock_fds = net_open_tcp2( bind_to, daemon_service, depth, dictd_address_family, &sock_fds_len );
-	}
+	sock_fds = net_open_tcp2( bind_to, daemon_service, depth, dictd_address_family, &sock_fds_len );
 
 	FD_ZERO(&master_set);
 	for (j = 0; j < sock_fds_len; ++j) {
