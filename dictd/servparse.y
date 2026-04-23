@@ -31,8 +31,8 @@
 
 #include <mkc_macro.h>
 
-extern void yyerror( const char *message );
-extern int yylex (void);
+void yyerror( const char *message );
+int yylex (void);
 
 #define YYDEBUG 1
 #define YYERROR_VERBOSE
@@ -57,6 +57,7 @@ static int string2bool (const char *str)
       src_parse_error( stderr, s.src, #field "already set" ); \
    db->field = t.string;                                      \
 } while(0);
+
 %}
 
 %union {
@@ -119,11 +120,6 @@ static int string2bool (const char *str)
 %type  <list>   DatabaseList Access AccessSpecList
 %type  <hash>   UserList
 %type  <token>  Global
-
-%code provides {
-  int yylex (void);
-  void yyerror (const char *);
-}
 
 %%
 
