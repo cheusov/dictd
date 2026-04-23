@@ -231,8 +231,8 @@ int * net_open_tcp2 (
 		if (af == NULL) af = "unknown";
 
 		err_fatal(__func__,
-		  "[tcp2] getaddrinfo(%s, %s, AF_UNSPEC) failed: %s (%d)\n",
-		  address, service, gai_strerror(rc), rc);
+		  "[tcp2] getaddrinfo(%s, %s, %s) failed: %s (%d)\n",
+		  address, service, af, gai_strerror(rc), rc);
 	}
 
 	int sock4 = -1, sock6 = -1;
