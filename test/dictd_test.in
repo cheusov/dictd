@@ -393,11 +393,13 @@ daemon_test() {
 
 daemon_test `pwd` cyrillic_1 cyrillic_nodetach_expect.out localhost ''
 daemon_test `pwd` cyrillic_1 cyrillic_nodetach_expect.out localhost '--address-family 4'
-daemon_test `pwd` cyrillic_1 cyrillic_nodetach_expect.out localhost '--address-family 6'
 daemon_test `pwd` cyrillic_1 cyrillic_nodetach_expect.out 127.0.0.1 ''
 daemon_test `pwd` cyrillic_1 cyrillic_nodetach_expect.out 127.0.0.1 '--address-family 4'
-daemon_test `pwd` cyrillic_1 cyrillic_nodetach_expect.out ::1 ''
-daemon_test `pwd` cyrillic_1 cyrillic_nodetach_expect.out ::1 '--address-family 6'
+if test -z "$DICTD_IGNORE_IPV6_TESTS"; then
+    daemon_test `pwd` cyrillic_1 cyrillic_nodetach_expect.out localhost '--address-family 6'
+    daemon_test `pwd` cyrillic_1 cyrillic_nodetach_expect.out ::1 ''
+    daemon_test `pwd` cyrillic_1 cyrillic_nodetach_expect.out ::1 '--address-family 6'
+fi
 
 #LC_ALL=C sort dictd_cyrillic_1_res.expected.txt \
 #            > dictd_cyrillic_2_res.expected.txt
