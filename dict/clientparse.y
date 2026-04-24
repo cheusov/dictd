@@ -22,8 +22,8 @@
 #include "dict.h"
 #include <string.h>
 
-extern int yylex(void);
-extern void yyerror(const char *);
+int yylex(void);
+void yyerror(const char *);
 
 #define YYDEBUG 1
 #define YYERROR_VERBOSE
@@ -42,11 +42,6 @@ static dictServer *s;
 
 %token <token>  TOKEN_STRING
 %type  <list>   Options Server ServerList
-
-%code provides {
-  int yylex (void);
-  void yyerror (const char *);
-}
 
 %%
 
