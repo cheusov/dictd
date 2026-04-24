@@ -387,8 +387,9 @@ inetd_test `pwd` cyrillic_1 cyrillic_1 \
 printf 'cyrillic_1 passed\n'
 
 daemon_test() {
+    printf "daemon test '%s' '%s' '%s'..." "$2" "$4" "$5"
     dictd_test_daemon "$@"
-    printf "daemon test '%s' '%s' '%s'  passed\n" "$2" "$4" "$5"
+    printf "passed\n"
 }
 
 daemon_test `pwd` cyrillic_1 cyrillic_nodetach_expect.out localhost ''
