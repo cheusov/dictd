@@ -392,7 +392,9 @@ daemon_test() {
     printf "passed\n"
 }
 
-daemon_test `pwd` cyrillic_1 cyrillic_nodetach_expect.out localhost ''
+if test -z "$DICTD_IGNORE_NO_ADDRESS_FAMILY_TESTS"; then
+    daemon_test `pwd` cyrillic_1 cyrillic_nodetach_expect.out localhost ''
+fi
 daemon_test `pwd` cyrillic_1 cyrillic_nodetach_expect.out localhost '--address-family 4'
 daemon_test `pwd` cyrillic_1 cyrillic_nodetach_expect.out 127.0.0.1 '--address-family 4'
 if test -z "$DICTD_IGNORE_IPV6_TESTS"; then
