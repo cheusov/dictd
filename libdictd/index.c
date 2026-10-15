@@ -1199,6 +1199,7 @@ static int dict_match(
 	memcpy(word_copy, word, word_len);
 	word_copy [word_len] = 0;
 	int ret = !regexec(re, word_copy, 0, NULL, eflags);
+	free(word_copy);
 	return ret;
 #endif
 }
