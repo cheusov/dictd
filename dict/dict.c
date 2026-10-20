@@ -1390,6 +1390,7 @@ int main( int argc, char **argv )
 	dict_error  = stderr;
 
 	maa_init(argv[0]);
+	log_stream("dict", stderr);
 
 	dbg_register( DBG_VERBOSE, "verbose" );
 	dbg_register( DBG_RAW,     "raw" );
