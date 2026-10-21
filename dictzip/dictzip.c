@@ -159,7 +159,8 @@ int dict_data_zip( const char *inFilename, const char *outFilename,
 	unsigned long total = 0;
 	int           i;
 	char          tail[8];
-	char          *pt, *origFilename;
+	const char    *pt;
+	char          *origFilename;
 
 	/* Open files */
 	if (!(inStr = fopen( inFilename, "r" )))
