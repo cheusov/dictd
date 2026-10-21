@@ -808,7 +808,7 @@ static int dict_search_prefix_first(
 	int skip_count,
 	int item_count)
 {
-	const char *pt   = dict_index_search( word, dbindex );
+	const char *pt   = dict_index_search(word, dbindex);
 	int        count = 0;
 	const char *previous = NULL;
 	int wordlen          = strlen(word);
