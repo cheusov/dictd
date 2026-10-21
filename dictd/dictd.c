@@ -989,7 +989,7 @@ static int init_database_short (const void *datum)
 	}
 
 	if (db->databaseShort){
-		NL = strchr(db->databaseShort, '\n');
+		NL = strchr(__UNCONST(db->databaseShort), '\n');
 		if (NL)
 			*NL = 0;
 	}
