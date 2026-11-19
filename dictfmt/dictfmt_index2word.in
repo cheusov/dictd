@@ -33,7 +33,7 @@ while [ $# != 0 ]; do
 done
 
 if test $BASH; then
-	exit_="echo \${PIPESTATUS[@]} | egrep '^0( 0)*$' >/dev/null"
+	exit_="echo \${PIPESTATUS[@]} | grep -E '^0( 0)*$' >/dev/null"
 else
 	exit_='exit $?'
 fi
