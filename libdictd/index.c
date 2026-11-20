@@ -23,7 +23,6 @@
 #include "data.h"
 #include "strategy.h"
 #include "str.h"
-#include "plugin.h"
 
 #include <sys/stat.h>
 
@@ -666,8 +665,6 @@ static dictWord *dict_word_create(
 		dw->end   = b64_decode_buf(entry + offs_length, offset - offs_length);
 	}
 
-	dw->def      = NULL;
-	dw->def_size = 0;
 	dw->database = database;
 
 	/* Apply quoting to word */
@@ -692,8 +689,7 @@ static int dict_dump_datum( const void *datum )
 	dictWord *dw = (dictWord *)__UNCONST(datum);
 	printf(
 		"\"%s\" %lu/%lu %p/%i\n",
-		dw->word, dw->start, dw->end,
-		dw->def, dw->def_size );
+		dw->word, dw->start, dw->end);
 
 	return 0;
 }
@@ -1634,8 +1630,6 @@ int dict_search_database_(
 		memset(dw, 0, sizeof(dictWord));
 
 		dw -> database = database;
-		dw -> def      = utf8_err_msg;
-		dw -> def_size = -1;
 		dw -> word     = strdup(word);
 
 		lst_append(l, dw);
@@ -1704,7 +1698,6 @@ int dict_search_database_(
 			break;
 
 		default:
-			/* plugins may support unusual search strategies */
 			ret = 0;
 	}
 
@@ -1745,19 +1738,11 @@ int dict_search(
 	const char *const word,
 	const dictDatabase *database,
 	int strategy,
-	int option_mime,
-	int *extra_result,
-	const dictPluginData **extra_data,
-	int *extra_data_size)
+	int option_mime)
 {
 	int count = 0;
 
 	int norm_strategy = strategy & ~DICT_MATCH_MASK;
-
-#ifdef USE_PLUGIN
-	if (extra_result)
-		*extra_result = DICT_PLUGIN_RESULT_NOTFOUND;
-#endif
 
 	assert(word);
 	assert(database);
@@ -1787,18 +1772,6 @@ int dict_search(
 		count = dict_search_database_(l, word, database, strategy);
 	}
 
-#ifdef USE_PLUGIN
-	if (!count && database -> plugin){
-		PRINTF(DBG_SEARCH, (":S:   plugin search\n"));
-		count = dict_search_plugin (
-			l, word, database, strategy,
-			extra_result, extra_data, extra_data_size);
-
-		if (count)
-			return count;
-	}
-#endif
-
 	if (!count && database -> virtual_db_list){
 		lst_Position db_list_pos;
 		dictDatabase *db = NULL;
@@ -1807,9 +1780,7 @@ int dict_search(
 		assert(lst_init_position(database -> virtual_db_list));
 
 		LST_ITERATE(database -> virtual_db_list, db_list_pos, db){
-			count += dict_search(
-				l, word, db, strategy, option_mime,
-				extra_result, extra_data, extra_data_size);
+			count += dict_search(l, word, db, strategy, option_mime);
 		}
 
 		if (count > old_count){
@@ -1825,9 +1796,7 @@ int dict_search(
 		count += dict_search(
 			l, word,
 			(option_mime ? database -> mime_mimeDB :
-			 database -> mime_nomimeDB),
-			strategy, 0,
-			extra_result, extra_data, extra_data_size);
+			 database -> mime_nomimeDB), strategy, 0);
 
 		if (count > old_count){
 			replace_invisible_databases(
@@ -1835,11 +1804,6 @@ int dict_search(
 				database);
 		}
 	}
-
-#ifdef USE_PLUGIN
-	if (count > 0 && extra_result)
-		*extra_result = DICT_PLUGIN_RESULT_FOUND;
-#endif
 
 	return count;
 }

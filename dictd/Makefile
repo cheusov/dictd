@@ -14,19 +14,12 @@ DPSRCS =	servparse.h servparse.c
 
 USE_DBDIR ?=	${DATADIR}/dictd
 
-.ifdef USE_PLUGIN
-SRCS     +=	plugin.c
-CPPFLAGS +=	-DUSE_PLUGIN=1
-MKC_FEATURES +=	libdl
-.endif
-
 INFILES =	dictd.8
 INTEXTS_REPLS+=	DICT_DICTIONARY_PATH ${USE_DBDIR:Q}
 
 YHEADER =	1
 
-CPPFLAGS +=	-I${SRCTOP}/dictdplugins/include -I${SRCDIR_libdictd} \
-   -I${SRCDIR_dictd} -I${SRCDIR_libcommon}
+CPPFLAGS +=	-I${SRCDIR_libdictd} -I${SRCDIR_dictd} -I${SRCDIR_libcommon}
 
 CFLAGS.check +=	-Wno-error=unused-function \
    -Wno-error=unused-const-variable -Wno-error=format-truncation

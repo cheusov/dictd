@@ -23,9 +23,7 @@
 #include "defs.h"
 
 /*
-  The following mask is added to the search strategy
-  and passed to plugin
-  if search type is 'match'
+  The following mask is added to the search strategy if search type is 'match'
  */
 #define DICT_MATCH_MASK 0x8000
 

@@ -20,10 +20,6 @@
 #ifndef _DEFS_H_
 #define _DEFS_H_
 
-#ifdef USE_PLUGIN
-#include "dictdplugin.h"
-#endif
-
 #include <limits.h>
 #include <zlib.h>
 #include <maa.h>
@@ -58,16 +54,6 @@
 #define DICT_FLAG_ALPHABET       DICT_ENTRY_PREFIX"-alphabet"
 #define DICT_FLAG_DEFAULT_STRAT  DICT_ENTRY_PREFIX"-default-strategy"
 #define DICT_FLAG_MIME_HEADER    DICT_ENTRY_PREFIX"-mime-header"
-
-#define DICT_ENTRY_PLUGIN        DICT_ENTRY_PREFIX"-plugin"
-#define DICT_ENTRY_PLUGIN_DATA   DICT_ENTRY_PREFIX"-plugin-data"
-
-#define DICT_PLUGINFUN_OPEN      "dictdb_open"
-#define DICT_PLUGINFUN_ERROR     "dictdb_error"
-#define DICT_PLUGINFUN_FREE      "dictdb_free"
-#define DICT_PLUGINFUN_SEARCH    "dictdb_search"
-#define DICT_PLUGINFUN_CLOSE     "dictdb_close"
-#define DICT_PLUGINFUN_SET       "dictdb_set"
 
 /* End of configurable things */
 
@@ -153,23 +139,6 @@ typedef struct dictData {
 	dictCache     cache[DICT_CACHE_SIZE];
 } dictData;
 
-typedef struct dictPlugin {
-	void *      data;
-
-#ifdef USE_PLUGIN
-	void *handle;
-
-	dictdb_open_type   dictdb_open;
-	dictdb_set_type    dictdb_set;
-	dictdb_search_type dictdb_search;
-	dictdb_free_type   dictdb_free;
-	dictdb_error_type  dictdb_error;
-	dictdb_close_type  dictdb_close;
-
-	char dictdb_free_called; /* 1 after dictdb_free call */
-#endif
-} dictPlugin;
-
 typedef struct dictIndex {
 	int           fd;		 /* file descriptor */
 	const char    *start;	 /* start of mmap'd area */
@@ -215,7 +184,6 @@ typedef struct dictDatabase {
 
 	int exit_db;      /* non-zero for dictionary_exit entry */
 	int virtual_db;   /* non-zero for virtual databases */
-	int plugin_db;    /* non-zero for plugin entry */
 	int normal_db;    /* non-zero for normal database */
 	int mime_db;      /* non-zero for MIME database */
 
@@ -225,11 +193,6 @@ typedef struct dictDatabase {
 
 	/* database_virtual members */
 	const char *database_list;  /* comma-separated list of database names */
-
-	/* database_plugin members */
-	const char *pluginFilename;
-	const char *plugin_data;    /* data for initializing plugin */
-	dictPlugin *plugin;
 
 	/* database_mime members */
 	const char *mime_mimeDbname;
@@ -266,10 +229,6 @@ typedef struct dictWord {
 
 	unsigned long start;
 	unsigned long end;
-
-	/* Used by plugins */
-	const char    *def;
-	int            def_size;
 } dictWord;
 
 typedef struct dictToken {

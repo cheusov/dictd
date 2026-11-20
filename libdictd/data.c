@@ -321,27 +321,12 @@ char *dict_data_obtain(const dictDatabase *db, const dictWord *dw)
 	if (!dw || !db)
 		return NULL;
 
-	if (dw -> def){
-		if (-1 == dw -> def_size){
-			len = strlen(dw -> def);
-		}else{
-			len = dw -> def_size;
-		}
+	assert(db);
+	assert(db -> data);
 
-		word_copy = xmalloc(2 + len);
-		memcpy(word_copy, dw -> def, len);
-		word_copy[len + 0] = '\n';
-		word_copy[len + 1] = 0;
-
-		return word_copy;
-	}else{
-		assert(db);
-		assert(db -> data);
-
-		return dict_data_read_(
-			db -> data, dw -> start, dw -> end,
-			db->prefilter, db->postfilter);
-	}
+	return dict_data_read_(
+		db -> data, dw -> start, dw -> end,
+		db->prefilter, db->postfilter);
 }
 
 char *dict_data_read_(

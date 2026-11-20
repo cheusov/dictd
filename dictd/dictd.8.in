@@ -380,18 +380,8 @@ or
 .I examples/dictd_complex.conf
 files from the distribution.
 .RE
-.TP
-.BI database_plugin " string " "{ " "plugin specification " "}"
-This section specifies the plugin.
-The
-.I string
-specifies the name of the database.
-.P
-.RS
 .B EXAMPLE:
 See
-.I examples/dictd_plugin_dbi.conf
-or
 .I examples/dictd_complex.conf
 files from the distribution.
 .RE
@@ -1002,7 +992,7 @@ database sections).
 .TP
 .BI disable_strategy " string"
 Disables the specified strategy for database.
-This may be useful for slow dictionaries (plugins)
+This may be useful for slow dictionaries
 or for dictionaries included to virtual ones.
 For an example see file examples/dictd_complex.conf.
 .TP
@@ -1043,19 +1033,6 @@ Disables the specified strategy for database.
 See
 .I database specification
 .RE
-.TP
-.B Plugin Specification
-.RS
-.TP
-.BI plugin " string"
-Specifies a filename of the plugin.
-.TP
-.BI data " string"
-Specifies data for initializing plugin.
-.TP
-.BI name " string"
-Specifies the short name of the database.
-See
 .I Database Specification
 for more information.
 .TP

@@ -28,10 +28,6 @@
 #include "data.h"
 #include "parse.h"
 
-#ifdef USE_PLUGIN
-#include "plugin.h"
-#endif
-
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/utsname.h>
@@ -427,11 +423,6 @@ static const char *postprocess_filename(const char *fn, const char *prefix)
 	}
 }
 
-const char *postprocess_plugin_filename(const char *fn)
-{
-	return postprocess_filename(fn, DICT_PLUGIN_PATH);
-}
-
 const char *postprocess_dict_filename(const char *fn)
 {
 	return postprocess_filename(fn, DICT_DICTIONARY_PATH);
@@ -447,7 +438,6 @@ static void postprocess_filenames(dictConfig *dc)
 		db -> indexFilename = postprocess_dict_filename(db -> indexFilename);
 		db -> indexsuffixFilename = postprocess_dict_filename(db -> indexsuffixFilename);
 		db -> indexwordFilename = postprocess_dict_filename(db -> indexwordFilename);
-		db -> pluginFilename = postprocess_plugin_filename(db -> pluginFilename);
 	}
 
 	site_info = postprocess_dict_filename(site_info);
@@ -577,14 +567,7 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
 	char     *pt, *buf;
 	size_t   len;
 
-	if (
-		0 >= dict_search(
-			list, entryName, db, DICT_STRAT_EXACT, 0,
-			NULL, NULL, NULL ))
-	{
-#ifdef USE_PLUGIN
-		call_dictdb_free(DictConfig->dbl);
-#endif
+	if (0 >= dict_search(list, entryName, db, DICT_STRAT_EXACT, 0)){
 		lst_destroy( list );
 		return NULL;
 	}
@@ -609,9 +592,6 @@ static const char *get_entry_info( dictDatabase *db, const char *entryName )
 	if (pt [len - 1] == '\n')
 		pt [len - 1] = '\0';
 
-#ifdef USE_PLUGIN
-	call_dictdb_free(DictConfig->dbl);
-#endif
 	dict_destroy_list( list );
 
 	pt = xstrdup(pt);
@@ -692,9 +672,7 @@ static int init_virtual_db_list(const void *datum)
 			return 0;
 
 		list = lst_create();
-		ret = dict_search(
-			list, DICT_FLAG_VIRTUAL, db, DICT_STRAT_EXACT, 0,
-			NULL, NULL, NULL);
+		ret = dict_search(list, DICT_FLAG_VIRTUAL, db, DICT_STRAT_EXACT, 0);
 
 		switch (ret){
 			case 1: case 2:
@@ -761,16 +739,6 @@ static int init_mime_db_list (const void *datum)
 			"MIME database '%s' has no nomime_dbname keyword\n",
 			db -> databaseName);
 	}
-
-	return 0;
-}
-
-static int init_plugin( const void *datum )
-{
-#ifdef USE_PLUGIN
-	const dictDatabase *db = (const dictDatabase *)datum;
-	dict_plugin_init(db);
-#endif
 
 	return 0;
 }
@@ -1000,16 +968,6 @@ static int init_database_short (const void *datum)
 	return 0;
 }
 
-static int close_plugin(const void *datum)
-{
-#ifdef USE_PLUGIN
-	const dictDatabase *db = (const dictDatabase *)datum;
-	dict_plugin_destroy (db);
-#endif
-
-	return 0;
-}
-
 static int close_database(const void *datum)
 {
 	const dictDatabase  *db = (const dictDatabase *)datum;
@@ -1031,8 +989,6 @@ static int close_database(const void *datum)
 		xfree(__UNCONST(db -> indexwordFilename));
 	if (db -> indexsuffixFilename)
 		xfree(__UNCONST(db -> indexsuffixFilename));
-	if (db -> pluginFilename)
-		xfree(__UNCONST(db -> pluginFilename));
 	if (db -> strategy_disabled)
 		xfree(__UNCONST(db -> strategy_disabled));
 	if (db -> alphabet)
@@ -1099,7 +1055,6 @@ static void dict_init_databases( dictConfig *c )
 	make_dictexit_invisible(c);
 
 	lst_iterate( c->dbl, init_database );
-	lst_iterate( c->dbl, init_plugin );
 	lst_iterate( c->dbl, init_virtual_db_list );
 	lst_iterate( c->dbl, init_mime_db_list );
 	lst_iterate( c->dbl, init_database_short );
@@ -1122,7 +1077,6 @@ static void dict_close_databases(dictConfig *c)
 			if (db -> virtual_db_list)
 				lst_destroy(db -> virtual_db_list);
 
-			close_plugin(db);
 			close_database(db);
 			xfree(db);
 		}
@@ -1371,19 +1325,6 @@ static void sanity(const char *confFile)
 					e->databaseName);
 				++fail;
 			}
-			if (e->plugin_db && !e->pluginFilename){
-				log_info(
-					":E: plugin filename is not specified for dictionary '%s'\n",
-					e->databaseName);
-				++fail;
-			}
-#ifndef USE_PLUGIN
-			if (e -> plugin_db){
-				log_info(
-					":E: plugin support was disabled at compile time\n");
-				++fail;
-			}
-#endif
 		}
 	}
 	if (fail) {

@@ -110,8 +110,6 @@ invisible                   RETURN(TOKEN_INVISIBLE);
 database_virtual            RETURN(TOKEN_DATABASE_VIRTUAL);
 info                        RETURN(TOKEN_INFO);
 database_list               RETURN(TOKEN_DATABASE_LIST);
-database_plugin             RETURN(TOKEN_DATABASE_PLUGIN);
-plugin                      RETURN(TOKEN_PLUGIN);
 disable_strategy            RETURN(TOKEN_DISABLE_STRAT);
 default_strategy            RETURN(TOKEN_DEFAULT_STRAT);
 

@@ -83,7 +83,6 @@ static int string2bool (const char *str)
 %token <token> TOKEN_STRING
 %token <token> TOKEN_INVISIBLE TOKEN_DISABLE_STRAT
 %token <token> TOKEN_DATABASE_VIRTUAL TOKEN_DATABASE_LIST
-%token <token> TOKEN_DATABASE_PLUGIN TOKEN_PLUGIN
 %token <token> TOKEN_DATABASE_MIME
 %token <token> TOKEN_DEFAULT_STRAT
 %token <token> TOKEN_GLOBAL
@@ -412,15 +411,6 @@ Database : TOKEN_DATABASE TOKEN_STRING
 	   }
            '{' SpecList_virtual '}' { $$ = db; }
            |
-           TOKEN_DATABASE_PLUGIN TOKEN_STRING
-           {
-	      db = xmalloc(sizeof(struct dictDatabase));
-	      memset( db, 0, sizeof(struct dictDatabase));
-	      db->databaseName = $2.string;
-	      db->plugin_db    = 1;
-	   }
-           '{' SpecList_plugin '}' { $$ = db; }
-           |
            TOKEN_DATABASE_MIME TOKEN_STRING
 	   {
 	      db = xmalloc (sizeof (struct dictDatabase));
@@ -453,10 +443,6 @@ Spec_virtual : Spec__name
      | Spec__access
      ;
 
-SpecList_plugin : Spec_plugin
-         | SpecList_plugin Spec_plugin
-         ;
-
 SpecList_mime : Spec_mime
          | SpecList_mime Spec_mime
          ;
@@ -465,16 +451,6 @@ Spec_mime : Spec__name
      | Spec__info
      | Spec__dbname_mime
      | Spec__dbname_nomime
-     | Spec__invisible
-     | Spec__disable_strat
-     | Spec__default_strat
-     | Spec__access
-     ;
-
-Spec_plugin : Spec__name
-     | Spec__info
-     | TOKEN_PLUGIN TOKEN_STRING      { SET(pluginFilename,$1,$2);}
-     | TOKEN_DATA TOKEN_STRING        { SET(plugin_data,$1,$2);}
      | Spec__invisible
      | Spec__disable_strat
      | Spec__default_strat

@@ -80,11 +80,6 @@ extern int dictd_address_family_set;
 
 extern void       dict_disable_strat (dictDatabase *db, const char* strat);
 
-#ifdef USE_PLUGIN
-extern int        dict_plugin_open (dictDatabase *db);
-extern void       dict_plugin_close (dictDatabase *db);
-#endif
-
 /* dictd.c */
 
 extern void set_minimal (void);
@@ -106,11 +101,6 @@ extern       int   inetd;    /* 1 if --inetd is applied, 0 otherwise */
   it is prepended with DICT_DIR
 */
 extern const char *postprocess_dict_filename (const char *fn);
-/*
-  If the filename doesn't start with / or .,
-  it is prepended with PLUGIN_DIR
-*/
-extern const char *postprocess_plugin_filename (const char *fn);
 
 /* daemon.c */
 

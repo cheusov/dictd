@@ -4,12 +4,7 @@ LIBDEPS +=	libcommon:dictfmt
 LIBDEPS +=	libdictd:dictd libcommon:dictd
 LIBDEPS +=	libdictd:dictzip
 
-.ifdef USE_PLUGIN
-SUBPRJ  +=	dictdplugins/include:libdictd
-SUBPRJ  +=	dictdplugins/dictdplugin_judy dictdplugins/dictdplugin_dbi
-SUBPRJ_DFLT +=	dictdplugins/dictdplugin_judy dictdplugins/dictdplugin_dbi
-.endif
-SUBPRJ  +=	colorit dictl dict_lookup
+SUBPRJ  +=	colorit dictd dictl dict_lookup
 
 SUBPRJ_DFLT +=	dict dictd dictfmt dictzip colorit dictl dict_lookup
 

@@ -17,7 +17,7 @@ YHEADER =		1
 DPSRCS =		clientparse.h clientparse.c
 clientscan.o: 		clientparse.h
 
-CPPFLAGS +=	-I${SRCDIR_dictdplugins_include:U.} -I${SRCDIR_libdictd} \
+CPPFLAGS +=	-I${SRCDIR_libdictd} \
    -I${SRCDIR_dictd} -I${SRCDIR_libcommon} -I${.CURDIR}
 
 CFLAGS.check +=	-Wno-error=unused-function \

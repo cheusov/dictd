@@ -23,8 +23,6 @@
 #include "data.h"
 #include "md5.h"
 #include "regex.h"
-#include "dictdplugin.h"
-#include "plugin.h"
 #include "defs.h"
 #include "strategy.h"
 
@@ -621,21 +619,18 @@ static int daemon_count_defs( lst_List list )
 	dictWord      *dw;
 	unsigned long previousStart = 0;
 	unsigned long previousEnd   = 0;
-	const char   *previousDef   = NULL;
 	int           count         = 0;
 
 	LST_ITERATE(list,p,dw) {
 		if (
 			previousStart == dw->start &&
-			previousEnd   == dw->end &&
-			previousDef   == dw->def)
+			previousEnd   == dw->end)
 		{
 			continue;
 		}
 
 		previousStart = dw->start;
 		previousEnd   = dw->end;
-		previousDef   = dw->def;
 
 		++count;
 	}
@@ -651,7 +646,6 @@ static void daemon_dump_defs( lst_List list )
 	const dictDatabase  *db_visible = NULL;
 	unsigned long previousStart = 0;
 	unsigned long previousEnd   = 0;
-	const char *  previousDef   = NULL;
 	int count;
 
 	LST_ITERATE(list,p,dw) {
@@ -659,15 +653,13 @@ static void daemon_dump_defs( lst_List list )
 
 		if (
 			previousStart == dw->start &&
-			previousEnd   == dw->end &&
-			previousDef   == dw->def)
+			previousEnd   == dw->end)
 		{
 			continue;
 		}
 
 		previousStart = dw->start;
 		previousEnd   = dw->end;
-		previousDef   = dw->def;
 
 		buf = dict_data_obtain( db, dw );
 
@@ -811,26 +803,17 @@ static void daemon_define( const char *cmdline, int argc, const char **argv )
 					   actual_matches );
 		daemon_dump_defs( list );
 		daemon_ok( CODE_OK, "ok", "c" );
-#ifdef USE_PLUGIN
-		call_dictdb_free(DictConfig->dbl);
-#endif
 		dict_destroy_list( list );
 		return;
 	}
 
 	if (!db_found) {
-#ifdef USE_PLUGIN
-		call_dictdb_free(DictConfig->dbl);
-#endif
 		dict_destroy_list( list );
 		daemon_printf( "%d invalid database, use SHOW DB for list\n",
 					   CODE_INVALID_DB );
 		return;
 	}
 
-#ifdef USE_PLUGIN
-	call_dictdb_free(DictConfig->dbl);
-#endif
 	dict_destroy_list( list );
 	daemon_log( DICT_LOG_NOMATCH,
 				"%s exact \"%s\"\n", databaseName, word );
@@ -890,26 +873,17 @@ static void daemon_match( const char *cmdline, int argc, const char **argv )
 					   CODE_MATCHES_FOUND, actual_matches );
 		daemon_dump_matches( list );
 		daemon_ok( CODE_OK, "ok", "c" );
-#ifdef USE_PLUGIN
-		call_dictdb_free(DictConfig->dbl);
-#endif
 		dict_destroy_list( list );
 		return;
 	}
 
 	if (!db_found) {
-#ifdef USE_PLUGIN
-		call_dictdb_free(DictConfig->dbl);
-#endif
 		dict_destroy_list( list );
 		daemon_printf( "%d invalid database, use SHOW DB for list\n",
 					   CODE_INVALID_DB );
 		return;
 	}
 
-#ifdef USE_PLUGIN
-	call_dictdb_free(DictConfig->dbl);
-#endif
 	dict_destroy_list( list );
 	daemon_log( DICT_LOG_NOMATCH,
 				"%s %s \"%s\"\n", databaseName, strategy, word );
@@ -999,8 +973,7 @@ static int dict_search_words(
 	lst_List word_list,
 	const dictDatabase *db,
 	int strategy,
-	int *error, int *result,
-	const dictPluginData **extra_result, int *extra_result_size)
+	int *error)
 {
 	lst_Position word_list_pos;
 	int mc = 0;
@@ -1012,17 +985,7 @@ static int dict_search_words(
 		word = lst_get_position(word_list_pos);
 
 		if (word){
-			matches_count = dict_search(
-				l, word, db, strategy,
-				daemonMime,
-				result, extra_result, extra_result_size);
-
-			if (*result == DICT_PLUGIN_RESULT_PREPROCESS){
-				assert(matches_count > 0);
-
-				xfree(lst_get_position(word_list_pos));
-				lst_set_position (word_list_pos, NULL);
-			}
+			matches_count = dict_search(l, word, db, strategy, daemonMime);
 
 			if (matches_count < 0){
 				*error = 1;
@@ -1052,15 +1015,8 @@ int dict_search_databases(
 
 
 	const dictDatabase *db;
-	dictWord *dw;
-	char *p;
 
 	lst_List preprocessed_words;
-	int i;
-
-	int                   result;
-	const dictPluginData *extra_result;
-	int                   extra_result_size;
 
 	*db_found = 0;
 
@@ -1077,50 +1033,20 @@ int dict_search_databases(
 
 		*db_found = 1;
 
-		result = DICT_PLUGIN_RESULT_NOTFOUND;
-
 		matches_count = dict_search_words(
-			l,
-			preprocessed_words, db, strategy,
-			&error,
-			&result, &extra_result, &extra_result_size);
+			l, preprocessed_words, db, strategy, &error);
 
 		if (matches < 0)
 			matches = 0;
 
-		if (result == DICT_PLUGIN_RESULT_PREPROCESS){
-			for (i=0; i < matches_count; ++i){
-				dw = lst_pop(l);
-				switch (dw -> def_size){
-					case -1:
-						p = xstrdup(dw -> word);
-						lst_append(preprocessed_words, p);
-						break;
-					case 0:
-						break;
-					default:
-						p = xmalloc(1 + dw -> def_size);
-						memcpy(p, dw -> def, dw -> def_size);
-						p [dw -> def_size] = 0;
+		matches += matches_count;
 
-						lst_append(preprocessed_words, p);
-				}
+		if (*databaseName == '*')
+			continue;
+		else if (!matches && *databaseName == '!')
+			continue;
 
-				dict_destroy_datum(dw);
-			}
-		}else{
-			matches += matches_count;
-
-			if (result == DICT_PLUGIN_RESULT_EXIT)
-				break;
-
-			if (*databaseName == '*')
-				continue;
-			else if (!matches && *databaseName == '!')
-				continue;
-
-			break;
-		}
+		break;
 	}
 
 	destroy_word_list(preprocessed_words);
@@ -1233,12 +1159,7 @@ void daemon_show_info(
 		if (db -> databaseInfo && db -> databaseInfo [0] == '@')
 			info_entry_name = db -> databaseInfo + 1;
 
-		if (dict_search(
-				list,
-				info_entry_name,
-				db, DICT_STRAT_EXACT, 0,
-				NULL, NULL, NULL))
-		{
+		if (dict_search(list, info_entry_name, db, DICT_STRAT_EXACT, 0)) {
 			int i=1;
 			int list_size = lst_length(list);
 
@@ -1259,10 +1180,6 @@ void daemon_show_info(
 
 				buf = dict_data_obtain( dw -> database, dw );
 
-#ifdef USE_PLUGIN
-				call_dictdb_free(DictConfig->dbl);
-#endif
-
 				if (buf)
 					daemon_text(buf, 0);
 			}
@@ -1274,10 +1191,6 @@ void daemon_show_info(
 
 			return;
 		} else {
-#ifdef USE_PLUGIN
-			call_dictdb_free(DictConfig->dbl);
-#endif
-
 			dict_destroy_list( list );
 			daemon_printf( "%d information for %s\n",
 						   CODE_DATABASE_INFO, argv[2] );

@@ -21,7 +21,6 @@
 #define _INDEX_H_
 
 #include "defs.h"
-#include "dictdplugin.h"
 
 /* init dictIndex structure (.index file) */
 extern dictIndex  *dict_index_open(
@@ -44,10 +43,7 @@ extern int dict_search (
 	lst_List l,
 	const char *word,
 	const dictDatabase *database, int strategy,
-	int option_mime,
-	int *extra_result,                  /* may be NULL */
-	const dictPluginData **extra_data,  /* may be NULL */
-	int *extra_data_size);              /* may be NULL */
+	int option_mime);              /* may be NULL */
 extern int dict_search_databases (
 	lst_List *l,
 	lst_Position db_pos,
