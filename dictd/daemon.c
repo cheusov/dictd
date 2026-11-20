@@ -51,6 +51,9 @@ static int          _dict_defines, _dict_matches;
 static int          daemonS_in  = 0;
 static int          daemonS_out = 1;
 static const char   *daemonHostname  = NULL;
+static int          daemonHostnameResolved = 1;
+static struct sockaddr_storage daemonCsin;
+static socklen_t    daemonCsinLen = 0;
 static const char   *daemonIP        = NULL;
 static int          daemonPort       = -1;
 static char         daemonStamp[256] = "";
@@ -344,6 +347,26 @@ static int daemon_check_range(const char *spec, const char *ip)
 	return DICT_NOMATCH;
 }
 
+/* Reverse DNS lookup of the client is slow when PTR record is absent,
+ * so do it only when a hostname based rule is going to be checked. */
+static int daemon_resolve_hostname(void)
+{
+	static char hostname[NI_MAXHOST];
+	static int  err = 0;
+
+	if (daemonHostnameResolved)
+		return err;
+	daemonHostnameResolved = 1;
+
+	err = getnameinfo((const struct sockaddr *)&daemonCsin, daemonCsinLen,
+					  hostname, NI_MAXHOST, NULL, 0, 0);
+	if (err)
+		log_info(":E: getnameinfo(3) failed: %s\n", gai_strerror(err));
+	else
+		daemonHostname = str_find(hostname);
+	return err;
+}
+
 static int daemon_check_wildcard(const char *spec, const char *ip)
 {
 	char         regbuf[256];
@@ -362,6 +385,11 @@ static int daemon_check_wildcard(const char *spec, const char *ip)
 		}
 	}
 	*d = '\0';
+	if (strspn(spec, "0123456789.*?") != strlen(spec)
+		&& daemon_resolve_hostname()) {
+		log_info(":E: cannot resolve the client hostname, %s denied\n", spec);
+		return DICT_DENY;	/* Err on the side of safety */
+	}
 	if ((err = regcomp(&re, regbuf, REG_ICASE|REG_NOSUB))) {
 		regerror(err, &re, erbuf, sizeof(erbuf));
 		log_info( ":E: regcomp(%s): %s\n", regbuf, erbuf );
@@ -1579,7 +1607,7 @@ int dict_daemon( int s, struct sockaddr_storage *csin, int error )
 	//   struct hostent *h;
 	int err = 0;
 	socklen_t csin_len;
-	static char hostname[NI_MAXHOST], service[NI_MAXSERV];
+	static char service[NI_MAXSERV];
 
 	if (setjmp(env)) return 0;
 
@@ -1592,8 +1620,8 @@ int dict_daemon( int s, struct sockaddr_storage *csin, int error )
 
 	//
 	err = getnameinfo ((const struct sockaddr *)csin, csin_len,
-					   hostname, NI_MAXHOST, service, NI_MAXSERV,
-					   NI_NUMERICSERV);
+					   NULL, 0, service, NI_MAXSERV,
+					   NI_NUMERICSERV | NI_NUMERICHOST);
 	if (err){
 		log_error(__func__, ":E: getnameinfo(3) failed: %s\n", gai_strerror(err));
 		exit(1);
@@ -1601,7 +1629,10 @@ int dict_daemon( int s, struct sockaddr_storage *csin, int error )
 
 	daemonPort = strtol(service, NULL, 10);
 	daemonIP = str_find(inet_ntopW((struct sockaddr *)csin));
-	daemonHostname = str_find(hostname);
+	daemonHostname = daemonIP;
+	memcpy(&daemonCsin, csin, csin_len);
+	daemonCsinLen = csin_len;
+	daemonHostnameResolved = 0;
 	daemonS_in = daemonS_out = s;
 
 	return _handleconn(error);
