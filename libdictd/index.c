@@ -687,9 +687,7 @@ static dictWord *dict_word_create(
 static int dict_dump_datum( const void *datum )
 {
 	dictWord *dw = (dictWord *)__UNCONST(datum);
-	printf(
-		"\"%s\" %lu/%lu %p/%i\n",
-		dw->word, dw->start, dw->end);
+	printf("\"%s\" %lu/%lu\n", dw->word, dw->start, dw->end);
 
 	return 0;
 }
